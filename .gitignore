@@ -1,0 +1,10 @@
+lib/*
+tmp/*
+doc/html
+Makefile
+src/Makefile
+.*.swp
+civetweb*
+*.pro.user
+.qmake.stash
+wget-log*

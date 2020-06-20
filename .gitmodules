@@ -1,0 +1,3 @@
+[submodule "hobrasofthttpd"]
+	path = hobrasofthttpd
+	url = ssh://git@dev.hobrasoft.cz/diffusion/HTTPD/hobrasofthttpd.git
