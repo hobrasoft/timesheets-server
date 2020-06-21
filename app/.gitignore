@@ -1,0 +1,6 @@
+.tmp/*
+doc/html
+Makefile
+.*.swp
+.qmake.stash
+wget-log*

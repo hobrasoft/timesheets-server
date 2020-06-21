@@ -27,6 +27,8 @@ void ControllerServer::serviceIdGet (HobrasoftHttpd::HttpRequest *request, Hobra
         QVariantMap data;
         data["version"]     = VERSION;
         data["configfile"]  = MSETTINGS->fileName();
+        data["name"]        = MSETTINGS->serverName();
+        data["description"] = MSETTINGS->serverDescription();
         serviceOK(request, response, data);
         return;
         }

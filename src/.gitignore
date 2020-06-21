@@ -1,0 +1,6 @@
+Makefile
+Makefile.*
+.tmp/*
+.*.swp
+android-libspedos.so-deployment-settings.json
+x
