@@ -14,12 +14,13 @@ equals(QT_MAJOR_VERSION, 4) {
 CONFIG -= stl
 CONFIG += qt warn_on thread
 
-QT += network
+QT += network sql
 QT -= gui
 
 include(../global.pri)
 include(../hobrasofthttpd/src/hobrasofthttpd.pri)
 include(security/security.pri)
+include(database/database.pri)
 include(httpd/httpd.pri)
 include(utils/utils.pri)
 include(src.pri)

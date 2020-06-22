@@ -9,6 +9,7 @@
 #include "pdebug.h"
 #include "logger.h"
 #include "mythread.h"
+#include "db.h"
 #include "httpd/httpd.h"
 #include "security/security.h"
 #include "security/guard.h"
@@ -79,8 +80,9 @@ void TimesheetServer::init() {
     PDEBUG << "Starting server";
 
     // tady start jednotlivych komponent
+    Db::Database::instance(this);
+
     /*
-    new Db::Databaze(this);
     MyThread::takeObject(this, "threadDataGroups",      Data::DataGroups::dataGroups(this));
     MyThread::takeObject(this, "threadDataSystems",     Data::DataSystems::dataSystems(this));
     MyThread::takeObject(this, "threadDataInvertors",   Data::DataInvertors::dataInvertors(this));
