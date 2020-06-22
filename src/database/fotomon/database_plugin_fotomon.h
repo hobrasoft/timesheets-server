@@ -29,6 +29,7 @@ class DatabasePluginFotomon : public Db::Plugins::DatabasePlugin {
     void setPassword(const QString& x) override { m_password = x; }
   
     QList<Dbt::Users>                       authenticate(const QString& login, const QString& password) override;
+    QList<Dbt::Categories>                  categories() override;
 
     bool    open() override; 
     bool    close() override;
@@ -41,6 +42,9 @@ class DatabasePluginFotomon : public Db::Plugins::DatabasePlugin {
     int         m_port;
     QString     m_username;
     QString     m_password;
+    QString     m_lang;
+
+    static int  m_user;
 
 };
 

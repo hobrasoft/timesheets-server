@@ -15,3 +15,12 @@ QVariantMap Users::toMap() const {
     return data;
 }
 
+
+QVariantMap Categories::toMap() const {
+    QVariantMap data;
+    data["category"] = category;
+    data["parent_category"] = parent_category;
+    data["abbreviation"] = abbreviation;
+    data["description"] = description;
+    return data;
+}

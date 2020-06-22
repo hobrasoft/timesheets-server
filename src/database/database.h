@@ -10,7 +10,7 @@
 #include <QVariant>
 #include "dbt.h"
 
-#define DB Db::Database::instance(this)
+#define DB Db::Database::create(this)
 
 namespace Db {
 
@@ -37,6 +37,7 @@ class Database : public QObject {
     QString     connectionName() const;
 
     QList<Dbt::Users>                       authenticate(const QString& user, const QString& password);
+    QList<Dbt::Categories>                  categories();
 
     void        begin();
     void        commit();

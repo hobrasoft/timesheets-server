@@ -34,6 +34,7 @@ class DatabasePlugin : public QObject {
     virtual QString connectionName() const;
 
     virtual QList<Dbt::Users>                       authenticate(const QString& user, const QString& password) = 0;
+    virtual QList<Dbt::Categories>                  categories() = 0;
 
 
   protected:

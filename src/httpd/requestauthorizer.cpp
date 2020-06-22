@@ -54,8 +54,8 @@ bool RequestAuthorizer::isLoggedIn(HobrasoftHttpd::HttpRequest *request, Hobraso
     QString user     = session.value("user").toString();
     QString password = session.value("password").toString();
 
-    QList<Dbt::Users> ulist = DB->create(this)->authenticate(user, password);
-    PDEBUG << user << password << "ulist.isEmpty()" << ulist.isEmpty();
+    QList<Dbt::Users> ulist = DB->authenticate(user, password);
+    // PDEBUG << user << password << "ulist.isEmpty()" << ulist.isEmpty();
     if (ulist.isEmpty()) {
         response->setStatus(401, "Unauthorized");
         response->flush();
@@ -75,7 +75,7 @@ bool RequestAuthorizer::isLoggedIn(HobrasoftHttpd::HttpRequest *request, Hobraso
         response->setHeader("Cache-Control", "no-cache,public");
         response->write(JSON::json(data));
         response->flush();
-        return false;
+        return true;
         }
 
     m_user = session.value("user").toString();

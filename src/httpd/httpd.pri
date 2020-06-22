@@ -3,9 +3,11 @@ DEPENDPATH  += $$PWD
 
 SOURCES += \
  $$PWD/controllerserver.cpp \
+ $$PWD/controllercategories.cpp \
 
 HEADERS += \
  $$PWD/controllerserver.h \
+ $$PWD/controllercategories.h \
 
 HEADERS += \
  $$PWD/httpd.h \

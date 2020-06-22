@@ -116,3 +116,8 @@ QList<Dbt::Users> Database::authenticate(const QString& user, const QString& pas
 }
 
 
+QList<Dbt::Categories> Database::categories() {
+    return m_dbplugin->categories();
+}
+
+

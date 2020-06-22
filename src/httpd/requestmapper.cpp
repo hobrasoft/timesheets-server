@@ -18,6 +18,7 @@
 
 // nové API
 #include "controllerserver.h"
+#include "controllercategories.h"
 
 using namespace HobrasoftHttpd;
 using namespace Httpd;
@@ -57,6 +58,10 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
             return; \
             }
 
+    // Možné bez přihlášení
+    ROUTER("/api/v1/server/about", ControllerServer);
+
+    // Kontrola přihlášení
     if (!m_authorizer->isLoggedIn(request, response)) {
         return;
         }
@@ -76,6 +81,7 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
     /**
      * Po přihlášení zpracovává ostatní speciální požadavky (event streamy).
      */
+    ROUTER("/api/v1/categories",                       ControllerCategories);
     ROUTER("/api/v1/server",                           ControllerServer);
 
     /**
