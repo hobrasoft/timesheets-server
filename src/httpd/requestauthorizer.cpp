@@ -42,8 +42,11 @@ RequestAuthorizer::RequestAuthorizer(HobrasoftHttpd::HttpConnection *parent) : H
 bool RequestAuthorizer::isLoggedIn(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
     HttpSession session = SessionStore::sessionStore()->session(request, response);
 
-    if (request->path() == "/login.html") {
+    if (request->path() == "/unatuhenticate") {
         SessionStore::sessionStore()->remove(session);
+        response->setStatus(204, "OK");
+        response->flush();
+        return false;
         }
 
     if (!request->parameter("user").isEmpty() && !request->parameter("password").isEmpty()) {
@@ -75,7 +78,7 @@ bool RequestAuthorizer::isLoggedIn(HobrasoftHttpd::HttpRequest *request, Hobraso
         response->setHeader("Cache-Control", "no-cache,public");
         response->write(JSON::json(data));
         response->flush();
-        return true;
+        return false; // ano, false!
         }
 
     m_user = session.value("user").toString();

@@ -94,9 +94,10 @@ QList<Dbt::Categories> DatabasePluginFotomon::categories() {
     QList<Dbt::Categories> list;
     MSqlQuery q(m_db);
 
-    q.prepare("select type, abbreviation, formal_description->>':lang' from tickets_types;");
-    q.bindValue(":lang", m_lang);
+    q.prepare("select type, abbreviation, formal_description->>:lang from tickets_types;");
+    q.bindValue(":lang", m_lang);   
     q.exec();
+    PDEBUG << q.lastBoundQuery();
     while (q.next()) {
         int i=0;
         Dbt::Categories x;
@@ -106,9 +107,30 @@ QList<Dbt::Categories> DatabasePluginFotomon::categories() {
         list << x;
         }
 
+
     q.prepare("select distinct on (tt.type, s.system) tt.type, s.system, s.description "
             " from tickets_categories_types_systems tt, systems s "
             " where tt.system = s.system "
+            " and s.show_on_panel and s.show_on_web "
+            " and s.system in (select system from users_systems where \"user\" = :user); "
+            );
+    q.bindValue(":user", m_user);
+    q.exec();
+    while (q.next()) {
+        Dbt::Categories x;
+        x.category = QString(R"'({"type":%1,"system":%2})'")
+                .arg(q.value(0).toInt())
+                .arg(q.value(1).toInt())
+                ;
+        x.parent_category = QString(R"'({"type":%1}")'").arg(q.value(0).toInt());
+        x.description = q.value(2).toString();
+        list << x;
+        }
+
+    q.prepare("select tt.type, s.system, tc.category, tc.formal_description->>:lang "
+            " from tickets_categories_types_systems tt, systems s, tickets_categories tc "
+            " where tt.system = s.system "
+            " and tc.category = tt.category "
             " and s.show_on_panel and s.show_on_web "
             " and s.system in (select system from users_systems where \"user\" = :user); "
             );
@@ -117,14 +139,19 @@ QList<Dbt::Categories> DatabasePluginFotomon::categories() {
     q.exec();
     while (q.next()) {
         Dbt::Categories x;
-        x.category = QString("{type:%1,system:%2}")
+        x.category = QString(R"'({"type":%1,"system":%2,"category":%3})'")
+                .arg(q.value(0).toInt())
+                .arg(q.value(1).toInt())
+                .arg(q.value(2).toInt())
+                ;
+        x.parent_category = QString(R"'({"type":%1,"system":%2})'")
                 .arg(q.value(0).toInt())
                 .arg(q.value(1).toInt())
                 ;
-        x.description = q.value(2).toString();
-        x.parent_category = QString("{type:%1}").arg(q.value(0).toInt());
+        x.description = q.value(3).toString();
         list << x;
         }
+
 
     PDEBUG << "pocet kategorii" << list.size();
     return list;
