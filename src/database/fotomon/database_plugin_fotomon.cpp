@@ -28,7 +28,6 @@ DatabasePluginFotomon::DatabasePluginFotomon(QObject *parent) : Db::Plugins::Dat
 
 
 bool DatabasePluginFotomon::open() {
-    m_lang = "uk";
     m_db = QSqlDatabase::addDatabase("QPSQL", QUuid::createUuid().toString().toUtf8());
 
     m_db.setDatabaseName ( m_databasename );
@@ -88,70 +87,126 @@ QList<Dbt::Users> DatabasePluginFotomon::authenticate(const QString& login, cons
 }
 
 
-QList<Dbt::Categories> DatabasePluginFotomon::categories() {
-    PDEBUG;
-
-    QList<Dbt::Categories> list;
+void DatabasePluginFotomon::createCategoriesTemporaryTable() {
     MSqlQuery q(m_db);
 
-    q.prepare("select type, abbreviation, formal_description->>:lang from tickets_types;");
-    q.bindValue(":lang", m_lang);   
+    QString lang = "en";
+    q.prepare("select language from users where \"user\" = :user;");
+    q.bindValue(":user", m_user);
     q.exec();
-    PDEBUG << q.lastBoundQuery();
-    while (q.next()) {
-        int i=0;
-        Dbt::Categories x;
-        x.category = QString("{type:%1}").arg(q.value(i++).toInt());
-        x.abbreviation = q.value(i++).toString();
-        x.description = q.value(i++).toString();
-        list << x;
+    if (q.next()) {
+        lang = q.value(0).toString();
         }
 
+    q.exec("create temporary table timesheet_categories "
+            "(type int, system int, category int, description text, parent_type int)"
+            ";");
 
-    q.prepare("select distinct on (tt.type, s.system) tt.type, s.system, s.description "
+    // Vybere všechny typy knih
+    q.prepare("insert into timesheet_categories (type, system, category, description, parent_type) "
+            " select type, null, null, formal_description->>:lang, 1 "
+            " from tickets_types;");
+    q.bindValue(":lang", lang);   
+    q.exec();
+
+    // Vybere všechny kombinace záznamů typ-system
+    q.prepare("insert into timesheet_categories (type, system, category, description, parent_type) "
+            " select distinct on (tt.type, s.system) tt.type, s.system, null, s.description, 2 "
             " from tickets_categories_types_systems tt, systems s "
-            " where tt.system = s.system "
-            " and s.show_on_panel and s.show_on_web "
+            " where s.show_on_panel and s.show_on_web "
             " and s.system in (select system from users_systems where \"user\" = :user); "
             );
     q.bindValue(":user", m_user);
     q.exec();
-    while (q.next()) {
-        Dbt::Categories x;
-        x.category = QString(R"'({"type":%1,"system":%2})'")
-                .arg(q.value(0).toInt())
-                .arg(q.value(1).toInt())
-                ;
-        x.parent_category = QString(R"'({"type":%1}")'").arg(q.value(0).toInt());
-        x.description = q.value(2).toString();
-        list << x;
-        }
 
-    q.prepare("select tt.type, s.system, tc.category, tc.formal_description->>:lang "
+    // Vybere všechny kombinace záznamů typ-system-kategorie, kde EXISTUJE záznam typ-system
+    q.prepare("insert into timesheet_categories (type, system, category, description, parent_type) "
+            " select tt.type, s.system, tc.category, tc.formal_description->>:lang, 3 "
             " from tickets_categories_types_systems tt, systems s, tickets_categories tc "
             " where tt.system = s.system "
             " and tc.category = tt.category "
             " and s.show_on_panel and s.show_on_web "
             " and s.system in (select system from users_systems where \"user\" = :user); "
             );
-    q.bindValue(":lang", m_lang);
+    q.bindValue(":lang", lang);
     q.bindValue(":user", m_user);
     q.exec();
+
+    // Vybere všechny kombinace záznamů typ-system-kategorie, kde NEEXISTUJE záznam typ-system
+    q.prepare("insert into timesheet_categories (type, system, category, description, parent_type) "
+            " select tt.type, s.system, tc.category, s.description, 4 "
+            " from systems s, tickets_types tt, tickets_categories tc "
+            " where s.show_on_panel and s.show_on_web "
+            " and s.system in (select system from users_systems where \"user\" = :user) "
+            " and not exists (select 1 "
+            "       from tickets_categories_types_systems tcts "
+            "      where tcts.type = tt.type "
+            "        and tcts.system = s.system ); "
+            );
+    q.bindValue(":user", m_user);
+    q.exec();
+
+}
+
+
+QList<Dbt::Categories> DatabasePluginFotomon::categories() {
+    createCategoriesTemporaryTable();
+
+    QList<Dbt::Categories> list;
+    MSqlQuery q(m_db);
+
+    q.exec("select type, system, category, description, parent_type from timesheet_categories;");
     while (q.next()) {
         Dbt::Categories x;
-        x.category = QString(R"'({"type":%1,"system":%2,"category":%3})'")
-                .arg(q.value(0).toInt())
-                .arg(q.value(1).toInt())
-                .arg(q.value(2).toInt())
+        QVariant type = q.value(0);
+        QVariant system = q.value(1);
+        QVariant category = q.value(2);
+        QVariant description = q.value(3);
+        int parent_type = q.value(4).toInt();
+
+
+        if (parent_type == 1) { 
+            x.category = QString(R"'({"type":%1})'")
+                .arg(type.toInt())
                 ;
-        x.parent_category = QString(R"'({"type":%1,"system":%2})'")
-                .arg(q.value(0).toInt())
-                .arg(q.value(1).toInt())
+            x.parent_category = QString();
+            }
+
+        if (parent_type == 2) {
+            x.category = QString(R"'({"type":%1,"system":%2})'")
+                .arg(type.toInt())
+                .arg(system.toInt())
                 ;
-        x.description = q.value(3).toString();
+            x.parent_category = QString(R"'({"type":%1})'")
+                .arg(type.toInt())
+                ;
+            }
+
+        if (parent_type == 3) {
+            x.category = QString(R"'({"type":%1,"system":%2,"category":%3})'")
+                .arg(type.toInt())
+                .arg(system.toInt())
+                .arg(category.toInt())
+                ;
+            x.parent_category = QString(R"'({"type":%1,"system":%2})'")
+                .arg(type.toInt())
+                .arg(system.toInt())
+                ;
+            }
+
+        if (parent_type == 4) {
+            x.category = QString(R"'({"type":%1,"system":%2})'")
+                .arg(type.toInt())
+                .arg(system.toInt())
+                ;
+            x.parent_category = QString(R"'({"type":%1})'")
+                .arg(type.toInt())
+                ;
+            }
+
+        x.description = description.toString();
         list << x;
         }
-
 
     PDEBUG << "pocet kategorii" << list.size();
     return list;

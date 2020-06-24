@@ -40,7 +40,6 @@ struct Users {
 struct Categories {
     QString     category;           // primary key
     QString     parent_category;
-    QString     abbreviation;
     QString     description;
     QVariantMap toMap() const;
 };

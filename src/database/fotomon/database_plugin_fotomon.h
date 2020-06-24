@@ -37,6 +37,7 @@ class DatabasePluginFotomon : public Db::Plugins::DatabasePlugin {
     void    commit() override;
 
   private:
+    void        createCategoriesTemporaryTable();
     QString     m_databasename;
     QString     m_hostname;
     int         m_port;
