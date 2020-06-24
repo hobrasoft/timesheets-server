@@ -45,6 +45,22 @@ struct Categories {
 };
 
 
+struct StatusOrder {
+    QString     category;
+    QString     previous_status;
+    QString     next_status;
+    QVariantMap toMap() const;
+};
+
+
+struct Statuses {
+    QString     status;
+    QString     description;
+    QString     abbreviation;
+    QVariantMap toMap() const;
+};
+
+
 }
 
 #endif

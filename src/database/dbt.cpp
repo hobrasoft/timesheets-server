@@ -23,3 +23,23 @@ QVariantMap Categories::toMap() const {
     data["description"] = description;
     return data;
 }
+
+
+QVariantMap StatusOrder::toMap() const {
+    QVariantMap data;
+    data["category"] = category;
+    data["previous_status"] = previous_status;
+    data["next_status"] = next_status;
+    return data;
+};
+
+
+QVariantMap Statuses::toMap() const {
+    QVariantMap data;
+    data["status"] = status;
+    data["description"] = description;
+    data["abbreviation"] = abbreviation;
+    return data;
+};
+
+

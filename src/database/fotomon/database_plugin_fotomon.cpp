@@ -75,7 +75,6 @@ QList<Dbt::Users> DatabasePluginFotomon::authenticate(const QString& login, cons
     q.exec();
     while (q.next()) {
         int i=0;
-        PDEBUG << q.value(0).toString();
         Dbt::Users x;
         x.user          = q.value(i++).toInt();
         x.login         = q.value(i++).toString();
@@ -134,7 +133,7 @@ void DatabasePluginFotomon::createCategoriesTemporaryTable() {
 
     // Vybere všechny kombinace záznamů typ-system-kategorie, kde NEEXISTUJE záznam typ-system
     q.prepare("insert into timesheet_categories (type, system, category, description, parent_type) "
-            " select tt.type, s.system, tc.category, s.description, 4 "
+            " select tt.type, s.system, tc.category, tc.formal_description->>:lang, 4 "
             " from systems s, tickets_types tt, tickets_categories tc "
             " where s.show_on_panel and s.show_on_web "
             " and s.system in (select system from users_systems where \"user\" = :user) "
@@ -144,6 +143,7 @@ void DatabasePluginFotomon::createCategoriesTemporaryTable() {
             "        and tcts.system = s.system ); "
             );
     q.bindValue(":user", m_user);
+    q.bindValue(":lang", lang);
     q.exec();
 
 }
@@ -172,9 +172,10 @@ QString DatabasePluginFotomon::categoryKey(const QVariant& type, const QVariant&
         }
 
     if (parent_type == 4) {
-        return QString(R"'({"type":%1,"system":%2})'")
+        return QString(R"'({"type":%1,"system":%2,"category":%3})'")
             .arg(type.toInt())
             .arg(system.toInt())
+            .arg(category.toInt())
             ;
         }
 
@@ -183,6 +184,7 @@ QString DatabasePluginFotomon::categoryKey(const QVariant& type, const QVariant&
 
 
 QString DatabasePluginFotomon::parentCategoryKey(const QVariant& type, const QVariant& system, const QVariant& category, int parent_type) {
+    Q_UNUSED(category);
     if (parent_type == 1) { 
         return QString();
         }
@@ -201,14 +203,14 @@ QString DatabasePluginFotomon::parentCategoryKey(const QVariant& type, const QVa
         }
 
     if (parent_type == 4) {
-        return QString(R"'({"type":%1})'")
+        return QString(R"'({"type":%1,"system":%2})'")
             .arg(type.toInt())
+            .arg(system.toInt())
             ;
         }
 
     return QString();
 }
-
 
 
 QList<Dbt::Categories> DatabasePluginFotomon::categories() {
@@ -228,7 +230,7 @@ QList<Dbt::Categories> DatabasePluginFotomon::categories() {
 
         x.category          =       categoryKey(type, system, category, parent_type);
         x.parent_category   = parentCategoryKey(type, system, category, parent_type);
-        x.description = description.toString();
+        x.description       = description.toString();
         list << x;
         }
 
@@ -236,5 +238,68 @@ QList<Dbt::Categories> DatabasePluginFotomon::categories() {
     return list;
 }
 
+
+QList<Dbt::StatusOrder> DatabasePluginFotomon::statusOrder() {
+    createCategoriesTemporaryTable();
+
+    QList<Dbt::StatusOrder> list;
+    MSqlQuery q(m_db);
+
+    q.exec("select c.type, c.system, c.category, c.description, c.parent_type, "
+        " s.status_from, s.status_to "
+        " from timesheet_categories c, tickets_types_status s"
+        " where c.type = s.type "
+        ";");
+    while (q.next()) {
+        Dbt::StatusOrder x;
+        QVariant type = q.value(0);
+        QVariant system = q.value(1);
+        QVariant category = q.value(2);
+        QVariant description = q.value(3);
+        int parent_type = q.value(4).toInt();
+        QString status_from = q.value(5).toString();
+        QString status_to = q.value(6).toString();
+
+        x.previous_status   = status_from;
+        x.next_status       = status_to;
+        x.category          = categoryKey(type, system, category, parent_type);
+        list << x;
+        }
+
+    PDEBUG << "pocet prechodu" << list.size();
+    return list;
+
+}
+
+
+QList<Dbt::Statuses> DatabasePluginFotomon::statuses() {
+    QList<Dbt::Statuses> list;
+    MSqlQuery q(m_db);
+
+    QString lang = "en";
+    q.prepare("select language from users where \"user\" = :user;");
+    q.bindValue(":user", m_user);
+    q.exec();
+    if (q.next()) {
+        lang = q.value(0).toString();
+        }
+
+    q.prepare("select ts.status, ts.formal_description->>:lang, ts.abbreviation "
+        " from tickets_status ts "
+        ";");
+    q.bindValue(":lang", lang);   
+    q.exec();
+    while (q.next()) {
+        Dbt::Statuses x;
+        int i=0;
+        x.status = q.value(i++).toString();
+        x.description = q.value(i++).toString();
+        x.abbreviation = q.value(i++).toString();
+        list << x;
+        }
+
+    PDEBUG << "pocet statusu" << list.size();
+    return list;
+}
 
 

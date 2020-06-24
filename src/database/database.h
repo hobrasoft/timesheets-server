@@ -38,6 +38,8 @@ class Database : public QObject {
 
     QList<Dbt::Users>                       authenticate(const QString& user, const QString& password);
     QList<Dbt::Categories>                  categories();
+    QList<Dbt::StatusOrder>                 statusOrder();
+    QList<Dbt::Statuses>                    statuses();
 
     void        begin();
     void        commit();

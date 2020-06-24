@@ -19,6 +19,8 @@
 // nové API
 #include "controllerserver.h"
 #include "controllercategories.h"
+#include "controllerstatusorder.h"
+#include "controllerstatuses.h"
 
 using namespace HobrasoftHttpd;
 using namespace Httpd;
@@ -82,6 +84,8 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
      * Po přihlášení zpracovává ostatní speciální požadavky (event streamy).
      */
     ROUTER("/api/v1/categories",                       ControllerCategories);
+    ROUTER("/api/v1/statusorder",                      ControllerStatusOrder);
+    ROUTER("/api/v1/statuses",                         ControllerStatuses);
     ROUTER("/api/v1/server",                           ControllerServer);
 
     /**

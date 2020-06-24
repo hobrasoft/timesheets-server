@@ -30,6 +30,9 @@ class DatabasePluginFotomon : public Db::Plugins::DatabasePlugin {
   
     QList<Dbt::Users>                       authenticate(const QString& login, const QString& password) override;
     QList<Dbt::Categories>                  categories() override;
+    QList<Dbt::StatusOrder>                 statusOrder() override;
+    QList<Dbt::Statuses>                    statuses() override;
+
 
     bool    open() override; 
     bool    close() override;

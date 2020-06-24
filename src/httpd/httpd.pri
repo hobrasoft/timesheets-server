@@ -4,10 +4,14 @@ DEPENDPATH  += $$PWD
 SOURCES += \
  $$PWD/controllerserver.cpp \
  $$PWD/controllercategories.cpp \
+ $$PWD/controllerstatusorder.cpp \
+ $$PWD/controllerstatuses.cpp \
 
 HEADERS += \
  $$PWD/controllerserver.h \
  $$PWD/controllercategories.h \
+ $$PWD/controllerstatusorder.h \
+ $$PWD/controllerstatuses.h \
 
 HEADERS += \
  $$PWD/httpd.h \

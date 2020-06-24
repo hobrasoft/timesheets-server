@@ -121,3 +121,12 @@ QList<Dbt::Categories> Database::categories() {
 }
 
 
+QList<Dbt::StatusOrder> Database::statusOrder() {
+    return m_dbplugin->statusOrder();
+}
+
+
+QList<Dbt::Statuses> Database::statuses() {
+    return m_dbplugin->statuses();
+}
+
