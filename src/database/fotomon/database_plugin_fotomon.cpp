@@ -257,11 +257,9 @@ QList<Dbt::StatusOrder> DatabasePluginFotomon::statusOrder() {
         QVariant category = q.value(2);
         QVariant description = q.value(3);
         int parent_type = q.value(4).toInt();
-        QString status_from = q.value(5).toString();
-        QString status_to = q.value(6).toString();
 
-        x.previous_status   = status_from;
-        x.next_status       = status_to;
+        x.previous_status   = q.value(5);
+        x.next_status       = q.value(6);
         x.category          = categoryKey(type, system, category, parent_type);
         list << x;
         }
