@@ -21,7 +21,6 @@ Database::~Database() {
 
 
 Database::Database(QObject *parent) : QObject(parent) {
-    PDEBUG;
     if (m_instance == nullptr) {
         m_instance = this;
         }
@@ -35,7 +34,6 @@ Database::Database(QObject *parent) : QObject(parent) {
 
 
 bool Database::open() {
-    PDEBUG;
     QString plugin = MSETTINGS->dbPlugin();
 
     if (m_isOpen) {
@@ -64,13 +62,11 @@ bool Database::open() {
     bool rc = m_dbplugin->open();
     m_isOpen = rc;
     emit opened(rc);
-    PDEBUG << "isOpen" << m_isOpen;
     return rc;
 }
 
 
 Database *Database::instance(QObject *parent) {
-    PDEBUG;
     if (m_instance == nullptr) {
         Q_ASSERT(parent != nullptr);
         new Database(parent);
@@ -82,7 +78,6 @@ Database *Database::instance(QObject *parent) {
 
 
 Database *Database::create(QObject *parent) {
-    PDEBUG;
     Database *db = new Database(parent);
     return db;
 }

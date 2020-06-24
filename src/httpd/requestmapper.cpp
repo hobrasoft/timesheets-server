@@ -43,7 +43,7 @@ RequestMapper::~RequestMapper() {
 
 
 RequestMapper::RequestMapper(HobrasoftHttpd::HttpConnection *parent) : HobrasoftHttpd::HttpRequestHandler(parent) {
-    PDEBUG << parent->thread() << this->thread();
+    // PDEBUG << parent->thread() << this->thread();
     m_authorizer = new RequestAuthorizer(parent);
 }
 
