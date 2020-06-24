@@ -149,6 +149,68 @@ void DatabasePluginFotomon::createCategoriesTemporaryTable() {
 }
 
 
+QString DatabasePluginFotomon::categoryKey(const QVariant& type, const QVariant& system, const QVariant& category, int parent_type) {
+    if (parent_type == 1) { 
+        return QString(R"'({"type":%1})'")
+            .arg(type.toInt())
+            ;
+        }
+
+    if (parent_type == 2) {
+        return QString(R"'({"type":%1,"system":%2})'")
+            .arg(type.toInt())
+            .arg(system.toInt())
+            ;
+        }
+
+    if (parent_type == 3) {
+        return QString(R"'({"type":%1,"system":%2,"category":%3})'")
+            .arg(type.toInt())
+            .arg(system.toInt())
+            .arg(category.toInt())
+            ;
+        }
+
+    if (parent_type == 4) {
+        return QString(R"'({"type":%1,"system":%2})'")
+            .arg(type.toInt())
+            .arg(system.toInt())
+            ;
+        }
+
+    return QString();
+}
+
+
+QString DatabasePluginFotomon::parentCategoryKey(const QVariant& type, const QVariant& system, const QVariant& category, int parent_type) {
+    if (parent_type == 1) { 
+        return QString();
+        }
+
+    if (parent_type == 2) {
+        return QString(R"'({"type":%1})'")
+            .arg(type.toInt())
+            ;
+        }
+
+    if (parent_type == 3) {
+        return QString(R"'({"type":%1,"system":%2})'")
+            .arg(type.toInt())
+            .arg(system.toInt())
+            ;
+        }
+
+    if (parent_type == 4) {
+        return QString(R"'({"type":%1})'")
+            .arg(type.toInt())
+            ;
+        }
+
+    return QString();
+}
+
+
+
 QList<Dbt::Categories> DatabasePluginFotomon::categories() {
     createCategoriesTemporaryTable();
 
@@ -164,46 +226,8 @@ QList<Dbt::Categories> DatabasePluginFotomon::categories() {
         QVariant description = q.value(3);
         int parent_type = q.value(4).toInt();
 
-
-        if (parent_type == 1) { 
-            x.category = QString(R"'({"type":%1})'")
-                .arg(type.toInt())
-                ;
-            x.parent_category = QString();
-            }
-
-        if (parent_type == 2) {
-            x.category = QString(R"'({"type":%1,"system":%2})'")
-                .arg(type.toInt())
-                .arg(system.toInt())
-                ;
-            x.parent_category = QString(R"'({"type":%1})'")
-                .arg(type.toInt())
-                ;
-            }
-
-        if (parent_type == 3) {
-            x.category = QString(R"'({"type":%1,"system":%2,"category":%3})'")
-                .arg(type.toInt())
-                .arg(system.toInt())
-                .arg(category.toInt())
-                ;
-            x.parent_category = QString(R"'({"type":%1,"system":%2})'")
-                .arg(type.toInt())
-                .arg(system.toInt())
-                ;
-            }
-
-        if (parent_type == 4) {
-            x.category = QString(R"'({"type":%1,"system":%2})'")
-                .arg(type.toInt())
-                .arg(system.toInt())
-                ;
-            x.parent_category = QString(R"'({"type":%1})'")
-                .arg(type.toInt())
-                ;
-            }
-
+        x.category          =       categoryKey(type, system, category, parent_type);
+        x.parent_category   = parentCategoryKey(type, system, category, parent_type);
         x.description = description.toString();
         list << x;
         }

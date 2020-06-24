@@ -37,15 +37,18 @@ class DatabasePluginFotomon : public Db::Plugins::DatabasePlugin {
     void    commit() override;
 
   private:
-    void        createCategoriesTemporaryTable();
-    QString     m_databasename;
-    QString     m_hostname;
-    int         m_port;
-    QString     m_username;
-    QString     m_password;
-    QString     m_lang;
+    void            createCategoriesTemporaryTable();
+    static QString  parentCategoryKey(const QVariant& type, const QVariant& system, const QVariant& category, int parent_type);
+    static QString        categoryKey(const QVariant& type, const QVariant& system, const QVariant& category, int parent_type);
 
-    static int  m_user;
+
+    QString         m_databasename;
+    QString         m_hostname;
+    int             m_port;
+    QString         m_username;
+    QString         m_password;
+    QString         m_lang;
+    static int      m_user;
 
 };
 
