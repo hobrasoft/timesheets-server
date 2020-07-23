@@ -125,3 +125,8 @@ QList<Dbt::Statuses> Database::statuses() {
     return m_dbplugin->statuses();
 }
 
+
+QList<Dbt::Tickets> Database::tickets() {
+    return m_dbplugin->tickets();
+}
+

@@ -61,6 +61,25 @@ struct Statuses {
 };
 
 
+struct Tickets {
+    QVariant    ticket;
+    QVariant    category;
+    QVariant    date;
+    QVariant    price;
+    QString     description;
+    QVariant    rfid_read_id;
+    QVariant    rfid_read_text;
+    QVariant    rfid_written_id;
+    QVariant    rfid_written_text;
+    QVariant    qrcode_read;
+    QVariant    qrcode_added;
+    QVariant    gps_longitude;
+    QVariant    gps_latitude;
+
+    QVariantMap toMap() const;
+};
+
+
 }
 
 #endif

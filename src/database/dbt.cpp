@@ -43,3 +43,24 @@ QVariantMap Statuses::toMap() const {
 };
 
 
+QVariantMap Tickets::toMap() const {
+    QVariantMap data;
+
+    data["ticket"] = ticket;
+    data["category"] = category;
+    data["date"] = date;
+    data["price"] = price;
+    data["description"] = description;
+    data["rfid_read_id"] = rfid_read_id;
+    data["rfid_read_text"] = rfid_read_text;
+    data["rfid_written_id"] = rfid_written_id;
+    data["rfid_written_text"] = rfid_written_text;
+    data["qrcode_read"] = qrcode_read;
+    data["qrcode_added"] = qrcode_added;
+    data["gps_longitude"] = gps_longitude;
+    data["gps_latitude"] = gps_latitude;
+
+    return data;
+};
+
+

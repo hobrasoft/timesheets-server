@@ -301,3 +301,52 @@ QList<Dbt::Statuses> DatabasePluginFotomon::statuses() {
 }
 
 
+QList<Dbt::Tickets> DatabasePluginFotomon::tickets() {
+    PDEBUG;
+    QList<Dbt::Tickets> list;
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        with
+        ending_status as (
+            select distinct  t1.type, t1.status_to as status from tickets_types_status t1, tickets_status ts  where t1.status_to = ts.status and ts.closed
+            ),
+        tickets_last_status as (
+            select t.ticket, t.type, tl.status
+                from tickets t
+                left join lateral (select tn.ticket, tn.status from tickets_notes tn where tn.ticket = t.ticket order by ticket, date desc limit 1) tl using (ticket)
+            ),
+        closed_tickets as (
+            select distinct ts.ticket from tickets_last_status ts, ending_status es where ts.status = es.status and ts.type = es.type
+            ),
+        active_tickets as (
+            select t1.ticket from tickets t1 where t1.ticket not in (select ticket from closed_tickets)
+            ),
+        users_systems as (
+            select us.system from users_systems us, users u where u."user" = us."user" and u."user" = :user and u.is_active and not u.is_deleted
+            )
+
+        select ticket, type, system, category, description, date from tickets
+            where ticket in (select ticket from active_tickets)
+              and system in (select system from users_systems)
+            ;
+        )'");
+    q.bindValue(":user", m_user);
+    q.exec();
+    while (q.next()) {
+        Dbt::Tickets x;
+        int i=0;
+        x.ticket = q.value(i++);
+        QVariant type = q.value(i++);
+        QVariant system = q.value(i++);
+        QVariant category = q.value(i++);
+        x.category = categoryKey(type, system, category, 3);
+        x.description = q.value(i++).toString();
+        x.date = q.value(i++).toDateTime();
+        list << x;
+        }
+    return list;
+}
+
+
+

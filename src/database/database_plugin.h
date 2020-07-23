@@ -37,6 +37,7 @@ class DatabasePlugin : public QObject {
     virtual QList<Dbt::Categories>                  categories() = 0;
     virtual QList<Dbt::StatusOrder>                 statusOrder() = 0;
     virtual QList<Dbt::Statuses>                    statuses() = 0;
+    virtual QList<Dbt::Tickets>                     tickets() = 0;
 
 
 
