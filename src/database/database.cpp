@@ -137,3 +137,8 @@ QList<Dbt::Tickets> Database::tickets() {
     return m_dbplugin->tickets();
 }
 
+
+QList<Dbt::TicketStatus> Database::ticketStatus() {
+    return m_dbplugin->ticketStatus();
+}
+

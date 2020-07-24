@@ -33,6 +33,7 @@ class DatabasePluginFotomon : public Db::Plugins::DatabasePlugin {
     QList<Dbt::StatusOrder>                 statusOrder() override;
     QList<Dbt::Statuses>                    statuses() override;
     QList<Dbt::Tickets>                     tickets() override;
+    QList<Dbt::TicketStatus>                ticketStatus() override;
 
 
     bool    open() override; 

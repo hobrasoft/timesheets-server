@@ -263,7 +263,7 @@ QList<Dbt::Statuses> DatabasePluginFotomon::statuses() {
     QList<Dbt::Statuses> list;
     MSqlQuery q(m_db);
 
-    q.prepare("select ts.status, ts.formal_description->>:lang, ts.abbreviation "
+    q.prepare("select ts.status, ts.formal_description->>:lang, ts.abbreviation, ts.color "
         " from tickets_status ts "
         ";");
     q.bindValue(":lang", userLang());   
@@ -274,6 +274,7 @@ QList<Dbt::Statuses> DatabasePluginFotomon::statuses() {
         x.status = q.value(i++).toString();
         x.description = q.value(i++).toString();
         x.abbreviation = q.value(i++).toString();
+        x.color = q.value(i++).toString();
         list << x;
         }
 
@@ -304,7 +305,13 @@ QList<Dbt::Tickets> DatabasePluginFotomon::tickets() {
             select t1.ticket from tickets t1 where t1.ticket not in (select ticket from closed_tickets)
             ),
         users_systems as (
-            select us.system from users_systems us, users u where u."user" = us."user" and u."user" = :user and u.is_active and not u.is_deleted
+            select us.system 
+                from users_systems us, users u, systems s
+                where u."user" = :user 
+                  and u."user" = us."user"
+                  and us.system = s.system
+                  and s.show_on_web and s.show_on_panel
+                  and u.is_active and not u.is_deleted
             )
 
         select ticket, type, system, category, date, case when description = '' then formal_description->0->'description'->>:lang else description end as description
@@ -316,7 +323,6 @@ QList<Dbt::Tickets> DatabasePluginFotomon::tickets() {
     q.bindValue(":user", userId());
     q.bindValue(":lang", userLang());   
     q.exec();
-    PDEBUG << "sssssssssssssssssssssssssssssssss" << userId() << userLang();
     while (q.next()) {
         Dbt::Tickets x;
         int i=0;
@@ -331,6 +337,67 @@ QList<Dbt::Tickets> DatabasePluginFotomon::tickets() {
         }
     return list;
 }
+
+
+QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus() {
+    PDEBUG;
+    QList<Dbt::TicketStatus> list;
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        with
+        ending_status as (
+            select distinct  t1.type, t1.status_to as status from tickets_types_status t1, tickets_status ts  where t1.status_to = ts.status and ts.closed
+            ),
+        tickets_last_status as (
+            select t.ticket, t.type, tl.status
+                from tickets t
+                left join lateral (select tn.ticket, tn.status from tickets_notes tn where tn.ticket = t.ticket order by ticket, date desc limit 1) tl using (ticket)
+            ),
+        closed_tickets as (
+            select distinct ts.ticket from tickets_last_status ts, ending_status es where ts.status = es.status and ts.type = es.type
+            ),
+        active_tickets as (
+            select t1.ticket from tickets t1 where t1.ticket not in (select ticket from closed_tickets)
+            ),
+        users_systems as (
+            select us.system 
+                from users_systems us, users u, systems s
+                where u."user" = :user 
+                  and u."user" = us."user"
+                  and us.system = s.system
+                  and s.show_on_web and s.show_on_panel
+                  and u.is_active and not u.is_deleted
+            )
+
+        select tn.note, tn.ticket, t."user", u.name as user_name, tn.date, tn.status,
+                case when tn.description != '' then tn.description else tn.formal_description->0->'description'->>'cs' end as description
+            from tickets_notes tn
+            left join tickets t on (t.ticket = tn.ticket)
+            left join users u on (tn."user" = u."user")
+            where t.ticket in (select ticket from active_tickets)
+              and t.system in (select system from users_systems)
+            ;
+        )'");
+    q.bindValue(":user", userId());
+    q.bindValue(":lang", userLang());   
+    q.exec();
+    while (q.next()) {
+        Dbt::TicketStatus x;
+        int i=0;
+        x.note          = q.value(i++);
+        x.ticket        = q.value(i++);
+        x.user          = q.value(i++);
+        x.user_name     = q.value(i++).toString();
+        x.date          = q.value(i++).toDateTime();
+        x.status        = q.value(i++);
+        x.description   = q.value(i++).toString();
+        list << x;
+        }
+    return list;
+}
+
+
 
 
 

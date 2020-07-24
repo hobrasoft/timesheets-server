@@ -42,6 +42,7 @@ class Database : public QObject {
     QList<Dbt::StatusOrder>                 statusOrder();
     QList<Dbt::Statuses>                    statuses();
     QList<Dbt::Tickets>                     tickets();
+    QList<Dbt::TicketStatus>                ticketStatus();
 
     void        begin();
     void        commit();

@@ -31,7 +31,7 @@ QVariantMap StatusOrder::toMap() const {
     data["previous_status"] = previous_status;
     data["next_status"] = next_status;
     return data;
-};
+}
 
 
 QVariantMap Statuses::toMap() const {
@@ -39,8 +39,9 @@ QVariantMap Statuses::toMap() const {
     data["status"] = status;
     data["description"] = description;
     data["abbreviation"] = abbreviation;
+    data["color"] = color;
     return data;
-};
+}
 
 
 QVariantMap Tickets::toMap() const {
@@ -61,6 +62,20 @@ QVariantMap Tickets::toMap() const {
     data["gps_latitude"] = gps_latitude;
 
     return data;
-};
+}
 
+
+QVariantMap TicketStatus::toMap() const {
+    QVariantMap data;
+
+    data["note"] = note;
+    data["ticket"] = ticket;
+    data["user"] = user;
+    data["user_name"] = user_name;
+    data["date"] =   date;   
+    data["description"] = description;
+    data["status"] = status;
+
+    return data;
+}
 

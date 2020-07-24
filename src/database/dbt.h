@@ -58,6 +58,7 @@ struct Statuses {
     QString     status;
     QString     description;
     QString     abbreviation;
+    QString     color;
     QVariantMap toMap() const;
 };
 
@@ -76,6 +77,19 @@ struct Tickets {
     QVariant    qrcode_added;
     QVariant    gps_longitude;
     QVariant    gps_latitude;
+
+    QVariantMap toMap() const;
+};
+
+
+struct TicketStatus {
+    QVariant    note;
+    QVariant    ticket;
+    QVariant    user;
+    QString     user_name;
+    QDateTime   date;   
+    QString     description;
+    QVariant    status;
 
     QVariantMap toMap() const;
 };
