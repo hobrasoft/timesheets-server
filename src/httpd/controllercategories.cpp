@@ -15,7 +15,7 @@ ControllerCategories::ControllerCategories(HobrasoftHttpd::HttpConnection *paren
 
 
 void ControllerCategories::serviceList (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
-    serviceOK(request, response, toList(DB->categories()));
+    serviceOK(request, response, toList(db()->categories()));
 }
 
 

@@ -14,6 +14,7 @@
 #include "httprequesthandler.h"
 #include "security/roles.h"
 #include "security/permissions.h"
+#include "authenticateduser.h"
 
 namespace HobrasoftHttpd {
 class HttpRequestHandler;
@@ -65,13 +66,15 @@ class RequestAuthorizer : public HobrasoftHttpd::HttpRequestHandler {
      */
     Security::Roles::Role role() const;
 
+    AuthenticatedUser *authenticatedUser() const { return m_authenticatedUser; }
+
   protected:
 
   private:
     QString     m_adminuser;      ///< Uživatelské jméno pro přihlášení, bere se z konfigurace
     QString     m_adminpassword;  ///< Uživatelské heslo pro přihlášení, bere se z konfigurace 
     bool        m_authorize;      ///< Jestli se má přihlašovat, bere se z konfigurace
-    QString     m_user;           ///< Uživatelské jméno skutečně přihlášené
+    AuthenticatedUser *m_authenticatedUser;
 
 };
 

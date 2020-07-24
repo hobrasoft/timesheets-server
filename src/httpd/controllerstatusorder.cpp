@@ -15,7 +15,7 @@ ControllerStatusOrder::ControllerStatusOrder(HobrasoftHttpd::HttpConnection *par
 
 
 void ControllerStatusOrder::serviceList (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
-    serviceOK(request, response, toList(DB->statusOrder()));
+    serviceOK(request, response, toList(db()->statusOrder()));
 }
 
 

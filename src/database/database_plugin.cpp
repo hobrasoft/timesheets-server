@@ -20,3 +20,25 @@ QString DatabasePlugin::connectionName() const {
 }
 
 
+
+int DatabasePlugin::userId() const {
+    return (m_authenticatedUser != nullptr) ? m_authenticatedUser->user() : 0;
+}
+
+
+bool DatabasePlugin::userAuthenticated() const {
+    return (m_authenticatedUser != nullptr) ? m_authenticatedUser->authenticated() : false;
+}
+
+QString DatabasePlugin::userLogin() const {
+    return (m_authenticatedUser != nullptr) ? m_authenticatedUser->login() : QString();
+}
+
+
+QString DatabasePlugin::userLang() const {
+    return (m_authenticatedUser != nullptr) ? m_authenticatedUser->lang() : QString();
+}
+
+
+
+

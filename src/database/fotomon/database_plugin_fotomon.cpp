@@ -14,8 +14,6 @@
 using namespace Db::Plugins;
 
 
-int DatabasePluginFotomon::m_user = 0; 
-
 DatabasePluginFotomon::~DatabasePluginFotomon() {
     close();
 }
@@ -65,11 +63,10 @@ void DatabasePluginFotomon::commit() {
 
   
 QList<Dbt::Users> DatabasePluginFotomon::authenticate(const QString& login, const QString& password) {
-    m_user = 0;
     QString md5 = QString::fromUtf8(QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Md5).toHex());
     QList<Dbt::Users> list;
     MSqlQuery q(m_db);
-    q.prepare("select \"user\", login, name from users where login = :login and password = :password and is_active and not is_deleted;");
+    q.prepare("select \"user\", login, name, language from users where login = :login and password = :password and is_active and not is_deleted;");
     q.bindValue(":login", login);
     q.bindValue(":password", md5);
     q.exec();
@@ -79,7 +76,7 @@ QList<Dbt::Users> DatabasePluginFotomon::authenticate(const QString& login, cons
         x.user          = q.value(i++).toInt();
         x.login         = q.value(i++).toString();
         x.name          = q.value(i++).toString();
-        m_user = x.user;
+        x.lang          = q.value(i++).toString();
         list << x;
         }
     return list;
@@ -89,14 +86,6 @@ QList<Dbt::Users> DatabasePluginFotomon::authenticate(const QString& login, cons
 void DatabasePluginFotomon::createCategoriesTemporaryTable() {
     MSqlQuery q(m_db);
 
-    QString lang = "en";
-    q.prepare("select language from users where \"user\" = :user;");
-    q.bindValue(":user", m_user);
-    q.exec();
-    if (q.next()) {
-        lang = q.value(0).toString();
-        }
-
     q.exec("create temporary table timesheet_categories "
             "(type int, system int, category int, description text, parent_type int)"
             ";");
@@ -105,7 +94,7 @@ void DatabasePluginFotomon::createCategoriesTemporaryTable() {
     q.prepare("insert into timesheet_categories (type, system, category, description, parent_type) "
             " select type, null, null, formal_description->>:lang, 1 "
             " from tickets_types;");
-    q.bindValue(":lang", lang);   
+    q.bindValue(":lang", userLang());   
     q.exec();
 
     // Vybere všechny kombinace záznamů typ-system
@@ -115,7 +104,7 @@ void DatabasePluginFotomon::createCategoriesTemporaryTable() {
             " where s.show_on_panel and s.show_on_web "
             " and s.system in (select system from users_systems where \"user\" = :user); "
             );
-    q.bindValue(":user", m_user);
+    q.bindValue(":user", userId());
     q.exec();
 
     // Vybere všechny kombinace záznamů typ-system-kategorie, kde EXISTUJE záznam typ-system
@@ -127,8 +116,8 @@ void DatabasePluginFotomon::createCategoriesTemporaryTable() {
             " and s.show_on_panel and s.show_on_web "
             " and s.system in (select system from users_systems where \"user\" = :user); "
             );
-    q.bindValue(":lang", lang);
-    q.bindValue(":user", m_user);
+    q.bindValue(":lang", userLang());
+    q.bindValue(":user", userId());
     q.exec();
 
     // Vybere všechny kombinace záznamů typ-system-kategorie, kde NEEXISTUJE záznam typ-system
@@ -142,8 +131,8 @@ void DatabasePluginFotomon::createCategoriesTemporaryTable() {
             "      where tcts.type = tt.type "
             "        and tcts.system = s.system ); "
             );
-    q.bindValue(":user", m_user);
-    q.bindValue(":lang", lang);
+    q.bindValue(":user", userId());
+    q.bindValue(":lang", userLang());
     q.exec();
 
 }
@@ -274,18 +263,10 @@ QList<Dbt::Statuses> DatabasePluginFotomon::statuses() {
     QList<Dbt::Statuses> list;
     MSqlQuery q(m_db);
 
-    QString lang = "en";
-    q.prepare("select language from users where \"user\" = :user;");
-    q.bindValue(":user", m_user);
-    q.exec();
-    if (q.next()) {
-        lang = q.value(0).toString();
-        }
-
     q.prepare("select ts.status, ts.formal_description->>:lang, ts.abbreviation "
         " from tickets_status ts "
         ";");
-    q.bindValue(":lang", lang);   
+    q.bindValue(":lang", userLang());   
     q.exec();
     while (q.next()) {
         Dbt::Statuses x;
@@ -326,13 +307,16 @@ QList<Dbt::Tickets> DatabasePluginFotomon::tickets() {
             select us.system from users_systems us, users u where u."user" = us."user" and u."user" = :user and u.is_active and not u.is_deleted
             )
 
-        select ticket, type, system, category, description, date from tickets
+        select ticket, type, system, category, date, case when description = '' then formal_description->0->'description'->>:lang else description end as description
+            from tickets
             where ticket in (select ticket from active_tickets)
               and system in (select system from users_systems)
             ;
         )'");
-    q.bindValue(":user", m_user);
+    q.bindValue(":user", userId());
+    q.bindValue(":lang", userLang());   
     q.exec();
+    PDEBUG << "sssssssssssssssssssssssssssssssss" << userId() << userLang();
     while (q.next()) {
         Dbt::Tickets x;
         int i=0;
@@ -341,8 +325,8 @@ QList<Dbt::Tickets> DatabasePluginFotomon::tickets() {
         QVariant system = q.value(i++);
         QVariant category = q.value(i++);
         x.category = categoryKey(type, system, category, 3);
-        x.description = q.value(i++).toString();
         x.date = q.value(i++).toDateTime();
+        x.description = q.value(i++).toString();
         list << x;
         }
     return list;

@@ -8,9 +8,9 @@
 
 #include <QObject>
 #include <QVariant>
+#include "authenticateduser.h"
 #include "dbt.h"
 
-#define DB Db::Database::create(this)
 
 namespace Db {
 
@@ -33,6 +33,7 @@ class Database : public QObject {
    ~Database();
     static Database *instance(QObject *parent = nullptr);
     static Database *create(QObject *parent);
+    static Database *create(QObject *parent, const AuthenticatedUser *u);
     bool isOpen() const { return m_isOpen; }
     QString     connectionName() const;
 

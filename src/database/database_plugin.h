@@ -9,6 +9,7 @@
 #include <QSqlDatabase>
 #include <QObject>
 #include "dbt.h"
+#include "authenticateduser.h"
 
 namespace Db {
 namespace Plugins {
@@ -20,6 +21,8 @@ class DatabasePlugin : public QObject {
     Q_OBJECT
   public:
     DatabasePlugin(QObject *);
+
+    void setAuthenticatedUser(const AuthenticatedUser *x) { m_authenticatedUser = x; }
 
     virtual void setDatabaseName(const QString&) = 0;
     virtual void setHostname(const QString&) = 0;
@@ -40,11 +43,19 @@ class DatabasePlugin : public QObject {
     virtual QList<Dbt::Tickets>                     tickets() = 0;
 
 
+  protected:
+    int     userId() const;
+    bool    userAuthenticated() const;
+    QString userLogin() const;
+    QString userLang() const;
 
   protected:
     // virtual QVariant    lastInsertRowId(const QString& sequence_name = QString(), Db::MSqlQuery *q = NULL) = 0;
     // virtual QString     formatLimitOffset(int limit, int offset) const = 0;
     QSqlDatabase m_db;
+
+  public:
+    const AuthenticatedUser *m_authenticatedUser;
 
 
 };

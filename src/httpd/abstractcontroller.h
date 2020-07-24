@@ -12,7 +12,10 @@
 #include <QVariant>
 #include <QVariantMap>
 #include "httprequesthandler.h"
+#include "requestauthorizer.h"
 #include "security/permissions.h"
+#include "authenticateduser.h"
+#include "db.h"
 
 namespace HobrasoftHttpd {
 class HttpRequestHandler;
@@ -147,10 +150,14 @@ class AbstractController : public HobrasoftHttpd::HttpRequestHandler {
 
     void setAuthorizer(RequestAuthorizer *authorizer) { m_authorizer = authorizer; }
 
+    AuthenticatedUser *authenticatedUser() const { return m_authorizer->authenticatedUser(); }
+
     /**
      * @brief Vrací stav kontroly položky ID v datech při PUT a POST
      */
     bool checkId() const { return m_checkId; }
+
+    Db::Database *db();
 
   protected:
 

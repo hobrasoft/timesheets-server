@@ -48,11 +48,10 @@ class DatabasePluginFotomon : public Db::Plugins::DatabasePlugin {
 
     QString         m_databasename;
     QString         m_hostname;
-    int             m_port;
     QString         m_username;
     QString         m_password;
-    QString         m_lang;
-    static int      m_user;
+    int             m_port;
+
 
 };
 

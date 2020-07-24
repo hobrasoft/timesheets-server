@@ -83,6 +83,13 @@ Database *Database::create(QObject *parent) {
 }
 
 
+Database *Database::create(QObject *parent, const AuthenticatedUser *user) {
+    Database *db = new Database(parent);
+    db->m_dbplugin->setAuthenticatedUser(user);
+    return db;
+}
+
+
 void Database::close() {
     if (m_dbplugin != nullptr) {
         m_dbplugin->close();

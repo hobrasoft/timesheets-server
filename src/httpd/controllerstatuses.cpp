@@ -15,7 +15,7 @@ ControllerStatuses::ControllerStatuses(HobrasoftHttpd::HttpConnection *parent) :
 
 
 void ControllerStatuses::serviceList (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
-    serviceOK(request, response, toList(DB->statuses()));
+    serviceOK(request, response, toList(db()->statuses()));
 }
 
 

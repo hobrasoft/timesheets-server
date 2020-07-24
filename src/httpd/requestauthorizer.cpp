@@ -14,7 +14,6 @@
 #include "sessionstore.h"
 #include "security/guard.h"
 #include "security/roles.h"
-#include "db.h"
 #include "json.h"
 #include "pdebug.h"
 
@@ -36,6 +35,7 @@ using namespace Httpd;
 
 
 RequestAuthorizer::RequestAuthorizer(HobrasoftHttpd::HttpConnection *parent) : HobrasoftHttpd::HttpRequestHandler(parent) {
+    m_authenticatedUser = nullptr;
 }
 
 
@@ -57,11 +57,12 @@ bool RequestAuthorizer::isLoggedIn(HobrasoftHttpd::HttpRequest *request, Hobraso
     QString user     = session.value("user").toString();
     QString password = session.value("password").toString();
 
-    QList<Dbt::Users> ulist = DB->authenticate(user, password);
-    // PDEBUG << user << password << "ulist.isEmpty()" << ulist.isEmpty();
-    if (ulist.isEmpty()) {
+    m_authenticatedUser = new AuthenticatedUser(this);
+
+    if (!m_authenticatedUser->authenticate(user, password)) {
         response->setStatus(401, "Unauthorized");
         response->flush();
+        m_authenticatedUser->setAuthenticated(false);
         return false;
         }
 
@@ -69,9 +70,9 @@ bool RequestAuthorizer::isLoggedIn(HobrasoftHttpd::HttpRequest *request, Hobraso
         session.add("user", user);
         session.add("password", password);
         QVariantMap data;
-        data["userid"] = ulist[0].user;
-        data["username"] = ulist[0].login;
-        data["name"] = ulist[0].name;
+        data["userid"] =   m_authenticatedUser->user();
+        data["username"] = m_authenticatedUser->login();
+        data["name"] =     m_authenticatedUser->name();
         data["role"] = "Spravuje fše";
         response->setStatus(200, "OK");
         response->setHeader("Content-Type",  "application/json");
@@ -80,8 +81,6 @@ bool RequestAuthorizer::isLoggedIn(HobrasoftHttpd::HttpRequest *request, Hobraso
         response->flush();
         return false; // ano, false!
         }
-
-    m_user = session.value("user").toString();
 
     return true;
 

@@ -24,6 +24,13 @@ AbstractController::AbstractController(HobrasoftHttpd::HttpConnection *parent) :
 }
 
 
+Db::Database *AbstractController::db() {
+    return (authenticatedUser() != nullptr) 
+        ? Db::Database::create(this, authenticatedUser())
+        : Db::Database::create(this);
+}
+
+
 HobrasoftHttpd::HttpRequest *AbstractController::request() const { 
     return m_request; 
 }

@@ -31,6 +31,7 @@ struct Users {
     int         user;
     QString     login;
     QString     name;
+    QString     lang;
     //
     Users() { user = 0; }
     QVariantMap toMap() const;

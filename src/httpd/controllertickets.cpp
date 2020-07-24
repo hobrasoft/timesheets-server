@@ -15,7 +15,7 @@ ControllerTickets::ControllerTickets(HobrasoftHttpd::HttpConnection *parent) : A
 
 
 void ControllerTickets::serviceList (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
-    serviceOK(request, response, toList(DB->tickets()));
+    serviceOK(request, response, toList(db()->tickets()));
 }
 
 
