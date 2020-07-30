@@ -1,0 +1,6 @@
+<RCC>
+<qresource prefix="/postgres">
+    <file>patch.000.sql</file>
+</qresource>
+</RCC>
+

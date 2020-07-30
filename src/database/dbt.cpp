@@ -21,6 +21,7 @@ QVariantMap Categories::toMap() const {
     data["category"] = category;
     data["parent_category"] = parent_category;
     data["description"] = description;
+    data["price"] = price;
     return data;
 }
 
@@ -52,14 +53,7 @@ QVariantMap Tickets::toMap() const {
     data["date"] = date;
     data["price"] = price;
     data["description"] = description;
-    data["rfid_read_id"] = rfid_read_id;
-    data["rfid_read_text"] = rfid_read_text;
-    data["rfid_written_id"] = rfid_written_id;
-    data["rfid_written_text"] = rfid_written_text;
-    data["qrcode_read"] = qrcode_read;
-    data["qrcode_added"] = qrcode_added;
-    data["gps_longitude"] = gps_longitude;
-    data["gps_latitude"] = gps_latitude;
+    data["user"] = user;
 
     return data;
 }
@@ -68,7 +62,7 @@ QVariantMap Tickets::toMap() const {
 QVariantMap TicketStatus::toMap() const {
     QVariantMap data;
 
-    data["note"] = note;
+    data["id"] = id;
     data["ticket"] = ticket;
     data["user"] = user;
     data["user_name"] = user_name;

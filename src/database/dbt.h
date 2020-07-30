@@ -42,7 +42,9 @@ struct Categories {
     QString     category;           // primary key
     QString     parent_category;
     QString     description;
+    double      price;
     QVariantMap toMap() const;
+    Categories() { price = 0; }
 };
 
 
@@ -66,24 +68,36 @@ struct Statuses {
 struct Tickets {
     QVariant    ticket;
     QVariant    category;
-    QVariant    date;
+    QDateTime   date;
     QVariant    price;
     QString     description;
-    QVariant    rfid_read_id;
-    QVariant    rfid_read_text;
-    QVariant    rfid_written_id;
-    QVariant    rfid_written_text;
-    QVariant    qrcode_read;
-    QVariant    qrcode_added;
-    QVariant    gps_longitude;
-    QVariant    gps_latitude;
+    int         user;
 
+    QVariantMap toMap() const;
+    Tickets() { user = 0; }
+};
+
+
+struct TicketFiles {
+    QVariant    id;
+    QVariant    ticket;
+    QString     type;
+    QByteArray  file;
+    QVariantMap toMap() const;
+};
+
+
+struct TicketValues {
+    QVariant    id;
+    QVariant    ticket;
+    QString     name;
+    QString     value;
     QVariantMap toMap() const;
 };
 
 
 struct TicketStatus {
-    QVariant    note;
+    QVariant    id;
     QVariant    ticket;
     QVariant    user;
     QString     user_name;
@@ -92,6 +106,24 @@ struct TicketStatus {
     QVariant    status;
 
     QVariantMap toMap() const;
+};
+
+
+struct TicketTimesheets {
+    QVariant    id;
+    QVariant    ticket;
+    QDateTime   date_from;
+    QDateTime   date_to;
+
+    QVariantMap toMap() const;
+};
+
+
+struct TicketsVw : Tickets {
+    QList<Dbt::TicketTimesheets> timesheets;
+    QList<Dbt::TicketStatus>     ticket;
+    QList<Dbt::TicketFiles>      files;
+    QList<Dbt::TicketValues>     values;
 };
 
 

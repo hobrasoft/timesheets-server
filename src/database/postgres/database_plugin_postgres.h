@@ -3,8 +3,8 @@
  * 
  * @author Petr Bravenec <petr.bravenec@hobrasoft.cz>
  */
-#ifndef _DatabasePluginFotomon_H_
-#define _DatabasePluginFotomon_H_
+#ifndef _DatabasePluginPostgres_H_
+#define _DatabasePluginPostgres_H_
 
 #include "database_plugin.h"
 #include "msqlquery.h"
@@ -16,11 +16,11 @@ namespace Plugins {
 /**
  * @brief
  */
-class DatabasePluginFotomon : public Db::Plugins::DatabasePlugin {
+class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     Q_OBJECT
   public:
-    DatabasePluginFotomon(QObject *);
-   ~DatabasePluginFotomon();
+    DatabasePluginPostgres(QObject *);
+   ~DatabasePluginPostgres();
 
     void setDatabaseName(const QString& x) override { m_databasename = x; }
     void setHostname(const QString& x) override { m_hostname = x; }
@@ -40,17 +40,16 @@ class DatabasePluginFotomon : public Db::Plugins::DatabasePlugin {
     QList<Dbt::TicketTimesheets>            ticketTimesheets(int ticket) override;
 
 
+    void    upgrade();
     bool    open() override; 
     bool    close() override;
     void    begin() override;
     void    commit() override;
 
+  protected:
+    void    createTemporaryTableTickets(int ticket);
+
   private:
-    void            createCategoriesTemporaryTable();
-    static QString  parentCategoryKey(const QVariant& type, const QVariant& system, const QVariant& category, int parent_type);
-    static QString        categoryKey(const QVariant& type, const QVariant& system, const QVariant& category, int parent_type);
-
-
     QString         m_databasename;
     QString         m_hostname;
     QString         m_username;

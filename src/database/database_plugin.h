@@ -9,6 +9,7 @@
 #include <QSqlDatabase>
 #include <QObject>
 #include "dbt.h"
+#include "database.h"
 #include "authenticateduser.h"
 
 namespace Db {
@@ -23,6 +24,7 @@ class DatabasePlugin : public QObject {
     DatabasePlugin(QObject *);
 
     void setAuthenticatedUser(const AuthenticatedUser *x) { m_authenticatedUser = x; }
+    void setFilter(Database::Filter x) { m_filter = x; }
 
     virtual void setDatabaseName(const QString&) = 0;
     virtual void setHostname(const QString&) = 0;
@@ -40,13 +42,18 @@ class DatabasePlugin : public QObject {
     virtual QList<Dbt::Categories>                  categories() = 0;
     virtual QList<Dbt::StatusOrder>                 statusOrder() = 0;
     virtual QList<Dbt::Statuses>                    statuses() = 0;
-    virtual QList<Dbt::Tickets>                     tickets() = 0;
-    virtual QList<Dbt::TicketStatus>                ticketStatus() = 0;
+    virtual QList<Dbt::Tickets>                     tickets(int ticket) = 0;
+    virtual QList<Dbt::TicketsVw>                   ticketsVw(int ticket) = 0;
+    virtual QList<Dbt::TicketStatus>                ticketStatus(int ticket) = 0;
+    virtual QList<Dbt::TicketValues>                ticketValues(int ticket) = 0;
+    virtual QList<Dbt::TicketFiles>                 ticketFiles(int ticket) = 0;
+    virtual QList<Dbt::TicketTimesheets>            ticketTimesheets(int ticket) = 0;
 
 
   protected:
     int     userId() const;
     bool    userAuthenticated() const;
+    Database::Filter    filter() const { return m_filter; }
     QString userLogin() const;
     QString userLang() const;
 
@@ -57,6 +64,7 @@ class DatabasePlugin : public QObject {
 
   public:
     const AuthenticatedUser *m_authenticatedUser;
+    Database::Filter    m_filter;
 
 
 };

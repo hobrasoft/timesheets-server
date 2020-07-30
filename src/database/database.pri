@@ -1,6 +1,7 @@
 INCLUDEPATH += $$PWD
 DEPENDPATH  += $$PWD
 
+include(postgres/postgres.pri)
 include(fotomon/fotomon.pri)
 
 SOURCES += \

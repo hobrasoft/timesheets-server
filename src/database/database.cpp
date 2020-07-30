@@ -7,6 +7,7 @@
 #include "database.h"
 #include "database_plugin.h"
 #include "database_plugin_fotomon.h"
+#include "database_plugin_postgres.h"
 #include "msettings.h"
 #include "pdebug.h"
 
@@ -25,6 +26,7 @@ Database::Database(QObject *parent) : QObject(parent) {
         m_instance = this;
         }
 
+    m_filter = All;
     m_isOpen = false;
     m_dbplugin = nullptr;;
     setObjectName(QString("Database %1").arg((quint64)QThread::currentThread()));
@@ -48,6 +50,10 @@ bool Database::open() {
         m_dbplugin = new Db::Plugins::DatabasePluginFotomon(this);
         }
 
+    if (plugin == "postgres") {
+        m_dbplugin = new Db::Plugins::DatabasePluginPostgres(this);
+        }
+
     if (m_dbplugin == nullptr) {
         PDEBUG << "m_dbplugin == nullptr";
         emit opened(false);
@@ -59,6 +65,7 @@ bool Database::open() {
     m_dbplugin->setPort         ( MSETTINGS->dbPort() );
     m_dbplugin->setUserName     ( MSETTINGS->dbUser() );
     m_dbplugin->setPassword     ( MSETTINGS->dbPassword() );
+    m_dbplugin->setFilter       ( m_filter );
     bool rc = m_dbplugin->open();
     m_isOpen = rc;
     emit opened(rc);
@@ -133,12 +140,32 @@ QList<Dbt::Statuses> Database::statuses() {
 }
 
 
-QList<Dbt::Tickets> Database::tickets() {
-    return m_dbplugin->tickets();
+QList<Dbt::Tickets> Database::tickets(int ticket) {
+    return m_dbplugin->tickets(ticket);
 }
 
 
-QList<Dbt::TicketStatus> Database::ticketStatus() {
-    return m_dbplugin->ticketStatus();
+QList<Dbt::TicketsVw> Database::ticketsVw(int ticket) {
+    return m_dbplugin->ticketsVw(ticket);
+}
+
+
+QList<Dbt::TicketStatus> Database::ticketStatus(int ticket) {
+    return m_dbplugin->ticketStatus(ticket);
+}
+
+
+QList<Dbt::TicketValues> Database::ticketValues(int ticket) {
+    return m_dbplugin->ticketValues(ticket);
+}
+
+
+QList<Dbt::TicketFiles> Database::ticketFiles(int ticket) {
+    return m_dbplugin->ticketFiles(ticket);
+}
+
+
+QList<Dbt::TicketTimesheets> Database::ticketTimesheets(int ticket) {
+    return m_dbplugin->ticketTimesheets(ticket);
 }
 

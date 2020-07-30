@@ -283,7 +283,7 @@ QList<Dbt::Statuses> DatabasePluginFotomon::statuses() {
 }
 
 
-QList<Dbt::Tickets> DatabasePluginFotomon::tickets() {
+QList<Dbt::Tickets> DatabasePluginFotomon::tickets(int ticket) {
     PDEBUG;
     QList<Dbt::Tickets> list;
     MSqlQuery q(m_db);
@@ -318,10 +318,13 @@ QList<Dbt::Tickets> DatabasePluginFotomon::tickets() {
             from tickets
             where ticket in (select ticket from active_tickets)
               and system in (select system from users_systems)
+              and (:ticket1 <= 0 or :ticket1 = ticket)
             ;
         )'");
     q.bindValue(":user", userId());
     q.bindValue(":lang", userLang());   
+    q.bindValue(":ticket1", ticket);
+    q.bindValue(":ticket2", ticket);
     q.exec();
     while (q.next()) {
         Dbt::Tickets x;
@@ -339,7 +342,7 @@ QList<Dbt::Tickets> DatabasePluginFotomon::tickets() {
 }
 
 
-QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus() {
+QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(int ticket) {
     PDEBUG;
     QList<Dbt::TicketStatus> list;
     MSqlQuery q(m_db);
@@ -377,15 +380,18 @@ QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus() {
             left join users u on (tn."user" = u."user")
             where t.ticket in (select ticket from active_tickets)
               and t.system in (select system from users_systems)
+              and (:ticket1 <= 0 or :ticket1 = ticket)
             ;
         )'");
     q.bindValue(":user", userId());
     q.bindValue(":lang", userLang());   
+    q.bindValue(":ticket1", ticket);
+    q.bindValue(":ticket2", ticket);
     q.exec();
     while (q.next()) {
         Dbt::TicketStatus x;
         int i=0;
-        x.note          = q.value(i++);
+        x.id            = q.value(i++);
         x.ticket        = q.value(i++);
         x.user          = q.value(i++);
         x.user_name     = q.value(i++).toString();
@@ -398,6 +404,28 @@ QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus() {
 }
 
 
+QList<Dbt::TicketsVw> DatabasePluginFotomon::ticketsVw(int ticket) {
+    QList<Dbt::TicketsVw> list;
+    return list;
+}
+
+
+QList<Dbt::TicketTimesheets> DatabasePluginFotomon::ticketTimesheets(int ticket) {
+    QList<Dbt::TicketTimesheets> list;
+    return list;
+}
+
+
+QList<Dbt::TicketFiles> DatabasePluginFotomon::ticketFiles(int ticket) {
+    QList<Dbt::TicketFiles> list;
+    return list;
+}
+
+
+QList<Dbt::TicketValues> DatabasePluginFotomon::ticketValues(int ticket) {
+    QList<Dbt::TicketValues> list;
+    return list;
+}
 
 
 
