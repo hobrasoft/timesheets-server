@@ -11,17 +11,20 @@ create rule version_no_insert as on insert to version
 
 
 create table users (
-   "user"       int primary key,
+   "user"       serial primary key,
     login       text,
     name        text,
     password    text,
     lang        text,
-    enabled     boolean
+    enabled     boolean,
+    admin       boolean
 );
 
 
+insert into users (login, name, password, lang, enabled, admin) values ('admin', 'Administrator', '21232f297a57a5a743894a0e4a801fc3', 'en', true, true);
+
 create table categories (
-    category        int primary key,
+    category        serial primary key,
     parent_category int references categories(category) on update cascade on delete cascade,
     description     text,
     price           numeric
@@ -46,13 +49,18 @@ create table statuses (
 create table status_order (
     category        int  references categories(category) on update cascade on delete cascade,
     previous_status text references statuses(status) on update cascade on delete cascade,
-    next_status     text references statuses(status) on update cascade on delete cascade,
-    primary key (category, previous_status, next_status)
+    next_status     text references statuses(status) on update cascade on delete cascade
 );
+
+create unique index status_order_null_index on status_order(previous_status, next_status)
+    where category is null;
+
+create unique index status_order_nontull_index on status_order(category, previous_status, next_status)
+    where category is not null;
 
 
 create table tickets (
-    ticket          int primary key,
+    ticket          serial primary key,
     category        int  references categories(category) on update cascade on delete cascade,
    "user"           int references users("user") on update set null on delete set null,
     date            timestamp with time zone not null default now(),
@@ -62,15 +70,15 @@ create table tickets (
 
 
 create table ticket_timesheets (
-    id              int primary key,
+    id              serial primary key,
     ticket          int references tickets(ticket) on update cascade on delete cascade,
     date_from       timestamp with time zone not null,
-    date_to         timestamp with time zone not null
+    date_to         timestamp with time zone
 );
 
 
 create table ticket_status (
-    id              int primary key,
+    id              serial primary key,
     ticket          int references tickets(ticket) on update cascade on delete cascade,
    "user"           int references users("user") on update set null on delete set null,
     date            timestamp with time zone not null default now(),
@@ -80,7 +88,7 @@ create table ticket_status (
 
 
 create table ticket_values (
-    id              int primary key,
+    id              serial primary key,
     ticket          int references tickets(ticket) on update cascade on delete cascade,
     name            text,
     value           text
@@ -88,7 +96,7 @@ create table ticket_values (
 
 
 create table ticket_files (
-    id              int primary key,
+    id              serial primary key,
     ticket          int references tickets(ticket) on update cascade on delete cascade,
     name            text,
     type            text,

@@ -51,8 +51,9 @@ void DatabasePluginPostgres::upgrade() {
     PDEBUG;
     MSqlQuery q(m_db);
     q.exec("select version from version;");
-    int version = (q.next()) ? q.value(0).toInt() : 0;
+    int version = (q.next()) ? q.value(0).toInt() : -1;
     for (;;) {
+        version++;
         QString patchname = QString(":/postgres/patch.%1.sql").arg(version, 3, 10, QChar('0'));
         QFile file(patchname);
         if (!file.open(QIODevice::ReadOnly)) {
@@ -82,7 +83,6 @@ void DatabasePluginPostgres::upgrade() {
             }
 
         q.exec(QString("update version set version = %1;").arg(version));
-        version++;
         }
 
     return;
@@ -111,7 +111,7 @@ QList<Dbt::Users> DatabasePluginPostgres::authenticate(const QString& login, con
     QString md5 = QString::fromUtf8(QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Md5).toHex());
     QList<Dbt::Users> list;
     MSqlQuery q(m_db);
-    q.prepare("select \"user\", login, name, language from users where login = :login and password = :password and enabled;");
+    q.prepare("select \"user\", login, name, lang from users where login = :login and password = :password and enabled;");
     q.bindValue(":login", login);
     q.bindValue(":password", md5);
     q.exec();
@@ -199,21 +199,32 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses() {
 
 void DatabasePluginPostgres::createTemporaryTableTickets(int ticket) {
     MSqlQuery q(m_db);
+    q.exec(R"'(
+        create temporary table temporary_tickets (
+            ticket      int,
+            category    int,
+            date        timestamp with time zone,
+            price       numeric,
+            description text,
+            "user"      int
+            );
+        )'");
+
     if (filter() == Database::All) {
         q.prepare(R"'(
+            insert into temporary_tickets (ticket, category, date, price, description, "user")
             select t.ticket, t.category, t.date, t.price, t.description, t."user"
-                into temporary table temporary_tickets
-                from ticktets t, users_categories uc
+                from tickets t, users_categories uc
                 where t.category = uc.category
                   and uc."user" = :user
-                  and (:ticket1 <= 0 || :ticket2 = ticket)
+                  and (:ticket1 <= 0 or :ticket2 = t.ticket)
             ;
             )'");
       } else {
         q.prepare(R"'(
             with
             ending_status as (
-                select distinct  t1.type, t1.status_to as status from tickets_types_status t1, tickets_status ts  where t1.status_to = ts.status and ts.closed
+                select distinct  t1.type, t1.status_to as status from tickets_types_status t1, ticket_status ts  where t1.status_to = ts.status and ts.closed
                 ),
             tickets_last_status as (
                 select t.ticket, t.type, tl.status
@@ -226,18 +237,18 @@ void DatabasePluginPostgres::createTemporaryTableTickets(int ticket) {
             active_tickets as (
                 select t1.ticket from tickets t1 where t1.ticket not in (select ticket from closed_tickets)
                 ),
+            insert into temporary_tickets (ticket, category, date, price, description, "user")
             select t.ticket, t.category, t.date, t.price, t.description, t."user"
-                into temporary table temporary_tickets
-                from ticket t, users_categories uc
+                from tickets t, users_categories uc
                 where t.ticket in (select ticket from active_tickets)
                   and uc."user" = :user
-                  and (:ticket1 <= 0 || :ticket2 = ticket)
+                  and (:ticket1 <= 0 or :ticket2 = t.ticket)
             ;
             )'");
         }
     q.bindValue(":user", userId());
     q.bindValue(":ticket1", ticket);
-    q.bindValue(":ticket1", ticket);
+    q.bindValue(":ticket2", ticket);
     q.exec();
 
 }
@@ -251,7 +262,7 @@ QList<Dbt::Tickets> DatabasePluginPostgres::tickets(int ticket) {
 
     q.prepare(R"'(
         select ticket, category, date, price, description, "user"
-            from temporary_tickets
+            from temporary_tickets ;
         )'");
     q.exec();
     while (q.next()) {
@@ -277,8 +288,8 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int ticket) {
 
     q.prepare(R"'(
         select ts.id, ts.ticket, ts."user", ts.date, ts.description, ts.status
-            from temporary_tickets t, tickets_status ts
-            where t.ticket = ts.ticket
+            from temporary_tickets t, ticket_status ts
+            where t.ticket = ts.ticket;
         )'");
     q.exec();
     while (q.next()) {
@@ -313,6 +324,7 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(int ticket
             from temporary_tickets t, tickets_timesheets tt
             where t.ticket = tt.ticket
               and :user = tt."user"
+            ;
         )'");
     q.bindValue(":user", userId());
     q.exec();
@@ -343,6 +355,7 @@ QList<Dbt::TicketValues> DatabasePluginPostgres::ticketValues(int ticket) {
         select tv.id, tt.ticket, tt.name, tt.value
             from temporary_tickets t, tickets_values tv
             where t.ticket = tv.ticket
+            ;
         )'");
     q.exec();
     while (q.next()) {
