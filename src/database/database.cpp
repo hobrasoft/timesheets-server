@@ -26,7 +26,6 @@ Database::Database(QObject *parent) : QObject(parent) {
         m_instance = this;
         }
 
-    m_filter = All;
     m_isOpen = false;
     m_dbplugin = nullptr;;
     setObjectName(QString("Database %1").arg((quint64)QThread::currentThread()));
@@ -65,7 +64,6 @@ bool Database::open() {
     m_dbplugin->setPort         ( MSETTINGS->dbPort() );
     m_dbplugin->setUserName     ( MSETTINGS->dbUser() );
     m_dbplugin->setPassword     ( MSETTINGS->dbPassword() );
-    m_dbplugin->setFilter       ( m_filter );
     bool rc = m_dbplugin->open();
     m_isOpen = rc;
     emit opened(rc);
@@ -140,13 +138,23 @@ QList<Dbt::Statuses> Database::statuses() {
 }
 
 
-QList<Dbt::Tickets> Database::tickets(int ticket) {
-    return m_dbplugin->tickets(ticket);
+QList<Dbt::Tickets> Database::tickets(int ticket, bool all) {
+    return m_dbplugin->tickets(ticket, all);
 }
 
 
-QList<Dbt::TicketsVw> Database::ticketsVw(int ticket) {
-    return m_dbplugin->ticketsVw(ticket);
+QList<Dbt::Tickets> Database::tickets(bool all) {
+    return m_dbplugin->tickets(all);
+}
+
+
+QList<Dbt::TicketsVw> Database::ticketsVw(int ticket, bool all) {
+    return m_dbplugin->ticketsVw(ticket, all);
+}
+
+
+QList<Dbt::TicketsVw> Database::ticketsVw(bool all) {
+    return m_dbplugin->ticketsVw(all);
 }
 
 

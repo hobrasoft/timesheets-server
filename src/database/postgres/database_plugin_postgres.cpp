@@ -201,7 +201,7 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses() {
 }
 
 
-void DatabasePluginPostgres::createTemporaryTableTickets(int ticket) {
+void DatabasePluginPostgres::createTemporaryTableTickets(int ticket, bool all) {
     MSqlQuery q(m_db);
     q.exec(R"'(
         create temporary table temporary_tickets (
@@ -214,7 +214,8 @@ void DatabasePluginPostgres::createTemporaryTableTickets(int ticket) {
             );
         )'");
 
-    if (filter() == Database::All) {
+    if (all) {
+        PDEBUG << "Vybiram VSE";
         q.prepare(R"'(
             insert into temporary_tickets (ticket, category, date, price, description, "user")
             select t.ticket, t.category, t.date, t.price, t.description, t."user"
@@ -225,27 +226,30 @@ void DatabasePluginPostgres::createTemporaryTableTickets(int ticket) {
             ;
             )'");
       } else {
+        PDEBUG << "Vybiram pouze otevrene";
         q.prepare(R"'(
             with
             ending_status as (
-                select distinct  t1.type, t1.status_to as status from tickets_types_status t1, ticket_status ts  where t1.status_to = ts.status and ts.closed
+                select status from statuses where closed
                 ),
             tickets_last_status as (
-                select t.ticket, t.type, tl.status
+                select t.ticket, tl.status
                     from tickets t
-                    left join lateral (select tn.ticket, tn.status from tickets_notes tn where tn.ticket = t.ticket order by ticket, date desc limit 1) tl using (ticket)
+                    left join lateral (select tn.ticket, tn.status from ticket_status tn where tn.ticket = t.ticket order by ticket, date desc limit 1) tl using (ticket)
                 ),
             closed_tickets as (
-                select distinct ts.ticket from tickets_last_status ts, ending_status es where ts.status = es.status and ts.type = es.type
+                select distinct ts.ticket from tickets_last_status ts, ending_status es where ts.status = es.status
                 ),
             active_tickets as (
                 select t1.ticket from tickets t1 where t1.ticket not in (select ticket from closed_tickets)
-                ),
+                )
+
             insert into temporary_tickets (ticket, category, date, price, description, "user")
             select t.ticket, t.category, t.date, t.price, t.description, t."user"
                 from tickets t, users_categories uc
                 where t.ticket in (select ticket from active_tickets)
                   and uc."user" = :user
+                  and t.category = uc.category
                   and (:ticket1 <= 0 or :ticket2 = t.ticket)
             ;
             )'");
@@ -258,9 +262,14 @@ void DatabasePluginPostgres::createTemporaryTableTickets(int ticket) {
 }
 
 
-QList<Dbt::Tickets> DatabasePluginPostgres::tickets(int ticket) {
+QList<Dbt::Tickets> DatabasePluginPostgres::tickets(bool all) {
+    return tickets(-1, all);
+}
+
+
+QList<Dbt::Tickets> DatabasePluginPostgres::tickets(int ticket, bool all) {
     PDEBUG;
-    createTemporaryTableTickets(ticket);
+    createTemporaryTableTickets(ticket, all);
     QList<Dbt::Tickets> list;
     MSqlQuery q(m_db);
 
@@ -313,7 +322,12 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int ticket) {
 }
 
 
-QList<Dbt::TicketsVw> DatabasePluginPostgres::ticketsVw(int ticket) {
+QList<Dbt::TicketsVw> DatabasePluginPostgres::ticketsVw(bool all) {
+    return ticketsVw(-1, all);
+}
+
+
+QList<Dbt::TicketsVw> DatabasePluginPostgres::ticketsVw(int ticket, bool all) {
     createTemporaryTableTickets(ticket);
     QList<Dbt::TicketsVw> list;
     return list;

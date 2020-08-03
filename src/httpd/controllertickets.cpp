@@ -5,7 +5,9 @@
  */
 
 #include "controllertickets.h"
+#include "httprequest.h"
 #include "db.h"
+#include "pdebug.h"
 
 using namespace Httpd;
 
@@ -15,7 +17,8 @@ ControllerTickets::ControllerTickets(HobrasoftHttpd::HttpConnection *parent) : A
 
 
 void ControllerTickets::serviceList (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
-    serviceOK(request, response, toList(db()->tickets()));
+    bool all = QVariant(request->parameter("all")).toBool();
+    serviceOK(request, response, toList(db()->tickets(all)));
 }
 
 

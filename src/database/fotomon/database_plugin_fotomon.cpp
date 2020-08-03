@@ -283,7 +283,12 @@ QList<Dbt::Statuses> DatabasePluginFotomon::statuses() {
 }
 
 
-QList<Dbt::Tickets> DatabasePluginFotomon::tickets(int ticket) {
+QList<Dbt::Tickets> DatabasePluginFotomon::tickets(bool all) {
+    return tickets(-1, all);
+}
+
+
+QList<Dbt::Tickets> DatabasePluginFotomon::tickets(int ticket, bool all) {
     PDEBUG;
     QList<Dbt::Tickets> list;
     MSqlQuery q(m_db);
@@ -403,8 +408,11 @@ QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(int ticket) {
     return list;
 }
 
+QList<Dbt::TicketsVw> DatabasePluginFotomon::ticketsVw(bool all) {
+    return ticketsVw(-1, all);
+}
 
-QList<Dbt::TicketsVw> DatabasePluginFotomon::ticketsVw(int ticket) {
+QList<Dbt::TicketsVw> DatabasePluginFotomon::ticketsVw(int ticket, bool all) {
     QList<Dbt::TicketsVw> list;
     return list;
 }

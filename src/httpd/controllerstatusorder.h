@@ -24,6 +24,38 @@ namespace Httpd {
 @brief Vrací informace o pořadí přechodů mezi jednotlivými stavy ticketu
 
 @code
+[
+  {
+    "category": null,
+    "next_status": "CLOSED",
+    "previous_status": "NEW"
+  },
+  {
+    "category": null,
+    "next_status": "ARCHIVE",
+    "previous_status": "NEW"
+  },
+  {
+    "category": null,
+    "next_status": "ARCHIVE",
+    "previous_status": "CLOSED"
+  },
+  {
+    "category": 5,
+    "next_status": "PRIORITY",
+    "previous_status": "NEW"
+  },
+  {
+    "category": 5,
+    "next_status": "CLOSED",
+    "previous_status": "PRIORITY"
+  },
+  {
+    "category": 5,
+    "next_status": "ARCHIVE",
+    "previous_status": "PRIORITY"
+  }
+]
 @endcode
 
 */

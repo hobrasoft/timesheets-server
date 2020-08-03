@@ -32,8 +32,10 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     QList<Dbt::Categories>                  categories() override;
     QList<Dbt::StatusOrder>                 statusOrder() override;
     QList<Dbt::Statuses>                    statuses() override;
-    QList<Dbt::Tickets>                     tickets(int ticket) override;
-    QList<Dbt::TicketsVw>                   ticketsVw(int ticket) override;
+    QList<Dbt::Tickets>                     tickets(bool all) override;
+    QList<Dbt::Tickets>                     tickets(int ticket, bool all) override;
+    QList<Dbt::TicketsVw>                   ticketsVw(bool all) override;
+    QList<Dbt::TicketsVw>                   ticketsVw(int ticket, bool all) override;
     QList<Dbt::TicketStatus>                ticketStatus(int ticket) override;
     QList<Dbt::TicketValues>                ticketValues(int ticket) override;
     QList<Dbt::TicketFiles>                 ticketFiles(int ticket) override;
@@ -47,7 +49,7 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     void    commit() override;
 
   protected:
-    void    createTemporaryTableTickets(int ticket);
+    void    createTemporaryTableTickets(int ticket, bool all = false);
 
   private:
     QString         m_databasename;

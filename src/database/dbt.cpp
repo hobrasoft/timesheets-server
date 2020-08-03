@@ -43,7 +43,6 @@ QVariantMap StatusOrder::toMap() const {
     data["category"] = null(category);
     data["previous_status"] = null(previous_status);
     data["next_status"] = null(next_status);
-    PDEBUG << data;
     return data;
 }
 
