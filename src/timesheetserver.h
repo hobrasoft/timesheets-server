@@ -10,6 +10,7 @@
 #include <QDateTime>
 #include <QThread>
 
+
 /**
  * @brief Hlavní třída - startovaná z main, inicializuje aplikaci a startuje potřebné objekty
  */
@@ -26,6 +27,14 @@ class TimesheetServer : public QObject {
 
     const QDateTime& startTime() const { return m_startTime; }
 
+  public slots:
+
+    /**
+     * @brief Restartuje (nebo ukončí) server
+     */
+    void restart();
+
+
   private slots:
 
     /**
@@ -34,11 +43,6 @@ class TimesheetServer : public QObject {
      * Vytváří potřebné objekty: Databaze, FrontaHovoru, SeznamJednotek, MedibusServer, SipServer
      */
     void init();
-
-    /**
-     * @brief Restartuje (nebo ukončí) server
-     */
-    void restart();
 
 
     /**

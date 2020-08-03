@@ -10,9 +10,11 @@
 #include "version.h"
 #include "pdebug.h"
 #include "pluginstore.h"
+#include "timesheetserver.h"
 #include <QTimer>
 #include <QFileInfo>
 #include <QDir>
+
 
 using namespace Httpd;
 
@@ -25,10 +27,12 @@ void ControllerServer::serviceIdGet (HobrasoftHttpd::HttpRequest *request, Hobra
         AUTHORIZEREQUEST(Security::Permissions::Server);
 
         QVariantMap data;
-        data["version"]     = VERSION;
         data["configfile"]  = MSETTINGS->fileName();
         data["name"]        = MSETTINGS->serverName();
         data["description"] = MSETTINGS->serverDescription();
+        data["git_commit"]  = GIT_COMMIT;
+        data["git_branch"]  = GIT_BRANCH;
+        data["version"]     = VERSION;
         serviceOK(request, response, data);
         return;
         }
@@ -50,47 +54,33 @@ void ControllerServer::serviceIdGet (HobrasoftHttpd::HttpRequest *request, Hobra
         return;
         }
 
-    if (id == "name") {
-        AUTHORIZEREQUEST(Security::Permissions::Server);
-        QVariantMap data;
-        data["name"] = MSETTINGS->serverName();
-        serviceOK(request, response, data);
-        }
-
-    if (id == "description") {
-        AUTHORIZEREQUEST(Security::Permissions::Server);
-        QVariantMap data;
-        data["description"] = MSETTINGS->serverDescription();
-        serviceOK(request, response, data);
-        return;
-        }
-
     if (id == "restart") {
-        PDEBUG << "restart";
-        AUTHORIZEREQUEST(Security::Permissions::ServerRestart);
+        // AUTHORIZEREQUEST(Security::Permissions::ServerRestart);
         QVariantMap data;
-        if (request->parameter("reallyrestart") == "YES") {
+        PDEBUG << "restart :-)))";
+        if (request->parameter("reallyrestart") == "YES" && MSETTINGS->serverEnableRemoteRestart()) {
             // nelze volat přímo, je v jiném vláknu
-            // QTimer::singleShot(0, FOTOMONSERVER, SLOT(restart()));
-            serviceOK(request, response);
+            QTimer::singleShot(100, TimesheetServer::instance(), &TimesheetServer::restart);
+            QVariantMap data;
+            data["ok"] = true;
+            PDEBUG << "restarting";
+            serviceOK(request, response, data);
+            return;
           } else {
-            serviceError(request, response, 405, "bad-request", "Could not restart server, missing parameter");
+            PDEBUG << "restart disabled";
+            serviceError(request, response, 405, "bad-request", "Could not restart server");
+            return;
             }
-        return;
-        }
-
-    if (id == "plugins") {
-        AUTHORIZEREQUEST(Security::Permissions::Server);
-        QVariantMap data;
-        data["plugins"] = PLUGINSTORE->pluginNames();
-        serviceOK(request, response, data);
+        PDEBUG << "a doprdele....";
         return;
         }
 
     if (id == "objects") {
-        // serviceOK(request, response, objects(FOTOMONSERVER));
-        serviceOK(request, response, QVariantMap());
+        serviceOK(request, response, objects(TimesheetServer::instance()));
+        return;
         }
+
+    serviceError(request, response, 404, "not-found", "Not found");
 
 }
 

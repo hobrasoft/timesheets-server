@@ -6,6 +6,7 @@
 #include "database_plugin_postgres.h"
 #include "msettings.h"
 #include "msqlquery.h"
+#include "json.h"
 #include "pdebug.h"
 #include <QUuid>
 #include <QSqlError>
@@ -139,6 +140,7 @@ QList<Dbt::Categories> DatabasePluginPostgres::categories() {
           and uc."user" = :user
         )'");
     q.bindValue(":user", userId());
+    q.exec();
     while (q.next()) {
         int i=0;
         Dbt::Categories x;
@@ -164,9 +166,11 @@ QList<Dbt::StatusOrder> DatabasePluginPostgres::statusOrder() {
     while (q.next()) {
         int i = 0;
         Dbt::StatusOrder x;
-        x.category          = q.value(i++).toInt();
-        x.previous_status   = q.value(i++).toString();
-        x.next_status       = q.value(i++).toString();
+        PDEBUG << q.value(0).isValid() << q.value(0).isNull();
+        x.category          = q.value(i++);
+        x.previous_status   = q.value(i++);
+        x.next_status       = q.value(i++);
+        PDEBUG << x.toMap();
         list << x;
         }
 
@@ -287,9 +291,10 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int ticket) {
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
-        select ts.id, ts.ticket, ts."user", ts.date, ts.description, ts.status
-            from temporary_tickets t, ticket_status ts
-            where t.ticket = ts.ticket;
+        select ts.id, ts.ticket, ts."user", u.name, ts.date, ts.description, ts.status
+            from temporary_tickets t, ticket_status ts, users u
+            where t.ticket = ts.ticket
+              and u."user" = ts."user"
         )'");
     q.exec();
     while (q.next()) {
@@ -300,8 +305,8 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int ticket) {
         x.user          = q.value(i++);
         x.user_name     = q.value(i++).toString();
         x.date          = q.value(i++).toDateTime();
-        x.status        = q.value(i++);
         x.description   = q.value(i++).toString();
+        x.status        = q.value(i++);
         list << x;
         }
     return list;

@@ -141,6 +141,7 @@ class MSettings : public QSettings {
     static constexpr const char *HttpdAuthorize         = "httpd/authorize";
     static constexpr const char *ServerName             = "server/name";
     static constexpr const char *ServerDescription      = "server/description";
+    static constexpr const char *ServerEnableRemoteRestart = "server/enable-remote-restart";
 
 
     /*
@@ -173,6 +174,7 @@ class MSettings : public QSettings {
     // Httpd
     QString serverName() const { return value(ServerName).toString(); }
     QString serverDescription() const { return value(ServerDescription).toString(); }
+    bool    serverEnableRemoteRestart() const { return value(ServerEnableRemoteRestart, false).toBool(); }
 
   protected:
 

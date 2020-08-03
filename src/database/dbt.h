@@ -49,7 +49,7 @@ struct Categories {
 
 
 struct StatusOrder {
-    QString     category;
+    QVariant    category;
     QVariant    previous_status;
     QVariant    next_status;
     QVariantMap toMap() const;

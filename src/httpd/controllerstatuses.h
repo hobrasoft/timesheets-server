@@ -10,11 +10,56 @@
 #include <QObject>
 #include "abstractcontroller.h"
 
+
+
+/**
+ * @addtogroup apiurl
+ * @{
+ * - @ref Httpd::ControllerStatuses - /statuses - Manipulace se stavy ticketů
+ * @}
+ */
+
+
 namespace Httpd {
 
 /**
- * @brief Vyřizuje požadavky /server - informace a příkazy k fungování serveru (restart, aktivace a podobně)
- */
+@brief Manipulace se stavy ticketů
+
+GET
+----
+Vrací seznam všech stavů, které může ticket nabývat
+@code
+[
+  {
+    "abbreviation": "NEW",      // Zkratka
+    "color": "transparent",     // Barva, kterou se má zobrazovat v GUI
+    "description": "Nový",      // Popis stavu
+    "status": "NEW"             // Primární klíč, identifikátor stavu
+  },
+  {
+    "abbreviation": "PRI",
+    "color": "red",
+    "description": "Vysoká priorita",
+    "status": "PRIORITY"
+  },
+  {
+    "abbreviation": "CLOSED",
+    "color": "green",
+    "description": "Uzavřeno",
+    "status": "CLOSED"
+  },
+  {
+    "abbreviation": "ARCHIVE",
+    "color": "brown",
+    "description": "V archivu",
+    "status": "ARCHIVE"
+  }
+]
+
+@endcode
+
+
+*/
 class ControllerStatuses : public AbstractController {
     Q_OBJECT
   public:

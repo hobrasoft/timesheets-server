@@ -4,8 +4,20 @@
  * @author Petr Bravenec <petr.bravenec@hobrasoft.cz>
  */
 #include "dbt.h"
+#include "pdebug.h"
 
 using namespace Dbt;
+
+
+/**
+ * @brief Konvertuje null variant na invalid variant - QJsonDocument jinak konvertuje int null hodnoty špatně na nulu
+ */
+namespace Dbt { 
+    static QVariant null(const QVariant& x) {
+        if (x.isValid() && !x.isNull()) { return x; }
+        return QVariant();
+    }
+}
 
 QVariantMap Users::toMap() const {
     QVariantMap data;
@@ -28,9 +40,10 @@ QVariantMap Categories::toMap() const {
 
 QVariantMap StatusOrder::toMap() const {
     QVariantMap data;
-    data["category"] = category;
-    data["previous_status"] = previous_status;
-    data["next_status"] = next_status;
+    data["category"] = null(category);
+    data["previous_status"] = null(previous_status);
+    data["next_status"] = null(next_status);
+    PDEBUG << data;
     return data;
 }
 
@@ -48,10 +61,10 @@ QVariantMap Statuses::toMap() const {
 QVariantMap Tickets::toMap() const {
     QVariantMap data;
 
-    data["ticket"] = ticket;
-    data["category"] = category;
+    data["ticket"] = null(ticket);
+    data["category"] = null(category);
     data["date"] = date;
-    data["price"] = price;
+    data["price"] = null(price);
     data["description"] = description;
     data["user"] = user;
 
@@ -62,13 +75,13 @@ QVariantMap Tickets::toMap() const {
 QVariantMap TicketStatus::toMap() const {
     QVariantMap data;
 
-    data["id"] = id;
-    data["ticket"] = ticket;
-    data["user"] = user;
+    data["id"] = null(id);
+    data["ticket"] = null(ticket);
+    data["user"] = null(user);
     data["user_name"] = user_name;
-    data["date"] =   date;   
+    data["date"] = date;   
     data["description"] = description;
-    data["status"] = status;
+    data["status"] = null(status);
 
     return data;
 }

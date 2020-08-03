@@ -10,11 +10,23 @@
 #include <QObject>
 #include "abstractcontroller.h"
 
+/**
+ * @addtogroup apiurl
+ * @{
+ * - @ref Httpd::ControllerStatusOrder - vrací informace o pořadí přechodů mezi jednotlivými stavy ticketu
+ * @}
+ */
+
+
 namespace Httpd {
 
 /**
- * @brief Vyřizuje požadavky /server - informace a příkazy k fungování serveru (restart, aktivace a podobně)
- */
+@brief Vrací informace o pořadí přechodů mezi jednotlivými stavy ticketu
+
+@code
+@endcode
+
+*/
 class ControllerStatusOrder : public AbstractController {
     Q_OBJECT
   public:

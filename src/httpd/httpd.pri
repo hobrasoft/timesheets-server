@@ -1,6 +1,11 @@
 # INCLUDEPATH += $$PWD # Nesmí tu být
 DEPENDPATH  += $$PWD
 
+GIT_COMMIT = $$system(git --git-dir $$PWD/../../.git --work-tree $$PWD/../.. describe --always --tags)
+DEFINES += GIT_COMMIT=\\\"$$GIT_COMMIT\\\"
+GIT_BRANCH = $$system(git rev-parse --abbrev-ref HEAD)
+DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH\\\"
+
 SOURCES += \
  $$PWD/controllerserver.cpp \
  $$PWD/controllercategories.cpp \
