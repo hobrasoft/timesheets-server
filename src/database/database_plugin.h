@@ -38,9 +38,9 @@ class DatabasePlugin : public QObject {
     virtual QString connectionName() const;
 
     virtual QList<Dbt::Users>                       authenticate(const QString& user, const QString& password) = 0;
-    virtual QList<Dbt::Categories>                  categories() = 0;
-    virtual QList<Dbt::StatusOrder>                 statusOrder() = 0;
-    virtual QList<Dbt::Statuses>                    statuses() = 0;
+    virtual QList<Dbt::Categories>                  categories(const QString& id) = 0;
+    virtual QList<Dbt::StatusOrder>                 statusOrder(const QString& id) = 0;
+    virtual QList<Dbt::Statuses>                    statuses(const QString& id) = 0;
     virtual QList<Dbt::Tickets>                     tickets(bool all) = 0;
     virtual QList<Dbt::Tickets>                     tickets(int ticket, bool all) = 0;
     virtual QList<Dbt::TicketsVw>                   ticketsVw(bool all) = 0;
@@ -49,6 +49,10 @@ class DatabasePlugin : public QObject {
     virtual QList<Dbt::TicketValues>                ticketValues(int ticket) = 0;
     virtual QList<Dbt::TicketFiles>                 ticketFiles(int ticket) = 0;
     virtual QList<Dbt::TicketTimesheets>            ticketTimesheets(int ticket) = 0;
+
+    virtual void remove(const Dbt::Categories& id) { Q_UNUSED(id); }
+
+    virtual void save(const Dbt::Categories& data) { Q_UNUSED(data); }
 
 
   protected:

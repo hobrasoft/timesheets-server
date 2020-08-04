@@ -22,31 +22,36 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     DatabasePluginPostgres(QObject *);
    ~DatabasePluginPostgres();
 
-    void setDatabaseName(const QString& x) override { m_databasename = x; }
-    void setHostname(const QString& x) override { m_hostname = x; }
-    void setPort(int x) override { m_port = x; }
-    void setUserName(const QString& x) override { m_username = x; }
-    void setPassword(const QString& x) override { m_password = x; }
+    void setDatabaseName(const QString& x) Q_DECL_OVERRIDE { m_databasename = x; }
+    void setHostname(const QString& x) Q_DECL_OVERRIDE { m_hostname = x; }
+    void setPort(int x) Q_DECL_OVERRIDE { m_port = x; }
+    void setUserName(const QString& x) Q_DECL_OVERRIDE { m_username = x; }
+    void setPassword(const QString& x) Q_DECL_OVERRIDE { m_password = x; }
   
-    QList<Dbt::Users>                       authenticate(const QString& login, const QString& password) override;
-    QList<Dbt::Categories>                  categories() override;
-    QList<Dbt::StatusOrder>                 statusOrder() override;
-    QList<Dbt::Statuses>                    statuses() override;
-    QList<Dbt::Tickets>                     tickets(bool all) override;
-    QList<Dbt::Tickets>                     tickets(int ticket, bool all) override;
-    QList<Dbt::TicketsVw>                   ticketsVw(bool all) override;
-    QList<Dbt::TicketsVw>                   ticketsVw(int ticket, bool all) override;
-    QList<Dbt::TicketStatus>                ticketStatus(int ticket) override;
-    QList<Dbt::TicketValues>                ticketValues(int ticket) override;
-    QList<Dbt::TicketFiles>                 ticketFiles(int ticket) override;
-    QList<Dbt::TicketTimesheets>            ticketTimesheets(int ticket) override;
+    QList<Dbt::Users>                       authenticate(const QString& login, const QString& password) Q_DECL_OVERRIDE;
+    QList<Dbt::Categories>                  categories(const QString& id) Q_DECL_OVERRIDE;
+    QList<Dbt::StatusOrder>                 statusOrder(const QString& id) Q_DECL_OVERRIDE;
+    QList<Dbt::Statuses>                    statuses(const QString&) Q_DECL_OVERRIDE;
+    QList<Dbt::Tickets>                     tickets(bool all) Q_DECL_OVERRIDE;
+    QList<Dbt::Tickets>                     tickets(int ticket, bool all) Q_DECL_OVERRIDE;
+    QList<Dbt::TicketsVw>                   ticketsVw(bool all) Q_DECL_OVERRIDE;
+    QList<Dbt::TicketsVw>                   ticketsVw(int ticket, bool all) Q_DECL_OVERRIDE;
+    QList<Dbt::TicketStatus>                ticketStatus(int ticket) Q_DECL_OVERRIDE;
+    QList<Dbt::TicketValues>                ticketValues(int ticket) Q_DECL_OVERRIDE;
+    QList<Dbt::TicketFiles>                 ticketFiles(int ticket) Q_DECL_OVERRIDE;
+    QList<Dbt::TicketTimesheets>            ticketTimesheets(int ticket) Q_DECL_OVERRIDE;
+
+
+    void    remove(const Dbt::Categories& id) Q_DECL_OVERRIDE;
+
+    void    save(const Dbt::Categories& data) Q_DECL_OVERRIDE;
 
 
     void    upgrade();
-    bool    open() override; 
-    bool    close() override;
-    void    begin() override;
-    void    commit() override;
+    bool    open() Q_DECL_OVERRIDE; 
+    bool    close() Q_DECL_OVERRIDE;
+    void    begin() Q_DECL_OVERRIDE;
+    void    commit() Q_DECL_OVERRIDE;
 
   protected:
     void    createTemporaryTableTickets(int ticket, bool all = false);

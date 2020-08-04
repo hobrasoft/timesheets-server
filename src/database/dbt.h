@@ -44,7 +44,9 @@ struct Categories {
     QString     description;
     double      price;
     QVariantMap toMap() const;
+    static Categories fromMap(const QVariantMap&);
     Categories() { price = 0; }
+    Categories(const QString& id) { price = 0; category = id; }
 };
 
 

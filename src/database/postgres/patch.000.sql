@@ -47,6 +47,7 @@ create table statuses (
 
 
 create table status_order (
+    id              serial primary key,
     category        int  references categories(category) on update cascade on delete cascade,
     previous_status text references statuses(status) on update cascade on delete cascade,
     next_status     text references statuses(status) on update cascade on delete cascade

@@ -29,9 +29,9 @@ class DatabasePluginFotomon : public Db::Plugins::DatabasePlugin {
     void setPassword(const QString& x) override { m_password = x; }
   
     QList<Dbt::Users>                       authenticate(const QString& login, const QString& password) override;
-    QList<Dbt::Categories>                  categories() override;
-    QList<Dbt::StatusOrder>                 statusOrder() override;
-    QList<Dbt::Statuses>                    statuses() override;
+    QList<Dbt::Categories>                  categories(const QString& id) override;
+    QList<Dbt::StatusOrder>                 statusOrder(const QString& id) override;
+    QList<Dbt::Statuses>                    statuses(const QString& id) override;
     QList<Dbt::Tickets>                     tickets(bool all) override;
     QList<Dbt::Tickets>                     tickets(int ticket, bool all) override;
     QList<Dbt::TicketsVw>                   ticketsVw(bool all) override;

@@ -129,7 +129,7 @@ QList<Dbt::Users> DatabasePluginPostgres::authenticate(const QString& login, con
 }
 
 
-QList<Dbt::Categories> DatabasePluginPostgres::categories() {
+QList<Dbt::Categories> DatabasePluginPostgres::categories(const QString& id) {
     QList<Dbt::Categories> list;
     MSqlQuery q(m_db);
 
@@ -138,8 +138,12 @@ QList<Dbt::Categories> DatabasePluginPostgres::categories() {
         from categories c, users_categories uc
         where c.category = uc.category
           and uc."user" = :user
+          and (:id1 <= 0 or :id2 = c.category);
         )'");
     q.bindValue(":user", userId());
+    q.bindValue(":id1", id.toInt());
+    q.bindValue(":id2", id.toInt());
+    PDEBUG << q.lastBoundQuery();
     q.exec();
     while (q.next()) {
         int i=0;
@@ -156,13 +160,57 @@ QList<Dbt::Categories> DatabasePluginPostgres::categories() {
 }
 
 
-QList<Dbt::StatusOrder> DatabasePluginPostgres::statusOrder() {
+void DatabasePluginPostgres::remove(const Dbt::Categories& id) {
+    QList<Dbt::StatusOrder> list;
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from categories where category = :id;)'");
+    q.bindValue(":id", id.category);
+    q.exec();
+}
+
+
+void DatabasePluginPostgres::save(const Dbt::Categories& data) {
+    QList<Dbt::StatusOrder> list;
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        update categories set
+            parent_category = :parent_category,
+            description = :description,
+            price = :price,
+            where category = :category1
+        )'");
+    q.bindValue(":category1", data.category);
+    q.bindValue(":parent_category", data.parent_category);
+    q.bindValue(":description", data.description);
+    q.bindValue(":price", data.price);
+    q.exec();
+
+    q.prepare(R"'(
+        insert into categories (category, parent_category, description, price)
+            select :category1, :parent_category, :description, :price
+            where not exists (select 1 from categories where category = :category2);
+        )'");
+    q.bindValue(":category1", data.category);
+    q.bindValue(":category2", data.category);
+    q.bindValue(":parent_category", data.parent_category);
+    q.bindValue(":description", data.description);
+    q.bindValue(":price", data.price);
+    q.exec();
+
+}
+
+
+QList<Dbt::StatusOrder> DatabasePluginPostgres::statusOrder(const QString& id) {
     QList<Dbt::StatusOrder> list;
     MSqlQuery q(m_db);
 
     q.exec(R"'(
-        select category, previous_status, next_status from status_order;
+        select category, previous_status, next_status from status_order
+        where (:id1 <= 0 or :id2 = id);
         )'");
+    q.bindValue(":id1", id.toInt());
+    q.bindValue(":id2", id.toInt());
     while (q.next()) {
         int i = 0;
         Dbt::StatusOrder x;
@@ -179,14 +227,17 @@ QList<Dbt::StatusOrder> DatabasePluginPostgres::statusOrder() {
 }
 
 
-QList<Dbt::Statuses> DatabasePluginPostgres::statuses() {
+QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& id) {
     QList<Dbt::Statuses> list;
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
-        select status, description, abbreviation, color from statuses;
+        select status, description, abbreviation, color from statuses
+        where (:id1 = '' or :id2 = status)
         )'");
     q.exec();
+    q.bindValue(":id1", id);
+    q.bindValue(":id2", id);
     while (q.next()) {
         int i=0;
         Dbt::Statuses x;

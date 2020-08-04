@@ -39,9 +39,9 @@ class Database : public QObject {
     QString     connectionName() const;
 
     QList<Dbt::Users>                       authenticate(const QString& user, const QString& password);
-    QList<Dbt::Categories>                  categories();
-    QList<Dbt::StatusOrder>                 statusOrder();
-    QList<Dbt::Statuses>                    statuses();
+    QList<Dbt::Categories>                  categories(const QString& id = QString());
+    QList<Dbt::StatusOrder>                 statusOrder(const QString& id = QString());
+    QList<Dbt::Statuses>                    statuses(const QString& id = QString());
     QList<Dbt::Tickets>                     tickets(bool all = false);
     QList<Dbt::Tickets>                     tickets(int ticket = -1, bool all = false);
     QList<Dbt::TicketsVw>                   ticketsVw(bool all = false);
@@ -50,6 +50,9 @@ class Database : public QObject {
     QList<Dbt::TicketValues>                ticketValues(int ticket = -1);
     QList<Dbt::TicketFiles>                 ticketFiles(int ticket = -1);
     QList<Dbt::TicketTimesheets>            ticketTimesheets(int ticket = -1);
+
+    void        remove(const Dbt::Categories&);
+    void        save(const Dbt::Categories&);
 
     void        begin();
     void        commit();

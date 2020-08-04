@@ -123,18 +123,28 @@ QList<Dbt::Users> Database::authenticate(const QString& user, const QString& pas
 }
 
 
-QList<Dbt::Categories> Database::categories() {
-    return m_dbplugin->categories();
+QList<Dbt::Categories> Database::categories(const QString& id) {
+    return m_dbplugin->categories(id);
 }
 
 
-QList<Dbt::StatusOrder> Database::statusOrder() {
-    return m_dbplugin->statusOrder();
+void Database::remove(const Dbt::Categories& id) {
+    m_dbplugin->remove(id);
 }
 
 
-QList<Dbt::Statuses> Database::statuses() {
-    return m_dbplugin->statuses();
+void Database::save(const Dbt::Categories& data) {
+    m_dbplugin->save(data);
+}
+
+
+QList<Dbt::StatusOrder> Database::statusOrder(const QString& id) {
+    return m_dbplugin->statusOrder(id);
+}
+
+
+QList<Dbt::Statuses> Database::statuses(const QString& id) {
+    return m_dbplugin->statuses(id);
 }
 
 

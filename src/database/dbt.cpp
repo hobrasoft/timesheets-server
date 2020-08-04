@@ -38,6 +38,16 @@ QVariantMap Categories::toMap() const {
 }
 
 
+Categories Categories::fromMap(const QVariantMap& data) {
+    Categories x;
+    x.category = data["category"].toString();
+    x.parent_category = data["parent_category"].toString();
+    x.description = data["description"].toString();
+    x.price = data["price"].toDouble();
+    return x;
+}
+
+
 QVariantMap StatusOrder::toMap() const {
     QVariantMap data;
     data["category"] = null(category);

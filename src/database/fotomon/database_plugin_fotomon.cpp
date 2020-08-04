@@ -202,7 +202,7 @@ QString DatabasePluginFotomon::parentCategoryKey(const QVariant& type, const QVa
 }
 
 
-QList<Dbt::Categories> DatabasePluginFotomon::categories() {
+QList<Dbt::Categories> DatabasePluginFotomon::categories(const QString& id) {
     createCategoriesTemporaryTable();
 
     QList<Dbt::Categories> list;
@@ -228,7 +228,7 @@ QList<Dbt::Categories> DatabasePluginFotomon::categories() {
 }
 
 
-QList<Dbt::StatusOrder> DatabasePluginFotomon::statusOrder() {
+QList<Dbt::StatusOrder> DatabasePluginFotomon::statusOrder(const QString& id) {
     createCategoriesTemporaryTable();
 
     QList<Dbt::StatusOrder> list;
@@ -259,7 +259,7 @@ QList<Dbt::StatusOrder> DatabasePluginFotomon::statusOrder() {
 }
 
 
-QList<Dbt::Statuses> DatabasePluginFotomon::statuses() {
+QList<Dbt::Statuses> DatabasePluginFotomon::statuses(const QString& id) {
     QList<Dbt::Statuses> list;
     MSqlQuery q(m_db);
 
