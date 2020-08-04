@@ -52,7 +52,7 @@ class ControllerTicketStatus : public AbstractController {
 
   protected:
 
-    virtual void serviceList (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response);
+    void serviceList (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) Q_DECL_OVERRIDE;
 
   private slots:
 

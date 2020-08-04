@@ -97,18 +97,16 @@ void AbstractController::service(HobrasoftHttpd::HttpRequest *request, Hobrasoft
             if (parts[1] != "events") {
                 QString id = parts[1];
                 if (request->method() == "GET") {
-                    response->setHeader("Content-Type",  "application/json");
-                    response->setHeader("Cache-Control", "no-cache,public");
-                    if (!exists(id)) {
+                    if (!exists(request, id)) {
                         serviceError(request, response, 404, "not-found", "Not found");
                         return;
                         }
+                    response->setHeader("Content-Type",  "application/json");
+                    response->setHeader("Cache-Control", "no-cache,public");
                     serviceIdGet(request, response, id);
                     return;
                     }
                 if (request->method() == "PUT") {
-                    response->setHeader("Content-Type",  "application/json");
-                    response->setHeader("Cache-Control", "no-cache,public");
 
                     bool ok = false;
                     QVariantMap data = JSON::data(request->body(), &ok).toMap();
@@ -122,12 +120,12 @@ void AbstractController::service(HobrasoftHttpd::HttpRequest *request, Hobrasoft
                         return; 
                         } 
 
+                    response->setHeader("Content-Type",  "application/json");
+                    response->setHeader("Cache-Control", "no-cache,public");
                     serviceIdPut(request, response, data);
                     return;
                     }
                 if (request->method() == "POST") {
-                    response->setHeader("Content-Type",  "application/json");
-                    response->setHeader("Cache-Control", "no-cache,public");
 
                     bool ok = false;
                     QVariantMap data = JSON::data(request->body(), &ok).toMap();
@@ -141,16 +139,18 @@ void AbstractController::service(HobrasoftHttpd::HttpRequest *request, Hobrasoft
                         return; 
                         } 
 
+                    response->setHeader("Content-Type",  "application/json");
+                    response->setHeader("Cache-Control", "no-cache,public");
                     serviceIdPost(request, response, data);
                     return;
                     }
                 if (request->method() == "DELETE") {
-                    response->setHeader("Content-Type",  "application/json");
-                    response->setHeader("Cache-Control", "no-cache,public");
-                    if (!exists(id)) {
+                    if (!exists(request, id)) {
                         serviceError(request, response, 404, "not-found", "Not found");
                         return;
                         }
+                    response->setHeader("Content-Type",  "application/json");
+                    response->setHeader("Cache-Control", "no-cache,public");
                     serviceIdDelete(request, response, id);
                     return;
                     }
@@ -168,7 +168,7 @@ void AbstractController::service(HobrasoftHttpd::HttpRequest *request, Hobrasoft
                 return;
                 }
 
-            if (!exists(parts[1])) {
+            if (!exists(request, parts[1])) {
                 serviceError(request, response, 404, "not-found", "Not found");
                 return;
                 }
@@ -214,7 +214,7 @@ void AbstractController::serviceError(
     r->setStatus(code, reason);
     r->write( JSON::json(data) );
     r->flush();
-    connection()->deleteLater();
+//  connection()->deleteLater();
 }
 
 

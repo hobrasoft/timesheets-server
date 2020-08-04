@@ -171,7 +171,26 @@ class AbstractController : public HobrasoftHttpd::HttpRequestHandler {
      * nebo se bude volat některá z dalších metod (serviceId(),
      * serviceIdEvents(), serviceIdDelete()).
      */
-    virtual bool exists(const QString& id) const { Q_UNUSED(id); return true; }
+    virtual bool exists(const QString& id) { 
+            Q_UNUSED(id); 
+            return true; 
+            }
+
+
+    /**
+     * @brief Kontrola existence zadaného ID
+     * 
+     * @returns true pokud zadané ID existuje
+     *
+     * V odvozených třídách by měla být metoda reimplementovaná. Na základě
+     * výsledků se rozhoduje, jestli se pošle jako odpověď na dotaz chyba 404,
+     * nebo se bude volat některá z dalších metod (serviceId(),
+     * serviceIdEvents(), serviceIdDelete()).
+     */
+    virtual bool exists(HobrasoftHttpd::HttpRequest *request, const QString& id) { 
+            Q_UNUSED(request); 
+            return exists(id); 
+            }
 
 
     /**

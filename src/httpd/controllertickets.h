@@ -29,6 +29,10 @@ GET /tickets
 Vrací seznam tiketů, které jsou vlastněné přihlášeným uživatelem, nebo 
 spadají do kategorie, do které má uživatel přístup.
 
+Přípustné modifikace URL:
+- /tickets - vrací pole ticketů
+- /tickets/<id> - vrací jeden ticket
+
 @param all - Normálně jsou v seznamu pouze otevřené tickety, parametrem _all = true_ lze vypsat všechny tickety
 
 @code
@@ -52,6 +56,7 @@ spadají do kategorie, do které má uživatel přístup.
 ]
 @endcode
 
+
 */
 class ControllerTickets : public AbstractController {
     Q_OBJECT
@@ -60,7 +65,8 @@ class ControllerTickets : public AbstractController {
 
   protected:
 
-    virtual void serviceList (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response);
+    void serviceList  (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) Q_DECL_OVERRIDE;
+    void serviceIdGet (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QString& id) Q_DECL_OVERRIDE;
 
   private slots:
 
