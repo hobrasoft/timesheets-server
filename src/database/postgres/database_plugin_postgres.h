@@ -29,6 +29,7 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     void setPassword(const QString& x) Q_DECL_OVERRIDE { m_password = x; }
   
     QList<Dbt::Users>                       authenticate(const QString& login, const QString& password) Q_DECL_OVERRIDE;
+    QList<Dbt::Users>                       users(int id) Q_DECL_OVERRIDE;
     QList<Dbt::Categories>                  categories(const QString& id) Q_DECL_OVERRIDE;
     QList<Dbt::StatusOrder>                 statusOrder(const QString& id) Q_DECL_OVERRIDE;
     QList<Dbt::Statuses>                    statuses(const QString&) Q_DECL_OVERRIDE;
@@ -43,8 +44,10 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
 
 
     void    remove(const Dbt::Categories& id) Q_DECL_OVERRIDE;
+    void    remove(const Dbt::Users& id) Q_DECL_OVERRIDE;
 
     void    save(const Dbt::Categories& data) Q_DECL_OVERRIDE;
+    void    save(const Dbt::Users& data) Q_DECL_OVERRIDE;
 
 
     void    upgrade();

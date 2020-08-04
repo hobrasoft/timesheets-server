@@ -32,9 +32,13 @@ struct Users {
     QString     login;
     QString     name;
     QString     lang;
+    bool        enabled;
+    bool        admin;
     //
-    Users() { user = 0; }
+    Users() { user = 0; enabled = false; admin = false; }
+    Users(int id) { user = id; enabled = false; admin = false; }
     QVariantMap toMap() const;
+    static Users fromMap(const QVariantMap&);
 };
 
 
@@ -43,6 +47,7 @@ struct Categories {
     QString     parent_category;
     QString     description;
     double      price;
+
     QVariantMap toMap() const;
     static Categories fromMap(const QVariantMap&);
     Categories() { price = 0; }
@@ -51,10 +56,15 @@ struct Categories {
 
 
 struct StatusOrder {
+    QVariant    id;
     QVariant    category;
     QVariant    previous_status;
     QVariant    next_status;
+
     QVariantMap toMap() const;
+    static StatusOrder fromMap(const QVariantMap&);
+    StatusOrder(const QString& pid) { id = pid; }
+    StatusOrder() {}
 };
 
 
@@ -63,7 +73,11 @@ struct Statuses {
     QString     description;
     QString     abbreviation;
     QString     color;
+
     QVariantMap toMap() const;
+    static Statuses fromMap(const QVariantMap&);
+    Statuses(const QString& id) { status = id; }
+    Statuses() {}
 };
 
 

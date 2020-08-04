@@ -19,12 +19,28 @@ namespace Dbt {
     }
 }
 
+
 QVariantMap Users::toMap() const {
     QVariantMap data;
     data["user"] = user;
     data["login"] = login;
     data["name"] = name;
+    data["lang"] = lang;
+    data["enabled"] = enabled;
+    data["admin"] = admin;
     return data;
+}
+
+
+Users Users::fromMap(const QVariantMap& data) {
+    Users x;
+    x.user = data["user"].toInt();
+    x.login = data["login"].toString();
+    x.name = data["name"].toString();
+    x.lang = data["lang"].toString();
+    x.enabled = data["enabled"].toBool();
+    x.admin = data["admin"].toBool();
+    return x;
 }
 
 
@@ -50,12 +66,22 @@ Categories Categories::fromMap(const QVariantMap& data) {
 
 QVariantMap StatusOrder::toMap() const {
     QVariantMap data;
+    data["id"] = null(id);
     data["category"] = null(category);
     data["previous_status"] = null(previous_status);
     data["next_status"] = null(next_status);
     return data;
 }
 
+
+StatusOrder StatusOrder::fromMap(const QVariantMap& data) {
+    StatusOrder x;
+    x.id = data["id"];
+    x.category = data["category"];
+    x.previous_status = data["previous_status"];
+    x.next_status = data["next_status"];
+    return x;
+}
 
 QVariantMap Statuses::toMap() const {
     QVariantMap data;
@@ -66,6 +92,15 @@ QVariantMap Statuses::toMap() const {
     return data;
 }
 
+
+Statuses Statuses::fromMap(const QVariantMap& data) {
+    Statuses x;
+    x.status = data["status"].toString();
+    x.description = data["description"].toString();
+    x.abbreviation = data["abbreviation"].toString();
+    x.color = data["color"].toString();
+    return x;
+}
 
 QVariantMap Tickets::toMap() const {
     QVariantMap data;

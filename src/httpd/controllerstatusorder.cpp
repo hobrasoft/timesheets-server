@@ -19,3 +19,18 @@ void ControllerStatusOrder::serviceList (HobrasoftHttpd::HttpRequest *request, H
 }
 
 
+void ControllerStatusOrder::serviceIdPut(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QVariantMap& data) {
+    db()->save(Dbt::StatusOrder::fromMap(data));
+}
+
+
+void ControllerStatusOrder::serviceIdPost(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QVariantMap& data) {
+    serviceIdPut(request, response, data);
+}
+
+
+void ControllerStatusOrder::serviceIdDelete(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QString& id) {
+    db()->remove(Dbt::StatusOrder(id));
+    serviceOK(request, response);
+}
+

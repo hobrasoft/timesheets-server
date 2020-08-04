@@ -10,6 +10,7 @@
 #include <QVariant>
 #include "authenticateduser.h"
 #include "dbt.h"
+#include "database_plugin.h"
 
 
 namespace Db {
@@ -20,15 +21,13 @@ struct PluginDescription {
     PluginDescription(const QString& n, const QString& d) { name=n; description=d; }
 };
 
-namespace Plugins {
-class DatabasePlugin;
-}
-
 /**
  * @brief
  */
 class Database : public QObject {
     Q_OBJECT
+    Db::Plugins::DatabasePlugin *m_dbplugin;
+
   public:
 
    ~Database();
@@ -39,6 +38,7 @@ class Database : public QObject {
     QString     connectionName() const;
 
     QList<Dbt::Users>                       authenticate(const QString& user, const QString& password);
+    QList<Dbt::Users>                       users(int id = -1);
     QList<Dbt::Categories>                  categories(const QString& id = QString());
     QList<Dbt::StatusOrder>                 statusOrder(const QString& id = QString());
     QList<Dbt::Statuses>                    statuses(const QString& id = QString());
@@ -51,8 +51,8 @@ class Database : public QObject {
     QList<Dbt::TicketFiles>                 ticketFiles(int ticket = -1);
     QList<Dbt::TicketTimesheets>            ticketTimesheets(int ticket = -1);
 
-    void        remove(const Dbt::Categories&);
-    void        save(const Dbt::Categories&);
+    template<typename T> void save(const T& id) { m_dbplugin->save(id); }
+    template<typename T> void remove(const T& id) { m_dbplugin->remove(id); }
 
     void        begin();
     void        commit();
@@ -70,8 +70,6 @@ class Database : public QObject {
     static Database *m_instance;
     Database(QObject *parent);
     bool m_isOpen;
-
-    Db::Plugins::DatabasePlugin *m_dbplugin;
 
 };
 

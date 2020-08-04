@@ -83,6 +83,12 @@ QList<Dbt::Users> DatabasePluginFotomon::authenticate(const QString& login, cons
 }
 
 
+QList<Dbt::Users> DatabasePluginFotomon::users(int id) {
+    QList<Dbt::Users> list;
+    return list;
+}
+
+
 void DatabasePluginFotomon::createCategoriesTemporaryTable() {
     MSqlQuery q(m_db);
 

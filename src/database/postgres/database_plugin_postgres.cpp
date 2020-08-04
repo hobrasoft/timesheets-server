@@ -123,9 +123,76 @@ QList<Dbt::Users> DatabasePluginPostgres::authenticate(const QString& login, con
         x.login         = q.value(i++).toString();
         x.name          = q.value(i++).toString();
         x.lang          = q.value(i++).toString();
+        x.enabled       = q.value(i++).toBool();
+        x.admin         = q.value(i++).toBool();
         list << x;
         }
     return list;
+}
+
+
+QList<Dbt::Users> DatabasePluginPostgres::users(int id) {
+    QList<Dbt::Users> list;
+    MSqlQuery q(m_db);
+    q.prepare(R"'(
+        select \"user\", login, name, lang, enabled, admin 
+            from users 
+            where (:id1 <= 0 or :id2 = \"user\");
+        )'");
+    q.bindValue(":id1", id);
+    q.bindValue(":id2", id);
+    q.exec();
+    while (q.next()) {
+        int i=0;
+        Dbt::Users x;
+        x.user          = q.value(i++).toInt();
+        x.login         = q.value(i++).toString();
+        x.name          = q.value(i++).toString();
+        x.lang          = q.value(i++).toString();
+        x.enabled       = q.value(i++).toBool();
+        x.admin         = q.value(i++).toBool();
+        list << x;
+        }
+
+    return list;
+}
+
+
+void DatabasePluginPostgres::remove(const Dbt::Categories& id) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from categories where category = :id;)'");
+    q.bindValue(":id", id.category);
+    q.exec();
+}
+
+
+void DatabasePluginPostgres::save(const Dbt::Categories& data) {
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        update categories set
+            parent_category = :parent_category,
+            description = :description,
+            price = :price,
+            where category = :category1
+        )'");
+    q.bindValue(":category1", data.category);
+    q.bindValue(":parent_category", data.parent_category);
+    q.bindValue(":description", data.description);
+    q.bindValue(":price", data.price);
+    q.exec();
+
+    q.prepare(R"'(
+        insert into categories (parent_category, description, price)
+            select :parent_category, :description, :price
+            where not exists (select 1 from categories where category = :category1);
+        )'");
+    q.bindValue(":category1", data.category);
+    q.bindValue(":parent_category", data.parent_category);
+    q.bindValue(":description", data.description);
+    q.bindValue(":price", data.price);
+    q.exec();
+
 }
 
 
@@ -155,47 +222,60 @@ QList<Dbt::Categories> DatabasePluginPostgres::categories(const QString& id) {
         list << x;
         }
 
-    PDEBUG << "pocet kategorii" << list.size();
     return list;
 }
 
 
-void DatabasePluginPostgres::remove(const Dbt::Categories& id) {
-    QList<Dbt::StatusOrder> list;
+void DatabasePluginPostgres::remove(const Dbt::Users& id) {
     MSqlQuery q(m_db);
-    q.prepare(R"'(delete from categories where category = :id;)'");
-    q.bindValue(":id", id.category);
+
+    q.prepare(R"'(select 1 from users where "user" = :id and admin and enabled;)'");
+    q.bindValue(":id", userId());
+    q.exec();
+    if (!q.next()) { return; }
+
+    q.prepare(R"'(delete from users where "user" = :id;)'");
+    q.bindValue(":id", id.user);
     q.exec();
 }
 
 
-void DatabasePluginPostgres::save(const Dbt::Categories& data) {
-    QList<Dbt::StatusOrder> list;
+void DatabasePluginPostgres::save(const Dbt::Users& data) {
     MSqlQuery q(m_db);
 
+    q.prepare(R"'(select 1 from users where "user" = :id and admin and enabled;)'");
+    q.bindValue(":id", userId());
+    q.exec();
+    if (!q.next()) { return; }
+
     q.prepare(R"'(
-        update categories set
-            parent_category = :parent_category,
-            description = :description,
-            price = :price,
-            where category = :category1
+        update users set
+            login = :login,
+            name = :name,
+            lang = :lang,
+            enabled = :enabled,
+            admin = :admin
+            where "user" = :id1
         )'");
-    q.bindValue(":category1", data.category);
-    q.bindValue(":parent_category", data.parent_category);
-    q.bindValue(":description", data.description);
-    q.bindValue(":price", data.price);
+    q.bindValue(":id1", data.user);
+    q.bindValue(":login", data.login);
+    q.bindValue(":name", data.name);
+    q.bindValue(":lang", data.lang);
+    q.bindValue(":enabled", data.enabled);
+    q.bindValue(":admin", data.admin);
     q.exec();
 
     q.prepare(R"'(
-        insert into categories (category, parent_category, description, price)
-            select :category1, :parent_category, :description, :price
-            where not exists (select 1 from categories where category = :category2);
+        insert into users (login, name, lang, enabled, admin)
+            select :login, :name, :lang, :enabled, :admin
+            where not exists (select 1 from users where "user" = :id1);
         )'");
-    q.bindValue(":category1", data.category);
-    q.bindValue(":category2", data.category);
-    q.bindValue(":parent_category", data.parent_category);
-    q.bindValue(":description", data.description);
-    q.bindValue(":price", data.price);
+    q.bindValue(":id1", data.user);
+    q.bindValue(":login", data.login);
+    q.bindValue(":name", data.name);
+    q.bindValue(":lang", data.lang);
+    q.bindValue(":enabled", data.enabled);
+    q.bindValue(":admin", data.admin);
     q.exec();
 
 }

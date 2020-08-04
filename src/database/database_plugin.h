@@ -9,7 +9,6 @@
 #include <QSqlDatabase>
 #include <QObject>
 #include "dbt.h"
-#include "database.h"
 #include "authenticateduser.h"
 
 namespace Db {
@@ -38,6 +37,7 @@ class DatabasePlugin : public QObject {
     virtual QString connectionName() const;
 
     virtual QList<Dbt::Users>                       authenticate(const QString& user, const QString& password) = 0;
+    virtual QList<Dbt::Users>                       users(int id) = 0;
     virtual QList<Dbt::Categories>                  categories(const QString& id) = 0;
     virtual QList<Dbt::StatusOrder>                 statusOrder(const QString& id) = 0;
     virtual QList<Dbt::Statuses>                    statuses(const QString& id) = 0;
@@ -50,9 +50,27 @@ class DatabasePlugin : public QObject {
     virtual QList<Dbt::TicketFiles>                 ticketFiles(int ticket) = 0;
     virtual QList<Dbt::TicketTimesheets>            ticketTimesheets(int ticket) = 0;
 
-    virtual void remove(const Dbt::Categories& id) { Q_UNUSED(id); }
 
+    virtual void remove(const Dbt::Users& data) { Q_UNUSED(data); }
+    virtual void remove(const Dbt::Categories& data) { Q_UNUSED(data); }
+    virtual void remove(const Dbt::StatusOrder& data) { Q_UNUSED(data); }
+    virtual void remove(const Dbt::Statuses& data) { Q_UNUSED(data); }
+    virtual void remove(const Dbt::Tickets& data) { Q_UNUSED(data); }
+    virtual void remove(const Dbt::TicketStatus& data) { Q_UNUSED(data); }
+    virtual void remove(const Dbt::TicketValues& data) { Q_UNUSED(data); }
+    virtual void remove(const Dbt::TicketFiles& data) { Q_UNUSED(data); }
+    virtual void remove(const Dbt::TicketTimesheets& data) { Q_UNUSED(data); }
+
+
+    virtual void save(const Dbt::Users& data) { Q_UNUSED(data); }
     virtual void save(const Dbt::Categories& data) { Q_UNUSED(data); }
+    virtual void save(const Dbt::StatusOrder& data) { Q_UNUSED(data); }
+    virtual void save(const Dbt::Statuses& data) { Q_UNUSED(data); }
+    virtual void save(const Dbt::Tickets& data) { Q_UNUSED(data); }
+    virtual void save(const Dbt::TicketStatus& data) { Q_UNUSED(data); }
+    virtual void save(const Dbt::TicketValues& data) { Q_UNUSED(data); }
+    virtual void save(const Dbt::TicketFiles& data) { Q_UNUSED(data); }
+    virtual void save(const Dbt::TicketTimesheets& data) { Q_UNUSED(data); }
 
 
   protected:
