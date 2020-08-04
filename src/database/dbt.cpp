@@ -146,3 +146,86 @@ TicketStatus TicketStatus::fromMap(const QVariantMap& data) {
 }
 
 
+
+QVariantMap TicketValues::toMap() const {
+    QVariantMap data;
+
+    data["id"] = null(id);
+    data["ticket"] = null(ticket);
+    data["user"] = null(user);
+    data["name"] = name;
+    data["value"] = value;
+
+    return data;
+}
+
+
+TicketValues TicketValues::fromMap(const QVariantMap& data) {
+    TicketValues x;
+
+    x.id = data["id"];
+    x.ticket = data["ticket"];
+    x.user = data["user"];
+    x.name = data["name"].toString();
+    x.value = data["value"].toString();
+
+    return x;
+}
+
+
+QVariantMap TicketTimesheets::toMap() const {
+    QVariantMap data;
+
+    data["id"] = null(id);
+    data["ticket"] = null(ticket);
+    data["user"] = null(user);
+    data["date_from"] = date_from;
+    data["date_to"] = date_to;
+
+    return data;
+}
+
+
+TicketTimesheets TicketTimesheets::fromMap(const QVariantMap& data) {
+    TicketTimesheets x;
+
+    x.id = data["id"];
+    x.ticket = data["ticket"];
+    x.user = data["user"];
+    x.date_from = data["date_from"].toDateTime();
+    x.date_to = data["date_to"].toDateTime();
+
+    return x;
+}
+
+
+QVariantMap TicketFiles::toMap() const {
+    QVariantMap data;
+
+    data["id"] = null(id);
+    data["ticket"] = null(ticket);
+    data["user"] = null(user);
+    data["name"] = name;
+    data["type"] = type;
+    data["content"] = content;
+
+    return data;
+}
+
+
+TicketFiles TicketFiles::fromMap(const QVariantMap& data) {
+    TicketFiles x;
+
+    x.id = data["id"];
+    x.ticket = data["ticket"];
+    x.user = data["user"];
+    x.name = data["name"].toString();
+    x.type = data["type"].toString();
+    x.content = data["content"].toByteArray();
+
+    return x;
+}
+
+
+
+

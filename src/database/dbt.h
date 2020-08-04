@@ -100,7 +100,8 @@ struct Tickets {
 struct TicketFiles {
     QVariant    id;
     QVariant    ticket;
-    QVariant    name;
+    QVariant    user;
+    QString     name;
     QString     type;
     QByteArray  content;
 
@@ -114,9 +115,9 @@ struct TicketFiles {
 struct TicketValues {
     QVariant    id;
     QVariant    ticket;
+    QVariant    user;
     QString     name;
     QString     value;
-    QVariant    user;
 
     TicketValues(const QVariant& x) { id = x; }
     TicketValues() {}

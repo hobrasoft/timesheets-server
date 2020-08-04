@@ -12,6 +12,9 @@ SOURCES += \
  $$PWD/controllercategories.cpp \
  $$PWD/controllertickets.cpp \
  $$PWD/controllerticketstatus.cpp \
+ $$PWD/controllertickettimesheets.cpp \
+ $$PWD/controllerticketvalues.cpp \
+ $$PWD/controllerticketfiles.cpp \
  $$PWD/controllerstatusorder.cpp \
  $$PWD/controllerstatuses.cpp \
 
@@ -21,6 +24,9 @@ HEADERS += \
  $$PWD/controllercategories.h \
  $$PWD/controllertickets.h \
  $$PWD/controllerticketstatus.h \
+ $$PWD/controllertickettimesheets.h \
+ $$PWD/controllerticketvalues.h \
+ $$PWD/controllerticketfiles.h \
  $$PWD/controllerstatusorder.h \
  $$PWD/controllerstatuses.h \
 
