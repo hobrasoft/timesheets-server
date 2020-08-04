@@ -37,17 +37,47 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     QList<Dbt::Tickets>                     tickets(int ticket, bool all) Q_DECL_OVERRIDE;
     QList<Dbt::TicketsVw>                   ticketsVw(bool all) Q_DECL_OVERRIDE;
     QList<Dbt::TicketsVw>                   ticketsVw(int ticket, bool all) Q_DECL_OVERRIDE;
-    QList<Dbt::TicketStatus>                ticketStatus(int ticket) Q_DECL_OVERRIDE;
-    QList<Dbt::TicketValues>                ticketValues(int ticket) Q_DECL_OVERRIDE;
-    QList<Dbt::TicketFiles>                 ticketFiles(int ticket) Q_DECL_OVERRIDE;
-    QList<Dbt::TicketTimesheets>            ticketTimesheets(int ticket) Q_DECL_OVERRIDE;
+
+    QList<Dbt::TicketStatus>                ticketStatus(int id) Q_DECL_OVERRIDE;
+    QList<Dbt::TicketStatus>                ticketStatus(int ticket, bool all) Q_DECL_OVERRIDE;
+    QList<Dbt::TicketStatus>                ticketStatus(bool all) Q_DECL_OVERRIDE;
+
+    QList<Dbt::TicketValues>                ticketValues(int id) Q_DECL_OVERRIDE;
+    QList<Dbt::TicketValues>                ticketValues(int ticket, bool all) Q_DECL_OVERRIDE;
+    QList<Dbt::TicketValues>                ticketValues(bool all) Q_DECL_OVERRIDE;
+
+    QList<Dbt::TicketFiles>                 ticketFiles(int id) Q_DECL_OVERRIDE;
+    QList<Dbt::TicketFiles>                 ticketFiles(int ticket, bool all) Q_DECL_OVERRIDE;
+    QList<Dbt::TicketFiles>                 ticketFiles(bool all) Q_DECL_OVERRIDE;
+
+    QList<Dbt::TicketTimesheets>            ticketTimesheets(int id) Q_DECL_OVERRIDE;
+    QList<Dbt::TicketTimesheets>            ticketTimesheets(int ticket, bool all) Q_DECL_OVERRIDE;
+    QList<Dbt::TicketTimesheets>            ticketTimesheets(bool all) Q_DECL_OVERRIDE;
 
 
-    void    remove(const Dbt::Categories& id) Q_DECL_OVERRIDE;
-    void    remove(const Dbt::Users& id) Q_DECL_OVERRIDE;
 
-    void    save(const Dbt::Categories& data) Q_DECL_OVERRIDE;
-    void    save(const Dbt::Users& data) Q_DECL_OVERRIDE;
+    virtual void remove(const Dbt::Users& data) Q_DECL_OVERRIDE;
+    virtual void remove(const Dbt::Categories& data) Q_DECL_OVERRIDE;
+    virtual void remove(const Dbt::StatusOrder& data) Q_DECL_OVERRIDE;
+    virtual void remove(const Dbt::Statuses& data) Q_DECL_OVERRIDE;
+    virtual void remove(const Dbt::Tickets& data) Q_DECL_OVERRIDE;
+    virtual void remove(const Dbt::TicketStatus& data) Q_DECL_OVERRIDE;
+    virtual void remove(const Dbt::TicketValues& data) Q_DECL_OVERRIDE;
+    virtual void remove(const Dbt::TicketFiles& data) Q_DECL_OVERRIDE;
+    virtual void remove(const Dbt::TicketTimesheets& data) Q_DECL_OVERRIDE;
+
+
+    virtual void save(const Dbt::Users& data) Q_DECL_OVERRIDE;
+    virtual void save(const Dbt::Categories& data) Q_DECL_OVERRIDE;
+    virtual void save(const Dbt::StatusOrder& data) Q_DECL_OVERRIDE;
+    virtual void save(const Dbt::Statuses& data) Q_DECL_OVERRIDE;
+    virtual void save(const Dbt::Tickets& data) Q_DECL_OVERRIDE;
+    virtual void save(const Dbt::TicketStatus& data) Q_DECL_OVERRIDE;
+    virtual void save(const Dbt::TicketValues& data) Q_DECL_OVERRIDE;
+    virtual void save(const Dbt::TicketFiles& data) Q_DECL_OVERRIDE;
+    virtual void save(const Dbt::TicketTimesheets& data) Q_DECL_OVERRIDE;
+
+
 
 
     void    upgrade();

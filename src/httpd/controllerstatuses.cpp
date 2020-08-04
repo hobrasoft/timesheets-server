@@ -19,6 +19,15 @@ void ControllerStatuses::serviceList (HobrasoftHttpd::HttpRequest *request, Hobr
 }
 
 
+void ControllerStatuses::serviceIdGet(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QString& id) {
+    auto list = db()->statuses(id);
+    if (list.isEmpty()) {
+        serviceError(request, response, 404, "not-found", "NotFound");
+        return;
+        }
+    serviceOK(request, response, list[0].toMap());
+}
+
 void ControllerStatuses::serviceIdPut(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QVariantMap& data) {
     db()->save(Dbt::Statuses::fromMap(data));
 }

@@ -89,6 +89,7 @@ QVariantMap Statuses::toMap() const {
     data["description"] = description;
     data["abbreviation"] = abbreviation;
     data["color"] = color;
+    data["closed"] = closed;
     return data;
 }
 
@@ -99,6 +100,7 @@ Statuses Statuses::fromMap(const QVariantMap& data) {
     x.description = data["description"].toString();
     x.abbreviation = data["abbreviation"].toString();
     x.color = data["color"].toString();
+    x.closed= data["closed"].toBool();
     return x;
 }
 
@@ -122,11 +124,25 @@ QVariantMap TicketStatus::toMap() const {
     data["id"] = null(id);
     data["ticket"] = null(ticket);
     data["user"] = null(user);
-    data["user_name"] = user_name;
     data["date"] = date;   
     data["description"] = description;
     data["status"] = null(status);
 
     return data;
 }
+
+
+TicketStatus TicketStatus::fromMap(const QVariantMap& data) {
+    TicketStatus x;
+
+    x.id = data["id"];
+    x.ticket = data["ticket"];
+    x.user = data["user"];
+    x.date = data["date"].toDateTime();
+    x.description = data["description"].toString();
+    x.status = data["status"];
+
+    return x;
+}
+
 

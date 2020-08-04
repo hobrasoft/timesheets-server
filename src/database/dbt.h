@@ -73,11 +73,12 @@ struct Statuses {
     QString     description;
     QString     abbreviation;
     QString     color;
+    bool        closed;
 
     QVariantMap toMap() const;
     static Statuses fromMap(const QVariantMap&);
-    Statuses(const QString& id) { status = id; }
-    Statuses() {}
+    Statuses(const QString& id) { status = id; closed = false; }
+    Statuses() { closed = false; }
 };
 
 
@@ -90,16 +91,23 @@ struct Tickets {
     int         user;
 
     QVariantMap toMap() const;
+    static Tickets fromMap(const QVariantMap&);
     Tickets() { user = 0; }
+    Tickets(const QVariant& x) { ticket = x; }
 };
 
 
 struct TicketFiles {
     QVariant    id;
     QVariant    ticket;
+    QVariant    name;
     QString     type;
-    QByteArray  file;
+    QByteArray  content;
+
+    TicketFiles(const QVariant& x) { id = x; }
+    TicketFiles(){}
     QVariantMap toMap() const;
+    static TicketFiles fromMap(const QVariantMap&);
 };
 
 
@@ -108,7 +116,12 @@ struct TicketValues {
     QVariant    ticket;
     QString     name;
     QString     value;
+    QVariant    user;
+
+    TicketValues(const QVariant& x) { id = x; }
+    TicketValues() {}
     QVariantMap toMap() const;
+    static TicketValues fromMap(const QVariantMap&);
 };
 
 
@@ -116,22 +129,29 @@ struct TicketStatus {
     QVariant    id;
     QVariant    ticket;
     QVariant    user;
-    QString     user_name;
     QDateTime   date;   
     QString     description;
     QVariant    status;
 
+    TicketStatus(const QVariant& x) { id = x; }
+    TicketStatus() {}
     QVariantMap toMap() const;
+    static TicketStatus fromMap(const QVariantMap&);
+    
 };
 
 
 struct TicketTimesheets {
     QVariant    id;
     QVariant    ticket;
+    QVariant    user;
     QDateTime   date_from;
     QDateTime   date_to;
 
+    TicketTimesheets(const QVariant& x) { id = x; }
+    TicketTimesheets() {}
     QVariantMap toMap() const;
+    static TicketTimesheets fromMap(const QVariantMap&);
 };
 
 

@@ -353,7 +353,7 @@ QList<Dbt::Tickets> DatabasePluginFotomon::tickets(int ticket, bool all) {
 }
 
 
-QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(int ticket) {
+QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(int ticket, bool all) {
     PDEBUG;
     QList<Dbt::TicketStatus> list;
     MSqlQuery q(m_db);
@@ -384,7 +384,7 @@ QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(int ticket) {
                   and u.is_active and not u.is_deleted
             )
 
-        select tn.note, tn.ticket, t."user", u.name as user_name, tn.date, tn.status,
+        select tn.note, tn.ticket, t."user", tn.date, tn.status,
                 case when tn.description != '' then tn.description else tn.formal_description->0->'description'->>'cs' end as description
             from tickets_notes tn
             left join tickets t on (t.ticket = tn.ticket)
@@ -405,7 +405,6 @@ QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(int ticket) {
         x.id            = q.value(i++);
         x.ticket        = q.value(i++);
         x.user          = q.value(i++);
-        x.user_name     = q.value(i++).toString();
         x.date          = q.value(i++).toDateTime();
         x.status        = q.value(i++);
         x.description   = q.value(i++).toString();
@@ -413,6 +412,18 @@ QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(int ticket) {
         }
     return list;
 }
+
+
+QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(bool all) {
+    return ticketStatus(-1, all);
+}
+
+
+QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(int id) {
+    QList<Dbt::TicketStatus> list;
+    return list;
+}
+
 
 QList<Dbt::TicketsVw> DatabasePluginFotomon::ticketsVw(bool all) {
     return ticketsVw(-1, all);
@@ -424,14 +435,50 @@ QList<Dbt::TicketsVw> DatabasePluginFotomon::ticketsVw(int ticket, bool all) {
 }
 
 
-QList<Dbt::TicketTimesheets> DatabasePluginFotomon::ticketTimesheets(int ticket) {
+QList<Dbt::TicketTimesheets> DatabasePluginFotomon::ticketTimesheets(int ticket, bool all) {
     QList<Dbt::TicketTimesheets> list;
+    return list;
+}
+
+
+QList<Dbt::TicketTimesheets> DatabasePluginFotomon::ticketTimesheets(bool all) {
+    QList<Dbt::TicketTimesheets> list;
+    return list;
+}
+
+
+QList<Dbt::TicketTimesheets> DatabasePluginFotomon::ticketTimesheets(int id) {
+    QList<Dbt::TicketTimesheets> list;
+    return list;
+}
+
+
+QList<Dbt::TicketFiles> DatabasePluginFotomon::ticketFiles(int ticket, bool all) {
+    QList<Dbt::TicketFiles> list;
+    return list;
+}
+
+
+QList<Dbt::TicketFiles> DatabasePluginFotomon::ticketFiles(bool all) {
+    QList<Dbt::TicketFiles> list;
     return list;
 }
 
 
 QList<Dbt::TicketFiles> DatabasePluginFotomon::ticketFiles(int ticket) {
     QList<Dbt::TicketFiles> list;
+    return list;
+}
+
+
+QList<Dbt::TicketValues> DatabasePluginFotomon::ticketValues(int ticket, bool all) {
+    QList<Dbt::TicketValues> list;
+    return list;
+}
+
+
+QList<Dbt::TicketValues> DatabasePluginFotomon::ticketValues(bool all) {
+    QList<Dbt::TicketValues> list;
     return list;
 }
 

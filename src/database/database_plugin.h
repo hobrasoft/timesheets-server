@@ -41,14 +41,28 @@ class DatabasePlugin : public QObject {
     virtual QList<Dbt::Categories>                  categories(const QString& id) = 0;
     virtual QList<Dbt::StatusOrder>                 statusOrder(const QString& id) = 0;
     virtual QList<Dbt::Statuses>                    statuses(const QString& id) = 0;
+
     virtual QList<Dbt::Tickets>                     tickets(bool all) = 0;
     virtual QList<Dbt::Tickets>                     tickets(int ticket, bool all) = 0;
+
     virtual QList<Dbt::TicketsVw>                   ticketsVw(bool all) = 0;
     virtual QList<Dbt::TicketsVw>                   ticketsVw(int ticket, bool all) = 0;
-    virtual QList<Dbt::TicketStatus>                ticketStatus(int ticket) = 0;
-    virtual QList<Dbt::TicketValues>                ticketValues(int ticket) = 0;
-    virtual QList<Dbt::TicketFiles>                 ticketFiles(int ticket) = 0;
-    virtual QList<Dbt::TicketTimesheets>            ticketTimesheets(int ticket) = 0;
+
+    virtual QList<Dbt::TicketStatus>                ticketStatus(int id) = 0;
+    virtual QList<Dbt::TicketStatus>                ticketStatus(bool all) = 0;
+    virtual QList<Dbt::TicketStatus>                ticketStatus(int ticket, bool all) = 0;
+
+    virtual QList<Dbt::TicketValues>                ticketValues(int id) = 0;
+    virtual QList<Dbt::TicketValues>                ticketValues(bool all) = 0;
+    virtual QList<Dbt::TicketValues>                ticketValues(int ticket, bool all) = 0;
+
+    virtual QList<Dbt::TicketFiles>                 ticketFiles(int id) = 0;
+    virtual QList<Dbt::TicketFiles>                 ticketFiles(bool all) = 0;
+    virtual QList<Dbt::TicketFiles>                 ticketFiles(int ticket, bool all) = 0;
+
+    virtual QList<Dbt::TicketTimesheets>            ticketTimesheets(int id) = 0;
+    virtual QList<Dbt::TicketTimesheets>            ticketTimesheets(bool all) = 0;
+    virtual QList<Dbt::TicketTimesheets>            ticketTimesheets(int ticket, bool all) = 0;
 
 
     virtual void remove(const Dbt::Users& data) { Q_UNUSED(data); }

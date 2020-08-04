@@ -163,22 +163,62 @@ QList<Dbt::TicketsVw> Database::ticketsVw(bool all) {
 }
 
 
-QList<Dbt::TicketStatus> Database::ticketStatus(int ticket) {
-    return m_dbplugin->ticketStatus(ticket);
+QList<Dbt::TicketStatus> Database::ticketStatus(int ticket, bool all) {
+    return m_dbplugin->ticketStatus(ticket, all);
 }
 
 
-QList<Dbt::TicketValues> Database::ticketValues(int ticket) {
-    return m_dbplugin->ticketValues(ticket);
+QList<Dbt::TicketStatus> Database::ticketStatus(int id) {
+    return m_dbplugin->ticketStatus(id);
 }
 
 
-QList<Dbt::TicketFiles> Database::ticketFiles(int ticket) {
-    return m_dbplugin->ticketFiles(ticket);
+QList<Dbt::TicketStatus> Database::ticketStatus(bool all) {
+    return m_dbplugin->ticketStatus(all);
 }
 
 
-QList<Dbt::TicketTimesheets> Database::ticketTimesheets(int ticket) {
-    return m_dbplugin->ticketTimesheets(ticket);
+QList<Dbt::TicketValues> Database::ticketValues(int id) {
+    return m_dbplugin->ticketValues(id);
+}
+
+
+QList<Dbt::TicketValues> Database::ticketValues(bool all) {
+    return m_dbplugin->ticketValues(all);
+}
+
+
+QList<Dbt::TicketValues> Database::ticketValues(int ticket, bool all) {
+    return m_dbplugin->ticketValues(ticket, all);
+}
+
+
+QList<Dbt::TicketFiles> Database::ticketFiles(int id) {
+    return m_dbplugin->ticketFiles(id);
+}
+
+
+QList<Dbt::TicketFiles> Database::ticketFiles(bool all) {
+    return m_dbplugin->ticketFiles(all);
+}
+
+
+QList<Dbt::TicketFiles> Database::ticketFiles(int ticket, bool all) {
+    return m_dbplugin->ticketFiles(ticket, all);
+}
+
+
+QList<Dbt::TicketTimesheets> Database::ticketTimesheets(int id) {
+    return m_dbplugin->ticketTimesheets(id);
+}
+
+
+QList<Dbt::TicketTimesheets> Database::ticketTimesheets(bool all) {
+    return m_dbplugin->ticketTimesheets(all);
+}
+
+
+QList<Dbt::TicketTimesheets> Database::ticketTimesheets(int ticket, bool all) {
+    return m_dbplugin->ticketTimesheets(ticket, all);
 }
 

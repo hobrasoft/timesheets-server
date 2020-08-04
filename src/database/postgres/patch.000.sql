@@ -10,7 +10,7 @@ create rule version_no_insert as on insert to version
     do instead update version set version = new.version;
 
 
-create table users (
+ceate table users (
    "user"       serial primary key,
     login       text,
     name        text,
@@ -73,6 +73,7 @@ create table tickets (
 create table ticket_timesheets (
     id              serial primary key,
     ticket          int references tickets(ticket) on update cascade on delete cascade,
+   "user"           int references users("user") on update set null on delete set null,
     date_from       timestamp with time zone not null,
     date_to         timestamp with time zone
 );
@@ -91,6 +92,7 @@ create table ticket_status (
 create table ticket_values (
     id              serial primary key,
     ticket          int references tickets(ticket) on update cascade on delete cascade,
+   "user"           int references users("user") on update set null on delete set null,
     name            text,
     value           text
 );
@@ -99,9 +101,10 @@ create table ticket_values (
 create table ticket_files (
     id              serial primary key,
     ticket          int references tickets(ticket) on update cascade on delete cascade,
+   "user"           int references users("user") on update set null on delete set null,
     name            text,
     type            text,
-    content         text
+    content         bytea
 );
 
 commit;

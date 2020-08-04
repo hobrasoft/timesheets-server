@@ -112,7 +112,7 @@ QList<Dbt::Users> DatabasePluginPostgres::authenticate(const QString& login, con
     QString md5 = QString::fromUtf8(QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Md5).toHex());
     QList<Dbt::Users> list;
     MSqlQuery q(m_db);
-    q.prepare("select \"user\", login, name, lang from users where login = :login and password = :password and enabled;");
+    q.prepare("select \"user\", login, name, lang, enabled, admin from users where login = :login and password = :password and enabled;");
     q.bindValue(":login", login);
     q.bindValue(":password", md5);
     q.exec();
@@ -135,9 +135,9 @@ QList<Dbt::Users> DatabasePluginPostgres::users(int id) {
     QList<Dbt::Users> list;
     MSqlQuery q(m_db);
     q.prepare(R"'(
-        select \"user\", login, name, lang, enabled, admin 
+        select "user", login, name, lang, enabled, admin 
             from users 
-            where (:id1 <= 0 or :id2 = \"user\");
+            where (:id1 <= 0 or :id2 = "user");
         )'");
     q.bindValue(":id1", id);
     q.bindValue(":id2", id);
@@ -210,7 +210,6 @@ QList<Dbt::Categories> DatabasePluginPostgres::categories(const QString& id) {
     q.bindValue(":user", userId());
     q.bindValue(":id1", id.toInt());
     q.bindValue(":id2", id.toInt());
-    PDEBUG << q.lastBoundQuery();
     q.exec();
     while (q.next()) {
         int i=0;
@@ -285,20 +284,20 @@ QList<Dbt::StatusOrder> DatabasePluginPostgres::statusOrder(const QString& id) {
     QList<Dbt::StatusOrder> list;
     MSqlQuery q(m_db);
 
-    q.exec(R"'(
-        select category, previous_status, next_status from status_order
-        where (:id1 <= 0 or :id2 = id);
+    q.prepare(R"'(
+        select id, category, previous_status, next_status from status_order
+        where (:id1 < 0 or :id2 = id);
         )'");
     q.bindValue(":id1", id.toInt());
     q.bindValue(":id2", id.toInt());
+    q.exec();
     while (q.next()) {
         int i = 0;
         Dbt::StatusOrder x;
-        PDEBUG << q.value(0).isValid() << q.value(0).isNull();
+        x.id                = q.value(i++).toInt();
         x.category          = q.value(i++);
         x.previous_status   = q.value(i++);
         x.next_status       = q.value(i++);
-        PDEBUG << x.toMap();
         list << x;
         }
 
@@ -307,28 +306,40 @@ QList<Dbt::StatusOrder> DatabasePluginPostgres::statusOrder(const QString& id) {
 }
 
 
-QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& id) {
-    QList<Dbt::Statuses> list;
+void DatabasePluginPostgres::remove(const Dbt::StatusOrder& id) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from status_order where id = :id;)'");
+    q.bindValue(":id", id.id);
+    q.exec();
+}
+
+
+void DatabasePluginPostgres::save(const Dbt::StatusOrder& data) {
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
-        select status, description, abbreviation, color from statuses
-        where (:id1 = '' or :id2 = status)
+        update status_order set
+            category = :category,
+            previous_status = :previous_status,
+            next_status = :next_status
+            where id = :id
         )'");
+    q.bindValue(":category", data.category);
+    q.bindValue(":previous_status", data.previous_status);
+    q.bindValue(":next_status", data.next_status);
+    q.bindValue(":id", data.id);
     q.exec();
-    q.bindValue(":id1", id);
-    q.bindValue(":id2", id);
-    while (q.next()) {
-        int i=0;
-        Dbt::Statuses x;
-        x.status = q.value(i++).toString();
-        x.description = q.value(i++).toString();
-        x.abbreviation = q.value(i++).toString();
-        x.color = q.value(i++).toString();
-        list << x;
-        }
 
-    return list;
+    q.prepare(R"'(
+        insert into status_order (category, previous_status, next_status)
+            select :category, :previous_status, :next_status
+            where not exists (select 1 from tickets where id = :id);
+        )'");
+    q.bindValue(":category", data.category);
+    q.bindValue(":previous_status", data.previous_status);
+    q.bindValue(":next_status", data.next_status);
+    q.bindValue(":id", data.id);
+    q.exec();
 }
 
 
@@ -424,14 +435,57 @@ QList<Dbt::Tickets> DatabasePluginPostgres::tickets(int ticket, bool all) {
 }
 
 
-QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int ticket) {
+void DatabasePluginPostgres::remove(const Dbt::Tickets& id) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from ticketswhere category = :id;)'");
+    q.bindValue(":id", id.ticket);
+    q.exec();
+}
+
+
+void DatabasePluginPostgres::save(const Dbt::Tickets& data) {
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        update tickets set
+            category = :category,
+            date = :date,
+            price = :price,
+            description = :description,
+           "user" = :user,
+            where ticket = :ticket
+        )'");
+    q.bindValue(":category", data.category);
+    q.bindValue(":date", data.date);
+    q.bindValue(":price", data.price);
+    q.bindValue(":description", data.description);
+    q.bindValue(":user", data.user);
+    q.bindValue(":ticket", data.ticket);
+    q.exec();
+
+    q.prepare(R"'(
+        insert into tickets (category, date, price, description)
+            select :category, :date, :price, :description
+            where not exists (select 1 from tickets where ticket = :ticket);
+        )'");
+    q.bindValue(":category", data.category);
+    q.bindValue(":date", data.date);
+    q.bindValue(":price", data.price);
+    q.bindValue(":description", data.description);
+    q.bindValue(":user", data.user);
+    q.bindValue(":ticket", data.ticket);
+    q.exec();
+}
+
+
+QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int ticket, bool all) {
     PDEBUG;
-    createTemporaryTableTickets(ticket);
+    createTemporaryTableTickets(ticket, all);
     QList<Dbt::TicketStatus> list;
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
-        select ts.id, ts.ticket, ts."user", u.name, ts.date, ts.description, ts.status
+        select ts.id, ts.ticket, ts."user", ts.date, ts.description, ts.status
             from temporary_tickets t, ticket_status ts, users u
             where t.ticket = ts.ticket
               and u."user" = ts."user"
@@ -443,7 +497,6 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int ticket) {
         x.id            = q.value(i++);
         x.ticket        = q.value(i++);
         x.user          = q.value(i++);
-        x.user_name     = q.value(i++).toString();
         x.date          = q.value(i++).toDateTime();
         x.description   = q.value(i++).toString();
         x.status        = q.value(i++);
@@ -453,24 +506,104 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int ticket) {
 }
 
 
+QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(bool all) {
+    return ticketStatus(-1, all);
+}
+
+
+QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int id) {
+    PDEBUG;
+    QList<Dbt::TicketStatus> list;
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        select ts.id, ts.ticket, ts."user", ts.date, ts.description, ts.status
+            from ticket_status ts, users u, tickets t, users_categories uc
+            where ts.id = :id
+              and t.ticket = ts.ticket
+              and t.category = uc.category
+              and u."user" = ts."user"
+        )'");
+    q.bindValue(":id", id);
+    q.bindValue(":user", userId());
+    q.exec();
+    while (q.next()) {
+        Dbt::TicketStatus x;
+        int i=0;
+        x.id            = q.value(i++);
+        x.ticket        = q.value(i++);
+        x.user          = q.value(i++);
+        x.date          = q.value(i++).toDateTime();
+        x.description   = q.value(i++).toString();
+        x.status        = q.value(i++);
+        list << x;
+        }
+    return list;
+}
+
+
+
+void DatabasePluginPostgres::remove(const Dbt::TicketStatus& id) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from ticket_status where id = :id;)'");
+    q.bindValue(":id", id.id);
+    q.exec();
+}
+
+
+void DatabasePluginPostgres::save(const Dbt::TicketStatus& data) {
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        update ticket_status set
+            ticket = :ticket,
+           "user" = :user,
+            date = :date,
+            description = :description,
+            status = :status
+            where id = :id
+        )'");
+    q.bindValue(":id", data.id);
+    q.bindValue(":user", data.user);
+    q.bindValue(":ticket", data.ticket);
+    q.bindValue(":date", data.date);
+    q.bindValue(":description", data.description);
+    q.bindValue(":status", data.status);
+    q.exec();
+
+    q.prepare(R"'(
+        insert into ticket_status (ticket, "user", date, description, status)
+            select :ticket, :user, :date, :description, :status
+            where not exists (select 1 from ticket_status where id = :id);
+        )'");
+    q.bindValue(":id", data.id);
+    q.bindValue(":user", data.user);
+    q.bindValue(":ticket", data.ticket);
+    q.bindValue(":date", data.date);
+    q.bindValue(":description", data.description);
+    q.exec();
+
+}
+
+
 QList<Dbt::TicketsVw> DatabasePluginPostgres::ticketsVw(bool all) {
     return ticketsVw(-1, all);
 }
 
 
 QList<Dbt::TicketsVw> DatabasePluginPostgres::ticketsVw(int ticket, bool all) {
-    createTemporaryTableTickets(ticket);
+    createTemporaryTableTickets(ticket, all);
     QList<Dbt::TicketsVw> list;
     return list;
 }
 
 
-QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(int ticket) {
-    createTemporaryTableTickets(ticket);
+QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(int ticket, bool all) {
+    createTemporaryTableTickets(ticket, all);
     QList<Dbt::TicketTimesheets> list;
     MSqlQuery q(m_db);
     q.prepare(R"'(
-        select tt.id, tt.ticket, tt."user", tt.date, tt.description, tt.status
+        select tt.id, tt.ticket, tt."user", tt.date_from, tt.date_to
             from temporary_tickets t, tickets_timesheets tt
             where t.ticket = tt.ticket
               and :user = tt."user"
@@ -483,6 +616,7 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(int ticket
         Dbt::TicketTimesheets x;
         x.id            = q.value(i++);
         x.ticket        = q.value(i++);
+        x.user          = q.value(i++).toInt();
         x.date_from     = q.value(i++).toDateTime();
         x.date_to       = q.value(i++).toDateTime();
         list << x;
@@ -491,18 +625,87 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(int ticket
 }
 
 
-QList<Dbt::TicketFiles> DatabasePluginPostgres::ticketFiles(int ticket) {
-    QList<Dbt::TicketFiles> list;
+QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(int id) {
+    QList<Dbt::TicketTimesheets> list;
+    MSqlQuery q(m_db);
+    q.prepare(R"'(
+        select tt.id, tt.ticket, tt."user", tt.date_from, tt.date_to
+            from ticket_timesheets tt, tickets t, users_categories uc
+            where t.ticket = tt.ticket
+              and t.category = uc.category
+              and uc."user" = :user
+              and :id = tt.id
+            ;
+        )'");
+    q.bindValue(":user", userId());
+    q.bindValue(":id", id);
+    q.exec();
+    while (q.next()) {
+        int i=0;
+        Dbt::TicketTimesheets x;
+        x.id            = q.value(i++);
+        x.ticket        = q.value(i++);
+        x.user          = q.value(i++).toInt();
+        x.date_from     = q.value(i++).toDateTime();
+        x.date_to       = q.value(i++).toDateTime();
+        list << x;
+        }
     return list;
 }
 
 
-QList<Dbt::TicketValues> DatabasePluginPostgres::ticketValues(int ticket) {
-    createTemporaryTableTickets(ticket);
+QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(bool all) {
+    return ticketTimesheets(-1, all);
+}
+
+
+void DatabasePluginPostgres::save(const Dbt::TicketTimesheets& data) {
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        update ticket_timesheets set
+            ticket = :ticket,
+           "user" = :user,
+            date_from = :date_from,
+            date_to = :date_to
+            where id = :id
+        )'");
+    q.bindValue(":id", data.id);
+    q.bindValue(":user", data.user);
+    q.bindValue(":ticket", data.ticket);
+    q.bindValue(":date_from", data.date_from);
+    q.bindValue(":date_to", data.date_to);
+    q.exec();
+
+    q.prepare(R"'(
+        insert into ticket_timesheets (ticket, "user", date_from, date_to)
+            select :ticket, :user, :date_from, :date_to
+            where not exists (select 1 from ticket_timesheets where id = :id);
+        )'");
+    q.bindValue(":id", data.id);
+    q.bindValue(":user", data.user);
+    q.bindValue(":ticket", data.ticket);
+    q.bindValue(":date_from", data.date_from);
+    q.bindValue(":date_to", data.date_to);
+    q.exec();
+
+}
+
+
+void DatabasePluginPostgres::remove(const Dbt::TicketTimesheets& id) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from ticket_timesheets where id = :id;)'");
+    q.bindValue(":id", id.id);
+    q.exec();
+}
+
+
+QList<Dbt::TicketValues> DatabasePluginPostgres::ticketValues(int ticket, bool all) {
+    createTemporaryTableTickets(ticket, all);
     QList<Dbt::TicketValues> list;
     MSqlQuery q(m_db);
     q.prepare(R"'(
-        select tv.id, tt.ticket, tt.name, tt.value
+        select tv.id, tt.ticket, tt.name, tt.value, tv."user"
             from temporary_tickets t, tickets_values tv
             where t.ticket = tv.ticket
             ;
@@ -515,9 +718,252 @@ QList<Dbt::TicketValues> DatabasePluginPostgres::ticketValues(int ticket) {
         x.ticket        = q.value(i++);
         x.name          = q.value(i++).toString();
         x.value         = q.value(i++).toString();
+        x.user          = q.value(i++).toInt();
         list << x;
         }
     return list;
+}
+
+
+QList<Dbt::TicketValues> DatabasePluginPostgres::ticketValues(int id) {
+    QList<Dbt::TicketValues> list;
+    MSqlQuery q(m_db);
+    q.prepare(R"'(
+        select tv.id, tt.ticket, tt.name, tt.value, tv."user"
+            from tickets t, tickets_values tv, user_categories uc
+            where t.ticket = tv.ticket
+              and t.category = uc.category
+              and uc.user = :user
+              and :id = id
+            ;
+        )'");
+    q.bindValue(":id", id);
+    q.bindValue(":user", userId());
+    q.exec();
+    while (q.next()) {
+        int i=0;
+        Dbt::TicketValues x;
+        x.id            = q.value(i++);
+        x.ticket        = q.value(i++);
+        x.name          = q.value(i++).toString();
+        x.value         = q.value(i++).toString();
+        x.user          = q.value(i++).toInt();
+        list << x;
+        }
+    return list;
+}
+
+
+QList<Dbt::TicketValues> DatabasePluginPostgres::ticketValues(bool all) {
+    return ticketValues(-1, all);
+}
+
+
+void DatabasePluginPostgres::save(const Dbt::TicketValues& data) {
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        update ticket_values set
+            ticket = :ticket,
+            name = :name,
+            value = :value
+            where id = :id
+        )'");
+    q.bindValue(":id", data.id);
+    q.bindValue(":name", data.name);
+    q.bindValue(":value", data.value);
+    q.bindValue(":ticket", data.ticket);
+    q.exec();
+
+    q.prepare(R"'(
+        insert into ticket_values (ticket, name, value)
+            select :ticket, :name, :value
+            where not exists (select 1 from ticket_values where id = :id);
+        )'");
+    q.bindValue(":id", data.id);
+    q.bindValue(":name", data.name);
+    q.bindValue(":value", data.value);
+    q.bindValue(":ticket", data.ticket);
+    q.exec();
+
+}
+
+
+void DatabasePluginPostgres::remove(const Dbt::TicketValues& id) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from ticket_values where id = :id;)'");
+    q.bindValue(":id", id.id);
+    q.exec();
+}
+
+
+QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& id) {
+    QList<Dbt::Statuses> list;
+    MSqlQuery q(m_db);
+    q.prepare(R"'(
+        select status, description, abbreviation, color, closed
+        from statuses
+        where (:id1 = '' or :id2 = status)
+        )'");
+    q.bindValue(":id1", id);
+    q.bindValue(":id2", id);
+    q.exec();
+    while (q.next()) {
+        int i=0;
+        Dbt::Statuses x;
+        x.status = q.value(i++).toString();
+        x.description = q.value(i++).toString();
+        x.abbreviation = q.value(i++).toString();
+        x.color = q.value(i++).toString();
+        x.closed = q.value(i++).toBool();
+        list << x;
+        PDEBUG << JSON::json(x.toMap());
+        }
+    return list;
+}
+
+
+void DatabasePluginPostgres::remove(const Dbt::Statuses& id) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from statuses where status = :id;)'");
+    q.bindValue(":id", id.status);
+    q.exec();
+}
+
+
+void DatabasePluginPostgres::save(const Dbt::Statuses& data) {
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        update statuses set
+            description = :description,
+            abbreviation = :abbreviation,
+            color = :color,
+            closed = :closed
+            where status = :status
+        )'");
+    q.bindValue(":description", data.description);
+    q.bindValue(":abbreviation", data.abbreviation);
+    q.bindValue(":color", data.color);
+    q.bindValue(":closed", data.closed);
+    q.bindValue(":status", data.status);
+    q.exec();
+
+    q.prepare(R"'(
+        insert into statuses (description, abbreviation, color, closed)
+            select :description, abbreviation, color, closed
+            where not exists (select 1 from tickets where status = :status);
+        )'");
+    q.bindValue(":description", data.description);
+    q.bindValue(":abbreviation", data.abbreviation);
+    q.bindValue(":color", data.color);
+    q.bindValue(":closed", data.closed);
+    q.bindValue(":status", data.status);
+    q.exec();
+}
+
+
+QList<Dbt::TicketFiles> DatabasePluginPostgres::ticketFiles(int ticket, bool all) {
+    createTemporaryTableTickets(ticket, all);
+    QList<Dbt::TicketFiles> list;
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        select f.id, f.ticket, f.name, f.type, f.content
+            from temporary_tickets t, ticket_files tv
+            where t.ticket = tv.ticket
+            ;
+        )'");
+    q.exec();
+    while (q.next()) {
+        int i=0;
+        Dbt::TicketFiles x;
+        x.id        = q.value(i++);
+        x.ticket    = q.value(i++);
+        x.name      = q.value(i++).toString();
+        x.type      = q.value(i++).toString();
+        x.content   = q.value(i++).toByteArray();
+        list << x;
+        }
+
+    return list;
+}
+
+
+QList<Dbt::TicketFiles> DatabasePluginPostgres::ticketFiles(int id) {
+    QList<Dbt::TicketFiles> list;
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        select f.id, f.ticket, f.name, f.type, f.content
+            from ticket_files f, users u, tickets t, users_categories us
+            where ts.id = :id
+              and t.ticket = ts.ticket
+              and t.category = uc.category
+              and u."user" = ts."user"
+            ;
+        )'");
+    q.bindValue(":id", id);
+    q.bindValue(":user", userId());
+    q.exec();
+    while (q.next()) {
+        int i=0;
+        Dbt::TicketFiles x;
+        x.id        = q.value(i++);
+        x.ticket    = q.value(i++);
+        x.name      = q.value(i++).toString();
+        x.type      = q.value(i++).toString();
+        x.content   = q.value(i++).toByteArray();
+        list << x;
+        }
+
+    return list;
+}
+
+
+QList<Dbt::TicketFiles> DatabasePluginPostgres::ticketFiles(bool all) {
+    return ticketFiles(-1, all);
+}
+
+
+void DatabasePluginPostgres::save(const Dbt::TicketFiles& data) {
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        update ticket_files set
+            ticket = :ticket,
+            name = :name,
+            type = :type,
+            content = :content
+            where id = :id
+        )'");
+    q.bindValue(":id", data.id);
+    q.bindValue(":ticket", data.ticket);
+    q.bindValue(":name", data.name);
+    q.bindValue(":type", data.type);
+    q.bindValue(":content", data.content);
+    q.exec();
+
+    q.prepare(R"'(
+        insert into ticket_files (ticket, name, type, content)
+            select :ticket, :name, :type, :content
+            where not exists (select 1 from ticket_files where id = :id);
+        )'");
+    q.bindValue(":id", data.id);
+    q.bindValue(":ticket", data.ticket);
+    q.bindValue(":name", data.name);
+    q.bindValue(":type", data.type);
+    q.bindValue(":content", data.content);
+    q.exec();
+
+}
+
+
+void DatabasePluginPostgres::remove(const Dbt::TicketFiles& id) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from ticket_files where id = :id;)'");
+    q.bindValue(":id", id.id);
+    q.exec();
 }
 
 

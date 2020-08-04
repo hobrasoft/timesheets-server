@@ -19,6 +19,16 @@ void ControllerUsers::serviceList (HobrasoftHttpd::HttpRequest *request, Hobraso
 }
 
 
+void ControllerUsers::serviceIdGet(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QString& id) {
+    auto list = db()->users(id.toInt());
+    if (list.isEmpty()) {
+        serviceError(request, response, 404, "not-found", "NotFound");
+        return;
+        }
+    serviceOK(request, response, list[0].toMap());
+}
+
+
 void ControllerUsers::serviceIdPut(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QVariantMap& data) {
     db()->save(Dbt::Users::fromMap(data));
 }
