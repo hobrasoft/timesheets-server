@@ -10,26 +10,26 @@
 using namespace Httpd;
 
 
-Users::Users(HobrasoftHttpd::HttpConnection *parent) : AbstractController(parent) {
+ControllerUsers::ControllerUsers(HobrasoftHttpd::HttpConnection *parent) : AbstractController(parent) {
 }
 
 
-void Users::serviceList (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
+void ControllerUsers::serviceList (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
     serviceOK(request, response, toList(db()->users()));
 }
 
 
-void Users::serviceIdPut(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QVariantMap& data) {
+void ControllerUsers::serviceIdPut(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QVariantMap& data) {
     db()->save(Dbt::Users::fromMap(data));
 }
 
 
-void Users::serviceIdPost(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QVariantMap& data) {
+void ControllerUsers::serviceIdPost(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QVariantMap& data) {
     serviceIdPut(request, response, data);
 }
 
 
-void Users::serviceIdDelete(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QString& id) {
+void ControllerUsers::serviceIdDelete(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QString& id) {
     db()->remove(Dbt::Users(id.toInt()));
     serviceOK(request, response);
 }

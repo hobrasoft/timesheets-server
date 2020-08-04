@@ -23,6 +23,7 @@
 #include "controllerstatuses.h"
 #include "controllertickets.h"
 #include "controllerticketstatus.h"
+#include "controllerusers.h"
 
 using namespace HobrasoftHttpd;
 using namespace Httpd;
@@ -91,6 +92,7 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
     ROUTER("/api/v1/statuses",                         ControllerStatuses);
     ROUTER("/api/v1/tickets",                          ControllerTickets);
     ROUTER("/api/v1/server",                           ControllerServer);
+    ROUTER("/api/v1/users",                            ControllerUsers);
 
     /**
      * Po speciálních požadavcích se volá SHTML interpreter.

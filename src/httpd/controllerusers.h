@@ -33,10 +33,10 @@ Vrací seznam všech uživatelů
 
 
 */
-class Users : public AbstractController {
+class ControllerUsers : public AbstractController {
     Q_OBJECT
   public:
-    Users(HobrasoftHttpd::HttpConnection *parent);
+    ControllerUsers(HobrasoftHttpd::HttpConnection *parent);
 
   protected:
 
