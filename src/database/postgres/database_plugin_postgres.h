@@ -97,6 +97,7 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     QString         m_password;
     int             m_port;
 
+    static bool     m_upgraded;
 
 };
 

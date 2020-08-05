@@ -25,12 +25,25 @@ namespace Httpd {
 /**
 @brief Manipulace s uživateli
 
-GET
-----
-Vrací seznam všech uživatelů
-@code
-@endcode
+Implementuje metody:
+- get
+- post, put
+- delete
 
+Uživatele může modifikovat pouze přihlášený uživatel s právy administrátora.
+
+
+Struktura jednoho záznamu:
+@code
+{
+"admin": true,
+"enabled": true,
+"lang": "en",
+"login": "admin",
+"name": "Administrator",
+"user": 1
+}
+@endcode
 
 */
 class ControllerUsers : public AbstractController {

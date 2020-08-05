@@ -33,7 +33,6 @@ void ControllerUsers::serviceIdGet(HobrasoftHttpd::HttpRequest *request, Hobraso
 void ControllerUsers::serviceIdPut(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QVariantMap& data) {
     QVariantMap x;
     x["key"] = db()->save(Dbt::Users::fromMap(data));
-    PDEBUG << "USER" << x["key"];
     serviceOK(request, response, x);
 }
 

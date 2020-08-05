@@ -15,6 +15,8 @@
 
 using namespace Db::Plugins;
 
+bool DatabasePluginPostgres::m_upgraded = false;
+
 
 DatabasePluginPostgres::~DatabasePluginPostgres() {
     close();
@@ -49,7 +51,9 @@ bool DatabasePluginPostgres::open() {
 
 
 void DatabasePluginPostgres::upgrade() {
+    if (m_upgraded) { return; }
     PDEBUG;
+    m_upgraded = true;
     MSqlQuery q(m_db);
     q.exec("select version from version;");
     int version = (q.next()) ? q.value(0).toInt() : -1;
