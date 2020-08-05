@@ -16,7 +16,7 @@
 class Logger : public QObject {
     Q_OBJECT
   public:
-    static Logger *logger(QObject *parent = NULL);
+    static Logger *instance(QObject *parent = NULL);
     static void messageOutput(const QString&);
 
 
@@ -36,6 +36,8 @@ class Logger : public QObject {
     static QHostAddress m_debugAddress;
     static int          m_debugPort;
     #endif
+
+    friend class Test;
 
 };
 

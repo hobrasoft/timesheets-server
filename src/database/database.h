@@ -65,7 +65,7 @@ class Database : public QObject {
     QList<Dbt::TicketTimesheets>            ticketTimesheets(bool all = false);
     QList<Dbt::TicketTimesheets>            ticketTimesheets(int ticket = -1, bool all = false);
 
-    template<typename T> void save(const T& id) { m_dbplugin->save(id); }
+    template<typename T> QVariant save(const T& id) { return m_dbplugin->save(id); }
     template<typename T> void remove(const T& id) { m_dbplugin->remove(id); }
 
     void        begin();

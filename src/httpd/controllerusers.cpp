@@ -5,6 +5,7 @@
  */
 
 #include "controllerusers.h"
+#include "pdebug.h"
 #include "db.h"
 
 using namespace Httpd;
@@ -30,7 +31,10 @@ void ControllerUsers::serviceIdGet(HobrasoftHttpd::HttpRequest *request, Hobraso
 
 
 void ControllerUsers::serviceIdPut(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QVariantMap& data) {
-    db()->save(Dbt::Users::fromMap(data));
+    QVariantMap x;
+    x["key"] = db()->save(Dbt::Users::fromMap(data));
+    PDEBUG << "USER" << x["key"];
+    serviceOK(request, response, x);
 }
 
 

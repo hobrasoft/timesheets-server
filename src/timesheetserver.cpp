@@ -36,7 +36,7 @@ QDateTime TimesheetServer::m_startTime;
 
 TimesheetServer::TimesheetServer() {
     m_timesheetServer = this;
-    MSettings::mSettings(this);
+    MSettings::instance(this);
     QTimer::singleShot(1, this, SLOT(init()));
     m_startTime = QDateTime::currentDateTime();
 }
@@ -76,7 +76,7 @@ void TimesheetServer::destroy() {
 
 void TimesheetServer::init() {
     PDEBUG;
-    Logger::logger(this);
+    Logger::instance(this);
     PDEBUG << "Starting server";
 
     // tady start jednotlivych komponent

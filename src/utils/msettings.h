@@ -6,7 +6,7 @@
 #ifndef _MSETTINGS_H_
 #define _MSETTINGS_H_
 
-#define MSETTINGS MSettings::mSettings()
+#define MSETTINGS MSettings::instance()
 
 #include <QSettings>
 #include <QString>
@@ -118,7 +118,7 @@ class MSettings : public QSettings {
     Q_OBJECT
   public:
    ~MSettings();
-    static MSettings *mSettings(QObject *parent = NULL);
+    static MSettings *instance(QObject *parent = NULL);
 
     /*
      * Seznam řetězců pro jednotlivé konfigurační parametry

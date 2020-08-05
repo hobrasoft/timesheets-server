@@ -45,7 +45,7 @@ QVariant MSettings::value(const QString& key, const QVariant& defaultValue) cons
  * - ~/.wellness.conf
  * - /etc/wellness.conf
  */
-MSettings *MSettings::mSettings(QObject *parent) {
+MSettings *MSettings::instance(QObject *parent) {
     if (m_mSettings == NULL) {
         Q_ASSERT(parent);
 

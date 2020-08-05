@@ -166,7 +166,20 @@ void DatabasePluginPostgres::remove(const Dbt::Categories& id) {
 }
 
 
-void DatabasePluginPostgres::save(const Dbt::Categories& data) {
+QVariant DatabasePluginPostgres::currval(const QString& sequence, const QVariant& key) {
+    MSqlQuery q(m_db);
+    QVariant cv = key;
+    q.prepare(R"'(select currval(:sequence);)'");
+    q.bindValue(":sequence", sequence);
+    q.exec();
+    if (q.next()) {
+        cv = q.value(0);
+        }
+    return cv;
+}
+
+
+QVariant DatabasePluginPostgres::save(const Dbt::Categories& data) {
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
@@ -192,6 +205,8 @@ void DatabasePluginPostgres::save(const Dbt::Categories& data) {
     q.bindValue(":description", data.description);
     q.bindValue(":price", data.price);
     q.exec();
+
+    return currval("categories_category_seq", data.category);
 
 }
 
@@ -239,13 +254,13 @@ void DatabasePluginPostgres::remove(const Dbt::Users& id) {
 }
 
 
-void DatabasePluginPostgres::save(const Dbt::Users& data) {
+QVariant DatabasePluginPostgres::save(const Dbt::Users& data) {
     MSqlQuery q(m_db);
 
     q.prepare(R"'(select 1 from users where "user" = :id and admin and enabled;)'");
     q.bindValue(":id", userId());
     q.exec();
-    if (!q.next()) { return; }
+    if (!q.next()) { return QVariant(); }
 
     q.prepare(R"'(
         update users set
@@ -276,6 +291,8 @@ void DatabasePluginPostgres::save(const Dbt::Users& data) {
     q.bindValue(":enabled", data.enabled);
     q.bindValue(":admin", data.admin);
     q.exec();
+
+    return currval("users_user_seq", data.user);
 
 }
 
@@ -314,7 +331,7 @@ void DatabasePluginPostgres::remove(const Dbt::StatusOrder& id) {
 }
 
 
-void DatabasePluginPostgres::save(const Dbt::StatusOrder& data) {
+QVariant DatabasePluginPostgres::save(const Dbt::StatusOrder& data) {
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
@@ -340,6 +357,8 @@ void DatabasePluginPostgres::save(const Dbt::StatusOrder& data) {
     q.bindValue(":next_status", data.next_status);
     q.bindValue(":id", data.id);
     q.exec();
+
+    return currval("status_order_id_seq", data.id);
 }
 
 
@@ -374,13 +393,13 @@ void DatabasePluginPostgres::createTemporaryTableTickets(int ticket, bool all) {
             ending_status as (
                 select status from statuses where closed
                 ),
-            tickets_last_status as (
+            ticket_last_status as (
                 select t.ticket, tl.status
                     from tickets t
                     left join lateral (select tn.ticket, tn.status from ticket_status tn where tn.ticket = t.ticket order by ticket, date desc limit 1) tl using (ticket)
                 ),
             closed_tickets as (
-                select distinct ts.ticket from tickets_last_status ts, ending_status es where ts.status = es.status
+                select distinct ts.ticket from ticket_last_status ts, ending_status es where ts.status = es.status
                 ),
             active_tickets as (
                 select t1.ticket from tickets t1 where t1.ticket not in (select ticket from closed_tickets)
@@ -443,7 +462,7 @@ void DatabasePluginPostgres::remove(const Dbt::Tickets& id) {
 }
 
 
-void DatabasePluginPostgres::save(const Dbt::Tickets& data) {
+QVariant DatabasePluginPostgres::save(const Dbt::Tickets& data) {
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
@@ -475,6 +494,8 @@ void DatabasePluginPostgres::save(const Dbt::Tickets& data) {
     q.bindValue(":user", data.user);
     q.bindValue(":ticket", data.ticket);
     q.exec();
+
+    return currval("ticket_ticket_seq", data.ticket);
 }
 
 
@@ -551,7 +572,7 @@ void DatabasePluginPostgres::remove(const Dbt::TicketStatus& id) {
 }
 
 
-void DatabasePluginPostgres::save(const Dbt::TicketStatus& data) {
+QVariant DatabasePluginPostgres::save(const Dbt::TicketStatus& data) {
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
@@ -583,6 +604,7 @@ void DatabasePluginPostgres::save(const Dbt::TicketStatus& data) {
     q.bindValue(":description", data.description);
     q.exec();
 
+    return currval("ticket_status_id_seq", data.id);
 }
 
 
@@ -604,7 +626,7 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(int ticket
     MSqlQuery q(m_db);
     q.prepare(R"'(
         select tt.id, tt.ticket, tt."user", tt.date_from, tt.date_to
-            from temporary_tickets t, tickets_timesheets tt
+            from temporary_tickets t, ticket_timesheets tt
             where t.ticket = tt.ticket
               and :user = tt."user"
             ;
@@ -659,7 +681,7 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(bool all) 
 }
 
 
-void DatabasePluginPostgres::save(const Dbt::TicketTimesheets& data) {
+QVariant DatabasePluginPostgres::save(const Dbt::TicketTimesheets& data) {
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
@@ -689,6 +711,7 @@ void DatabasePluginPostgres::save(const Dbt::TicketTimesheets& data) {
     q.bindValue(":date_to", data.date_to);
     q.exec();
 
+    return currval("ticket_timesheets_id_seq", data.id);
 }
 
 
@@ -706,7 +729,7 @@ QList<Dbt::TicketValues> DatabasePluginPostgres::ticketValues(int ticket, bool a
     MSqlQuery q(m_db);
     q.prepare(R"'(
         select tv.id, tt.ticket, tt.name, tt.value, tv."user"
-            from temporary_tickets t, tickets_values tv
+            from temporary_tickets t, ticket_values tv
             where t.ticket = tv.ticket
             ;
         )'");
@@ -730,7 +753,7 @@ QList<Dbt::TicketValues> DatabasePluginPostgres::ticketValues(int id) {
     MSqlQuery q(m_db);
     q.prepare(R"'(
         select tv.id, tt.ticket, tt.name, tt.value, tv."user"
-            from tickets t, tickets_values tv, user_categories uc
+            from tickets t, ticket_values tv, user_categories uc
             where t.ticket = tv.ticket
               and t.category = uc.category
               and uc.user = :user
@@ -759,7 +782,7 @@ QList<Dbt::TicketValues> DatabasePluginPostgres::ticketValues(bool all) {
 }
 
 
-void DatabasePluginPostgres::save(const Dbt::TicketValues& data) {
+QVariant DatabasePluginPostgres::save(const Dbt::TicketValues& data) {
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
@@ -786,6 +809,7 @@ void DatabasePluginPostgres::save(const Dbt::TicketValues& data) {
     q.bindValue(":ticket", data.ticket);
     q.exec();
 
+    return currval("ticket_values_id_seq", data.id);
 }
 
 
@@ -831,7 +855,7 @@ void DatabasePluginPostgres::remove(const Dbt::Statuses& id) {
 }
 
 
-void DatabasePluginPostgres::save(const Dbt::Statuses& data) {
+QVariant DatabasePluginPostgres::save(const Dbt::Statuses& data) {
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
@@ -860,6 +884,8 @@ void DatabasePluginPostgres::save(const Dbt::Statuses& data) {
     q.bindValue(":closed", data.closed);
     q.bindValue(":status", data.status);
     q.exec();
+
+    return QVariant(data.status);
 }
 
 
@@ -926,7 +952,7 @@ QList<Dbt::TicketFiles> DatabasePluginPostgres::ticketFiles(bool all) {
 }
 
 
-void DatabasePluginPostgres::save(const Dbt::TicketFiles& data) {
+QVariant DatabasePluginPostgres::save(const Dbt::TicketFiles& data) {
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
@@ -956,6 +982,7 @@ void DatabasePluginPostgres::save(const Dbt::TicketFiles& data) {
     q.bindValue(":content", data.content);
     q.exec();
 
+    return currval("ticket_files_id_seq", data.id);
 }
 
 

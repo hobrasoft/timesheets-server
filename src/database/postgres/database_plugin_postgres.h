@@ -56,26 +56,26 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
 
 
 
-    virtual void remove(const Dbt::Users& data) Q_DECL_OVERRIDE;
-    virtual void remove(const Dbt::Categories& data) Q_DECL_OVERRIDE;
-    virtual void remove(const Dbt::StatusOrder& data) Q_DECL_OVERRIDE;
-    virtual void remove(const Dbt::Statuses& data) Q_DECL_OVERRIDE;
-    virtual void remove(const Dbt::Tickets& data) Q_DECL_OVERRIDE;
-    virtual void remove(const Dbt::TicketStatus& data) Q_DECL_OVERRIDE;
-    virtual void remove(const Dbt::TicketValues& data) Q_DECL_OVERRIDE;
-    virtual void remove(const Dbt::TicketFiles& data) Q_DECL_OVERRIDE;
-    virtual void remove(const Dbt::TicketTimesheets& data) Q_DECL_OVERRIDE;
+     void remove(const Dbt::Users& data) Q_DECL_OVERRIDE;
+     void remove(const Dbt::Categories& data) Q_DECL_OVERRIDE;
+     void remove(const Dbt::StatusOrder& data) Q_DECL_OVERRIDE;
+     void remove(const Dbt::Statuses& data) Q_DECL_OVERRIDE;
+     void remove(const Dbt::Tickets& data) Q_DECL_OVERRIDE;
+     void remove(const Dbt::TicketStatus& data) Q_DECL_OVERRIDE;
+     void remove(const Dbt::TicketValues& data) Q_DECL_OVERRIDE;
+     void remove(const Dbt::TicketFiles& data) Q_DECL_OVERRIDE;
+     void remove(const Dbt::TicketTimesheets& data) Q_DECL_OVERRIDE;
 
 
-    virtual void save(const Dbt::Users& data) Q_DECL_OVERRIDE;
-    virtual void save(const Dbt::Categories& data) Q_DECL_OVERRIDE;
-    virtual void save(const Dbt::StatusOrder& data) Q_DECL_OVERRIDE;
-    virtual void save(const Dbt::Statuses& data) Q_DECL_OVERRIDE;
-    virtual void save(const Dbt::Tickets& data) Q_DECL_OVERRIDE;
-    virtual void save(const Dbt::TicketStatus& data) Q_DECL_OVERRIDE;
-    virtual void save(const Dbt::TicketValues& data) Q_DECL_OVERRIDE;
-    virtual void save(const Dbt::TicketFiles& data) Q_DECL_OVERRIDE;
-    virtual void save(const Dbt::TicketTimesheets& data) Q_DECL_OVERRIDE;
+     QVariant save(const Dbt::Users& data) Q_DECL_OVERRIDE;
+     QVariant save(const Dbt::Categories& data) Q_DECL_OVERRIDE;
+     QVariant save(const Dbt::StatusOrder& data) Q_DECL_OVERRIDE;
+     QVariant save(const Dbt::Statuses& data) Q_DECL_OVERRIDE;
+     QVariant save(const Dbt::Tickets& data) Q_DECL_OVERRIDE;
+     QVariant save(const Dbt::TicketStatus& data) Q_DECL_OVERRIDE;
+     QVariant save(const Dbt::TicketValues& data) Q_DECL_OVERRIDE;
+     QVariant save(const Dbt::TicketFiles& data) Q_DECL_OVERRIDE;
+     QVariant save(const Dbt::TicketTimesheets& data) Q_DECL_OVERRIDE;
 
 
 
@@ -88,6 +88,7 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
 
   protected:
     void    createTemporaryTableTickets(int ticket, bool all = false);
+    QVariant currval(const QString& sequence, const QVariant& key);
 
   private:
     QString         m_databasename;

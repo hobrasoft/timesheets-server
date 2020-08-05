@@ -43,7 +43,7 @@ Logger::Logger(QObject *parent) : QObject (parent) {
 }
 
 
-Logger *Logger::logger(QObject *parent) {
+Logger *Logger::instance(QObject *parent) {
     if (m_logger == NULL) {
         Q_ASSERT(parent);
         new Logger(parent);

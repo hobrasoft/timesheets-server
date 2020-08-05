@@ -1,0 +1,327 @@
+/**
+
+@page api API pro přístup k datům přes webový server
+
+@tableofcontents
+
+@section api-general Obecné
+
+API je postaveno tak, aby je bylo možné používat i na nezabezpečené síti (internet).
+Ověření přístupu k api může probíhat dvěma způsoby:
+- přihlášení jménem a heslem a předáváním session
+- ověření pomocí certifikátu, ten je vystavený vlastní certifikační autoritou
+
+Obě metody jsou potřebné a musejí pracovat vedle sebe.
+
+Předpokládá se, že webová část aplikace bude moci běžet na internetu a bude
+přístupná libovolným webovým prohlížečem. Certifikát proto musí být vystavený
+známou certifikační autoritou (například Let's Encrypt). Přístupy k API z
+webové části by měly být zabezpečené stejně - jménem a heslem. Certifikát
+vystavený známou certifikační autoritou nezpůsobí protesty u běžných webových
+prohlížečů (Firefox, Chrome).
+
+U klientů by zadávání jména a hesla naopak vedlo k bezpečnostním rizikům a ke
+složitému nastavování. Proto se klienti prokazují vlastním certifikátem. Takový
+certifikát je ale složité a drahé získat pro zařízení schovaná ve vnitřní síti,
+nehledě na distribuci klíčů na jednotlivé klienty. Navíc mohou být ve vnitřní
+kladené mnohem nižší požadavky na zabezpečení. Proto je pro potřeby klientů
+vytvořená vlastní certifikační autorita, která je známá klientům i webovému
+serveru, a místo jménem a heslem se klient ověřuje pouze svým certifikátem.
+Certifikát může mít v porovnání s běžnými komerčními certifikáty prodlouženou
+platnost a odpadá starost o jeho periodické obnovování a distribuci na klienty.
+U běžných webových prohlížečů by tento způsob vedl k pracnému importu
+certifikátů do všech prohlížečů, které by měly přistupovat k API. U klientů
+jsou certifikáty a klíče součástí instalačního balíku celé aplikace.
+
+Adresy pro přístup k api (příklad):
+- https://robe.hobrasoft.cz/api/v1 - ověření jménem a heslem
+- https://api.robe.hobrasoft.cz/v1 - ověření certifikátem
+
+Podstatné je, že obě metody ověření používají jiný název serveru, ačkoliv
+vše končí ve stejné části kódu. Jedině takto lze použít různé certifikáty pro
+různé způsoby ověření.
+
+Data se předávají v JSON formátu: 
+- http://www.json.org/ 
+
+Pro získávání dat a manipulaci s daty se používá jednoduché REST api, používají
+se příkazy GET, DELETE, POST a PUT. 
+
+K přístupům lze použít různé obvyklé prostředky, například curl nebo wget (z
+povelové řádky).
+
+@section api-login Přihlášení (jménem a heslem)
+
+Pro přístup k datům je nutná autentizace. Po úspěšné autentizaci je nastavená
+session cookie - jméno této cookie je unikátní pro každou session. Adresa pro
+přihlášení je /authenticate, parametry user a password:
+
+Přihlášení s wget:
+~~~~~~~~~~~~~~
+wget \
+    --keep-session-cookies \
+    --save-cookies cookie.jar \
+    --load--cookies cookie.jar \
+    -O /dev/null \
+    "https://localhost/authenticate?user=admin&password=&admin"
+~~~~~~~~~~~~~~
+
+Také příkaz curl umí ukládat cookies v souboru a použít je při dalším požadavku:
+
+~~~~~~~~~~~~~~
+curl \
+    --cookie cookie.jar \
+    --cookie-jar cookie.jar \
+    --verbose \
+    -X GET \
+    "https://localhost/authenticate?user=admin&password=&admin"
+~~~~~~~~~~~~~~
+
+Při úspěšném přihlášení odpovídá server 200 OK.
+Při neúspěšném přihlášení se posílá chyba ověření.
+
+V dalším textu se předpokládá, že je autorizace provedená a pomocí parametrů se předává
+session cookie. Parametry pro předávání cookie se neuvádějí.
+
+@section api-manipulace Manipulace s daty
+
+Pro manipulaci s daty se používají tři základní příkazy protokolu http: GET, PUT (POST) a DELETE.
+
+@subsection api-manipulace-get Získání dat: GET
+
+Příkazem GET se získávají data ze serveru. U jednoduchých seznamů obvykle není nutný žádný parametr.
+U dotazů pro zjištění informací o konrétním objektu je obvykle nutné zadávat id jako další část cesty:
+
+~~~~~~~~~~~~~~
+curl -X GET "https://localhost/api/v1/e40f2af7ea281baba30381db700311f7"
+~~~~~~~~~~~~~~
+
+Vrací požadovaný dokument (zformátované pro lepší čitelnost):
+
+~~~~~~~~~~~~~~
+{
+  "id" : "unknown-room",
+  "name" : "Unknown room",
+  "number" : "000",
+  "size" : 2
+}
+~~~~~~~~~~~~~~
+
+V případě chyby vrací json popisující chybu, například:
+
+~~~~~~~~~~~~~~
+{
+  "error" : "notfound",
+  "reason" " "Could not find requested id"
+}
+~~~~~~~~~~~~~~
+
+
+
+@subsection api-manipulace-put Uložení dat: POST nebo PUT
+
+Příkazem PUT se ukládají data na server.
+
+~~~~~~~~~~~~~~
+curl \
+    --verbose \
+    --header "Content-type: application/json" \
+    --data '{ "id" : "e40f2af7ea281baba30381db700311f7", "name" : "Novy pokoj", "number" : "666" }' \
+    -X PUT "https://localhost/room"
+~~~~~~~~~~~~~~
+
+V případě úspěchu vrací json:
+
+~~~~~~~~~~~~~~
+{
+  "ok": true,
+  "id": "e40f2af7ea281baba30381db700311f7"
+}
+~~~~~~~~~~~~~~
+
+nebo v případě chyby:
+
+~~~~~~~~~~~~~~
+{
+  "error" : "could-not-parse",
+  "reason" : "Could not parse the JSON data"
+}
+~~~~~~~~~~~~~~
+
+
+@subsection api-manipulace-delete Smazání dat: DELETE
+
+Příkazem DELETE se data ze serveru mažou:
+
+~~~~~~~~~~~~~~
+curl \
+    --verbose \
+    -X DELETE "https://localhost/room/e40f2af7ea281baba30381db700311f7"
+~~~~~~~~~~~~~~
+
+V případě úspěchu vrací json:
+
+~~~~~~~~~~~~~~
+{
+  "ok": true,
+}
+~~~~~~~~~~~~~~
+
+nebo v případě chyby:
+
+~~~~~~~~~~~~~~
+{
+  "error" : "could-not-parse",
+  "reason" : "Could not parse the JSON data"
+}
+~~~~~~~~~~~~~~
+
+@subsection api-url-errors Návratové kódy a chyby
+
+HTTP kód | error             | reason                          | Popis                                                 |
+---------|-------------------|---------------------------------|-----------------------------------------------------
+400      | bad-request       | Could not parse JSON data       | Předaná data formátu JSON se nepodařilo rozluštit
+400      | bad-request       | Data must contain ID            | V JSON datech chybí položka "id" (malými písmeny)
+400      | bad-request       | Request could not be recognized | Špatná struktura URL (mnoho lomítek), například https://localhost/unit/events/aaa/bbb/ccc
+401      | bad-password      | Your name/password is invalid   | Kombinace jména a hesla je neplatná, případně nedošlo k ověření certifikátu
+403      | not-authorized    | You are not authorized          | Uživatel není oprávněn k požadované operaci
+404      | not-found         | Object not found                | Je požadovaná špatná adresa, například https://localhost/nesmysl
+404      | not-found         | ID not found                    | Adresa je platná, ale požadovaný objekt zadaného ID neexistuje
+405      | bad-request       | Method not allowed              | Požadovaná metoda (GET, POST, PUT nebo DELETE) není u této adresy přípustná, nebo není přípustné u dané adresy použít část events
+501      | not-implemented   | Method not implemented          | Není implementovaná požadovaná kombinace URL / GET
+
+
+@section api-url-address Struktura URL adres
+
+Adresy jsou strukturované a až na vyjímky mají všechny adresy stejnou strukturu:
+
+~~~~~~~~~~~~~~
+https://localhost/room
+https://localhost/room/events
+https://localhost/room/e40f2af7ea281baba30381db700311f7
+https://localhost/room/e40f2af7ea281baba30381db700311f7/events
+~~~~~~~~~~~~~~
+
+@subsection api-url-address-list Seznam všech objektů stejného typu
+
+URL adresa pouze s názvem skupiny objektů (například pokoje - rooms) vrací
+kompletní seznam všech objektů dané třídy, například seznam pokojů:
+
+~~~~~~~~~~~~~~
+http://localhost/room
+~~~~~~~~~~~~~~
+
+URL adresa může mít různé parametry, které nějakým způsobem filtrují seznam,
+například offset a limit:
+
+~~~~~~~~~~~~~~
+http://localhost/room?offset=100&limit=100
+~~~~~~~~~~~~~~
+
+Vrací pole objektů:
+
+~~~~~~~~~~~~~~
+[
+  { "id" : "e40f2af7ea281baba30381db700311f7", "name" : "Jméno pokoje", ...},
+  { .... },
+  { .... }
+]
+~~~~~~~~~~~~~~
+
+@subsection api-url-address-id Jeden konkrétní objekt
+
+Pokud se v URL adrese uvede ID objektu, vrátí se pouze vybraný objekt:
+
+~~~~~~~~~~~~~~
+http://localhost/room/e40f2af7ea281baba30381db700311f7
+~~~~~~~~~~~~~~
+
+Vybraný objekt je vrácený samostatně, není součástí pole:
+
+~~~~~~~~~~~~~~
+{ "id" : "e40f2af7ea281baba30381db700311f7", "name" : "Jméno pokoje", ...}
+~~~~~~~~~~~~~~
+
+@subsection api-url-address-events Proud událostí v celém seznamu
+
+Přidáním řetězce _events_ k cestě se vrátí proud událostí - hlásí se změny v celém seznamu.
+Na začátku se pošle jako samostatná událost každý objekt v seznamu, později se posílají
+pouze změny v tomto seznamu. Proud událostí se na serveru nezavírá, respektive je timeout
+pro uzavření proudu událostí řízený parametrem http/timeout.
+
+Protože slovo _events_ se přidává do URL adresy na místo, kde se běžně vyskytuje id objektu,
+nesmí mít žádný objekt id nastavené na _events_.
+
+~~~~~~~~~~~~~~
+http://localhost/room/events
+~~~~~~~~~~~~~~
+
+Vrací proud událostí, spojení se neuzavírá.
+Proud je v tomto dokumentu pro lepší čitelnost zformátovaný:
+
+~~~~~~~~~~~~~~
+event: status
+data: { "id" : "e40f2af7ea281baba30381db700311f7", "name" : "Sesterna", "number" : "100", "size" : 2,
+        "AL" : false, "NV" : false, "PL" : true, "PP" : false, "PS" : true, "VP" : false, "VS" : false
+      }
+
+event: status
+data: { "id" : "unknown-room", "name" : "Unknown room", "number" : "000", "size" : 2,
+        "AL" : false, "NV" : false, "PL" : false, "PP" : false, "PS" : false, "VP" : false, "VS" : false
+      }
+
+event: status
+data: { "id" : "e40f2af7ea281baba30381db7003135a", "name" : "Sign\u00e1ln\u00ed", "number" : "200", "size" : 3,
+        "AL" : false, "NV" : false, "PL" : false, "PP" : false, "PS" : false, "VP" : false, "VS" : false
+      }
+
+event: status
+data: { "id" : "e40f2af7ea281baba30381db70031d57", "name" : "Jin\u00fd pokoj", "number" : "300", "size" : 3,
+        "AL" : false, "NV" : false, "PL" : true, "PP" : true, "PS" : false, "VP" : false, "VS" : false
+      }
+~~~~~~~~~~~~~~
+
+
+@subsection api-url-address-id-events Proud událostí jednoho objektu
+Pokud se uvede za ID požadovaného objektu slovo _events_, otevře se proud událostí spojený s tímto objektem.
+Události ostatních objektů stejného typu se nevypisují, jinak je formát stejný jako v případě proudu událostí
+v celém seznamu:
+~~~~~~~~~~~~~~
+http://localhost/room/e40f2af7ea281baba30381db700311f7/events
+~~~~~~~~~~~~~~
+
+@subsection api-url-events-browser Implementace proudu událostí v HTTP prohlížečích
+
+Proud událostí není podporovaný v prohlížeči MS Internet Explorer.
+- http://www.w3.org/TR/2009/WD-eventsource-20091029/
+- http://www.w3schools.com/htmL/html5_serversentevents.asp
+- http://www.zdrojak.cz/clanky/html5-eventsource-serverem-zasilane-udalosti-proudi-nepretrzite/
+
+Pro zpracování na straně prohlížeče musí být podporovaný Javascript.
+
+Typické zpracování událostí může vypadat například takto (Javascript + jQuery):
+~~~~~~~~~~~~~~
+$(document).ready(function) {
+    if (window.EventSource == undefined) {
+        alert("HTML5 Server-Sent Events are not supported by your browser, the application will not work.")
+        return;
+        }
+    var source = new EventSource("http://localhost/tags/events");
+    source.addEventListener("status", function(event) {
+        var data = JSON.parse(event.data);
+        if (typeof data == 'undefined') { return; }
+        // ve struktuře data už jsou nyní údaje o události, updatují se údaje na stránce:
+        $('#ward').text(data.ward);
+        $('#room').text(data.room);
+        $('#ip').text(data.ip);
+        }, false);
+    }
+~~~~~~~~~~~~~~
+
+@subsection api-url-events-qt Implementace proudu událostí v Qt
+
+Pro zpracování proudu události existuje jednoduchá hotová knihovna:
+- https://www.hobrasoft.cz/cs/blog/bravenec/html5stream-qt
+
+
+*/

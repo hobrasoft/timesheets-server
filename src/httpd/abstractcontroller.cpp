@@ -20,7 +20,7 @@ using namespace Httpd;
 AbstractController::AbstractController(HobrasoftHttpd::HttpConnection *parent) : HobrasoftHttpd::HttpRequestHandler(parent) {
     m_authorizer = NULL;
     m_connection = parent;
-    m_checkId = true;
+    m_checkId = false;
 }
 
 

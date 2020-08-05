@@ -76,15 +76,15 @@ class DatabasePlugin : public QObject {
     virtual void remove(const Dbt::TicketTimesheets& data) { Q_UNUSED(data); }
 
 
-    virtual void save(const Dbt::Users& data) { Q_UNUSED(data); }
-    virtual void save(const Dbt::Categories& data) { Q_UNUSED(data); }
-    virtual void save(const Dbt::StatusOrder& data) { Q_UNUSED(data); }
-    virtual void save(const Dbt::Statuses& data) { Q_UNUSED(data); }
-    virtual void save(const Dbt::Tickets& data) { Q_UNUSED(data); }
-    virtual void save(const Dbt::TicketStatus& data) { Q_UNUSED(data); }
-    virtual void save(const Dbt::TicketValues& data) { Q_UNUSED(data); }
-    virtual void save(const Dbt::TicketFiles& data) { Q_UNUSED(data); }
-    virtual void save(const Dbt::TicketTimesheets& data) { Q_UNUSED(data); }
+    virtual QVariant save(const Dbt::Users& data) { Q_UNUSED(data); return QVariant(); }
+    virtual QVariant save(const Dbt::Categories& data) { Q_UNUSED(data); return QVariant(); }
+    virtual QVariant save(const Dbt::StatusOrder& data) { Q_UNUSED(data); return QVariant(); }
+    virtual QVariant save(const Dbt::Statuses& data) { Q_UNUSED(data); return QVariant(); }
+    virtual QVariant save(const Dbt::Tickets& data) { Q_UNUSED(data); return QVariant(); }
+    virtual QVariant save(const Dbt::TicketStatus& data) { Q_UNUSED(data); return QVariant(); }
+    virtual QVariant save(const Dbt::TicketValues& data) { Q_UNUSED(data); return QVariant(); }
+    virtual QVariant save(const Dbt::TicketFiles& data) { Q_UNUSED(data); return QVariant(); }
+    virtual QVariant save(const Dbt::TicketTimesheets& data) { Q_UNUSED(data); return QVariant(); }
 
 
   protected:

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+doxygen
+
+ssh root@potkan.hobrasoft.cz mkdir -p /var/www/localhost/htdocs/doc/timesheets-server
+
+cd doc/html
+rsync --delete --archive . root@potkan.hobrasoft.cz:/var/www/localhost/htdocs/doc/timesheets-server
+
+
+
