@@ -61,11 +61,13 @@ class DatabasePluginFotomon : public Db::Plugins::DatabasePlugin {
     void    commit() Q_DECL_OVERRIDE;
 
   private:
-    void            createCategoriesTemporaryTable();
+    void            createTemporaryTableCategories();
+    void            createTemporaryTableTickets(int ticket, bool all);
     static QString  parentCategoryKey(const QVariant& type, const QVariant& system, const QVariant& category, int parent_type);
     static QString        categoryKey(const QVariant& type, const QVariant& system, const QVariant& category, int parent_type);
 
 
+    bool            m_temporaryTableTicketsCreated;
     QString         m_databasename;
     QString         m_hostname;
     QString         m_username;

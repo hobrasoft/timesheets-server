@@ -11,6 +11,7 @@ SOURCES += \
  $$PWD/controllerusers.cpp \
  $$PWD/controllercategories.cpp \
  $$PWD/controllertickets.cpp \
+ $$PWD/controllerticketsvw.cpp \
  $$PWD/controllerticketstatus.cpp \
  $$PWD/controllertickettimesheets.cpp \
  $$PWD/controllerticketvalues.cpp \
@@ -23,6 +24,7 @@ HEADERS += \
  $$PWD/controllerusers.h \
  $$PWD/controllercategories.h \
  $$PWD/controllertickets.h \
+ $$PWD/controllerticketsvw.h \
  $$PWD/controllerticketstatus.h \
  $$PWD/controllertickettimesheets.h \
  $$PWD/controllerticketvalues.h \

@@ -118,6 +118,17 @@ QVariantMap Tickets::toMap() const {
 }
 
 
+QVariantMap TicketsVw::toMap() const {
+    QVariantMap data = Tickets::toMap();
+    data["timesheets"] = toList(timesheets);
+    data["statuses"] = toList(statuses);
+    data["values"] = toList(values);
+    data["files"] = toList(files);
+    return data;
+}
+
+
+
 QVariantMap TicketStatus::toMap() const {
     QVariantMap data;
 

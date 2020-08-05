@@ -22,6 +22,7 @@ DatabasePluginFotomon::~DatabasePluginFotomon() {
 DatabasePluginFotomon::DatabasePluginFotomon(QObject *parent) : Db::Plugins::DatabasePlugin(parent) {
     Q_ASSERT(parent != NULL);
     setObjectName("DatabasePluginFotomon");
+    m_temporaryTableTicketsCreated = false;
 }
 
 
@@ -66,17 +67,25 @@ QList<Dbt::Users> DatabasePluginFotomon::authenticate(const QString& login, cons
     QString md5 = QString::fromUtf8(QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Md5).toHex());
     QList<Dbt::Users> list;
     MSqlQuery q(m_db);
-    q.prepare("select \"user\", login, name, language from users where login = :login and password = :password and is_active and not is_deleted;");
+    q.prepare(R"X(
+        select "user", login, name, language
+            from users
+            where password = :password
+              and login = :login
+              and is_active
+              and not is_deleted
+            ;
+        )X");
     q.bindValue(":login", login);
     q.bindValue(":password", md5);
     q.exec();
     while (q.next()) {
         int i=0;
         Dbt::Users x;
-        x.user          = q.value(i++).toInt();
-        x.login         = q.value(i++).toString();
-        x.name          = q.value(i++).toString();
-        x.lang          = q.value(i++).toString();
+        x.user  = q.value(i++).toInt();
+        x.login = q.value(i++).toString();
+        x.name  = q.value(i++).toString();
+        x.lang  = q.value(i++).toString();
         list << x;
         }
     return list;
@@ -84,12 +93,84 @@ QList<Dbt::Users> DatabasePluginFotomon::authenticate(const QString& login, cons
 
 
 QList<Dbt::Users> DatabasePluginFotomon::users(int id) {
+    Q_UNUSED(id);
     QList<Dbt::Users> list;
+    MSqlQuery q(m_db);
+    q.prepare(R"X(select "user", login, name, languager from users where is_active and not is_deleted;)X");
+    q.exec();
+    while (q.next()) {
+        int i=0;
+        Dbt::Users x;
+        x.user  = q.value(i++).toInt();
+        x.login = q.value(i++).toString();
+        x.name  = q.value(i++).toString();
+        x.lang  = q.value(i++).toString();
+        list << x;
+        }
     return list;
 }
 
 
-void DatabasePluginFotomon::createCategoriesTemporaryTable() {
+void DatabasePluginFotomon::createTemporaryTableTickets(int ticket, bool all) {
+    Q_UNUSED(all);
+    if (m_temporaryTableTicketsCreated) { return; }
+    m_temporaryTableTicketsCreated = true;
+    MSqlQuery q(m_db);
+    q.exec(R"'(
+        create temporary table temporary_tickets (
+            ticket      int,
+            type        int,
+            system      int,
+            category    int,
+            date        timestamp with time zone,
+            "user"      int,
+            description text
+            );
+        )'");
+
+    q.prepare(R"'(
+        with
+        ending_status as (
+            select distinct  t1.type, t1.status_to as status from tickets_types_status t1, tickets_status ts  where t1.status_to = ts.status and ts.closed
+            ),
+        tickets_last_status as (
+            select t.ticket, t.type, tl.status
+                from tickets t
+                left join lateral (select tn.ticket, tn.status from tickets_notes tn where tn.ticket = t.ticket order by ticket, date desc limit 1) tl using (ticket)
+            ),
+        closed_tickets as (
+            select distinct ts.ticket from tickets_last_status ts, ending_status es where ts.status = es.status and ts.type = es.type
+            ),
+        active_tickets as (
+            select t1.ticket from tickets t1 where t1.ticket not in (select ticket from closed_tickets)
+            ),
+        users_systems as (
+            select us.system 
+                from users_systems us, users u, systems s
+                where u."user" = :user 
+                  and u."user" = us."user"
+                  and us.system = s.system
+                  and s.show_on_web and s.show_on_panel
+                  and u.is_active and not u.is_deleted
+            )
+        insert into temporary_tickets (ticket, type, system, category, date, "user", description)
+        select t.ticket, t.type, t.system, t.category, t.date, t."user", 
+            case when description = '' then formal_description->0->'description'->>:lang else description end as description
+        from tickets t, users u
+        where u."user" = t."user"
+          and t.ticket in (select ticket from active_tickets)
+          and t.system in (select system from users_systems)
+              and (:ticket1 <= 0 or :ticket2 = t.ticket)
+        )'");
+    q.bindValue(":user", userId());
+    q.bindValue(":lang", userLang());
+    q.bindValue(":ticket1", ticket);
+    q.bindValue(":ticket2", ticket);
+    q.exec();
+}
+
+
+void DatabasePluginFotomon::createTemporaryTableCategories() {
     MSqlQuery q(m_db);
 
     q.exec("create temporary table timesheet_categories "
@@ -209,7 +290,8 @@ QString DatabasePluginFotomon::parentCategoryKey(const QVariant& type, const QVa
 
 
 QList<Dbt::Categories> DatabasePluginFotomon::categories(const QString& id) {
-    createCategoriesTemporaryTable();
+    Q_UNUSED(id);
+    createTemporaryTableCategories();
 
     QList<Dbt::Categories> list;
     MSqlQuery q(m_db);
@@ -235,7 +317,8 @@ QList<Dbt::Categories> DatabasePluginFotomon::categories(const QString& id) {
 
 
 QList<Dbt::StatusOrder> DatabasePluginFotomon::statusOrder(const QString& id) {
-    createCategoriesTemporaryTable();
+    Q_UNUSED(id);
+    createTemporaryTableCategories();
 
     QList<Dbt::StatusOrder> list;
     MSqlQuery q(m_db);
@@ -266,6 +349,7 @@ QList<Dbt::StatusOrder> DatabasePluginFotomon::statusOrder(const QString& id) {
 
 
 QList<Dbt::Statuses> DatabasePluginFotomon::statuses(const QString& id) {
+    Q_UNUSED(id);
     QList<Dbt::Statuses> list;
     MSqlQuery q(m_db);
 
@@ -284,7 +368,6 @@ QList<Dbt::Statuses> DatabasePluginFotomon::statuses(const QString& id) {
         list << x;
         }
 
-    PDEBUG << "pocet statusu" << list.size();
     return list;
 }
 
@@ -296,46 +379,11 @@ QList<Dbt::Tickets> DatabasePluginFotomon::tickets(bool all) {
 
 QList<Dbt::Tickets> DatabasePluginFotomon::tickets(int ticket, bool all) {
     PDEBUG;
+    createTemporaryTableTickets(ticket, all);
     QList<Dbt::Tickets> list;
     MSqlQuery q(m_db);
 
-    q.prepare(R"'(
-        with
-        ending_status as (
-            select distinct  t1.type, t1.status_to as status from tickets_types_status t1, tickets_status ts  where t1.status_to = ts.status and ts.closed
-            ),
-        tickets_last_status as (
-            select t.ticket, t.type, tl.status
-                from tickets t
-                left join lateral (select tn.ticket, tn.status from tickets_notes tn where tn.ticket = t.ticket order by ticket, date desc limit 1) tl using (ticket)
-            ),
-        closed_tickets as (
-            select distinct ts.ticket from tickets_last_status ts, ending_status es where ts.status = es.status and ts.type = es.type
-            ),
-        active_tickets as (
-            select t1.ticket from tickets t1 where t1.ticket not in (select ticket from closed_tickets)
-            ),
-        users_systems as (
-            select us.system 
-                from users_systems us, users u, systems s
-                where u."user" = :user 
-                  and u."user" = us."user"
-                  and us.system = s.system
-                  and s.show_on_web and s.show_on_panel
-                  and u.is_active and not u.is_deleted
-            )
-
-        select ticket, type, system, category, date, case when description = '' then formal_description->0->'description'->>:lang else description end as description
-            from tickets
-            where ticket in (select ticket from active_tickets)
-              and system in (select system from users_systems)
-              and (:ticket1 <= 0 or :ticket1 = ticket)
-            ;
-        )'");
-    q.bindValue(":user", userId());
-    q.bindValue(":lang", userLang());   
-    q.bindValue(":ticket1", ticket);
-    q.bindValue(":ticket2", ticket);
+    q.prepare(R"X(select ticket, type, system, category, date, description from temporary_tickets;)X");
     q.exec();
     while (q.next()) {
         Dbt::Tickets x;
@@ -353,45 +401,60 @@ QList<Dbt::Tickets> DatabasePluginFotomon::tickets(int ticket, bool all) {
 }
 
 
-QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(int ticket, bool all) {
+QList<Dbt::TicketsVw> DatabasePluginFotomon::ticketsVw(bool all) {
+    Q_UNUSED(all);
+    return ticketsVw(-1, all);
+}
+
+
+QList<Dbt::TicketsVw> DatabasePluginFotomon::ticketsVw(int ticket, bool all) {
     PDEBUG;
+    createTemporaryTableTickets(ticket, all);
+    QList<Dbt::Tickets> list1;
+    QList<Dbt::TicketsVw> list;
+    MSqlQuery q(m_db);
+
+    q.prepare(R"X(select ticket, type, system, category, date, description from temporary_tickets;)X");
+    q.exec();
+    while (q.next()) {
+        Dbt::TicketsVw x;
+        int i=0;
+        x.ticket = q.value(i++);
+        QVariant type = q.value(i++);
+        QVariant system = q.value(i++);
+        QVariant category = q.value(i++);
+        x.category = categoryKey(type, system, category, 3);
+        x.date = q.value(i++).toDateTime();
+        x.description = q.value(i++).toString();
+        list1 << x;
+        }
+    for (int i=0; i<list1.size(); i++) {
+        Dbt::TicketsVw x = list1[i];
+        x.timesheets = ticketTimesheets(list1[i].ticket.toInt(), all);
+        x.statuses = ticketStatus(list1[i].ticket.toInt(), all);
+        x.values = ticketValues(list1[i].ticket.toInt(), all);
+        x.files = ticketFiles(list1[i].ticket.toInt(), all);
+        list << x;
+        }
+    
+    return list;
+}
+
+
+
+
+
+QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(int ticket, bool all) {
+    createTemporaryTableTickets(ticket, all);
     QList<Dbt::TicketStatus> list;
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
-        with
-        ending_status as (
-            select distinct  t1.type, t1.status_to as status from tickets_types_status t1, tickets_status ts  where t1.status_to = ts.status and ts.closed
-            ),
-        tickets_last_status as (
-            select t.ticket, t.type, tl.status
-                from tickets t
-                left join lateral (select tn.ticket, tn.status from tickets_notes tn where tn.ticket = t.ticket order by ticket, date desc limit 1) tl using (ticket)
-            ),
-        closed_tickets as (
-            select distinct ts.ticket from tickets_last_status ts, ending_status es where ts.status = es.status and ts.type = es.type
-            ),
-        active_tickets as (
-            select t1.ticket from tickets t1 where t1.ticket not in (select ticket from closed_tickets)
-            ),
-        users_systems as (
-            select us.system 
-                from users_systems us, users u, systems s
-                where u."user" = :user 
-                  and u."user" = us."user"
-                  and us.system = s.system
-                  and s.show_on_web and s.show_on_panel
-                  and u.is_active and not u.is_deleted
-            )
-
         select tn.note, tn.ticket, t."user", tn.date, tn.status,
                 case when tn.description != '' then tn.description else tn.formal_description->0->'description'->>'cs' end as description
-            from tickets_notes tn
-            left join tickets t on (t.ticket = tn.ticket)
-            left join users u on (tn."user" = u."user")
-            where t.ticket in (select ticket from active_tickets)
-              and t.system in (select system from users_systems)
-              and (:ticket1 <= 0 or :ticket1 = ticket)
+            from tickets_notes tn, temporary_tickets t
+            where tn.ticket = t.ticket
+              and (:ticket1 <= 0 or :ticket2 = t.ticket)
             ;
         )'");
     q.bindValue(":user", userId());
@@ -415,75 +478,79 @@ QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(int ticket, bool al
 
 
 QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(bool all) {
+    Q_UNUSED(all);
     return ticketStatus(-1, all);
 }
 
 
 QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(int id) {
+    Q_UNUSED(id);
     QList<Dbt::TicketStatus> list;
     return list;
 }
 
 
-QList<Dbt::TicketsVw> DatabasePluginFotomon::ticketsVw(bool all) {
-    return ticketsVw(-1, all);
-}
-
-QList<Dbt::TicketsVw> DatabasePluginFotomon::ticketsVw(int ticket, bool all) {
-    QList<Dbt::TicketsVw> list;
-    return list;
-}
-
-
 QList<Dbt::TicketTimesheets> DatabasePluginFotomon::ticketTimesheets(int ticket, bool all) {
+    Q_UNUSED(ticket);
+    Q_UNUSED(all);
     QList<Dbt::TicketTimesheets> list;
     return list;
 }
 
 
 QList<Dbt::TicketTimesheets> DatabasePluginFotomon::ticketTimesheets(bool all) {
+    Q_UNUSED(all);
     QList<Dbt::TicketTimesheets> list;
     return list;
 }
 
 
 QList<Dbt::TicketTimesheets> DatabasePluginFotomon::ticketTimesheets(int id) {
+    Q_UNUSED(id);
     QList<Dbt::TicketTimesheets> list;
     return list;
 }
 
 
 QList<Dbt::TicketFiles> DatabasePluginFotomon::ticketFiles(int ticket, bool all) {
+    Q_UNUSED(ticket);
+    Q_UNUSED(all);
     QList<Dbt::TicketFiles> list;
     return list;
 }
 
 
 QList<Dbt::TicketFiles> DatabasePluginFotomon::ticketFiles(bool all) {
+    Q_UNUSED(all);
     QList<Dbt::TicketFiles> list;
     return list;
 }
 
 
 QList<Dbt::TicketFiles> DatabasePluginFotomon::ticketFiles(int ticket) {
+    Q_UNUSED(ticket);
     QList<Dbt::TicketFiles> list;
     return list;
 }
 
 
 QList<Dbt::TicketValues> DatabasePluginFotomon::ticketValues(int ticket, bool all) {
+    Q_UNUSED(ticket);
+    Q_UNUSED(all);
     QList<Dbt::TicketValues> list;
     return list;
 }
 
 
 QList<Dbt::TicketValues> DatabasePluginFotomon::ticketValues(bool all) {
+    Q_UNUSED(all);
     QList<Dbt::TicketValues> list;
     return list;
 }
 
 
 QList<Dbt::TicketValues> DatabasePluginFotomon::ticketValues(int ticket) {
+    Q_UNUSED(ticket);
     QList<Dbt::TicketValues> list;
     return list;
 }

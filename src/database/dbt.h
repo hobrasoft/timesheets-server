@@ -82,21 +82,6 @@ struct Statuses {
 };
 
 
-struct Tickets {
-    QVariant    ticket;
-    QVariant    category;
-    QDateTime   date;
-    QVariant    price;
-    QString     description;
-    int         user;
-
-    QVariantMap toMap() const;
-    static Tickets fromMap(const QVariantMap&);
-    Tickets() { user = 0; }
-    Tickets(const QVariant& x) { ticket = x; }
-};
-
-
 struct TicketFiles {
     QVariant    id;
     QVariant    ticket;
@@ -156,11 +141,39 @@ struct TicketTimesheets {
 };
 
 
+struct Tickets {
+    QVariant    ticket;
+    QVariant    category;
+    QDateTime   date;
+    QVariant    price;
+    QString     description;
+    int         user;
+
+    virtual QVariantMap toMap() const;
+    static Tickets fromMap(const QVariantMap&);
+    Tickets() { user = 0; }
+    Tickets(const QVariant& x) { ticket = x; }
+
+};
+
+
 struct TicketsVw : Tickets {
     QList<Dbt::TicketTimesheets> timesheets;
-    QList<Dbt::TicketStatus>     ticket;
+    QList<Dbt::TicketStatus>     statuses;
     QList<Dbt::TicketFiles>      files;
     QList<Dbt::TicketValues>     values;
+
+    QVariantMap toMap() const Q_DECL_OVERRIDE;
+    static Tickets fromMap(const QVariantMap&);
+    TicketsVw() : Tickets() {}
+    TicketsVw(const Tickets& x) {
+        ticket = x.ticket;
+        category = x.category;
+        date = x.date;
+        price = x.price;
+        description = x.description ;
+        user = x.user;
+        }
 };
 
 
