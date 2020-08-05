@@ -283,6 +283,12 @@ class AbstractController : public HobrasoftHttpd::HttpRequestHandler {
     HobrasoftHttpd::HttpRequest    *request() const;        ///< Vrací ukazatel na aktuální request
     HobrasoftHttpd::HttpConnection *connection() const;     ///< Vrací ukazatel na aktuální connection
 
+    static QVariantMap putKey(const QVariant& key) {
+        QVariantMap data; 
+        data["key"] = key; 
+        return data;
+        }
+
   private:
     #ifndef DOXYGEN_SHOULD_SKIP_THIS
     HobrasoftHttpd::HttpRequest    *m_request;

@@ -28,36 +28,21 @@ Kategorie se v programu řadí ve stromové struktuře.
 V každé kategorii může být libovolný počet ticketů.
 Ke kategoriím se nastavují přístupová práva na uživatele.
 
-GET 
----
-Vrací seznam všech kategorií, ke kterým má uživatel přístup.
+Implementuje metody:
+- get
+- post, put
+- delete
+
+Primární klíč je v API předávaný jako řetězec (nutné pro fotomon), ale v modulu postgresql je uložené ve formátu integer.
+
+Struktura jednoho záznamu:
 @code
-[
-  {
-    "category": "1",                        // Primární klíč - identifikátor kategorie
-    "parent_category": "0",                 // Rodičovská kategorie
-    "description": "Projekty Hobrasoft",    // Popis kategorie
-    "price": 700                            // Cena, která by se měla nastavit pro každý nový ticket v této kategorii
-  },
-  {
-    "category": "2",
-    "parent_category": "1",
-    "description": "Projekty Petr Bravenec",
-    "price": 700
-  },
-  {
-    "category": "4",
-    "parent_category": "2",
-    "description": "Simul 6",
-    "price": 1000
-  },
-  {
-    "category": "5",
-    "parent_category": "3",
-    "description": "Timesheets",
-    "price": 700
-  }
-]
+{
+"category": "1",                        // Primární klíč - identifikátor kategorie
+"parent_category": "0",                 // Rodičovská kategorie
+"description": "Projekty Hobrasoft",    // Popis kategorie
+"price": 700                            // Cena, která by se měla nastavit pro každý nový ticket v této kategorii
+}
 @endcode
 
 */

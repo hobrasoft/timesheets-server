@@ -31,6 +31,11 @@ class Test : public QObject {
     void getUsers();
     void putUsers();
     void delUsers();
+    void getCategories();
+    void putCategories();
+    void delCategories();
+    void getUsersCategories();
+    void getUsersCategories();
 
   private:
     QSqlDatabase  m_db;

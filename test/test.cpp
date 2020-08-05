@@ -118,7 +118,7 @@ void Test::authenticate() {
 void Test::getUsers() {
     APIGET("/users");
     QVariantList list = api()->variant().toList();
-    QVERIFY(list .isEmpty() == false);
+    QVERIFY(list.isEmpty() == false);
     APIGET("/users/1");
     QVariantMap data = api()->variant().toMap();
     QVERIFY(data.isEmpty() == false);
@@ -155,9 +155,59 @@ void Test::putUsers() {
 void Test::delUsers() {
     APIDEL("/users/" + m_key);
 
+    // Admin musí projít
     APIGET_IGNORE_ERROR("/users/"+m_key);
     QVERIFY(api()->error() != QNetworkReply::NoError);
     QVERIFY(api()->error() == QNetworkReply::ContentNotFoundError);
+
+    // Neadmin nesmí projít
+    APIGET("/authenticate?user=tycho&password=heslo");
+
 }
+
+
+void Test::getCategories() {
+    APIGET("/categories");
+    QVariantList list = api()->variant().toList();
+    QVERIFY(list.isEmpty() == false);
+
+    QString id = list[0].toMap()["category"].toString();
+    APIGET("/categories/" + id);
+    QVariantMap data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["category"].toString() == id);
+    QVERIFY(data.contains("parent_category"));
+    QVERIFY(data.contains("description"));
+    QVERIFY(data.contains("price"));
+}
+
+
+void Test::putCategories() {
+    QVariantMap data;
+    data["description"] = "popis";
+    data["parent_category"] = QVariant();
+    data["price"] = 1000;
+    APIPUT("/categories/x", data);
+    QVERIFY(api()->variant().toMap().contains("key"));
+    m_key = api()->variant().toMap()["key"].toString();
+
+    data.clear();
+    APIGET("/categories/"+m_key);
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["category"].toString() == m_key);
+    QVERIFY(data["description"].toString() == "popis");
+    QVERIFY(data["parent_category"].toString() == "0");
+    QVERIFY(data["price"].toDouble() == 1000);
+}
+
+
+void Test::delCategories() {
+    APIDEL("/categories/"+m_key);
+    APIGET_IGNORE_ERROR("/categories/"+m_key);
+    QVERIFY(api()->error() != QNetworkReply::NoError);
+    QVERIFY(api()->error() == QNetworkReply::ContentNotFoundError);
+}
+
 
 

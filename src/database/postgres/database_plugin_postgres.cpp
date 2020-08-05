@@ -186,28 +186,47 @@ QVariant DatabasePluginPostgres::currval(const QString& sequence, const QVariant
 QVariant DatabasePluginPostgres::save(const Dbt::Categories& data) {
     MSqlQuery q(m_db);
 
-    q.prepare(R"'(
-        update categories set
-            parent_category = :parent_category,
-            description = :description,
-            price = :price,
-            where category = :category1
-        )'");
-    q.bindValue(":category1", data.category);
-    q.bindValue(":parent_category", data.parent_category);
-    q.bindValue(":description", data.description);
-    q.bindValue(":price", data.price);
+    QVariant parent_category = (data.parent_category.toInt() > 0) 
+                             ?  data.parent_category.toInt()
+                             : QVariant();
+
+    QVariant        category = (data.category.toInt() > 0) 
+                             ?  data.category.toInt()
+                             : QVariant(QVariant::Int);
+
+    // TODO: Kontrola, aby nešlo založit novou kategorii v nadřízené kategorii bez přístupu
+
+    q.prepare(R"'(select 1 from categories where category = :category;)'");
+    q.bindValue(":category", data.category);
+    q.exec();
+    if (q.next()) {
+        q.prepare(R"'(
+            update categories set
+                parent_category = ?,
+                description = ?,
+                price = ?
+                where category = ?
+            )'");
+        q.bindValue(0, parent_category);
+        q.bindValue(1, data.description);
+        q.bindValue(2, data.price);
+        q.bindValue(3, category);
+        q.exec();
+        return QVariant(data.category);
+        }
+
+    q.prepare(R"string(
+        insert into categories (parent_category, description, price) values (?, ?, ?);
+        )string");
+    q.bindValue(0, parent_category);
+    q.bindValue(1, data.description);
+    q.bindValue(2, data.price);
     q.exec();
 
-    q.prepare(R"'(
-        insert into categories (parent_category, description, price)
-            select :parent_category, :description, :price
-            where not exists (select 1 from categories where category = :category1);
-        )'");
-    q.bindValue(":category1", data.category);
-    q.bindValue(":parent_category", data.parent_category);
-    q.bindValue(":description", data.description);
-    q.bindValue(":price", data.price);
+    q.prepare(R"string(
+        insert into users_categories ("user", category) values (?, currval('categories_category_seq'));
+        )string");
+    q.bindValue(0, userId());
     q.exec();
 
     return currval("categories_category_seq", data.category);
