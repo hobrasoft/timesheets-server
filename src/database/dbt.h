@@ -164,7 +164,7 @@ struct TicketsVw : Tickets {
     QList<Dbt::TicketValues>     values;
 
     QVariantMap toMap() const Q_DECL_OVERRIDE;
-    static Tickets fromMap(const QVariantMap&);
+    static TicketsVw fromMap(const QVariantMap&);
     TicketsVw() : Tickets() {}
     TicketsVw(const Tickets& x) {
         ticket = x.ticket;

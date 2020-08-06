@@ -83,6 +83,7 @@ StatusOrder StatusOrder::fromMap(const QVariantMap& data) {
     return x;
 }
 
+
 QVariantMap Statuses::toMap() const {
     QVariantMap data;
     data["status"] = status;
@@ -103,6 +104,7 @@ Statuses Statuses::fromMap(const QVariantMap& data) {
     x.closed= data["closed"].toBool();
     return x;
 }
+
 
 QVariantMap Tickets::toMap() const {
     QVariantMap data;
@@ -126,7 +128,6 @@ QVariantMap TicketsVw::toMap() const {
     data["files"] = toList(files);
     return data;
 }
-
 
 
 QVariantMap TicketStatus::toMap() const {
@@ -155,7 +156,6 @@ TicketStatus TicketStatus::fromMap(const QVariantMap& data) {
 
     return x;
 }
-
 
 
 QVariantMap TicketValues::toMap() const {

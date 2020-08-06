@@ -18,6 +18,17 @@ ControllerTickets::ControllerTickets(HobrasoftHttpd::HttpConnection *parent) : A
 
 void ControllerTickets::serviceList (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
     bool all = QVariant(request->parameter("all")).toBool();
+    bool idonly = QVariant(request->parameter("idonly")).toBool();
+    if (idonly) {
+        QVariantList data;
+        QList<Dbt::Tickets> list = db()->tickets(all);
+        QListIterator<Dbt::Tickets> iterator(list);
+        while (iterator.hasNext()) {
+            data << iterator.next().ticket;
+            }
+        serviceOK(request, response, data);
+        return;
+        }
     serviceOK(request, response, toList(db()->tickets(all)));
 }
 
