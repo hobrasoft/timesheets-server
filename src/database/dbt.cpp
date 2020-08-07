@@ -106,6 +106,17 @@ Statuses Statuses::fromMap(const QVariantMap& data) {
 }
 
 
+Tickets Tickets::fromMap(const QVariantMap& map) {
+    Tickets x;
+    x.ticket = map["ticket"];
+    x.category = map["category"];
+    x.price = map["price"];
+    x.date = map["date"].toDateTime();
+    x.description = map["description"].toString();
+    return x;
+}
+
+
 QVariantMap Tickets::toMap() const {
     QVariantMap data;
 
@@ -130,112 +141,150 @@ QVariantMap TicketsVw::toMap() const {
 }
 
 
-QVariantMap TicketStatus::toMap() const {
-    QVariantMap data;
-
-    data["id"] = null(id);
-    data["ticket"] = null(ticket);
-    data["user"] = null(user);
-    data["date"] = date;   
-    data["description"] = description;
-    data["status"] = null(status);
-
-    return data;
-}
-
-
-TicketStatus TicketStatus::fromMap(const QVariantMap& data) {
-    TicketStatus x;
-
-    x.id = data["id"];
-    x.ticket = data["ticket"];
-    x.user = data["user"];
-    x.date = data["date"].toDateTime();
-    x.description = data["description"].toString();
-    x.status = data["status"];
-
+TicketsVw TicketsVw::fromMap(const QVariantMap& map) {
+    TicketsVw x = Tickets::fromMap(map);
+    x.timesheets = TicketTimesheets::fromList(map["timesheets"].toList());
+    x.statuses = TicketStatus::fromList(map["statuses"].toList());
+    x.values = TicketValues::fromList(map["values"].toList());
+    x.files = TicketFiles::fromList(map["files"].toList());
     return x;
 }
 
 
-QVariantMap TicketValues::toMap() const {
-    QVariantMap data;
-
-    data["id"] = null(id);
-    data["ticket"] = null(ticket);
-    data["user"] = null(user);
-    data["name"] = name;
-    data["value"] = value;
-
-    return data;
-}
-
-
-TicketValues TicketValues::fromMap(const QVariantMap& data) {
-    TicketValues x;
-
-    x.id = data["id"];
-    x.ticket = data["ticket"];
+Mutable Mutable::fromMap(const QVariantMap& data) {
+    Mutable x;
+    x.id = data["id"].toInt();
     x.user = data["user"];
-    x.name = data["name"].toString();
-    x.value = data["value"].toString();
-
+    x.ticket = data["ticket"];
     return x;
 }
 
 
-QVariantMap TicketTimesheets::toMap() const {
+QVariantMap Mutable::toMap() const {
     QVariantMap data;
-
-    data["id"] = null(id);
-    data["ticket"] = null(ticket);
-    data["user"] = null(user);
-    data["date_from"] = date_from;
-    data["date_to"] = date_to;
-
+    data["id"] = id;
+    data["user"] = user;
+    data["ticket"] = ticket;
+    data["modified"] = modified;
+    data["created"] = created;
     return data;
 }
 
 
 TicketTimesheets TicketTimesheets::fromMap(const QVariantMap& data) {
-    TicketTimesheets x;
-
-    x.id = data["id"];
-    x.ticket = data["ticket"];
-    x.user = data["user"];
+    TicketTimesheets x = Mutable::fromMap(data);;
     x.date_from = data["date_from"].toDateTime();
     x.date_to = data["date_to"].toDateTime();
-
     return x;
-}
-
-
-QVariantMap TicketFiles::toMap() const {
-    QVariantMap data;
-
-    data["id"] = null(id);
-    data["ticket"] = null(ticket);
-    data["user"] = null(user);
-    data["name"] = name;
-    data["type"] = type;
-    data["content"] = content;
-
-    return data;
 }
 
 
 TicketFiles TicketFiles::fromMap(const QVariantMap& data) {
-    TicketFiles x;
-
-    x.id = data["id"];
-    x.ticket = data["ticket"];
-    x.user = data["user"];
+    TicketFiles x = Mutable::fromMap(data);
+    x.date = data["date"].toDateTime();
     x.name = data["name"].toString();
     x.type = data["type"].toString();
     x.content = data["content"].toByteArray();
-
     return x;
 }
+
+
+TicketValues TicketValues::fromMap(const QVariantMap& data) {
+    TicketValues x = Mutable::fromMap(data);
+    x.date = data["date "].toDateTime();
+    x.name = data["name"].toString();
+    x.value = data["value"].toString();
+    return x;
+}
+
+
+TicketStatus TicketStatus::fromMap(const QVariantMap& data) {
+    TicketStatus x = Mutable::fromMap(data);
+    x.date = data["date"].toDateTime();;
+    x.status = data["status"].toString();
+    x.description = data["description"].toString();
+    return x;
+}
+
+
+QVariantMap TicketTimesheets::toMap() const {
+    QVariantMap data = Mutable::toMap();;
+    data["date_from"] = date_from;
+    data["date_to"] = date_to;
+    return data;
+}
+
+
+QVariantMap TicketFiles::toMap() const {
+    QVariantMap data = Mutable::toMap();;
+    data["date"] = date;
+    data["name"] = name;
+    data["type"] = type;
+    data["content"] = content;
+    return data;
+}
+
+
+QVariantMap TicketValues::toMap() const {
+    QVariantMap data = Mutable::toMap();;
+    data["date"] = date;
+    data["name"] = name;
+    data["value"] = value;
+    return data;
+}
+
+
+QVariantMap TicketStatus::toMap() const {
+    QVariantMap data = Mutable::toMap();;
+    data["status"] = status;
+    data["date"] = date;
+    data["description"] = description;
+    data["status_description"] = status_description;    // Pouze pro čtení
+    data["status_color"] = status_color;                // Pouze pro čtení
+    return data;
+}
+
+
+QList<TicketTimesheets> TicketTimesheets::fromList(const QVariantList& list) {
+    QList<TicketTimesheets> x;
+    QListIterator<QVariant> iterator(list);
+    while (iterator.hasNext()) {
+        x << TicketTimesheets::fromMap(iterator.next().toMap());
+        }
+    return x;
+}
+
+
+QList<TicketValues> TicketValues::fromList(const QVariantList& list) {
+    QList<TicketValues> x;
+    QListIterator<QVariant> iterator(list);
+    while (iterator.hasNext()) {
+        x << TicketValues::fromMap(iterator.next().toMap());
+        }
+    return x;
+}
+
+
+QList<TicketFiles> TicketFiles::fromList(const QVariantList& list) {
+    QList<TicketFiles> x;
+    QListIterator<QVariant> iterator(list);
+    while (iterator.hasNext()) {
+        x << TicketFiles::fromMap(iterator.next().toMap());
+        }
+    return x;
+}
+
+
+QList<TicketStatus> TicketStatus::fromList(const QVariantList& list) {
+    QList<TicketStatus> x;
+    QListIterator<QVariant> iterator(list);
+    while (iterator.hasNext()) {
+        x << TicketStatus::fromMap(iterator.next().toMap());
+        }
+    return x;
+}
+
+
 
 
 

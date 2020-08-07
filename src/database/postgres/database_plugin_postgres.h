@@ -98,6 +98,7 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     int             m_port;
 
     static bool     m_upgraded;
+    bool            m_temporaryTableTicketsCreated;
 
 };
 

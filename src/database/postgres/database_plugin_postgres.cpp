@@ -26,6 +26,7 @@ DatabasePluginPostgres::~DatabasePluginPostgres() {
 DatabasePluginPostgres::DatabasePluginPostgres(QObject *parent) : Db::Plugins::DatabasePlugin(parent) {
     Q_ASSERT(parent != NULL);
     setObjectName("DatabasePluginPostgres");
+    m_temporaryTableTicketsCreated = false;
 }
 
 
@@ -386,6 +387,8 @@ QVariant DatabasePluginPostgres::save(const Dbt::StatusOrder& data) {
 
 
 void DatabasePluginPostgres::createTemporaryTableTickets(int ticket, bool all) {
+    if (m_temporaryTableTicketsCreated) { return; }
+    m_temporaryTableTicketsCreated = true;
     MSqlQuery q(m_db);
     q.exec(R"'(
         create temporary table temporary_tickets (
@@ -477,6 +480,28 @@ QList<Dbt::Tickets> DatabasePluginPostgres::tickets(int ticket, bool all) {
 }
 
 
+QList<Dbt::TicketsVw> DatabasePluginPostgres::ticketsVw(bool all) {
+    return ticketsVw(-1, all);
+}
+
+
+QList<Dbt::TicketsVw> DatabasePluginPostgres::ticketsVw(int ticket, bool all) {
+    QList<Dbt::Tickets> list1 = tickets(ticket,all);
+    QList<Dbt::TicketsVw> list;
+    MSqlQuery q(m_db);
+    for (int i=0; i<list1.size(); i++) {
+        Dbt::TicketsVw x = list1[i];
+        x.timesheets = ticketTimesheets(list1[i].ticket.toInt(), all);
+        x.statuses = ticketStatus(list1[i].ticket.toInt(), all);
+        x.values = ticketValues(list1[i].ticket.toInt(), all);
+        x.files = ticketFiles(list1[i].ticket.toInt(), all);
+        list << x;
+        }
+
+    return list;
+}
+
+
 void DatabasePluginPostgres::remove(const Dbt::Tickets& id) {
     MSqlQuery q(m_db);
     q.prepare(R"'(delete from ticketswhere category = :id;)'");
@@ -538,12 +563,12 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int ticket, bool a
     while (q.next()) {
         Dbt::TicketStatus x;
         int i=0;
-        x.id            = q.value(i++);
-        x.ticket        = q.value(i++);
-        x.user          = q.value(i++);
+        x.id            = q.value(i++).toInt();
+        x.ticket        = q.value(i++).toInt();
+        x.user          = q.value(i++).toInt();
         x.date          = q.value(i++).toDateTime();
         x.description   = q.value(i++).toString();
-        x.status        = q.value(i++);
+        x.status        = q.value(i++).toString();
         list << x;
         }
     return list;
@@ -574,12 +599,12 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int id) {
     while (q.next()) {
         Dbt::TicketStatus x;
         int i=0;
-        x.id            = q.value(i++);
-        x.ticket        = q.value(i++);
-        x.user          = q.value(i++);
+        x.id            = q.value(i++).toInt();
+        x.ticket        = q.value(i++).toInt();
+        x.user          = q.value(i++).toInt();
         x.date          = q.value(i++).toDateTime();
         x.description   = q.value(i++).toString();
-        x.status        = q.value(i++);
+        x.status        = q.value(i++).toString();
         list << x;
         }
     return list;
@@ -631,18 +656,6 @@ QVariant DatabasePluginPostgres::save(const Dbt::TicketStatus& data) {
 }
 
 
-QList<Dbt::TicketsVw> DatabasePluginPostgres::ticketsVw(bool all) {
-    return ticketsVw(-1, all);
-}
-
-
-QList<Dbt::TicketsVw> DatabasePluginPostgres::ticketsVw(int ticket, bool all) {
-    createTemporaryTableTickets(ticket, all);
-    QList<Dbt::TicketsVw> list;
-    return list;
-}
-
-
 QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(int ticket, bool all) {
     createTemporaryTableTickets(ticket, all);
     QList<Dbt::TicketTimesheets> list;
@@ -659,8 +672,8 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(int ticket
     while (q.next()) {
         int i=0;
         Dbt::TicketTimesheets x;
-        x.id            = q.value(i++);
-        x.ticket        = q.value(i++);
+        x.id            = q.value(i++).toInt();
+        x.ticket        = q.value(i++).toInt();
         x.user          = q.value(i++).toInt();
         x.date_from     = q.value(i++).toDateTime();
         x.date_to       = q.value(i++).toDateTime();
@@ -688,8 +701,8 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(int id) {
     while (q.next()) {
         int i=0;
         Dbt::TicketTimesheets x;
-        x.id            = q.value(i++);
-        x.ticket        = q.value(i++);
+        x.id            = q.value(i++).toInt();
+        x.ticket        = q.value(i++).toInt();
         x.user          = q.value(i++).toInt();
         x.date_from     = q.value(i++).toDateTime();
         x.date_to       = q.value(i++).toDateTime();
@@ -751,20 +764,21 @@ QList<Dbt::TicketValues> DatabasePluginPostgres::ticketValues(int ticket, bool a
     QList<Dbt::TicketValues> list;
     MSqlQuery q(m_db);
     q.prepare(R"'(
-        select tv.id, tt.ticket, tt.name, tt.value, tv."user"
-            from temporary_tickets t, ticket_values tv
-            where t.ticket = tv.ticket
+        select tv.id, tt.ticket, tv.name, tv.value, tv."user", tv.date
+            from temporary_tickets tt, ticket_values tv
+            where tt.ticket = tv.ticket
             ;
         )'");
     q.exec();
     while (q.next()) {
         int i=0;
         Dbt::TicketValues x;
-        x.id            = q.value(i++);
-        x.ticket        = q.value(i++);
+        x.id            = q.value(i++).toInt();
+        x.ticket        = q.value(i++).toInt();
         x.name          = q.value(i++).toString();
         x.value         = q.value(i++).toString();
         x.user          = q.value(i++).toInt();
+        x.date          = q.value(i++).toDateTime();
         list << x;
         }
     return list;
@@ -776,9 +790,9 @@ QList<Dbt::TicketValues> DatabasePluginPostgres::ticketValues(int id) {
     MSqlQuery q(m_db);
     q.prepare(R"'(
         select tv.id, tt.ticket, tt.name, tt.value, tv."user"
-            from tickets t, ticket_values tv, user_categories uc
-            where t.ticket = tv.ticket
-              and t.category = uc.category
+            from tickets tt, ticket_values tv, user_categories uc
+            where tt.ticket = tv.ticket
+              and tt.category = uc.category
               and uc.user = :user
               and :id = id
             ;
@@ -789,8 +803,8 @@ QList<Dbt::TicketValues> DatabasePluginPostgres::ticketValues(int id) {
     while (q.next()) {
         int i=0;
         Dbt::TicketValues x;
-        x.id            = q.value(i++);
-        x.ticket        = q.value(i++);
+        x.id            = q.value(i++).toInt();
+        x.ticket        = q.value(i++).toInt();
         x.name          = q.value(i++).toString();
         x.value         = q.value(i++).toString();
         x.user          = q.value(i++).toInt();
@@ -919,16 +933,16 @@ QList<Dbt::TicketFiles> DatabasePluginPostgres::ticketFiles(int ticket, bool all
 
     q.prepare(R"'(
         select f.id, f.ticket, f.name, f.type, f.content
-            from temporary_tickets t, ticket_files tv
-            where t.ticket = tv.ticket
+            from temporary_tickets t, ticket_files f
+            where t.ticket = f.ticket
             ;
         )'");
     q.exec();
     while (q.next()) {
         int i=0;
         Dbt::TicketFiles x;
-        x.id        = q.value(i++);
-        x.ticket    = q.value(i++);
+        x.id        = q.value(i++).toInt();
+        x.ticket    = q.value(i++).toInt();
         x.name      = q.value(i++).toString();
         x.type      = q.value(i++).toString();
         x.content   = q.value(i++).toByteArray();
@@ -958,8 +972,8 @@ QList<Dbt::TicketFiles> DatabasePluginPostgres::ticketFiles(int id) {
     while (q.next()) {
         int i=0;
         Dbt::TicketFiles x;
-        x.id        = q.value(i++);
-        x.ticket    = q.value(i++);
+        x.id        = q.value(i++).toInt();
+        x.ticket    = q.value(i++).toInt();
         x.name      = q.value(i++).toString();
         x.type      = q.value(i++).toString();
         x.content   = q.value(i++).toByteArray();

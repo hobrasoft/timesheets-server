@@ -465,11 +465,11 @@ QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(int ticket, bool al
     while (q.next()) {
         Dbt::TicketStatus x;
         int i=0;
-        x.id            = q.value(i++);
-        x.ticket        = q.value(i++);
-        x.user          = q.value(i++);
+        x.id            = q.value(i++).toInt();
+        x.ticket        = q.value(i++).toInt();
+        x.user          = q.value(i++).toInt();
         x.date          = q.value(i++).toDateTime();
-        x.status        = q.value(i++);
+        x.status        = q.value(i++).toInt();
         x.description   = q.value(i++).toString();
         list << x;
         }

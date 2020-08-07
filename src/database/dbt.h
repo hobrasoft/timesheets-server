@@ -82,62 +82,120 @@ struct Statuses {
 };
 
 
-struct TicketFiles {
-    QVariant    id;
-    QVariant    ticket;
+// Tabulky modifikovatelné
+struct Mutable {
+    int         id;
     QVariant    user;
+    QVariant    ticket;
+    bool        modified;
+    bool        created;
+    //
+    virtual QVariantMap toMap() const;
+    static Mutable fromMap(const QVariantMap&);
+    Mutable() { id = 0; modified = false; created = false; }
+    Mutable(const QVariant& x) { id = x.toInt(); modified = false; created = false; }
+    Mutable(const Mutable& x) { operator=(x); }
+    Mutable& operator=(const Mutable& x) {
+        id = x.id;
+        user = x.user;
+        ticket = x.ticket;
+        modified = x.modified;
+        created = x.created;
+        return *this;
+        }
+};
+
+
+struct TicketStatus : Mutable {
+    QDateTime   date;
+    QString     status;
+    QString     description;
+    QString     status_description;     // Pouze pro čtení, tahá se odjinud
+    QString     status_color;           // Pouze pro čtení, tahá se odjinud
+    //
+    QVariantMap toMap() const Q_DECL_OVERRIDE;
+    static TicketStatus fromMap(const QVariantMap&);
+    static QList<TicketStatus> fromList(const QVariantList&);
+    TicketStatus() : Mutable() {}
+    TicketStatus(const QVariant& x) : Mutable(x) {}
+    TicketStatus(const Mutable& x) : Mutable(x) {}
+    TicketStatus(const TicketStatus& x) : Mutable() { operator=(x); }
+    TicketStatus& operator=(const TicketStatus& x) {
+        Mutable::operator=(x);
+        date = x.date;
+        status = x.status;
+        status_description = x.status_description;
+        status_color = x.status_color;
+        return *this;
+        }
+};
+
+
+struct TicketTimesheets : Mutable {
+    QDateTime   date_from;
+    QDateTime   date_to;
+    //
+    QVariantMap toMap() const Q_DECL_OVERRIDE;
+    static TicketTimesheets fromMap(const QVariantMap&);
+    static QList<TicketTimesheets> fromList(const QVariantList&);
+    TicketTimesheets() : Mutable() {}
+    TicketTimesheets(const QVariant& x) : Mutable(x) {}
+    TicketTimesheets(const Mutable& x) : Mutable(x) {}
+    TicketTimesheets(const TicketTimesheets& x) : Mutable() { operator=(x); }
+    TicketTimesheets& operator=(const TicketTimesheets& x) {
+        Mutable::operator=(x);
+        date_from = x.date_from;
+        date_to = x.date_to;
+        return *this;
+        }
+
+};
+
+
+struct TicketFiles : Mutable {
+    QDateTime   date;
     QString     name;
     QString     type;
     QByteArray  content;
 
-    TicketFiles(const QVariant& x) { id = x; }
-    TicketFiles(){}
-    QVariantMap toMap() const;
+    QVariantMap toMap() const Q_DECL_OVERRIDE;
     static TicketFiles fromMap(const QVariantMap&);
+    static QList<TicketFiles> fromList(const QVariantList&);
+    TicketFiles() : Mutable() {}
+    TicketFiles(const QVariant& x) : Mutable(x) {}
+    TicketFiles(const Mutable& x) : Mutable(x) {}
+    TicketFiles(const TicketFiles& x) : Mutable() { operator=(x); }
+    TicketFiles& operator=(const TicketFiles& x) {
+        Mutable::operator=(x);
+        date = x.date;
+        name = x.name;
+        type = x.type;
+        content = x.content;
+        return *this;
+        }
 };
 
 
-struct TicketValues {
-    QVariant    id;
-    QVariant    ticket;
-    QVariant    user;
+struct TicketValues : Mutable {
+    QDateTime   date;
     QString     name;
     QString     value;
 
-    TicketValues(const QVariant& x) { id = x; }
-    TicketValues() {}
-    QVariantMap toMap() const;
+    QVariantMap toMap() const Q_DECL_OVERRIDE;
     static TicketValues fromMap(const QVariantMap&);
-};
+    static QList<TicketValues> fromList(const QVariantList&);
+    TicketValues() : Mutable() {}
+    TicketValues(const QVariant& x) : Mutable(x) {}
+    TicketValues(const Mutable& x) : Mutable(x) {}
+    TicketValues(const TicketValues& x) : Mutable() { operator=(x); }
+    TicketValues& operator=(const TicketValues& x) {
+        Mutable::operator=(x);
+        date = x.date;
+        name = x.name;
+        value = x.value;
+        return *this;
+        }
 
-
-struct TicketStatus {
-    QVariant    id;
-    QVariant    ticket;
-    QVariant    user;
-    QDateTime   date;   
-    QString     description;
-    QVariant    status;
-
-    TicketStatus(const QVariant& x) { id = x; }
-    TicketStatus() {}
-    QVariantMap toMap() const;
-    static TicketStatus fromMap(const QVariantMap&);
-    
-};
-
-
-struct TicketTimesheets {
-    QVariant    id;
-    QVariant    ticket;
-    QVariant    user;
-    QDateTime   date_from;
-    QDateTime   date_to;
-
-    TicketTimesheets(const QVariant& x) { id = x; }
-    TicketTimesheets() {}
-    QVariantMap toMap() const;
-    static TicketTimesheets fromMap(const QVariantMap&);
 };
 
 
@@ -153,6 +211,16 @@ struct Tickets {
     static Tickets fromMap(const QVariantMap&);
     Tickets() { user = 0; }
     Tickets(const QVariant& x) { ticket = x; }
+    Tickets(const Tickets& x) { operator=(x); }
+    Tickets& operator=(const Tickets& x) {
+        ticket = x.ticket;
+        category = x.category;
+        date = x.date;
+        price = x.price;
+        description = x.description ;
+        user = x.user;
+        return *this;
+        }
 
 };
 
@@ -166,14 +234,18 @@ struct TicketsVw : Tickets {
     QVariantMap toMap() const Q_DECL_OVERRIDE;
     static TicketsVw fromMap(const QVariantMap&);
     TicketsVw() : Tickets() {}
-    TicketsVw(const Tickets& x) {
-        ticket = x.ticket;
-        category = x.category;
-        date = x.date;
-        price = x.price;
-        description = x.description ;
-        user = x.user;
+    TicketsVw(const QVariant& x) : Tickets(x) { }
+    TicketsVw(const Tickets& x) : Tickets(x) {}
+    TicketsVw(const TicketsVw& x) : Tickets() { operator=(x); }
+    TicketsVw& operator=(const TicketsVw& x) {
+        Tickets::operator=(x);
+        timesheets = x.timesheets;
+        statuses = x.statuses;
+        files = x.files;
+        values = x.values;
+        return *this;
         }
+
 };
 
 
