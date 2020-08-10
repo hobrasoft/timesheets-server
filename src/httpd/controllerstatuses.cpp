@@ -29,7 +29,7 @@ void ControllerStatuses::serviceIdGet(HobrasoftHttpd::HttpRequest *request, Hobr
 }
 
 void ControllerStatuses::serviceIdPut(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QVariantMap& data) {
-    db()->save(Dbt::Statuses::fromMap(data));
+    serviceOK(request, response, putKey(db()->save(Dbt::Statuses::fromMap(data))));
 }
 
 

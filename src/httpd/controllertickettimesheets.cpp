@@ -33,7 +33,7 @@ void ControllerTicketTimesheets::serviceIdGet (HobrasoftHttpd::HttpRequest *requ
 
 
 void ControllerTicketTimesheets::serviceIdPut(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QVariantMap& data) {
-    db()->save(Dbt::TicketTimesheets::fromMap(data));
+    serviceOK(request, response, putKey(db()->save(Dbt::TicketTimesheets::fromMap(data))));
 }
 
 

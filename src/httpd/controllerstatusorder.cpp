@@ -30,7 +30,7 @@ void ControllerStatusOrder::serviceIdGet(HobrasoftHttpd::HttpRequest *request, H
 
 
 void ControllerStatusOrder::serviceIdPut(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QVariantMap& data) {
-    db()->save(Dbt::StatusOrder::fromMap(data));
+    serviceOK(request, response, putKey(db()->save(Dbt::StatusOrder::fromMap(data))));
 }
 
 

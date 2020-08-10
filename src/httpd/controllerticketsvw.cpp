@@ -34,12 +34,7 @@ void ControllerTicketsVw::serviceIdGet (HobrasoftHttpd::HttpRequest *request, Ho
 
 
 void ControllerTicketsVw::serviceIdPut(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QVariantMap& data) {
-    QVariant x = db()->save(Dbt::TicketsVw::fromMap(data));
-    PDEBUG << x;    
-    QVariantMap rc;
-    rc["ok"] = x.isValid() && !x.isNull();
-    rc["ticket"] = x.toInt();
-    serviceOK(request, response, rc);
+    serviceOK(request, response, putKey(db()->save(Dbt::TicketsVw::fromMap(data))));
 }
 
 
