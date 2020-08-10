@@ -88,7 +88,7 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
 
   protected:
     void    createTemporaryTableTickets(int ticket, bool all = false);
-    QVariant currval(const QString& sequence, const QVariant& key);
+    QVariant currval(const QString& sequence);
 
   private:
     QString         m_databasename;

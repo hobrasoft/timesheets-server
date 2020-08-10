@@ -171,9 +171,9 @@ void DatabasePluginPostgres::remove(const Dbt::Categories& id) {
 }
 
 
-QVariant DatabasePluginPostgres::currval(const QString& sequence, const QVariant& key) {
+QVariant DatabasePluginPostgres::currval(const QString& sequence) {
     MSqlQuery q(m_db);
-    QVariant cv = key;
+    QVariant cv;
     q.prepare(R"'(select currval(:sequence);)'");
     q.bindValue(":sequence", sequence);
     q.exec();
@@ -230,7 +230,7 @@ QVariant DatabasePluginPostgres::save(const Dbt::Categories& data) {
     q.bindValue(0, userId());
     q.exec();
 
-    return currval("categories_category_seq", data.category);
+    return currval("categories_category_seq");
 
 }
 
@@ -286,37 +286,47 @@ QVariant DatabasePluginPostgres::save(const Dbt::Users& data) {
     q.exec();
     if (!q.next()) { return QVariant(); }
 
-    q.prepare(R"'(
-        update users set
-            login = :login,
-            name = :name,
-            lang = :lang,
-            enabled = :enabled,
-            admin = :admin
-            where "user" = :id1
-        )'");
-    q.bindValue(":id1", data.user);
-    q.bindValue(":login", data.login);
-    q.bindValue(":name", data.name);
-    q.bindValue(":lang", data.lang);
-    q.bindValue(":enabled", data.enabled);
-    q.bindValue(":admin", data.admin);
-    q.exec();
 
-    q.prepare(R"'(
-        insert into users (login, name, lang, enabled, admin)
-            select :login, :name, :lang, :enabled, :admin
-            where not exists (select 1 from users where "user" = :id1);
-        )'");
-    q.bindValue(":id1", data.user);
-    q.bindValue(":login", data.login);
-    q.bindValue(":name", data.name);
-    q.bindValue(":lang", data.lang);
-    q.bindValue(":enabled", data.enabled);
-    q.bindValue(":admin", data.admin);
+    q.prepare(R"'(select 1 from users where "user" = :id;)'");
+    q.bindValue(":id", data.user);
     q.exec();
+    if (q.next()) { 
+        q.prepare(R"'(
+            update users set
+                login = :login,
+                name = :name,
+                lang = :lang,
+                enabled = :enabled,
+                admin = :admin
+                where "user" = :id1
+            )'");
+        q.bindValue(":id1", data.user);
+        q.bindValue(":login", data.login);
+        q.bindValue(":name", data.name);
+        q.bindValue(":lang", data.lang);
+        q.bindValue(":enabled", data.enabled);
+        q.bindValue(":admin", data.admin);
+        q.exec();
+        return QVariant(data.user);
+      } else {
 
-    return currval("users_user_seq", data.user);
+        q.prepare(R"'(
+            insert into users (login, name, lang, enabled, admin)
+                select :login, :name, :lang, :enabled, :admin
+                where not exists (select 1 from users where "user" = :id1);
+            )'");
+        q.bindValue(":id1", data.user);
+        q.bindValue(":login", data.login);
+        q.bindValue(":name", data.name);
+        q.bindValue(":lang", data.lang);
+        q.bindValue(":enabled", data.enabled);
+        q.bindValue(":admin", data.admin);
+        q.exec();
+
+        return currval("users_user_seq");
+        }
+
+    return QVariant();
 
 }
 
@@ -358,31 +368,40 @@ void DatabasePluginPostgres::remove(const Dbt::StatusOrder& id) {
 QVariant DatabasePluginPostgres::save(const Dbt::StatusOrder& data) {
     MSqlQuery q(m_db);
 
-    q.prepare(R"'(
-        update status_order set
-            category = :category,
-            previous_status = :previous_status,
-            next_status = :next_status
-            where id = :id
-        )'");
-    q.bindValue(":category", data.category);
-    q.bindValue(":previous_status", data.previous_status);
-    q.bindValue(":next_status", data.next_status);
+    q.prepare(R"'(select 1 from status_order where id = :id;)'");
     q.bindValue(":id", data.id);
     q.exec();
+    if (q.next()) {
+        q.prepare(R"'(
+            update status_order set
+                category = :category,
+                previous_status = :previous_status,
+                next_status = :next_status
+                where id = :id
+            )'");
+        q.bindValue(":category", data.category);
+        q.bindValue(":previous_status", data.previous_status);
+        q.bindValue(":next_status", data.next_status);
+        q.bindValue(":id", data.id);
+        q.exec();
+        return QVariant(data.id);
 
-    q.prepare(R"'(
-        insert into status_order (category, previous_status, next_status)
-            select :category, :previous_status, :next_status
-            where not exists (select 1 from tickets where id = :id);
-        )'");
-    q.bindValue(":category", data.category);
-    q.bindValue(":previous_status", data.previous_status);
-    q.bindValue(":next_status", data.next_status);
-    q.bindValue(":id", data.id);
-    q.exec();
+      } else {
 
-    return currval("status_order_id_seq", data.id);
+        q.prepare(R"'(
+            insert into status_order (category, previous_status, next_status)
+                select :category, :previous_status, :next_status
+            )'");
+        q.bindValue(":category", data.category);
+        q.bindValue(":previous_status", data.previous_status);
+        q.bindValue(":next_status", data.next_status);
+        q.bindValue(":id", data.id);
+        q.exec();
+        return currval("status_order_id_seq");
+        }
+
+    return QVariant();
+
 }
 
 
@@ -513,37 +532,45 @@ void DatabasePluginPostgres::remove(const Dbt::Tickets& id) {
 QVariant DatabasePluginPostgres::save(const Dbt::Tickets& data) {
     MSqlQuery q(m_db);
 
-    q.prepare(R"'(
-        update tickets set
-            category = :category,
-            date = :date,
-            price = :price,
-            description = :description,
-           "user" = :user,
-            where ticket = :ticket
-        )'");
-    q.bindValue(":category", data.category);
-    q.bindValue(":date", data.date);
-    q.bindValue(":price", data.price);
-    q.bindValue(":description", data.description);
-    q.bindValue(":user", data.user);
+    q.prepare(R"'(select 1 from tickets where ticket = :ticket;)'");
     q.bindValue(":ticket", data.ticket);
     q.exec();
+    if (q.next()) {
+        q.prepare(R"'(
+            update tickets set
+                category = :category,
+                date = :date,
+                price = :price,
+                description = :description,
+               "user" = :user
+                where ticket = :ticket
+            )'");
+        q.bindValue(":category", data.category);
+        q.bindValue(":date", data.date);
+        q.bindValue(":price", data.price);
+        q.bindValue(":description", data.description);
+        q.bindValue(":user", data.user);
+        q.bindValue(":ticket", data.ticket);
+        q.exec();
+        return QVariant(data.ticket);
 
-    q.prepare(R"'(
-        insert into tickets (category, date, price, description)
-            select :category, :date, :price, :description
-            where not exists (select 1 from tickets where ticket = :ticket);
-        )'");
-    q.bindValue(":category", data.category);
-    q.bindValue(":date", data.date);
-    q.bindValue(":price", data.price);
-    q.bindValue(":description", data.description);
-    q.bindValue(":user", data.user);
-    q.bindValue(":ticket", data.ticket);
-    q.exec();
+      } else {
 
-    return currval("ticket_ticket_seq", data.ticket);
+        q.prepare(R"'(
+            insert into tickets (category, date, price, description, "user")
+                        values (:category, :date, :price, :description, :user);
+            )'");
+        q.bindValue(":category", data.category);
+        q.bindValue(":date", data.date);
+        q.bindValue(":price", data.price);
+        q.bindValue(":description", data.description);
+        q.bindValue(":user", data.user);
+        q.exec();
+        return currval("tickets_ticket_seq");
+        }
+
+    return QVariant();
+
 }
 
 
@@ -623,36 +650,45 @@ void DatabasePluginPostgres::remove(const Dbt::TicketStatus& id) {
 QVariant DatabasePluginPostgres::save(const Dbt::TicketStatus& data) {
     MSqlQuery q(m_db);
 
-    q.prepare(R"'(
-        update ticket_status set
-            ticket = :ticket,
-           "user" = :user,
-            date = :date,
-            description = :description,
-            status = :status
-            where id = :id
-        )'");
+    q.prepare(R"'(select 1 from ticket_status where id = :id";)'");
     q.bindValue(":id", data.id);
-    q.bindValue(":user", data.user);
-    q.bindValue(":ticket", data.ticket);
-    q.bindValue(":date", data.date);
-    q.bindValue(":description", data.description);
-    q.bindValue(":status", data.status);
     q.exec();
+    if (q.next()) {
+        q.prepare(R"'(
+            update ticket_status set
+                ticket = :ticket,
+               "user" = :user,
+                date = :date,
+                description = :description,
+                status = :status
+                where id = :id
+            )'");
+        q.bindValue(":id", data.id);
+        q.bindValue(":user", data.user);
+        q.bindValue(":ticket", data.ticket);
+        q.bindValue(":date", data.date);
+        q.bindValue(":description", data.description);
+        q.bindValue(":status", data.status);
+        q.exec();
+        return QVariant(data.id);
 
-    q.prepare(R"'(
-        insert into ticket_status (ticket, "user", date, description, status)
-            select :ticket, :user, :date, :description, :status
-            where not exists (select 1 from ticket_status where id = :id);
-        )'");
-    q.bindValue(":id", data.id);
-    q.bindValue(":user", data.user);
-    q.bindValue(":ticket", data.ticket);
-    q.bindValue(":date", data.date);
-    q.bindValue(":description", data.description);
-    q.exec();
+      } else {
 
-    return currval("ticket_status_id_seq", data.id);
+        q.prepare(R"'(
+            insert into ticket_status (ticket, "user", date, description, status)
+                values (:ticket, :user, :date, :description, :status)
+            )'");
+        q.bindValue(":user", data.user);
+        q.bindValue(":ticket", data.ticket);
+        q.bindValue(":date", data.date);
+        q.bindValue(":description", data.description);
+        q.bindValue(":status", data.status);
+        q.exec();
+
+        return currval("ticket_status_id_seq");
+        }
+
+    return QVariant();
 }
 
 
@@ -720,34 +756,42 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(bool all) 
 QVariant DatabasePluginPostgres::save(const Dbt::TicketTimesheets& data) {
     MSqlQuery q(m_db);
 
-    q.prepare(R"'(
-        update ticket_timesheets set
-            ticket = :ticket,
-           "user" = :user,
-            date_from = :date_from,
-            date_to = :date_to
-            where id = :id
-        )'");
+    q.prepare(R"'(select 1 from tickets_timesheets where id = :id;)'");
     q.bindValue(":id", data.id);
-    q.bindValue(":user", data.user);
-    q.bindValue(":ticket", data.ticket);
-    q.bindValue(":date_from", data.date_from);
-    q.bindValue(":date_to", data.date_to);
     q.exec();
+    if (q.next()) {
+        q.prepare(R"'(
+            update ticket_timesheets set
+                ticket = :ticket,
+               "user" = :user,
+                date_from = :date_from,
+                date_to = :date_to
+                where id = :id
+            )'");
+        q.bindValue(":id", data.id);
+        q.bindValue(":user", data.user);
+        q.bindValue(":ticket", data.ticket);
+        q.bindValue(":date_from", data.date_from);
+        q.bindValue(":date_to", data.date_to);
+        q.exec();
+        return QVariant(data.id);
 
-    q.prepare(R"'(
-        insert into ticket_timesheets (ticket, "user", date_from, date_to)
-            select :ticket, :user, :date_from, :date_to
-            where not exists (select 1 from ticket_timesheets where id = :id);
-        )'");
-    q.bindValue(":id", data.id);
-    q.bindValue(":user", data.user);
-    q.bindValue(":ticket", data.ticket);
-    q.bindValue(":date_from", data.date_from);
-    q.bindValue(":date_to", data.date_to);
-    q.exec();
+       } else {
 
-    return currval("ticket_timesheets_id_seq", data.id);
+        q.prepare(R"'(
+            insert into ticket_timesheets (ticket, "user", date_from, date_to)
+                values (:ticket, :user, :date_from, :date_to)
+            )'");
+        q.bindValue(":user", data.user);
+        q.bindValue(":ticket", data.ticket);
+        q.bindValue(":date_from", data.date_from);
+        q.bindValue(":date_to", data.date_to);
+        q.exec();
+
+        return currval("ticket_timesheets_id_seq");
+        }
+
+    return QVariant();
 }
 
 
@@ -822,31 +866,41 @@ QList<Dbt::TicketValues> DatabasePluginPostgres::ticketValues(bool all) {
 QVariant DatabasePluginPostgres::save(const Dbt::TicketValues& data) {
     MSqlQuery q(m_db);
 
-    q.prepare(R"'(
-        update ticket_values set
-            ticket = :ticket,
-            name = :name,
-            value = :value
-            where id = :id
-        )'");
+    q.prepare(R"'(select 1 from ticket_values where id = :id;)'");
     q.bindValue(":id", data.id);
-    q.bindValue(":name", data.name);
-    q.bindValue(":value", data.value);
-    q.bindValue(":ticket", data.ticket);
     q.exec();
+    if (q.next()) {
+        q.prepare(R"'(
+            update ticket_values set
+                ticket = :ticket,
+                name = :name,
+                value = :value
+                where id = :id
+            )'");
+        q.bindValue(":id", data.id);
+        q.bindValue(":name", data.name);
+        q.bindValue(":value", data.value);
+        q.bindValue(":ticket", data.ticket);
+        q.exec();
+        return QVariant(data.id);
 
-    q.prepare(R"'(
-        insert into ticket_values (ticket, name, value)
-            select :ticket, :name, :value
-            where not exists (select 1 from ticket_values where id = :id);
-        )'");
-    q.bindValue(":id", data.id);
-    q.bindValue(":name", data.name);
-    q.bindValue(":value", data.value);
-    q.bindValue(":ticket", data.ticket);
-    q.exec();
+      } else {
 
-    return currval("ticket_values_id_seq", data.id);
+        q.prepare(R"'(
+            insert into ticket_values (ticket, name, value)
+                select :ticket, :name, :value
+                where not exists (select 1 from ticket_values where id = :id);
+            )'");
+        q.bindValue(":id", data.id);
+        q.bindValue(":name", data.name);
+        q.bindValue(":value", data.value);
+        q.bindValue(":ticket", data.ticket);
+        q.exec();
+
+        return currval("ticket_values_id_seq");
+        }
+
+    return QVariant();
 }
 
 
@@ -992,34 +1046,42 @@ QList<Dbt::TicketFiles> DatabasePluginPostgres::ticketFiles(bool all) {
 QVariant DatabasePluginPostgres::save(const Dbt::TicketFiles& data) {
     MSqlQuery q(m_db);
 
-    q.prepare(R"'(
-        update ticket_files set
-            ticket = :ticket,
-            name = :name,
-            type = :type,
-            content = :content
-            where id = :id
-        )'");
+    q.prepare(R"'(select 1 from ticket_files where id = :id;)'");
     q.bindValue(":id", data.id);
-    q.bindValue(":ticket", data.ticket);
-    q.bindValue(":name", data.name);
-    q.bindValue(":type", data.type);
-    q.bindValue(":content", data.content);
     q.exec();
+    if (q.next()) {
+        q.prepare(R"'(
+            update ticket_files set
+                ticket = :ticket,
+                name = :name,
+                type = :type,
+                content = :content
+                where id = :id
+            )'");
+        q.bindValue(":id", data.id);
+        q.bindValue(":ticket", data.ticket);
+        q.bindValue(":name", data.name);
+        q.bindValue(":type", data.type);
+        q.bindValue(":content", data.content);
+        q.exec();
+        return QVariant(data.id);
 
-    q.prepare(R"'(
-        insert into ticket_files (ticket, name, type, content)
-            select :ticket, :name, :type, :content
-            where not exists (select 1 from ticket_files where id = :id);
-        )'");
-    q.bindValue(":id", data.id);
-    q.bindValue(":ticket", data.ticket);
-    q.bindValue(":name", data.name);
-    q.bindValue(":type", data.type);
-    q.bindValue(":content", data.content);
-    q.exec();
+      } else {
 
-    return currval("ticket_files_id_seq", data.id);
+        q.prepare(R"'(
+            insert into ticket_files (ticket, name, type, content)
+                values (:ticket, :name, :type, :content);
+            )'");
+        q.bindValue(":id", data.id);
+        q.bindValue(":ticket", data.ticket);
+        q.bindValue(":name", data.name);
+        q.bindValue(":type", data.type);
+        q.bindValue(":content", data.content);
+        q.exec();
+        return currval("ticket_files_id_seq");
+        }
+
+    return QVariant();
 }
 
 

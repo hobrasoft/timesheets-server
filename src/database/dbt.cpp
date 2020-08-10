@@ -112,6 +112,7 @@ Tickets Tickets::fromMap(const QVariantMap& map) {
     x.category = map["category"];
     x.price = map["price"];
     x.date = map["date"].toDateTime();
+    x.user = map["user"].toInt();
     x.description = map["description"].toString();
     return x;
 }
