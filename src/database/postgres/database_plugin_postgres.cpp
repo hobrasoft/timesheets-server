@@ -15,6 +15,12 @@
 
 using namespace Db::Plugins;
 
+namespace Db::Plugins {
+    QString null(const QString& x) {
+        return (x == "0") ? "" : x;
+        }
+}
+
 bool DatabasePluginPostgres::m_upgraded = false;
 
 
@@ -254,7 +260,7 @@ QList<Dbt::Categories> DatabasePluginPostgres::categories(const QString& id) {
         int i=0;
         Dbt::Categories x;
         x.category = q.value(i++).toString();
-        x.parent_category = q.value(i++).toString();
+        x.parent_category = null(q.value(i++).toString());
         x.description = q.value(i++).toString();
         x.price = q.value(i++).toDouble();
         list << x;
@@ -337,7 +343,7 @@ QList<Dbt::StatusOrder> DatabasePluginPostgres::statusOrder(const QString& id) {
 
     q.prepare(R"'(
         select id, category, previous_status, next_status from status_order
-        where (:id1 < 0 or :id2 = id);
+        where (:id1 <= 0 or :id2 = id);
         )'");
     q.bindValue(":id1", id.toInt());
     q.bindValue(":id2", id.toInt());
@@ -913,15 +919,23 @@ void DatabasePluginPostgres::remove(const Dbt::TicketValues& id) {
 
 
 QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& id) {
+    PDEBUG << "id" << id;
     QList<Dbt::Statuses> list;
     MSqlQuery q(m_db);
-    q.prepare(R"'(
-        select status, description, abbreviation, color, closed
-        from statuses
-        where (:id1 = '' or :id2 = status)
+    if (id.isEmpty() || id == "") {
+        q.prepare(R"'(
+            select status, description, abbreviation, color, closed
+            from statuses
+            )'");
+      } else {
+        q.prepare(R"'(
+            select status, description, abbreviation, color, closed
+            from statuses
+            where (:id = status);
         )'");
-    q.bindValue(":id1", id);
-    q.bindValue(":id2", id);
+        }
+    q.bindValue(":id", id);
+    PDEBUG << q.lastBoundQuery();
     q.exec();
     while (q.next()) {
         int i=0;

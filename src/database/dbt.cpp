@@ -46,8 +46,9 @@ Users Users::fromMap(const QVariantMap& data) {
 
 QVariantMap Categories::toMap() const {
     QVariantMap data;
+    PDEBUG << category << parent_category;
     data["category"] = category;
-    data["parent_category"] = parent_category;
+    data["parent_category"] = null(parent_category);
     data["description"] = description;
     data["price"] = price;
     return data;
