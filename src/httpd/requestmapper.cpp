@@ -24,6 +24,9 @@
 #include "controllertickets.h"
 #include "controllerticketsvw.h"
 #include "controllerticketstatus.h"
+#include "controllerticketvalues.h"
+#include "controllerticketfiles.h"
+#include "controllertickettimesheets.h"
 #include "controllerusers.h"
 
 using namespace HobrasoftHttpd;
@@ -87,7 +90,10 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
     /**
      * Po přihlášení zpracovává ostatní speciální požadavky (event streamy).
      */
+    ROUTER("/api/v1/tickettimesheets",                 ControllerTicketTimesheets);
+    ROUTER("/api/v1/ticketvalues",                     ControllerTicketValues);
     ROUTER("/api/v1/ticketstatus",                     ControllerTicketStatus);
+    ROUTER("/api/v1/ticketfiles",                      ControllerTicketFiles);
     ROUTER("/api/v1/statusorder",                      ControllerStatusOrder);
     ROUTER("/api/v1/categories",                       ControllerCategories);
     ROUTER("/api/v1/ticketsvw",                        ControllerTicketsVw);

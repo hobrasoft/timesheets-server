@@ -699,6 +699,7 @@ QVariant DatabasePluginPostgres::save(const Dbt::TicketStatus& data) {
 
 
 QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(int ticket, bool all) {
+    PDEBUG << ticket << all;
     createTemporaryTableTickets(ticket, all);
     QList<Dbt::TicketTimesheets> list;
     MSqlQuery q(m_db);
@@ -706,7 +707,7 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(int ticket
         select tt.id, tt.ticket, tt."user", tt.date_from, tt.date_to
             from temporary_tickets t, ticket_timesheets tt
             where t.ticket = tt.ticket
-              and :user = tt."user"
+              and (:user = tt."user" or tt."user" is null)
             ;
         )'");
     q.bindValue(":user", userId());
