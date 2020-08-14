@@ -23,39 +23,20 @@ namespace Httpd {
 /**
 @brief Vrací informace o pořadí přechodů mezi jednotlivými stavy ticketu
 
+Implementuje metody:
+- get
+- put, post
+- delete
+
+Struktura jednoho záznamu:
+
 @code
-[
-  {
-    "category": null,
-    "next_status": "CLOSED",
-    "previous_status": "NEW"
-  },
-  {
-    "category": null,
-    "next_status": "ARCHIVE",
-    "previous_status": "NEW"
-  },
-  {
-    "category": null,
-    "next_status": "ARCHIVE",
-    "previous_status": "CLOSED"
-  },
-  {
-    "category": 5,
-    "next_status": "PRIORITY",
-    "previous_status": "NEW"
-  },
-  {
-    "category": 5,
-    "next_status": "CLOSED",
-    "previous_status": "PRIORITY"
-  },
-  {
-    "category": 5,
-    "next_status": "ARCHIVE",
-    "previous_status": "PRIORITY"
-  }
-]
+{
+"id": 12,
+"category": null,
+"next_status": "CLOSED",
+"previous_status": "NEW"
+}
 @endcode
 
 */

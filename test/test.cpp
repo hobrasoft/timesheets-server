@@ -182,8 +182,7 @@ void Test::getCategories() {
 }
 
 
-void Test::putCategories() {
-    // poprvé insert
+void Test::putCategoriesInsert() {
     QVariantMap data;
     data["description"] = "popis";
     data["parent_category"] = QVariant();
@@ -201,9 +200,11 @@ void Test::putCategories() {
     QVERIFY(data["parent_category"].toString() == "0" || 
             data["parent_category"].toString() == "");
     QVERIFY(data["price"].toDouble() == 1000);
+}
 
-    // podruhé update
-    data.clear();
+
+void Test::putCategoriesUpdate() {
+    QVariantMap data;
     data["description"] = "popis-2";
     data["parent_category"] = "1";
     data["price"] = 1367;
@@ -211,16 +212,14 @@ void Test::putCategories() {
     QVERIFY(api()->variant().toMap().contains("key"));
     m_key = api()->variant().toMap()["key"].toString();
 
-
     data.clear();
     APIGET("/categories/"+m_key);
     data = api()->variant().toMap();
     QVERIFY(data.isEmpty() == false);
     QVERIFY(data["category"].toString() == m_key);
     QVERIFY(data["description"].toString() == "popis-2");
-    QVERIFY(data["parent_category"].toString() == "1")
+    QVERIFY(data["parent_category"].toString() == "1");
     QVERIFY(data["price"].toDouble() == 1367);
-
 }
 
 
@@ -250,9 +249,8 @@ void Test::getStatuses() {
 }
 
 
-void Test::putStatuses() {
+void Test::putStatusesInsert() {
     QVariantMap data;
-    // poprvé insert
     data["status"] = "TEST-TEST-TEST";
     data["abbreviation"] = "zkratka";
     data["color"] = "#40506070";
@@ -271,8 +269,35 @@ void Test::putStatuses() {
     QVERIFY(data["color"].toString() == "#40506070");
     QVERIFY(data["description"].toString() == "testovaci status");
     QVERIFY(data["closed"].toBool() == true);
+}
 
-    // podruhé update
+
+void Test::putStatusesInsert2() {
+    QVariantMap data;
+    data["status"] = "TEST-TEST-TEST-2";
+    data["abbreviation"] = "zkratka";
+    data["color"] = "#40506070";
+    data["description"] = "testovaci status";
+    data["closed"] = true;
+    APIPUT("/statuses/x", data);
+    QVERIFY(api()->variant().toMap().contains("key"));
+    QVERIFY(api()->variant().toMap()["key"].toString() == "TEST-TEST-TEST-2");
+
+    data.clear();
+    APIGET("/statuses/TEST-TEST-TEST-2");
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["status"].toString() == "TEST-TEST-TEST-2");
+    QVERIFY(data["abbreviation"].toString() == "zkratka");
+    QVERIFY(data["color"].toString() == "#40506070");
+    QVERIFY(data["description"].toString() == "testovaci status");
+    QVERIFY(data["closed"].toBool() == true);
+}
+
+
+
+void Test::putStatusesUpdate() {
+    QVariantMap data;
     data.clear();
     data["status"] = "TEST-TEST-TEST";
     data["abbreviation"] = "zkratka-2";
@@ -296,12 +321,121 @@ void Test::putStatuses() {
 }
 
 
+void Test::getStatusOrder() {
+    QVariantMap data;
+    APIGET("/statusorder");
+    QVariantList list = api()->variant().toList();
+    QVERIFY(list.isEmpty() == false);
+
+    QString id = list[0].toMap()["id"].toString();
+    QVERIFY(id.toInt() > 0);
+    APIGET("/statusorder/" + id);
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["id"].toString() == id);
+    QVERIFY(data.contains("category"));
+    QVERIFY(data.contains("next_status"));
+    QVERIFY(data.contains("previous_status"));
+}
+
+
+void Test::putStatusOrderInsert() {
+    QVariantMap data;
+    // poprvé insert
+    data["next_status"] = "TEST-TEST-TEST";
+    data["previous_status"] = "TEST-TEST-TEST";
+    data["category"] = QVariant();
+    APIPUT("/statusorder/x", data);
+    QVERIFY(api()->variant().toMap().contains("key"));
+    QVERIFY(api()->variant().toMap()["key"].toInt() > 0);
+    m_key = api()->variant().toMap()["key"].toString();
+
+    data.clear();
+    APIGET("/statusorder/" + m_key);
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["next_status"].toString() == "TEST-TEST-TEST");
+    QVERIFY(data["previous_status"].toString() == "TEST-TEST-TEST");
+    QVERIFY(data["category"].toString() == "");
+}
+
+
+void Test::putStatusOrderInsert2() {
+    QVariantMap data;
+    data["next_status"] = "TEST-TEST-TEST-2";
+    data["previous_status"] = "TEST-TEST-TEST-2";
+    data["category"] = QVariant();
+    APIPUT("/statusorder/x", data);
+    QVERIFY(api()->variant().toMap().contains("key"));
+    QVERIFY(api()->variant().toMap()["key"].toInt() > 0);
+    m_key = api()->variant().toMap()["key"].toString();
+
+    data.clear();
+    APIGET("/statusorder/" + m_key);
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["next_status"].toString() == "TEST-TEST-TEST-2");
+    QVERIFY(data["previous_status"].toString() == "TEST-TEST-TEST-2");
+    QVERIFY(data["category"].toString() == "");
+}
+
+
+void Test::putStatusOrderUpdate2() {
+    QVariantMap data;
+    data["next_status"] = "TEST-TEST-TEST";
+    data["previous_status"] = "TEST-TEST-TEST-2";
+    data["category"] = QVariant();
+    APIPUT("/statusorder/x", data);
+    QVERIFY(api()->variant().toMap().contains("key"));
+    QVERIFY(api()->variant().toMap()["key"].toInt() > 0);
+    m_key = api()->variant().toMap()["key"].toString();
+
+    data.clear();
+    APIGET("/statusorder/" + m_key);
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["next_status"].toString() == "TEST-TEST-TEST");
+    QVERIFY(data["previous_status"].toString() == "TEST-TEST-TEST-2");
+    QVERIFY(data["category"].toString() == "");
+}
+
+
+void Test::putStatusOrderUpdate3() {
+    QVariantMap data;
+    data["next_status"] = "TEST-TEST-TEST-2";
+    data["previous_status"] = "TEST-TEST-TEST";
+    data["category"] = QVariant();
+    APIPUT("/statusorder/x", data);
+    QVERIFY(api()->variant().toMap().contains("key"));
+    QVERIFY(api()->variant().toMap()["key"].toInt() > 0);
+    m_key = api()->variant().toMap()["key"].toString();
+
+    data.clear();
+    APIGET("/statusorder/" + m_key);
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["next_status"].toString() == "TEST-TEST-TEST-2");
+    QVERIFY(data["previous_status"].toString() == "TEST-TEST-TEST");
+    QVERIFY(data["category"].toString() == "");
+}
+
+
+
+void Test::delStatuses2() {
+    APIDEL("/statuses/TEST-TEST-TEST-2");
+    APIGET_IGNORE_ERROR("/statuses/TEST-TEST-TEST-2");
+    QVERIFY(api()->error() != QNetworkReply::NoError);
+    QVERIFY(api()->error() == QNetworkReply::ContentNotFoundError);
+}
+
+
 void Test::delStatuses() {
     APIDEL("/statuses/TEST-TEST-TEST");
     APIGET_IGNORE_ERROR("/statuses/TEST-TEST-TEST");
     QVERIFY(api()->error() != QNetworkReply::NoError);
     QVERIFY(api()->error() == QNetworkReply::ContentNotFoundError);
+    APIGET_IGNORE_ERROR("/statusorder/"+m_key);
+    QVERIFY(api()->error() == QNetworkReply::ContentNotFoundError);
 }
-
 
 

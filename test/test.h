@@ -32,10 +32,19 @@ class Test : public QObject {
     void putUsers();
     void delUsers();
     void getCategories();
-    void putCategories();
+    void putCategoriesInsert();
+    void putCategoriesUpdate();
     void delCategories();
     void getStatuses();
-    void putStatuses();
+    void putStatusesInsert();
+    void putStatusesInsert2();
+    void putStatusesUpdate();
+    void getStatusOrder();
+    void putStatusOrderInsert();
+    void putStatusOrderInsert2();
+    void putStatusOrderUpdate2();
+    void putStatusOrderUpdate3();
+    void delStatuses2();
     void delStatuses();
 
   private:

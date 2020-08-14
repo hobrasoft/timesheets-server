@@ -15,33 +15,36 @@
 /**
  * @addtogroup apiurl
  * @{
- * - @ref Httpd::ControllerTicketTimesheets - /ticketstatus - Manipulace se stavy ticketů
+ * - @ref Httpd::ControllerTicketTimesheets - /tickettimesheets - Manipulace se stavy ticketů
  * @}
  */
 
 namespace Httpd {
 
 /**
-@brief Manipulace se stavy ticketů
+@brief Manipulace se záznamy pracovního výkazu
 
-Každý ticket může obsahovat několik za sebou následujících stavů, například: nový, v řešení, vyřešeno, vyfakturováno, zavřeno.
+Při změně celého ticketu může být vhodnější použít @ref Httpd::ControllerTicketsVw
 
+Na server by se měly posílat záznamy s nastaveným date_from i date_to.
 
-GET
----
-Vrací seznam všech stavů, které ticket dostal přidělené
+Implementuje metody:
+- get
+- put, post
+- delete
+
+Struktura jednoho záznamu:
+
 @code
-[
-  {
-    "id": 9,                                // Primární klíč
-    "date": "2020-06-01T00:00:00.000",      // datum zavedení
-    "status": "NEW",                        // Timesheets, klíč v tabulce statuses
-    "description": "Práce zahájeny",        // Popis
-    "ticket": 2,                            // Ticket, klíč v tabulce tickets
-    "user": 2,                              // Uživatel, klíč v tabulce users
-    "username": "Petr Bravenec"             // Jméno uživatele  (na klienta se neposílají záznamy, klíč je na nic)
-  }
-]
+{
+"id": 34,                                   // ID záznamu, primární klíč, může se při insertu změnit
+"user": 2,                                  // ID uživatele, kterému záznam patří
+"ticket": 1,                                // ID ticketu
+"created": false,                           // Směr server->klient vždy false, opačně jde o záznam, který se má vložit = dostane nové ID
+"modified": false,                          // Směr server->klient vždy false, opačně jde o záznam, který se na klientovi změnil
+"date_from": "2020-08-13T15:12:25.619",     // Začátek pracovního úkonu
+"date_to": "2020-08-13T15:12:53.198"        // Konec pracovního úkonu
+}
 @endcode
 
 */
