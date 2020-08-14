@@ -15,33 +15,32 @@
 /**
  * @addtogroup apiurl
  * @{
- * - @ref Httpd::ControllerTicketValues - /ticketstatus - Manipulace se stavy ticketů
+ * - @ref Httpd::ControllerTicketValues - /ticketvalues - Manipulace se různými uživatelskými objekty ticketů
  * @}
  */
 
 namespace Httpd {
 
 /**
-@brief Manipulace se stavy ticketů
+@brief Manipulace s přibalenými objekty ticketů
 
-Každý ticket může obsahovat několik za sebou následujících stavů, například: nový, v řešení, vyřešeno, vyfakturováno, zavřeno.
+Každý ticket může obsahovat několik různých (JSON) objektů. V aplikaci je takový objekt identifikovaný svým jménem.
+Obsahovat může hodnoty jako například GPS souřadnice, obsah RFID tagů a podobně.
 
+Při změně celého ticketu může být vhodnější použít @ref Httpd::ControllerTicketsVw
 
-GET
----
-Vrací seznam všech stavů, které ticket dostal přidělené
+Implementované metody:
+
+- get
+- put, post
+- del
+
+@param all - Normálně jsou v seznamu pouze otevřené tickety, parametrem _all = true_ lze vypsat všechny tickety, vždy však pouze tickety s přístupem přihlášeného uživatele
+
+Struktura jednoho záznamu:
+
 @code
-[
-  {
-    "id": 9,                                // Primární klíč
-    "date": "2020-06-01T00:00:00.000",      // datum zavedení
-    "status": "NEW",                        // Values, klíč v tabulce statuses
-    "description": "Práce zahájeny",        // Popis
-    "ticket": 2,                            // Ticket, klíč v tabulce tickets
-    "user": 2,                              // Uživatel, klíč v tabulce users
-    "username": "Petr Bravenec"             // Jméno uživatele  (na klienta se neposílají záznamy, klíč je na nic)
-  }
-]
+
 @endcode
 
 */

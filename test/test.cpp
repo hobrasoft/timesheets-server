@@ -43,6 +43,8 @@ void messageOutput(QtMsgType, const QMessageLogContext&, const QString&) {}
 
 Test::Test() : QObject() {
     m_api = new Api(this);
+    m_now = QDateTime::currentDateTime();
+    m_user = 1;
 }
 
 
@@ -179,6 +181,7 @@ void Test::getCategories() {
     QVERIFY(data.contains("parent_category"));
     QVERIFY(data.contains("description"));
     QVERIFY(data.contains("price"));
+    m_category = id;
 }
 
 
@@ -420,7 +423,6 @@ void Test::putStatusOrderUpdate3() {
 }
 
 
-
 void Test::delStatuses2() {
     APIDEL("/statuses/TEST-TEST-TEST-2");
     APIGET_IGNORE_ERROR("/statuses/TEST-TEST-TEST-2");
@@ -438,4 +440,101 @@ void Test::delStatuses() {
     QVERIFY(api()->error() == QNetworkReply::ContentNotFoundError);
 }
 
+
+void Test::putTickets() {
+    QVariantMap data;
+    data["ticket"] = 999;
+    data["user"] = m_user;
+    data["category"] = m_category;
+    data["date"] = m_now;
+    data["description"] = "Nový ticket";
+    APIPUT("/tickets/x", data);
+    QVERIFY(api()->variant().toMap().contains("key"));
+    QVERIFY(api()->variant().toMap()["key"].toInt() > 0);
+    m_ticket = api()->variant().toMap()["key"].toString();
+
+    data.clear();
+    APIGET("/tickets/" + m_ticket+"?all=true");
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["ticket"].toString() == m_ticket);
+    QVERIFY(data["user"].toInt() == m_user);
+    QVERIFY(data["category"].toString() == m_category);
+    QVERIFY(data["date"].toDateTime() == m_now);
+    QVERIFY(data["description"].toString() == "Nový ticket");
+    QVERIFY(!data.contains("timesheets"));
+    QVERIFY(!data.contains("statuses"));
+    QVERIFY(!data.contains("values"));
+    QVERIFY(!data.contains("files"));
+}
+
+
+void Test::getTicketsVw1() {
+    QVariantMap data;
+    APIGET("/ticketsvw/" + m_ticket+"?all=true");
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["ticket"].toString() == m_ticket);
+    QVERIFY(data["user"].toInt() == m_user);
+    QVERIFY(data["category"].toString() == m_category);
+    QVERIFY(data["date"].toDateTime() == m_now);
+    QVERIFY(data["description"].toString() == "Nový ticket");
+    QVERIFY(data.contains("timesheets"));
+    QVERIFY(data.contains("statuses"));
+    QVERIFY(data.contains("values"));
+    QVERIFY(data.contains("files"));
+    QVERIFY(data["timesheets"].canConvert(QMetaType::QVariantList));
+    QVERIFY(data["statuses"].canConvert(QMetaType::QVariantList));
+    QVERIFY(data["values"].canConvert(QMetaType::QVariantList));
+    QVERIFY(data["files"].canConvert(QMetaType::QVariantList));
+    QVERIFY(data["timesheets"].toList().isEmpty());
+    QVERIFY(data["statuses"].toList().isEmpty());
+    QVERIFY(data["values"].toList().isEmpty());
+    QVERIFY(data["files"].toList().isEmpty());
+}
+
+
+void Test::putTicketTimesheets() {
+    QVariantMap data;
+    data["id"] = 0;
+    data["user"] = m_user;
+    data["ticket" ] = m_ticket;
+    data["date_from"] = m_now;
+    data["date_to"] = m_now.addSecs(1);
+    APIPUT("/tickettimesheets/0", data);
+    QVERIFY(api()->variant().toMap().contains("key"));
+    QVERIFY(api()->variant().toMap()["key"].toInt() > 0);
+    m_ticketTimesheet = api()->variant().toMap()["key"].toString();
+
+    data.clear();
+    APIGET("/tickettimesheets/"+m_ticketTimesheet);
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["ticket"].toString() == m_ticket);
+    QVERIFY(data["user"].toInt() == m_user);
+    QVERIFY(data["id"].toString() == m_ticketTimesheet);
+    QVERIFY(data["date_from"].toDateTime() == m_now);
+    QVERIFY(data["date_to"].toDateTime() == m_now.addSecs(1));
+
+}
+
+
+void Test::getTicketsVw2() {
+    QVariantMap data;
+    APIGET("/ticketsvw/" + m_ticket+"?all=true");
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["timesheets"].canConvert(QMetaType::QVariantList));
+
+    QVariantList list = data["timesheets"].toList();
+    QVERIFY(list.isEmpty() == false);
+    QVERIFY(list.size() == 1);
+    data = list[0].toMap();
+    QVERIFY(data["ticket"].toString() == m_ticket);
+    QVERIFY(data["user"].toInt() == m_user);
+    QVERIFY(data["id"].toString() == m_ticketTimesheet);
+    QVERIFY(data["date_from"].toDateTime() == m_now);
+    QVERIFY(data["date_to"].toDateTime() == m_now.addSecs(1));
+
+}
 

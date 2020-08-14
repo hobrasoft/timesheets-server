@@ -167,8 +167,8 @@ QVariantMap Mutable::toMap() const {
     data["id"] = id;
     data["user"] = user;
     data["ticket"] = ticket;
-    data["modified"] = modified;
-    data["created"] = created;
+    // data["modified"] = modified;
+    // data["created"] = created;
     return data;
 }
 
@@ -241,8 +241,6 @@ QVariantMap TicketStatus::toMap() const {
     data["status"] = status;
     data["date"] = date;
     data["description"] = description;
-    data["status_description"] = status_description;    // Pouze pro čtení
-    data["status_color"] = status_color;                // Pouze pro čtení
     return data;
 }
 
@@ -285,9 +283,5 @@ QList<TicketStatus> TicketStatus::fromList(const QVariantList& list) {
         }
     return x;
 }
-
-
-
-
 
 

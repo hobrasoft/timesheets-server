@@ -46,13 +46,22 @@ class Test : public QObject {
     void putStatusOrderUpdate3();
     void delStatuses2();
     void delStatuses();
+    void putTickets();
+    void getTicketsVw1();
+    void putTicketTimesheets();
+    void getTicketsVw2();
 
   private:
-    QSqlDatabase  m_db;
-    QProcess     *m_process;
-    TestApi::Api *m_api;
+    QSqlDatabase    m_db;
+    QProcess       *m_process;
+    TestApi::Api   *m_api;
 
-    QString       m_key;
+    QString         m_key;
+    QString         m_ticket;
+    QString         m_ticketTimesheet;
+    int             m_user;
+    QString         m_category;
+    QDateTime       m_now;
 };
 
 #endif

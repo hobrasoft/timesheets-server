@@ -110,8 +110,6 @@ struct TicketStatus : Mutable {
     QDateTime   date;
     QString     status;
     QString     description;
-    QString     status_description;     // Pouze pro čtení, tahá se odjinud
-    QString     status_color;           // Pouze pro čtení, tahá se odjinud
     //
     QVariantMap toMap() const Q_DECL_OVERRIDE;
     static TicketStatus fromMap(const QVariantMap&);
@@ -124,8 +122,6 @@ struct TicketStatus : Mutable {
         Mutable::operator=(x);
         date = x.date;
         status = x.status;
-        status_description = x.status_description;
-        status_color = x.status_color;
         return *this;
         }
 };

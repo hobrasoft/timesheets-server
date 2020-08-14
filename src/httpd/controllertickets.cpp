@@ -43,3 +43,22 @@ void ControllerTickets::serviceIdGet (HobrasoftHttpd::HttpRequest *request, Hobr
     serviceOK(request, response, list[0].toMap());
 }
 
+
+void ControllerTickets::serviceIdPut(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QVariantMap& data) {
+    serviceOK(request, response, putKey(db()->save(Dbt::Tickets::fromMap(data))));
+}
+
+
+void ControllerTickets::serviceIdPost(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QVariantMap& data) {
+    serviceIdPut(request, response, data);
+}
+
+
+void ControllerTickets::serviceIdDelete(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QString& id) {
+    db()->remove(Dbt::Tickets(id));
+    serviceOK(request, response);
+}
+
+
+
+

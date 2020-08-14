@@ -33,6 +33,8 @@ Implementuje metody:
 - put, post
 - delete
 
+@param all - Normálně jsou v seznamu pouze otevřené tickety, parametrem _all = true_ lze vypsat všechny tickety, vždy však pouze tickety s přístupem přihlášeného uživatele
+
 Struktura jednoho záznamu:
 
 @code
@@ -40,8 +42,6 @@ Struktura jednoho záznamu:
 "id": 34,                                   // ID záznamu, primární klíč, může se při insertu změnit
 "user": 2,                                  // ID uživatele, kterému záznam patří
 "ticket": 1,                                // ID ticketu
-"created": false,                           // Směr server->klient vždy false, opačně jde o záznam, který se má vložit = dostane nové ID
-"modified": false,                          // Směr server->klient vždy false, opačně jde o záznam, který se na klientovi změnil
 "date_from": "2020-08-13T15:12:25.619",     // Začátek pracovního úkonu
 "date_to": "2020-08-13T15:12:53.198"        // Konec pracovního úkonu
 }
