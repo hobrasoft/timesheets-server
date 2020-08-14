@@ -25,36 +25,22 @@ namespace Httpd {
 /**
 @brief Manipulace se stavy ticketů
 
-GET
-----
-Vrací seznam všech stavů, které může ticket nabývat
+Primární klíč (položka status) negeneruje databáze, identifikátor musí být nastavený.
+Jako identifikátor může být použitý libovolný řetězec, vhodné je například NEW, CLOSED atd.
+
+Implementuje metody:
+- get
+- post, put
+- delete
+
+Struktura jednoho záznamu
 @code
-[
-  {
-    "abbreviation": "NEW",      // Zkratka
-    "color": "transparent",     // Barva, kterou se má zobrazovat v GUI
-    "description": "Nový",      // Popis stavu
-    "status": "NEW"             // Primární klíč, identifikátor stavu
-  },
-  {
-    "abbreviation": "PRI",
-    "color": "red",
-    "description": "Vysoká priorita",
-    "status": "PRIORITY"
-  },
-  {
-    "abbreviation": "CLOSED",
-    "color": "green",
-    "description": "Uzavřeno",
-    "status": "CLOSED"
-  },
-  {
-    "abbreviation": "ARCHIVE",
-    "color": "brown",
-    "description": "V archivu",
-    "status": "ARCHIVE"
-  }
-]
+{
+"abbreviation": "NEW",      // Zkratka
+"color": "transparent",     // Barva, kterou se má zobrazovat v GUI
+"description": "Nový",      // Popis stavu
+"status": "NEW"             // Primární klíč, identifikátor stavu
+}
 
 @endcode
 

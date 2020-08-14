@@ -580,6 +580,20 @@ QVariant DatabasePluginPostgres::save(const Dbt::Tickets& data) {
 }
 
 
+QVariant DatabasePluginPostgres::save(const Dbt::TicketsVw& data) {
+    MSqlQuery q(m_db);
+    q.begin();
+    save(dynamic_cast<const Dbt::Tickets&>(data));
+    save(data.timesheets);
+    save(data.statuses);
+    save(data.values);
+    save(data.files);
+    q.commit();
+
+    return QVariant();
+}
+
+
 QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int ticket, bool all) {
     PDEBUG;
     createTemporaryTableTickets(ticket, all);
@@ -656,7 +670,7 @@ void DatabasePluginPostgres::remove(const Dbt::TicketStatus& id) {
 QVariant DatabasePluginPostgres::save(const Dbt::TicketStatus& data) {
     MSqlQuery q(m_db);
 
-    q.prepare(R"'(select 1 from ticket_status where id = :id";)'");
+    q.prepare(R"'(select 1 from ticket_status where id = :id;)'");
     q.bindValue(":id", data.id);
     q.exec();
     if (q.next()) {
@@ -763,7 +777,7 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(bool all) 
 QVariant DatabasePluginPostgres::save(const Dbt::TicketTimesheets& data) {
     MSqlQuery q(m_db);
 
-    q.prepare(R"'(select 1 from tickets_timesheets where id = :id;)'");
+    q.prepare(R"'(select 1 from ticket_timesheets where id = :id;)'");
     q.bindValue(":id", data.id);
     q.exec();
     if (q.next()) {
@@ -920,7 +934,6 @@ void DatabasePluginPostgres::remove(const Dbt::TicketValues& id) {
 
 
 QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& id) {
-    PDEBUG << "id" << id;
     QList<Dbt::Statuses> list;
     MSqlQuery q(m_db);
     if (id.isEmpty() || id == "") {
@@ -936,7 +949,6 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& id) {
         )'");
         }
     q.bindValue(":id", id);
-    PDEBUG << q.lastBoundQuery();
     q.exec();
     while (q.next()) {
         int i=0;
@@ -947,7 +959,6 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& id) {
         x.color = q.value(i++).toString();
         x.closed = q.value(i++).toBool();
         list << x;
-        PDEBUG << JSON::json(x.toMap());
         }
     return list;
 }
@@ -980,15 +991,16 @@ QVariant DatabasePluginPostgres::save(const Dbt::Statuses& data) {
     q.exec();
 
     q.prepare(R"'(
-        insert into statuses (description, abbreviation, color, closed)
-            select :description, abbreviation, color, closed
-            where not exists (select 1 from tickets where status = :status);
+        insert into statuses (status, description, abbreviation, color, closed)
+            select :status1, :description, :abbreviation, :color, :closed
+            where not exists (select 1 from statuses where status = :status2);
         )'");
+    q.bindValue(":status1", data.status);
     q.bindValue(":description", data.description);
     q.bindValue(":abbreviation", data.abbreviation);
     q.bindValue(":color", data.color);
     q.bindValue(":closed", data.closed);
-    q.bindValue(":status", data.status);
+    q.bindValue(":status2", data.status);
     q.exec();
 
     return QVariant(data.status);

@@ -26,7 +26,7 @@ namespace Httpd {
 
 Kategorie se v programu řadí ve stromové struktuře. 
 V každé kategorii může být libovolný počet ticketů.
-Ke kategoriím se nastavují přístupová práva na uživatele.
+Ke kategoriím se nastavují přístupová práva na uživatele (@ref Httpd::ControllerUsersCategories).
 
 Implementuje metody:
 - get

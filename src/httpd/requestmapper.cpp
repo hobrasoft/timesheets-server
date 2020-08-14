@@ -57,7 +57,7 @@ RequestMapper::RequestMapper(HobrasoftHttpd::HttpConnection *parent) : Hobrasoft
 
 void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
     m_path = request->path();
-    PDEBUG << request->fullPath();
+    PDEBUG << request->method() << request->fullPath();
 
     #define ROUTER(adresa, trida) \
         if (m_path.startsWith(adresa)) { \

@@ -183,6 +183,7 @@ void Test::getCategories() {
 
 
 void Test::putCategories() {
+    // poprvé insert
     QVariantMap data;
     data["description"] = "popis";
     data["parent_category"] = QVariant();
@@ -197,14 +198,107 @@ void Test::putCategories() {
     QVERIFY(data.isEmpty() == false);
     QVERIFY(data["category"].toString() == m_key);
     QVERIFY(data["description"].toString() == "popis");
-    QVERIFY(data["parent_category"].toString() == "0");
+    QVERIFY(data["parent_category"].toString() == "0" || 
+            data["parent_category"].toString() == "");
     QVERIFY(data["price"].toDouble() == 1000);
+
+    // podruhé update
+    data.clear();
+    data["description"] = "popis-2";
+    data["parent_category"] = "1";
+    data["price"] = 1367;
+    APIPUT("/categories/"+m_key, data);
+    QVERIFY(api()->variant().toMap().contains("key"));
+    m_key = api()->variant().toMap()["key"].toString();
+
+
+    data.clear();
+    APIGET("/categories/"+m_key);
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["category"].toString() == m_key);
+    QVERIFY(data["description"].toString() == "popis-2");
+    QVERIFY(data["parent_category"].toString() == "1")
+    QVERIFY(data["price"].toDouble() == 1367);
+
 }
 
 
 void Test::delCategories() {
     APIDEL("/categories/"+m_key);
     APIGET_IGNORE_ERROR("/categories/"+m_key);
+    QVERIFY(api()->error() != QNetworkReply::NoError);
+    QVERIFY(api()->error() == QNetworkReply::ContentNotFoundError);
+}
+
+
+void Test::getStatuses() {
+    QVariantMap data;
+    APIGET("/statuses");
+    QVariantList list = api()->variant().toList();
+    QVERIFY(list.isEmpty() == false);
+
+    QString id = list[0].toMap()["status"].toString();
+    APIGET("/statuses/" + id);
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["status"].toString() == id);
+    QVERIFY(data.contains("abbreviation"));
+    QVERIFY(data.contains("description"));
+    QVERIFY(data.contains("closed"));
+    QVERIFY(data.contains("color"));
+}
+
+
+void Test::putStatuses() {
+    QVariantMap data;
+    // poprvé insert
+    data["status"] = "TEST-TEST-TEST";
+    data["abbreviation"] = "zkratka";
+    data["color"] = "#40506070";
+    data["description"] = "testovaci status";
+    data["closed"] = true;
+    APIPUT("/statuses/x", data);
+    QVERIFY(api()->variant().toMap().contains("key"));
+    QVERIFY(api()->variant().toMap()["key"].toString() == "TEST-TEST-TEST");
+
+    data.clear();
+    APIGET("/statuses/TEST-TEST-TEST");
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["status"].toString() == "TEST-TEST-TEST");
+    QVERIFY(data["abbreviation"].toString() == "zkratka");
+    QVERIFY(data["color"].toString() == "#40506070");
+    QVERIFY(data["description"].toString() == "testovaci status");
+    QVERIFY(data["closed"].toBool() == true);
+
+    // podruhé update
+    data.clear();
+    data["status"] = "TEST-TEST-TEST";
+    data["abbreviation"] = "zkratka-2";
+    data["color"] = "#40506070-2";
+    data["description"] = "testovaci status-2";
+    data["closed"] = false;
+    APIPUT("/statuses/x", data);
+    QVERIFY(api()->variant().toMap().contains("key"));
+    QVERIFY(api()->variant().toMap()["key"].toString() == "TEST-TEST-TEST");
+
+    data.clear();
+    APIGET("/statuses/TEST-TEST-TEST");
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["status"].toString() == "TEST-TEST-TEST");
+    QVERIFY(data["abbreviation"].toString() == "zkratka-2");
+    QVERIFY(data["color"].toString() == "#40506070-2");
+    QVERIFY(data["description"].toString() == "testovaci status-2");
+    QVERIFY(data["closed"].toBool() == false);
+
+}
+
+
+void Test::delStatuses() {
+    APIDEL("/statuses/TEST-TEST-TEST");
+    APIGET_IGNORE_ERROR("/statuses/TEST-TEST-TEST");
     QVERIFY(api()->error() != QNetworkReply::NoError);
     QVERIFY(api()->error() == QNetworkReply::ContentNotFoundError);
 }
