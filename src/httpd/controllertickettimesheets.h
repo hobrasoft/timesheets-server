@@ -15,7 +15,7 @@
 /**
  * @addtogroup apiurl
  * @{
- * - @ref Httpd::ControllerTicketTimesheets - /tickettimesheets - Manipulace se stavy ticketů
+ * - @ref Httpd::ControllerTicketTimesheets - /ticketimesheets - Manipulace se stavy ticketů
  * @}
  */
 

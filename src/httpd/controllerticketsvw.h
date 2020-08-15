@@ -14,7 +14,7 @@
 /**
  * @addtogroup apiurl
  * @{
- * - @ref Httpd::ControllerTicketsVw - Manipuluje s informacemi o ticketech
+ * - @ref Httpd::ControllerTicketsVw - /ticketsvw - Manipuluje s informacemi o ticketech
  * @}
  */
 

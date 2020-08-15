@@ -13,7 +13,7 @@
 /**
  * @addtogroup apiurl
  * @{
- * - @ref Httpd::ControllerStatusOrder - vrací informace o pořadí přechodů mezi jednotlivými stavy ticketu
+ * - @ref Httpd::ControllerStatusOrder - /statusorder - vrací informace o pořadí přechodů mezi jednotlivými stavy ticketu
  * @}
  */
 

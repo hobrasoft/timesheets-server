@@ -4,6 +4,9 @@
 
 @tableofcontents
 
+@section api-urls Implementované URL adresy
+@ref apiurl
+
 @section api-general Obecné
 
 API je postaveno tak, aby je bylo možné používat i na nezabezpečené síti (internet).

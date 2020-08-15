@@ -14,7 +14,7 @@
 /**
  * @addtogroup apiurl
  * @{
- * - @ref Httpd::ControllerTickets - Manipuluje s informacemi o ticketech
+ * - @ref Httpd::ControllerTickets - /tickets - Manipuluje s informacemi o ticketech
  * @}
  */
 

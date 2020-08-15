@@ -40,7 +40,14 @@ Implementované metody:
 Struktura jednoho záznamu:
 
 @code
-
+{
+"date": null,
+"id": 32,
+"name": "xxx-name",
+"ticket": 51,
+"user": 1,
+"value": "xxx-value"
+}
 @endcode
 
 */

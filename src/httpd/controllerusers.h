@@ -15,7 +15,7 @@
 /**
  * @addtogroup apiurl
  * @{
- * - @ref Httpd::Users - /users - Manipulace s uživateli
+ * - @ref Httpd::ControllerUsers - /users - Manipulace s uživateli
  * @}
  */
 
