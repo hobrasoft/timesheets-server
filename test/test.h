@@ -55,11 +55,11 @@ class Test : public QObject {
     void delTicketTimesheets();         // Delete the timesheet
     //
     void putTicketValuesInsert();       // Insert a timesheet to ticket
-
-private:
     void getTicketsVw3();               // Read the ticket with timesheet inserted
     void putTicketValuesUpdate();       // Update the timesheet
     void delTicketValues();             // Delete the timesheet
+
+private:
 
   private:
     QSqlDatabase    m_db;

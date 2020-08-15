@@ -628,9 +628,10 @@ void Test::putTicketValuesUpdate() {
     QVariantMap data;
     data["id"] = m_key.toInt();
     data["user"] = m_user;
+    data["date"] = m_now.addSecs(20);
     data["ticket" ] = m_ticket;
-    data["date_from"] = m_now.addSecs(2);
-    data["date_to"] = m_now.addSecs(3);
+    data["name"] = "yyy-name";
+    data["value"] = "yyy-value";
     APIPUT("/ticketvalues/0", data);
     QVERIFY(api()->variant().toMap().contains("key"));
     QVERIFY(api()->variant().toMap()["key"].toInt() > 0);
@@ -643,16 +644,16 @@ void Test::putTicketValuesUpdate() {
     QVERIFY(data.isEmpty() == false);
     QVERIFY(data["ticket"].toString() == m_ticket);
     QVERIFY(data["user"].toInt() == m_user);
-    QVERIFY(data["date"].toDateTime() == m_now.addSecs(10));
+    QVERIFY(data["date"].toDateTime() == m_now.addSecs(20));
     QVERIFY(data["id"].toString() == m_ticketValue);
-    QVERIFY(data["name"].toString() == "xxx-name");
-    QVERIFY(data["value"].toString() == "xxx-value");
+    QVERIFY(data["name"].toString() == "yyy-name");
+    QVERIFY(data["value"].toString() == "yyy-value");
 
 }
 
 
 void Test::delTicketValues() {
-    APIDEL("/ticketvaluse/"+m_ticketValue);
+    APIDEL("/ticketvalues/"+m_ticketValue);
     APIGET_IGNORE_ERROR("/ticketvalues/"+m_ticketValue);
     QVERIFY(api()->error() != QNetworkReply::NoError);
     QVERIFY(api()->error() == QNetworkReply::ContentNotFoundError);
