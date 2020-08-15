@@ -51,18 +51,18 @@ class Database : public QObject {
 
     QList<Dbt::TicketStatus>                ticketStatus(int id);
     QList<Dbt::TicketStatus>                ticketStatus(bool all = false);
-    QList<Dbt::TicketStatus>                ticketStatus(int ticket = -1, bool all = false);
+    QList<Dbt::TicketStatus>                ticketStatus(int ticket, bool all);
 
-    QList<Dbt::TicketValues>                ticketValues(int id = -1);
+    QList<Dbt::TicketValues>                ticketValues(int id);
     QList<Dbt::TicketValues>                ticketValues(bool all = false);
     QList<Dbt::TicketValues>                ticketValues(int ticket, bool all);
 
-    QList<Dbt::TicketFiles>                 ticketFiles(int id = -1);
+    QList<Dbt::TicketFiles>                 ticketFiles(int id);
     QList<Dbt::TicketFiles>                 ticketFiles(bool all = false);
-    QList<Dbt::TicketFiles>                 ticketFiles(int ticket = -1, bool all = false);
+    QList<Dbt::TicketFiles>                 ticketFiles(int ticket, bool all);
 
     QList<Dbt::TicketTimesheets>            ticketTimesheets(int id);
-    QList<Dbt::TicketTimesheets>            ticketTimesheets(bool all);
+    QList<Dbt::TicketTimesheets>            ticketTimesheets(bool all = false);
     QList<Dbt::TicketTimesheets>            ticketTimesheets(int ticket, bool all);
 
     template<typename T> QVariant save(const T& id) { return m_dbplugin->save(id); }

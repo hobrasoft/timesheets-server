@@ -173,7 +173,7 @@ QVariantMap Mutable::toMap() const {
 
 
 TicketTimesheets TicketTimesheets::fromMap(const QVariantMap& data) {
-    TicketTimesheets x = Mutable::fromMap(data);;
+    TicketTimesheets x = Mutable::fromMap(data);
     x.date_from = data["date_from"].toDateTime();
     x.date_to = data["date_to"].toDateTime();
     return x;
@@ -201,7 +201,7 @@ TicketValues TicketValues::fromMap(const QVariantMap& data) {
 
 TicketStatus TicketStatus::fromMap(const QVariantMap& data) {
     TicketStatus x = Mutable::fromMap(data);
-    x.date = data["date"].toDateTime();;
+    x.date = data["date"].toDateTime();
     x.status = data["status"].toString();
     x.description = data["description"].toString();
     return x;
@@ -209,7 +209,7 @@ TicketStatus TicketStatus::fromMap(const QVariantMap& data) {
 
 
 QVariantMap TicketTimesheets::toMap() const {
-    QVariantMap data = Mutable::toMap();;
+    QVariantMap data = Mutable::toMap();
     data["date_from"] = date_from;
     data["date_to"] = date_to;
     return data;
@@ -217,7 +217,7 @@ QVariantMap TicketTimesheets::toMap() const {
 
 
 QVariantMap TicketFiles::toMap() const {
-    QVariantMap data = Mutable::toMap();;
+    QVariantMap data = Mutable::toMap();
     data["date"] = date;
     data["name"] = name;
     data["type"] = type;
@@ -227,7 +227,7 @@ QVariantMap TicketFiles::toMap() const {
 
 
 QVariantMap TicketValues::toMap() const {
-    QVariantMap data = Mutable::toMap();;
+    QVariantMap data = Mutable::toMap();
     data["date"] = date;
     data["name"] = name;
     data["value"] = value;
@@ -236,7 +236,7 @@ QVariantMap TicketValues::toMap() const {
 
 
 QVariantMap TicketStatus::toMap() const {
-    QVariantMap data = Mutable::toMap();;
+    QVariantMap data = Mutable::toMap();
     data["status"] = status;
     data["date"] = date;
     data["description"] = description;

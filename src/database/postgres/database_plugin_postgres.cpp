@@ -529,7 +529,7 @@ QList<Dbt::TicketsVw> DatabasePluginPostgres::ticketsVw(int ticket, bool all) {
 
 void DatabasePluginPostgres::remove(const Dbt::Tickets& id) {
     MSqlQuery q(m_db);
-    q.prepare(R"'(delete from ticketswhere category = :id;)'");
+    q.prepare(R"'(delete from tickets where ticket = :id;)'");
     q.bindValue(":id", id.ticket);
     q.exec();
 }
@@ -595,7 +595,6 @@ QVariant DatabasePluginPostgres::save(const Dbt::TicketsVw& data) {
 
 
 QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int ticket, bool all) {
-    PDEBUG;
     createTemporaryTableTickets(ticket, all);
     QList<Dbt::TicketStatus> list;
     MSqlQuery q(m_db);
@@ -604,6 +603,7 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int ticket, bool a
         select ts.id, ts.ticket, ts."user", ts.date, ts.description, ts.status
             from temporary_tickets t, ticket_status ts, users u
             where t.ticket = ts.ticket
+              and u."user" = ts."user"
         )'");
     q.exec();
     while (q.next()) {
@@ -627,7 +627,6 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(bool all) {
 
 
 QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int id) {
-    PDEBUG;
     QList<Dbt::TicketStatus> list;
     MSqlQuery q(m_db);
 

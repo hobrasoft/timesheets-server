@@ -122,6 +122,7 @@ struct TicketStatus : Mutable {
         Mutable::operator=(x);
         date = x.date;
         status = x.status;
+        description = x.description;
         return *this;
         }
 };

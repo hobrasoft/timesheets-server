@@ -659,7 +659,99 @@ void Test::delTicketValues() {
     QVERIFY(api()->error() == QNetworkReply::ContentNotFoundError);
 }
 
+
 ////////////////////////////////////////////////
+void Test::putTicketStatusInsert() {
+    QVariantMap data;
+    data["id"] = 0;
+    data["user"] = m_user;
+    data["date"] = m_now.addSecs(10);
+    data["ticket" ] = m_ticket;
+    data["status"] = "NEW";
+    data["description"] = "Description";
+    APIPUT("/ticketstatus/0", data);
+    QVERIFY(api()->variant().toMap().contains("key"));
+    QVERIFY(api()->variant().toMap()["key"].toInt() > 0);
+    m_key = api()->variant().toMap()["key"].toString();
+    m_ticketStatus = api()->variant().toMap()["key"].toString();
+
+    data.clear();
+    APIGET("/ticketstatus/"+m_ticketStatus);
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["id"].toString() == m_ticketStatus);
+    QVERIFY(data["user"].toInt() == m_user);
+    QVERIFY(data["date"].toDateTime() == m_now.addSecs(10));
+    QVERIFY(data["ticket"].toString() == m_ticket);
+    QVERIFY(data["status"].toString() == "NEW");
+    QVERIFY(data["description"].toString() == "Description");
+
+}
+
+
+void Test::getTicketsVw4() {
+    QVariantMap data;
+    APIGET("/ticketsvw/" + m_ticket+"?all=true");
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["statuses"].canConvert(QMetaType::QVariantList));
+
+    QVariantList list = data["statuses"].toList();
+    QVERIFY(list.isEmpty() == false);
+    QVERIFY(list.size() == 1);
+    data = list[0].toMap();
+    QVERIFY(data["id"].toString() == m_ticketStatus);
+    QVERIFY(data["user"].toInt() == m_user);
+    QVERIFY(data["date"].toDateTime() == m_now.addSecs(10));
+    QVERIFY(data["ticket"].toString() == m_ticket);
+    QVERIFY(data["status"].toString() == "NEW");
+    QVERIFY(data["description"].toString() == "Description");
+
+}
+
+
+void Test::putTicketStatusUpdate() {
+    QVariantMap data;
+    data["id"] = m_key.toInt();
+    data["user"] = m_user;
+    data["date"] = m_now.addSecs(20);
+    data["ticket" ] = m_ticket;
+    data["status"] = "CLOSED";
+    data["description"] = "Zavřeno";
+    APIPUT("/ticketstatus/0", data);
+    QVERIFY(api()->variant().toMap().contains("key"));
+    QVERIFY(api()->variant().toMap()["key"].toInt() > 0);
+    QString id = api()->variant().toMap()["key"].toString();
+    QVERIFY(id == m_ticketStatus);
+
+    data.clear();
+    APIGET("/ticketstatus/"+m_ticketStatus);
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["id"].toString() == m_ticketStatus);
+    QVERIFY(data["user"].toInt() == m_user);
+    QVERIFY(data["date"].toDateTime() == m_now.addSecs(20));
+    QVERIFY(data["ticket"].toString() == m_ticket);
+    QVERIFY(data["status"].toString() == "CLOSED");
+    QVERIFY(data["description"].toString() == "Zavřeno");
+
+}
+
+
+void Test::delTicketStatus() {
+    APIDEL("/ticketstatus/"+m_ticketStatus);
+    APIGET_IGNORE_ERROR("/ticketstatus/"+m_ticketStatus);
+    QVERIFY(api()->error() != QNetworkReply::NoError);
+    QVERIFY(api()->error() == QNetworkReply::ContentNotFoundError);
+}
+
+
+void Test::delTicket() {
+    APIDEL("/tickets/"+m_ticket);
+    APIGET_IGNORE_ERROR("/tickets/"+m_ticket);
+    QVERIFY(api()->error() != QNetworkReply::NoError);
+    QVERIFY(api()->error() == QNetworkReply::ContentNotFoundError);
+}
 
 
 

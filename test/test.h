@@ -54,10 +54,17 @@ class Test : public QObject {
     void putTicketTimesheetsUpdate();   // Update the timesheet
     void delTicketTimesheets();         // Delete the timesheet
     //
-    void putTicketValuesInsert();       // Insert a timesheet to ticket
-    void getTicketsVw3();               // Read the ticket with timesheet inserted
-    void putTicketValuesUpdate();       // Update the timesheet
-    void delTicketValues();             // Delete the timesheet
+    void putTicketValuesInsert();       // Insert a value to ticket
+    void getTicketsVw3();               // Read the ticket with value inserted
+    void putTicketValuesUpdate();       // Update the value
+    void delTicketValues();             // Delete the value
+    //
+    void putTicketStatusInsert();       // Insert a status to ticket
+    void getTicketsVw4();               // Read the ticket with status inserted
+    void putTicketStatusUpdate();       // Update the status
+    void delTicketStatus();             // Delete the status
+    //
+    void delTicket();
 
 private:
 
@@ -70,6 +77,7 @@ private:
     QString         m_ticket;
     QString         m_ticketTimesheet;
     QString         m_ticketValue;
+    QString         m_ticketStatus;
     int             m_user;
     QString         m_category;
     QDateTime       m_now;
