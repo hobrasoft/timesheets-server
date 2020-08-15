@@ -853,8 +853,8 @@ QList<Dbt::TicketValues> DatabasePluginPostgres::ticketValues(int id) {
     QList<Dbt::TicketValues> list;
     MSqlQuery q(m_db);
     q.prepare(R"'(
-        select tv.id, tt.ticket, tt.name, tt.value, tv."user"
-            from tickets tt, ticket_values tv, user_categories uc
+        select tv.id, tv.ticket, tv.date, tv.name, tv.value, tv."user"
+            from tickets tt, ticket_values tv, users_categories uc
             where tt.ticket = tv.ticket
               and tt.category = uc.category
               and uc.user = :user
@@ -869,6 +869,7 @@ QList<Dbt::TicketValues> DatabasePluginPostgres::ticketValues(int id) {
         Dbt::TicketValues x;
         x.id            = q.value(i++).toInt();
         x.ticket        = q.value(i++).toInt();
+        x.date          = q.value(i++).toDateTime();
         x.name          = q.value(i++).toString();
         x.value         = q.value(i++).toString();
         x.user          = q.value(i++).toInt();
@@ -893,28 +894,34 @@ QVariant DatabasePluginPostgres::save(const Dbt::TicketValues& data) {
         q.prepare(R"'(
             update ticket_values set
                 ticket = :ticket,
+               "user" = :user,
+                date = :date,
                 name = :name,
                 value = :value
                 where id = :id
             )'");
         q.bindValue(":id", data.id);
+        q.bindValue(":ticket", data.ticket);
+        q.bindValue(":user", data.user);
+        q.bindValue(":date", data.date);
         q.bindValue(":name", data.name);
         q.bindValue(":value", data.value);
-        q.bindValue(":ticket", data.ticket);
         q.exec();
         return QVariant(data.id);
 
       } else {
 
         q.prepare(R"'(
-            insert into ticket_values (ticket, name, value)
-                select :ticket, :name, :value
+            insert into ticket_values (ticket, "user", date, name, value)
+                select :ticket, :user, :date, :name, :value
                 where not exists (select 1 from ticket_values where id = :id);
             )'");
         q.bindValue(":id", data.id);
+        q.bindValue(":ticket", data.ticket);
+        q.bindValue(":user", data.user);
+        q.bindValue(":date", data.date);
         q.bindValue(":name", data.name);
         q.bindValue(":value", data.value);
-        q.bindValue(":ticket", data.ticket);
         q.exec();
 
         return currval("ticket_values_id_seq");

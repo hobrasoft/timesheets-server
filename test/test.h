@@ -46,10 +46,20 @@ class Test : public QObject {
     void putStatusOrderUpdate3();
     void delStatuses2();
     void delStatuses();
-    void putTickets();
-    void getTicketsVw1();
-    void putTicketTimesheets();
-    void getTicketsVw2();
+    //
+    void putTickets();                  // insert new testing ticket for following tests, no timesheets, values, files and statuses
+    void getTicketsVw1();               // read the ticket inserted
+    void putTicketTimesheetsInsert();   // Insert a timesheet to ticket
+    void getTicketsVw2();               // Read the ticket with timesheet inserted
+    void putTicketTimesheetsUpdate();   // Update the timesheet
+    void delTicketTimesheets();         // Delete the timesheet
+    //
+    void putTicketValuesInsert();       // Insert a timesheet to ticket
+
+private:
+    void getTicketsVw3();               // Read the ticket with timesheet inserted
+    void putTicketValuesUpdate();       // Update the timesheet
+    void delTicketValues();             // Delete the timesheet
 
   private:
     QSqlDatabase    m_db;
@@ -59,6 +69,7 @@ class Test : public QObject {
     QString         m_key;
     QString         m_ticket;
     QString         m_ticketTimesheet;
+    QString         m_ticketValue;
     int             m_user;
     QString         m_category;
     QDateTime       m_now;

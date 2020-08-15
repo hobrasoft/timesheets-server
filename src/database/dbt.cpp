@@ -46,7 +46,6 @@ Users Users::fromMap(const QVariantMap& data) {
 
 QVariantMap Categories::toMap() const {
     QVariantMap data;
-    PDEBUG << category << parent_category;
     data["category"] = category;
     data["parent_category"] = null(parent_category);
     data["description"] = description;
@@ -193,7 +192,7 @@ TicketFiles TicketFiles::fromMap(const QVariantMap& data) {
 
 TicketValues TicketValues::fromMap(const QVariantMap& data) {
     TicketValues x = Mutable::fromMap(data);
-    x.date = data["date "].toDateTime();
+    x.date = data["date"].toDateTime();
     x.name = data["name"].toString();
     x.value = data["value"].toString();
     return x;
