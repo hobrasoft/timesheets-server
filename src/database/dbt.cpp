@@ -185,7 +185,7 @@ TicketFiles TicketFiles::fromMap(const QVariantMap& data) {
     x.date = data["date"].toDateTime();
     x.name = data["name"].toString();
     x.type = data["type"].toString();
-    x.content = data["content"].toByteArray();
+    x.content = QByteArray::fromBase64(data["content"].toByteArray());
     return x;
 }
 
@@ -221,7 +221,7 @@ QVariantMap TicketFiles::toMap() const {
     data["date"] = date;
     data["name"] = name;
     data["type"] = type;
-    data["content"] = content;
+    data["content"] = content.toBase64();
     return data;
 }
 

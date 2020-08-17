@@ -11,6 +11,8 @@
 #include <QDebug>
 #include <QSqlQuery>
 #include <QNetworkReply>
+#include <QBuffer>
+#include <QImage>
 #include <unistd.h>
 
 
@@ -74,6 +76,22 @@ void Test::initTestCase() {
         qDebug() << m_process->readAllStandardOutput();
         qDebug() << m_process->readAllStandardError();
         });
+
+    QImage image(":/logo.png");
+    QBuffer buffer1(&m_fileDataPng);
+    buffer1.open(QIODevice::WriteOnly);   
+    image.save(&buffer1, "PNG");
+    buffer1.close();
+
+    QBuffer buffer2(&m_fileDataJpeg);
+    buffer2.open(QIODevice::WriteOnly);   
+    image.save(&buffer2, "JPG");
+    buffer2.close();
+
+
+    PDEBUG << image.size() << m_fileDataPng.size() << m_fileDataJpeg.size();
+
+
 }
 
 void Test::cleanupTestCase() {
@@ -746,17 +764,107 @@ void Test::delTicketStatus() {
 }
 
 
+////////////////////////////////////////////////
+void Test::putTicketFileInsert() {
+    QVariantMap data;
+    data["id"] = 0;
+    data["user"] = m_user;
+    data["date"] = m_now.addSecs(30);
+    data["ticket" ] = m_ticket;
+    data["name"] = "logo.png";
+    data["type"] = "image/png";
+    data["content"] = m_fileDataPng.toBase64();
+    APIPUT("/ticketfiles/0", data);
+    QVERIFY(api()->variant().toMap().contains("key"));
+    QVERIFY(api()->variant().toMap()["key"].toInt() > 0);
+    m_key = api()->variant().toMap()["key"].toString();
+    m_ticketFile = api()->variant().toMap()["key"].toString();
+
+    data.clear();
+    APIGET("/ticketfiles/"+m_ticketFile);
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["id"].toString() == m_ticketFile);
+    QVERIFY(data["user"].toInt() == m_user);
+    QVERIFY(data["date"].toDateTime() == m_now.addSecs(30));
+    QVERIFY(data["ticket"].toString() == m_ticket);
+    QVERIFY(data["name"] == "logo.png");
+    QVERIFY(data["type"] == "image/png");
+    QVERIFY(QByteArray::fromBase64(data["content"].toByteArray()).size() == m_fileDataPng.size());
+    QVERIFY(QByteArray::fromBase64(data["content"].toByteArray()) == m_fileDataPng);
+
+}
+
+
+void Test::getTicketsVw5() {
+    QVariantMap data;
+    APIGET("/ticketsvw/" + m_ticket+"?all=true");
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["files"].canConvert(QMetaType::QVariantList));
+
+    QVariantList list = data["files"].toList();
+    QVERIFY(list.isEmpty() == false);
+    QVERIFY(list.size() == 1);
+    data = list[0].toMap();
+    QVERIFY(data["id"].toString() == m_ticketFile);
+    QVERIFY(data["user"].toInt() == m_user);
+    QVERIFY(data["date"].toDateTime() == m_now.addSecs(30));
+    QVERIFY(data["ticket"].toString() == m_ticket);
+    QVERIFY(data["name"] == "logo.png");
+    QVERIFY(data["type"] == "image/png");
+    QVERIFY(QByteArray::fromBase64(data["content"].toByteArray()).size() == m_fileDataPng.size());
+    QVERIFY(QByteArray::fromBase64(data["content"].toByteArray()) == m_fileDataPng);
+
+}
+
+
+void Test::putTicketFileUpdate() {
+    QVariantMap data;
+    data["id"] = m_ticketFile.toInt();
+    data["user"] = m_user;
+    data["date"] = m_now.addSecs(22);
+    data["ticket" ] = m_ticket;
+    data["name"] = "logo.jpg";
+    data["type"] = "image/jpeg";
+    data["content"] = m_fileDataJpeg.toBase64();
+    APIPUT("/ticketfiles/0", data);
+    QVERIFY(api()->variant().toMap().contains("key"));
+    QVERIFY(api()->variant().toMap()["key"].toInt() > 0);
+    QString id = api()->variant().toMap()["key"].toString();
+    QVERIFY(id == m_ticketFile);
+
+    data.clear();
+    APIGET("/ticketfiles/"+m_ticketFile);
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["id"].toString() == m_ticketFile);
+    QVERIFY(data["user"].toInt() == m_user);
+    QVERIFY(data["date"].toDateTime() == m_now.addSecs(22));
+    QVERIFY(data["ticket"].toString() == m_ticket);
+    QVERIFY(data["name"] == "logo.jpg");
+    QVERIFY(data["type"] == "image/jpeg");
+    QVERIFY(QByteArray::fromBase64(data["content"].toByteArray()).size() == m_fileDataJpeg.size());
+    QVERIFY(QByteArray::fromBase64(data["content"].toByteArray()) == m_fileDataJpeg);
+
+}
+
+
+void Test::delTicketFile() {
+    APIDEL("/ticketstatus/"+m_ticketFile);
+    APIGET_IGNORE_ERROR("/ticketstatus/"+m_ticketFile);
+    QVERIFY(api()->error() != QNetworkReply::NoError);
+    QVERIFY(api()->error() == QNetworkReply::ContentNotFoundError);
+}
+
+
+////////////////////////////////////////////////
 void Test::delTicket() {
     APIDEL("/tickets/"+m_ticket);
     APIGET_IGNORE_ERROR("/tickets/"+m_ticket);
     QVERIFY(api()->error() != QNetworkReply::NoError);
     QVERIFY(api()->error() == QNetworkReply::ContentNotFoundError);
 }
-
-
-
-
-
 
 
 

@@ -6,10 +6,12 @@ INCLUDEPATH += ../src
 CONFIG -= stl
 CONFIG += qt warn_on thread testlib
 
-QT += network testlib sql 
-QT -= gui
+QT += network testlib sql gui
 
 include(../global.pri)
+
+RESOURCES += \
+ test.qrc \
 
 SOURCES += \
  main.cpp \

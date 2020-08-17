@@ -23,7 +23,13 @@ void ControllerTicketFiles::serviceList (HobrasoftHttpd::HttpRequest *request, H
 
 void ControllerTicketFiles::serviceIdGet (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QString& id) {
     bool all = QVariant(request->parameter("all")).toBool();
-    auto list = db()->ticketFiles(id.toInt(), all);
+    int ticket = QVariant(request->parameter("ticket")).toInt();
+    auto list = (ticket > 0)
+                    ? db()->ticketFiles(ticket, all)
+                    : (id.isEmpty())
+                        ? db()->ticketFiles(all)
+                        : db()->ticketFiles(id.toInt())
+                        ;
     if (list.isEmpty()) {
         serviceError(request, response, 404, "not-found", "NotFound");
         return;

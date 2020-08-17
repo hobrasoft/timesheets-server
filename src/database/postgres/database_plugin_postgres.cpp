@@ -480,7 +480,6 @@ QList<Dbt::Tickets> DatabasePluginPostgres::tickets(bool all) {
 
 
 QList<Dbt::Tickets> DatabasePluginPostgres::tickets(int ticket, bool all) {
-    PDEBUG;
     createTemporaryTableTickets(ticket, all);
     QList<Dbt::Tickets> list;
     MSqlQuery q(m_db);
@@ -1018,7 +1017,7 @@ QList<Dbt::TicketFiles> DatabasePluginPostgres::ticketFiles(int ticket, bool all
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
-        select f.id, f.ticket, f.name, f.type, f.content
+        select f.id, f."user", f.date, f.ticket, f.name, f.type, f.content
             from temporary_tickets t, ticket_files f
             where t.ticket = f.ticket
             ;
@@ -1028,6 +1027,8 @@ QList<Dbt::TicketFiles> DatabasePluginPostgres::ticketFiles(int ticket, bool all
         int i=0;
         Dbt::TicketFiles x;
         x.id        = q.value(i++).toInt();
+        x.user      = q.value(i++).toInt();
+        x.date      = q.value(i++).toDateTime();
         x.ticket    = q.value(i++).toInt();
         x.name      = q.value(i++).toString();
         x.type      = q.value(i++).toString();
@@ -1044,12 +1045,12 @@ QList<Dbt::TicketFiles> DatabasePluginPostgres::ticketFiles(int id) {
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
-        select f.id, f.ticket, f.name, f.type, f.content
-            from ticket_files f, users u, tickets t, users_categories us
-            where ts.id = :id
-              and t.ticket = ts.ticket
+        select f.id, f."user", f.date, f.ticket, f.name, f.type, f.content
+            from ticket_files f, users u, tickets t, users_categories uc
+            where f.id = :id
+              and t.ticket = f.ticket
               and t.category = uc.category
-              and u."user" = ts."user"
+              and u."user" = f."user"
             ;
         )'");
     q.bindValue(":id", id);
@@ -1059,6 +1060,8 @@ QList<Dbt::TicketFiles> DatabasePluginPostgres::ticketFiles(int id) {
         int i=0;
         Dbt::TicketFiles x;
         x.id        = q.value(i++).toInt();
+        x.user      = q.value(i++).toInt();
+        x.date      = q.value(i++).toDateTime();
         x.ticket    = q.value(i++).toInt();
         x.name      = q.value(i++).toString();
         x.type      = q.value(i++).toString();
@@ -1085,6 +1088,8 @@ QVariant DatabasePluginPostgres::save(const Dbt::TicketFiles& data) {
         q.prepare(R"'(
             update ticket_files set
                 ticket = :ticket,
+                date = :date,
+               "user" = :user,
                 name = :name,
                 type = :type,
                 content = :content
@@ -1092,6 +1097,8 @@ QVariant DatabasePluginPostgres::save(const Dbt::TicketFiles& data) {
             )'");
         q.bindValue(":id", data.id);
         q.bindValue(":ticket", data.ticket);
+        q.bindValue(":user", data.user);
+        q.bindValue(":date", data.date);
         q.bindValue(":name", data.name);
         q.bindValue(":type", data.type);
         q.bindValue(":content", data.content);
@@ -1101,11 +1108,13 @@ QVariant DatabasePluginPostgres::save(const Dbt::TicketFiles& data) {
       } else {
 
         q.prepare(R"'(
-            insert into ticket_files (ticket, name, type, content)
-                values (:ticket, :name, :type, :content);
+            insert into ticket_files (ticket, "user", date, name, type, content)
+                values (:ticket, :user, :date, :name, :type, :content);
             )'");
         q.bindValue(":id", data.id);
         q.bindValue(":ticket", data.ticket);
+        q.bindValue(":user", data.user);
+        q.bindValue(":date", data.date);
         q.bindValue(":name", data.name);
         q.bindValue(":type", data.type);
         q.bindValue(":content", data.content);

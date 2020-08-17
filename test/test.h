@@ -64,9 +64,15 @@ class Test : public QObject {
     void putTicketStatusUpdate();       // Update the status
     void delTicketStatus();             // Delete the status
     //
+    void putTicketFileInsert();         // Insert a file to ticket
+    void getTicketsVw5();               // Read the ticket with file inserted
+    void putTicketFileUpdate();         // Update the file
+    void delTicketFile();               // Delete the file
+    //
     void delTicket();
 
 private:
+
 
   private:
     QSqlDatabase    m_db;
@@ -78,9 +84,12 @@ private:
     QString         m_ticketTimesheet;
     QString         m_ticketValue;
     QString         m_ticketStatus;
+    QString         m_ticketFile;
     int             m_user;
     QString         m_category;
     QDateTime       m_now;
+    QByteArray      m_fileDataPng;
+    QByteArray      m_fileDataJpeg;
 };
 
 #endif
