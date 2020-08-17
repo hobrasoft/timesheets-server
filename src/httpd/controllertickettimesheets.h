@@ -33,6 +33,7 @@ Implementuje metody:
 - put, post
 - delete
 
+@param ticket - Vybere záznamy k zadanému ticketu, na konci URL musí být zadané ID alespoň ve formě lomítka (ignoruje se)
 @param all - Normálně jsou v seznamu pouze otevřené tickety, parametrem _all = true_ lze vypsat všechny tickety, vždy však pouze tickety s přístupem přihlášeného uživatele
 
 Struktura jednoho záznamu:

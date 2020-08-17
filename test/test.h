@@ -62,11 +62,13 @@ class Test : public QObject {
     void putTicketStatusInsert();       // Insert a status to ticket
     void getTicketsVw4();               // Read the ticket with status inserted
     void putTicketStatusUpdate();       // Update the status
+    void getTicketStatusByTicket();     // Read the status by the ticket
     void delTicketStatus();             // Delete the status
     //
     void putTicketFileInsert();         // Insert a file to ticket
     void getTicketsVw5();               // Read the ticket with file inserted
     void putTicketFileUpdate();         // Update the file
+    void getTicketFileByTicket();       // Read the the file by the ticket
     void delTicketFile();               // Delete the file
     //
     void delTicket();

@@ -427,18 +427,18 @@ void DatabasePluginPostgres::createTemporaryTableTickets(int ticket, bool all) {
         )'");
 
     if (all) {
-        PDEBUG << "Vybiram VSE";
+        PDEBUG << "Vybiram VSE" << ticket;
         q.prepare(R"'(
             insert into temporary_tickets (ticket, category, date, price, description, "user")
             select t.ticket, t.category, t.date, t.price, t.description, t."user"
-                from tickets t, users_categories uc
-                where t.category = uc.category
-                  and uc."user" = :user
+                from tickets t, users u
+                where (t.category in (select category from users_categories where "user" = u."user") or u.admin = true)
+                  and u."user" = :user
                   and (:ticket1 <= 0 or :ticket2 = t.ticket)
             ;
             )'");
       } else {
-        PDEBUG << "Vybiram pouze otevrene";
+        PDEBUG << "Vybiram pouze otevrene" << ticket;
         q.prepare(R"'(
             with
             ending_status as (
@@ -470,6 +470,10 @@ void DatabasePluginPostgres::createTemporaryTableTickets(int ticket, bool all) {
     q.bindValue(":ticket1", ticket);
     q.bindValue(":ticket2", ticket);
     q.exec();
+
+    q.exec("select count(1) from temporary_tickets;");
+    q.next();
+    PDEBUG << "Vybranych vet" << q.value(0).toInt();
 
 }
 
@@ -606,6 +610,7 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int ticket, bool a
         )'");
     q.exec();
     while (q.next()) {
+    PDEBUG << "------------------------------------" << ticket << all;
         Dbt::TicketStatus x;
         int i=0;
         x.id            = q.value(i++).toInt();

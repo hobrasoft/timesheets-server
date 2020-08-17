@@ -15,34 +15,36 @@
 /**
  * @addtogroup apiurl
  * @{
- * - @ref Httpd::ControllerTicketFiles - /ticketstatus - Manipulace se stavy ticketů
+ * - @ref Httpd::ControllerTicketFiles - /ticketfiles - Manipulace se soubory ticketů
  * @}
  */
 
 namespace Httpd {
 
 /**
-@brief Manipulace se stavy ticketů
+@brief Manipulace se soubory ticketů
 
-Každý ticket může obsahovat několik za sebou následujících stavů, například: nový, v řešení, vyřešeno, vyfakturováno, zavřeno.
+Implementované metody:
+- get
+- put, post
+- del
 
+@param ticket - Vybere záznamy k zadanému ticketu, na konci URL musí být zadané ID alespoň ve formě lomítka (ignoruje se)
+@param all - Normálně jsou v seznamu pouze otevřené tickety, parametrem _all = true_ lze vypsat všechny tickety, vždy však pouze tickety s přístupem přihlášeného uživatele
 
-GET
----
-Vrací seznam všech stavů, které ticket dostal přidělené
+Struktura jednoho záznamu:
 @code
-[
-  {
-    "id": 9,                                // Primární klíč
-    "date": "2020-06-01T00:00:00.000",      // datum zavedení
-    "status": "NEW",                        // Files, klíč v tabulce statuses
-    "description": "Práce zahájeny",        // Popis
-    "ticket": 2,                            // Ticket, klíč v tabulce tickets
-    "user": 2,                              // Uživatel, klíč v tabulce users
-    "username": "Petr Bravenec"             // Jméno uživatele  (na klienta se neposílají záznamy, klíč je na nic)
-  }
-]
+{
+"id": 9,                                // Primární klíč, při insertu se může změnit
+"user": 2,                              // Uživatel, klíč v tabulce users
+"date": "2020-06-01T00:00:00.000",      // Datum zavedení
+"ticket": 2,                            // Ticket, klíč v tabulce tickets
+"name":"logo.png",                      // Jméno souboru
+"type":"image/png","user":1,            // Content-Typy soubor 
+"content":"iVBORw0KGgodr9ncLps2nfX..."  // Obsah, base64
+}
 @endcode
+
 
 */
 class ControllerTicketFiles : public AbstractController {

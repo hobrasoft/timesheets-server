@@ -755,6 +755,19 @@ void Test::putTicketStatusUpdate() {
 
 }
 
+void Test::getTicketStatusByTicket() {
+    QVariantMap data;
+    APIGET("/ticketstatus/?all=true&ticket="+m_ticket);
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["id"].toString() == m_ticketStatus);
+    QVERIFY(data["user"].toInt() == m_user);
+    QVERIFY(data["date"].toDateTime() == m_now.addSecs(20));
+    QVERIFY(data["ticket"].toString() == m_ticket);
+    QVERIFY(data["status"].toString() == "CLOSED");
+    QVERIFY(data["description"].toString() == "Zavřeno");
+}
+
 
 void Test::delTicketStatus() {
     APIDEL("/ticketstatus/"+m_ticketStatus);
@@ -847,6 +860,23 @@ void Test::putTicketFileUpdate() {
     QVERIFY(QByteArray::fromBase64(data["content"].toByteArray()).size() == m_fileDataJpeg.size());
     QVERIFY(QByteArray::fromBase64(data["content"].toByteArray()) == m_fileDataJpeg);
 
+}
+
+
+void Test::getTicketFileByTicket() {
+    QVariantMap data;
+    data.clear();
+    APIGET("/ticketfiles/?all=true&ticket="+m_ticket);
+    data = api()->variant().toMap();
+    QVERIFY(data.isEmpty() == false);
+    QVERIFY(data["id"].toString() == m_ticketFile);
+    QVERIFY(data["user"].toInt() == m_user);
+    QVERIFY(data["date"].toDateTime() == m_now.addSecs(22));
+    QVERIFY(data["ticket"].toString() == m_ticket);
+    QVERIFY(data["name"] == "logo.jpg");
+    QVERIFY(data["type"] == "image/jpeg");
+    QVERIFY(QByteArray::fromBase64(data["content"].toByteArray()).size() == m_fileDataJpeg.size());
+    QVERIFY(QByteArray::fromBase64(data["content"].toByteArray()) == m_fileDataJpeg);
 }
 
 
