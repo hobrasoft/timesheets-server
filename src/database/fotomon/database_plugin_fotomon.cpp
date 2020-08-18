@@ -130,20 +130,13 @@ void DatabasePluginFotomon::createTemporaryTableTickets(int ticket, bool all) {
 
     q.prepare(R"'(
         with
-        ending_status as (
-            select distinct  t1.type, t1.status_to as status from tickets_types_status t1, tickets_status ts  where t1.status_to = ts.status and ts.closed
-            ),
-        tickets_last_status as (
-            select t.ticket, t.type, tl.status
+        active_tickets as (
+            select t.ticket
                 from tickets t
                 left join lateral (select tn.ticket, tn.status from tickets_notes tn where tn.ticket = t.ticket order by ticket, date desc limit 1) tl using (ticket)
+                left join tickets_status ts on (tl.status = ts.status)
                 where (:ticket1 <= 0 or :ticket2 = t.ticket)
-            ),
-        closed_tickets as (
-            select distinct ts.ticket from tickets_last_status ts, ending_status es where ts.status = es.status and ts.type = es.type
-            ),
-        active_tickets as (
-            select t1.ticket from tickets t1 where t1.ticket not in (select ticket from closed_tickets)
+                  and (ts.closed is null or not ts.closed)
             ),
         users_systems as (
             select us.system 
@@ -472,7 +465,7 @@ QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(int ticket, bool al
         x.ticket        = q.value(i++).toInt();
         x.user          = q.value(i++).toInt();
         x.date          = q.value(i++).toDateTime();
-        x.status        = q.value(i++).toInt();
+        x.status        = q.value(i++).toString();
         x.description   = q.value(i++).toString();
         list << x;
         }
