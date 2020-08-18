@@ -5,7 +5,7 @@
  */
 
 #include "controlleruserscategories.h"
-#include "pdebug.h"
+#include "httprequest.h"
 #include "db.h"
 
 using namespace Httpd;
@@ -16,7 +16,9 @@ ControllerUsersCategories::ControllerUsersCategories(HobrasoftHttpd::HttpConnect
 
 
 void ControllerUsersCategories::serviceList (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
-    serviceOK(request, response, toList(db()->usersCategories()));
+    int user = (request->parameter("user") == "") ? -1 : request->parameter("user").toInt();
+    QString category = (request->parameter("category") == "") ? QString() : request->parameter("user");
+    serviceOK(request, response, toList(db()->usersCategories(-1, user, category)));
 }
 
 

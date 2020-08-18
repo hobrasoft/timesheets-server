@@ -56,13 +56,14 @@ struct Categories {
 
 
 struct UsersCategories {
+    int         id;
     QString     category;
     int         user;
 
     QVariantMap toMap() const;
     static UsersCategories fromMap(const QVariantMap&);
-    UsersCategories() { user = 0; }
-    UsersCategories(int u) { user = u; }
+    UsersCategories() { id = -1; user = -1; }
+    UsersCategories(int i) { id = i; }
 };
 
 

@@ -1139,7 +1139,7 @@ void DatabasePluginPostgres::remove(const Dbt::TicketFiles& id) {
 }
 
 
-QList<Dbt::UsersCategories> DatabasePluginPostgres::usersCategories(int user, const QString& category) {
+QList<Dbt::UsersCategories> DatabasePluginPostgres::usersCategories(int id, int user, const QString& category) {
     QList<Dbt::UsersCategories> list;
     MSqlQuery q(m_db);
     auto retvals = [&]() {
@@ -1147,6 +1147,7 @@ QList<Dbt::UsersCategories> DatabasePluginPostgres::usersCategories(int user, co
         while (q.next()) {  
             int i=0; 
             Dbt::UsersCategories x; 
+            x.id = q.value(i++).toInt();
             x.user = q.value(i++).toInt();
             x.category = q.value(i++).toString();
             list << x;
@@ -1154,26 +1155,32 @@ QList<Dbt::UsersCategories> DatabasePluginPostgres::usersCategories(int user, co
         return list;
         };
 
-    if (category.isEmpty() && user > 0) {
-        q.prepare(R"'(select "user", category from users_categories where "user" = :user)'");
+    if (id > 0) {
+        q.prepare(R"'(select id, "user", category from users_categories where id = :id)'");
+        q.bindValue(":id", id);
+        return retvals();
+        }
+
+    if (id <= 0 && category.isEmpty() && user > 0) {
+        q.prepare(R"'(select id, "user", category from users_categories where "user" = :user)'");
         q.bindValue(":user", user);
         return retvals();
         }
 
-    if (category.isEmpty() && user <= 0) {
-        q.prepare(R"'(select "user", category from users_categories)'");
+    if (id <= 0 && category.isEmpty() && user <= 0) {
+        q.prepare(R"'(select id, "user", category from users_categories)'");
         return retvals();
         }
 
-    if (!category.isEmpty() && user > 0) {
-        q.prepare(R"'(select "user", category from users categories where "user" = :user and category = :category)'");
+    if (id <= 0 && !category.isEmpty() && user > 0) {
+        q.prepare(R"'(select id, "user", category from users categories where "user" = :user and category = :category)'");
         q.bindValue(":user", user);
         q.bindValue(":category", category);
         return retvals();
         }
 
-    if (!category.isEmpty() && user <= 0) {
-        q.prepare(R"'(select "user", category from users categories where category = :category)'");
+    if (id <= 0 && !category.isEmpty() && user <= 0) {
+        q.prepare(R"'(select id, "user", category from users categories where category = :category)'");
         q.bindValue(":category", category);
         return retvals();
         }

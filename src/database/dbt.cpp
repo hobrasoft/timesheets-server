@@ -66,6 +66,7 @@ Categories Categories::fromMap(const QVariantMap& data) {
 
 UsersCategories UsersCategories::fromMap(const QVariantMap& data) {
     UsersCategories x;
+    x.id = data["id"].toInt();
     x.user = data["user"].toInt();
     x.category = data["category"].toString();
     return x;
@@ -74,6 +75,7 @@ UsersCategories UsersCategories::fromMap(const QVariantMap& data) {
 
 QVariantMap UsersCategories::toMap() const {
     QVariantMap data;
+    data["id"] = id;
     data["user"] = user;
     data["category"] = null(category);
     return data;
