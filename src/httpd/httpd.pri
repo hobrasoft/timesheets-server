@@ -9,6 +9,7 @@ DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH\\\"
 SOURCES += \
  $$PWD/controllerserver.cpp \
  $$PWD/controllerusers.cpp \
+ $$PWD/controlleruserscategories.cpp \
  $$PWD/controllercategories.cpp \
  $$PWD/controllertickets.cpp \
  $$PWD/controllerticketsvw.cpp \
@@ -22,6 +23,7 @@ SOURCES += \
 HEADERS += \
  $$PWD/controllerserver.h \
  $$PWD/controllerusers.h \
+ $$PWD/controlleruserscategories.h \
  $$PWD/controllercategories.h \
  $$PWD/controllertickets.h \
  $$PWD/controllerticketsvw.h \

@@ -1139,3 +1139,46 @@ void DatabasePluginPostgres::remove(const Dbt::TicketFiles& id) {
 }
 
 
+QList<Dbt::UsersCategories> DatabasePluginPostgres::usersCategories(int user, const QString& category) {
+    QList<Dbt::UsersCategories> list;
+    MSqlQuery q(m_db);
+    auto retvals = [&]() {
+        q.exec();
+        while (q.next()) {  
+            int i=0; 
+            Dbt::UsersCategories x; 
+            x.user = q.value(i++).toInt();
+            x.category = q.value(i++).toString();
+            list << x;
+            }
+        return list;
+        };
+
+    if (category.isEmpty() && user > 0) {
+        q.prepare(R"'(select "user", category from users_categories where "user" = :user)'");
+        q.bindValue(":user", user);
+        return retvals();
+        }
+
+    if (category.isEmpty() && user <= 0) {
+        q.prepare(R"'(select "user", category from users_categories)'");
+        return retvals();
+        }
+
+    if (!category.isEmpty() && user > 0) {
+        q.prepare(R"'(select "user", category from users categories where "user" = :user and category = :category)'");
+        q.bindValue(":user", user);
+        q.bindValue(":category", category);
+        return retvals();
+        }
+
+    if (!category.isEmpty() && user <= 0) {
+        q.prepare(R"'(select "user", category from users categories where category = :category)'");
+        q.bindValue(":category", category);
+        return retvals();
+        }
+
+    return list;
+}
+
+

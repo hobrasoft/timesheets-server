@@ -128,6 +128,11 @@ QList<Dbt::Users> Database::users(int id){
 }
 
 
+QList<Dbt::UsersCategories> Database::usersCategories(int id, const QString& category){
+    return m_dbplugin->usersCategories(id, category);
+}
+
+
 QList<Dbt::Categories> Database::categories(const QString& id) {
     return m_dbplugin->categories(id);
 }

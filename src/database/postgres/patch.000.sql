@@ -33,7 +33,8 @@ create table categories (
 
 create table users_categories (
     category        int  references categories(category) on update cascade on delete cascade,
-   "user"           int references users("user") on update set null on delete set null
+   "user"           int references users("user") on update set null on delete set null,
+    primary key (category, "user")
 );
 
 

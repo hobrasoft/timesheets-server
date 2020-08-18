@@ -21,6 +21,7 @@ void ControllerUsers::serviceList (HobrasoftHttpd::HttpRequest *request, Hobraso
 
 
 void ControllerUsers::serviceIdGet(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QString& id) {
+    PDEBUG;
     auto list = db()->users(id.toInt());
     if (list.isEmpty()) {
         serviceError(request, response, 404, "not-found", "NotFound");

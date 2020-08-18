@@ -555,5 +555,10 @@ QList<Dbt::TicketValues> DatabasePluginFotomon::ticketValues(int ticket) {
     return list;
 }
 
-
+QList<Dbt::UsersCategories> DatabasePluginFotomon::usersCategories(int user, const QString& category) {
+    Q_UNUSED(user);
+    Q_UNUSED(category);
+    QList<Dbt::UsersCategories> list;
+    return list;
+}
 

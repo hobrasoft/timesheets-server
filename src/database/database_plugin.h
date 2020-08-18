@@ -39,6 +39,7 @@ class DatabasePlugin : public QObject {
     virtual QList<Dbt::Users>                       authenticate(const QString& user, const QString& password) = 0;
     virtual QList<Dbt::Users>                       users(int id) = 0;
     virtual QList<Dbt::Categories>                  categories(const QString& id) = 0;
+    virtual QList<Dbt::UsersCategories>             usersCategories(int user, const QString& category) = 0;
     virtual QList<Dbt::StatusOrder>                 statusOrder(const QString& id) = 0;
     virtual QList<Dbt::Statuses>                    statuses(const QString& id) = 0;
 
@@ -66,6 +67,7 @@ class DatabasePlugin : public QObject {
 
 
     virtual void remove(const Dbt::Users& data) { Q_UNUSED(data); }
+    virtual void remove(const Dbt::UsersCategories& data) { Q_UNUSED(data); }
     virtual void remove(const Dbt::Categories& data) { Q_UNUSED(data); }
     virtual void remove(const Dbt::StatusOrder& data) { Q_UNUSED(data); }
     virtual void remove(const Dbt::Statuses& data) { Q_UNUSED(data); }
@@ -77,6 +79,7 @@ class DatabasePlugin : public QObject {
 
 
     virtual QVariant save(const Dbt::Users& data) { Q_UNUSED(data); return QVariant(); }
+    virtual QVariant save(const Dbt::UsersCategories& data) { Q_UNUSED(data); return QVariant(); }
     virtual QVariant save(const Dbt::Categories& data) { Q_UNUSED(data); return QVariant(); }
     virtual QVariant save(const Dbt::StatusOrder& data) { Q_UNUSED(data); return QVariant(); }
     virtual QVariant save(const Dbt::Statuses& data) { Q_UNUSED(data); return QVariant(); }

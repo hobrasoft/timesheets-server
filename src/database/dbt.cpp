@@ -64,6 +64,22 @@ Categories Categories::fromMap(const QVariantMap& data) {
 }
 
 
+UsersCategories UsersCategories::fromMap(const QVariantMap& data) {
+    UsersCategories x;
+    x.user = data["user"].toInt();
+    x.category = data["category"].toString();
+    return x;
+}
+
+
+QVariantMap UsersCategories::toMap() const {
+    QVariantMap data;
+    data["user"] = user;
+    data["category"] = null(category);
+    return data;
+}
+
+
 QVariantMap StatusOrder::toMap() const {
     QVariantMap data;
     data["id"] = null(id);
