@@ -64,8 +64,8 @@ create unique index status_order_nontull_index on status_order(category, previou
 
 create table tickets (
     ticket          serial primary key,
-    category        int  references categories(category) on update cascade on delete cascade,
-   "user"           int references users("user") on update set null on delete set null,
+    category        int not null references categories(category) on update cascade on delete cascade,
+   "user"           int not null references users("user") on update set null on delete set null,
     date            timestamp with time zone not null default now(),
     price           numeric,
     description     text
@@ -74,8 +74,8 @@ create table tickets (
 
 create table ticket_timesheets (
     id              serial primary key,
-    ticket          int references tickets(ticket) on update cascade on delete cascade,
-   "user"           int references users("user") on update set null on delete set null,
+    ticket          int not null references tickets(ticket) on update cascade on delete cascade,
+   "user"           int not null references users("user") on update set null on delete set null,
     date_from       timestamp with time zone not null,
     date_to         timestamp with time zone
 );
@@ -83,8 +83,8 @@ create table ticket_timesheets (
 
 create table ticket_status (
     id              serial primary key,
-    ticket          int references tickets(ticket) on update cascade on delete cascade,
-   "user"           int references users("user") on update set null on delete set null,
+    ticket          int not null references tickets(ticket) on update cascade on delete cascade,
+   "user"           int not null references users("user") on update set null on delete set null,
     date            timestamp with time zone not null default now(),
     description     text,
     status          text references statuses(status) on update no action on delete no action
@@ -93,18 +93,18 @@ create table ticket_status (
 
 create table ticket_values (
     id              serial primary key,
-    ticket          int references tickets(ticket) on update cascade on delete cascade,
-   "user"           int references users("user") on update set null on delete set null,
+    ticket          int not null references tickets(ticket) on update cascade on delete cascade,
+   "user"           int not null references users("user") on update set null on delete set null,
     date            timestamp with time zone not null default now(),
     name            text,
-    value           text
+    value           json
 );
 
 
 create table ticket_files (
     id              serial primary key,
-    ticket          int references tickets(ticket) on update cascade on delete cascade,
-   "user"           int references users("user") on update set null on delete set null,
+    ticket          int not null references tickets(ticket) on update cascade on delete cascade,
+   "user"           int not null references users("user") on update set null on delete set null,
     date            timestamp with time zone not null default now(),
     name            text,
     type            text,

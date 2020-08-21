@@ -600,7 +600,7 @@ void Test::putTicketValuesInsert() {
     data["date"] = m_now.addSecs(10);
     data["ticket" ] = m_ticket;
     data["name"] = "xxx-name";
-    data["value"] = "xxx-value";
+    data["value"] = JSON::data(R"%({"latitude":18.2,"longitude":48.12})%");
     APIPUT("/ticketvalues/0", data);
     QVERIFY(api()->variant().toMap().contains("key"));
     QVERIFY(api()->variant().toMap()["key"].toInt() > 0);
@@ -616,7 +616,7 @@ void Test::putTicketValuesInsert() {
     QVERIFY(data["date"].toDateTime() == m_now.addSecs(10));
     QVERIFY(data["id"].toString() == m_ticketValue);
     QVERIFY(data["name"].toString() == "xxx-name");
-    QVERIFY(data["value"].toString() == "xxx-value");
+    QVERIFY(QString::fromUtf8(JSON::json(data["value"])) == R"%({"latitude":18.2,"longitude":48.12})%");
 
 }
 
@@ -637,7 +637,7 @@ void Test::getTicketsVw3() {
     QVERIFY(data["date"].toDateTime() == m_now.addSecs(10));
     QVERIFY(data["id"].toString() == m_ticketValue);
     QVERIFY(data["name"].toString() == "xxx-name");
-    QVERIFY(data["value"].toString() == "xxx-value");
+    QVERIFY(QString::fromUtf8(JSON::json(data["value"])) == R"%({"latitude":18.2,"longitude":48.12})%");
 
 }
 
@@ -649,7 +649,7 @@ void Test::putTicketValuesUpdate() {
     data["date"] = m_now.addSecs(20);
     data["ticket" ] = m_ticket;
     data["name"] = "yyy-name";
-    data["value"] = "yyy-value";
+    data["value"] = JSON::data(R"%({"latitude":19.2,"longitude":49.12})%");
     APIPUT("/ticketvalues/0", data);
     QVERIFY(api()->variant().toMap().contains("key"));
     QVERIFY(api()->variant().toMap()["key"].toInt() > 0);
@@ -665,7 +665,7 @@ void Test::putTicketValuesUpdate() {
     QVERIFY(data["date"].toDateTime() == m_now.addSecs(20));
     QVERIFY(data["id"].toString() == m_ticketValue);
     QVERIFY(data["name"].toString() == "yyy-name");
-    QVERIFY(data["value"].toString() == "yyy-value");
+    QVERIFY(QString::fromUtf8(JSON::json(data["value"])) == R"%({"latitude":19.2,"longitude":49.12})%");
 
 }
 

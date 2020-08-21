@@ -55,6 +55,7 @@ class Test : public QObject {
     void delTicketTimesheets();         // Delete the timesheet
     //
     void putTicketValuesInsert();       // Insert a value to ticket
+
     void getTicketsVw3();               // Read the ticket with value inserted
     void putTicketValuesUpdate();       // Update the value
     void delTicketValues();             // Delete the value

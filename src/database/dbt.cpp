@@ -212,7 +212,9 @@ TicketValues TicketValues::fromMap(const QVariantMap& data) {
     TicketValues x = Mutable::fromMap(data);
     x.date = data["date"].toDateTime();
     x.name = data["name"].toString();
-    x.value = data["value"].toString();
+    x.value = data["value"];
+    PDEBUG << data;
+    PDEBUG << x.value;
     return x;
 }
 

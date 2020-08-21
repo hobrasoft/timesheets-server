@@ -188,7 +188,7 @@ struct TicketFiles : Mutable {
 struct TicketValues : Mutable {
     QDateTime   date;
     QString     name;
-    QString     value;
+    QVariant    value;
 
     QVariantMap toMap() const Q_DECL_OVERRIDE;
     static TicketValues fromMap(const QVariantMap&);
