@@ -10,6 +10,7 @@
 #include "httpresponse.h"
 #include "httpconnection.h"
 #include "httpsession.h"
+#include "version.h"
 #include "msettings.h"
 #include "sessionstore.h"
 #include "security/guard.h"
@@ -70,9 +71,15 @@ bool RequestAuthorizer::isLoggedIn(HobrasoftHttpd::HttpRequest *request, Hobraso
         session.add("user", user);
         session.add("password", password);
         QVariantMap data;
-        data["userid"] =   m_authenticatedUser->user();
-        data["username"] = m_authenticatedUser->login();
-        data["name"] =     m_authenticatedUser->name();
+        data["userid"]             = m_authenticatedUser->user();
+        data["username"]           = m_authenticatedUser->login();
+        data["name"]               = m_authenticatedUser->name();
+        data["server_name"]        = MSETTINGS->serverName();
+        data["server_description"] = MSETTINGS->serverDescription();
+        data["server_git_commit"]  = GIT_COMMIT;
+        data["server_git_branch"]  = GIT_BRANCH;
+        data["server_version"]     = VERSION;
+        data["server_qt_version"]  = qtVersion();
         data["role"] = "Spravuje fše";
         response->setStatus(200, "OK");
         response->setHeader("Content-Type",  "application/json");

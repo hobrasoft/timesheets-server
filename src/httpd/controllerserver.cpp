@@ -33,6 +33,7 @@ void ControllerServer::serviceIdGet (HobrasoftHttpd::HttpRequest *request, Hobra
         data["git_commit"]  = GIT_COMMIT;
         data["git_branch"]  = GIT_BRANCH;
         data["version"]     = VERSION;
+        data["qt_version"]  = qtVersion();
         serviceOK(request, response, data);
         return;
         }
