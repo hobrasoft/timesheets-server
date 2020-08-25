@@ -459,10 +459,16 @@ QVariant DatabasePluginFotomon::save(const Dbt::Tickets& data) {
     int system = x["system"].toInt();
     int category = x["category"].toInt();
 
-    q.prepare(R"'(select 1 from tickets where ticket = :ticket;)'");
-    q.bindValue(":ticket", data.ticket);
-    q.exec();
-    if (q.next()) {
+    PDEBUG << "---------------------------------------" << data.ticket << data.created;
+    bool found = false;
+    if (!data.created) {
+        q.prepare(R"'(select 1 from tickets where ticket = :ticket;)'");
+        q.bindValue(":ticket", data.ticket);
+        q.exec();
+        found = q.next();
+        }
+
+    if (!data.created && found) {
         q.prepare(R"'(
             update tickets set
                 type = :type,
@@ -484,9 +490,9 @@ QVariant DatabasePluginFotomon::save(const Dbt::Tickets& data) {
         q.bindValue(":ticket", data.ticket);
         q.exec();
         return QVariant(data.ticket);
+        }
       
-      } else {
-        
+    if (data.created || !found) {
         q.prepare(R"'(
             insert into tickets (type, system, category, date, price, description, "user")
                         values (:type, :system, :category, :date, :price, :description, :user);
@@ -502,6 +508,8 @@ QVariant DatabasePluginFotomon::save(const Dbt::Tickets& data) {
         return currval("tickets_ticket_seq");
         }
 
+    Q_UNREACHABLE();
+    qFatal("Should not happen");
     return QVariant();
 
 }
@@ -513,6 +521,7 @@ QList<T> remapTicket(const QList<T>& input, int ticket) {
     while (iterator.hasNext()) {
         T x = iterator.next();
         x.ticket = ticket;
+        if (ticket <= 0) { x.id = 0; }
         list << x;
         }
     return list;

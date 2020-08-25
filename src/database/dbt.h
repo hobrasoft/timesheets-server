@@ -215,11 +215,13 @@ struct Tickets {
     double      price;
     QString     description;
     int         user;
+    bool        created;
+    bool        modified;
 
     virtual QVariantMap toMap() const;
     static Tickets fromMap(const QVariantMap&);
-    Tickets() { user = 0; price = 0; }
-    Tickets(const QVariant& x) { ticket = x; price = 0; }
+    Tickets() { user = 0; price = 0; created = false; modified = false; }
+    Tickets(const QVariant& x) { ticket = x; price = 0; created = false;  modified = false; }
     Tickets(const Tickets& x) { operator=(x); }
     Tickets& operator=(const Tickets& x) {
         ticket = x.ticket;
@@ -228,6 +230,8 @@ struct Tickets {
         price = x.price;
         description = x.description ;
         user = x.user;
+        created = x.created;
+        modified = x.modified;
         return *this;
         }
 

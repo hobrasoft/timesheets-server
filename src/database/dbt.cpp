@@ -132,6 +132,8 @@ Tickets Tickets::fromMap(const QVariantMap& map) {
     x.date = map["date"].toDateTime();
     x.user = map["user"].toInt();
     x.description = map["description"].toString();
+    x.created = map["created"].toBool();
+    x.modified = map["modified"].toBool();
     return x;
 }
 
@@ -145,6 +147,8 @@ QVariantMap Tickets::toMap() const {
     data["price"] = price;
     data["description"] = description;
     data["user"] = user;
+    data["created"] = created;
+    data["modified"] = modified;
 
     return data;
 }
