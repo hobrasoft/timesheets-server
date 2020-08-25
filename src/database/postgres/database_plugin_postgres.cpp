@@ -541,10 +541,15 @@ void DatabasePluginPostgres::remove(const Dbt::Tickets& id) {
 QVariant DatabasePluginPostgres::save(const Dbt::Tickets& data) {
     MSqlQuery q(m_db);
 
-    q.prepare(R"'(select 1 from tickets where ticket = :ticket;)'");
-    q.bindValue(":ticket", data.ticket);
-    q.exec();
-    if (q.next()) {
+    bool found = false;
+    if (!data.created) {
+        q.prepare(R"'(select 1 from tickets where ticket = :ticket;)'");
+        q.bindValue(":ticket", data.ticket);
+        q.exec();
+        found = q.next();
+        }
+
+    if (!data.created && found) {
         q.prepare(R"'(
             update tickets set
                 category = :category,
@@ -562,9 +567,9 @@ QVariant DatabasePluginPostgres::save(const Dbt::Tickets& data) {
         q.bindValue(":ticket", data.ticket);
         q.exec();
         return QVariant(data.ticket);
+        }
 
-      } else {
-
+    if (data.created || !found) {
         q.prepare(R"'(
             insert into tickets (category, date, price, description, "user")
                         values (:category, :date, :price, :description, :user);
@@ -578,6 +583,8 @@ QVariant DatabasePluginPostgres::save(const Dbt::Tickets& data) {
         return currval("tickets_ticket_seq");
         }
 
+    Q_UNREACHABLE();
+    qFatal("Should not happen");
     return QVariant();
 
 }
@@ -672,10 +679,15 @@ void DatabasePluginPostgres::remove(const Dbt::TicketStatus& id) {
 QVariant DatabasePluginPostgres::save(const Dbt::TicketStatus& data) {
     MSqlQuery q(m_db);
 
-    q.prepare(R"'(select 1 from ticket_status where id = :id;)'");
-    q.bindValue(":id", data.id);
-    q.exec();
-    if (q.next()) {
+    bool found = false;
+    if (!data.created) {
+        q.prepare(R"'(select 1 from ticket_status where id = :id;)'");
+        q.bindValue(":id", data.id);
+        q.exec();
+        found = q.next();
+        }
+
+    if (!data.created && found) {
         q.prepare(R"'(
             update ticket_status set
                 ticket = :ticket,
@@ -693,9 +705,9 @@ QVariant DatabasePluginPostgres::save(const Dbt::TicketStatus& data) {
         q.bindValue(":status", data.status);
         q.exec();
         return QVariant(data.id);
+        }
 
-      } else {
-
+    if (data.created || !found) {
         q.prepare(R"'(
             insert into ticket_status (ticket, "user", date, description, status)
                 values (:ticket, :user, :date, :description, :status)
@@ -710,6 +722,8 @@ QVariant DatabasePluginPostgres::save(const Dbt::TicketStatus& data) {
         return currval("ticket_status_id_seq");
         }
 
+    Q_UNREACHABLE();
+    qFatal("Should not happen");
     return QVariant();
 }
 
@@ -779,10 +793,15 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(bool all) 
 QVariant DatabasePluginPostgres::save(const Dbt::TicketTimesheets& data) {
     MSqlQuery q(m_db);
 
-    q.prepare(R"'(select 1 from ticket_timesheets where id = :id;)'");
-    q.bindValue(":id", data.id);
-    q.exec();
-    if (q.next()) {
+    bool found = false;
+    if (!data.created) {
+        q.prepare(R"'(select 1 from ticket_timesheets where id = :id;)'");
+        q.bindValue(":id", data.id);
+        q.exec();
+        found = q.next();
+        }
+
+    if (!data.created && found) {
         q.prepare(R"'(
             update ticket_timesheets set
                 ticket = :ticket,
@@ -798,9 +817,9 @@ QVariant DatabasePluginPostgres::save(const Dbt::TicketTimesheets& data) {
         q.bindValue(":date_to", data.date_to);
         q.exec();
         return QVariant(data.id);
+        }
 
-       } else {
-
+    if (data.created || !found) {
         q.prepare(R"'(
             insert into ticket_timesheets (ticket, "user", date_from, date_to)
                 values (:ticket, :user, :date_from, :date_to)
@@ -814,6 +833,7 @@ QVariant DatabasePluginPostgres::save(const Dbt::TicketTimesheets& data) {
         return currval("ticket_timesheets_id_seq");
         }
 
+    Q_UNREACHABLE();
     return QVariant();
 }
 
@@ -890,10 +910,15 @@ QList<Dbt::TicketValues> DatabasePluginPostgres::ticketValues(bool all) {
 QVariant DatabasePluginPostgres::save(const Dbt::TicketValues& data) {
     MSqlQuery q(m_db);
 
-    q.prepare(R"'(select 1 from ticket_values where id = :id;)'");
-    q.bindValue(":id", data.id);
-    q.exec();
-    if (q.next()) {
+    bool found = false;
+    if (!data.created) {
+        q.prepare(R"'(select 1 from ticket_values where id = :id;)'");
+        q.bindValue(":id", data.id);
+        q.exec();
+        found = q.next();
+        }
+
+    if (!data.created && found) {
         q.prepare(QString(R"'(
             update ticket_values set
                 ticket = :ticket,
@@ -911,9 +936,9 @@ QVariant DatabasePluginPostgres::save(const Dbt::TicketValues& data) {
         // q.bindValue(":value", JSON::json(data.value));
         q.exec();
         return QVariant(data.id);
+        }
 
-      } else {
-
+    if (data.created || !found) {
         q.prepare(QString(R"'(
             insert into ticket_values (ticket, "user", date, name, value)
                 select :ticket, :user, :date, :name, '%1'
@@ -930,6 +955,8 @@ QVariant DatabasePluginPostgres::save(const Dbt::TicketValues& data) {
         return currval("ticket_values_id_seq");
         }
 
+    Q_UNREACHABLE();
+    qFatal("Should not happen");
     return QVariant();
 }
 
@@ -1086,10 +1113,15 @@ QList<Dbt::TicketFiles> DatabasePluginPostgres::ticketFiles(bool all) {
 QVariant DatabasePluginPostgres::save(const Dbt::TicketFiles& data) {
     MSqlQuery q(m_db);
 
-    q.prepare(R"'(select 1 from ticket_files where id = :id;)'");
-    q.bindValue(":id", data.id);
-    q.exec();
-    if (q.next()) {
+    bool found = false;
+    if (!data.created) {
+        q.prepare(R"'(select 1 from ticket_files where id = :id;)'");
+        q.bindValue(":id", data.id);
+        q.exec();
+        found = q.next();
+        }
+
+    if (!data.created && found) {
         q.prepare(R"'(
             update ticket_files set
                 ticket = :ticket,
@@ -1109,9 +1141,9 @@ QVariant DatabasePluginPostgres::save(const Dbt::TicketFiles& data) {
         q.bindValue(":content", data.content);
         q.exec();
         return QVariant(data.id);
+        }
 
-      } else {
-
+    if (data.created || !found) {
         q.prepare(R"'(
             insert into ticket_files (ticket, "user", date, name, type, content)
                 values (:ticket, :user, :date, :name, :type, :content);
@@ -1127,6 +1159,7 @@ QVariant DatabasePluginPostgres::save(const Dbt::TicketFiles& data) {
         return currval("ticket_files_id_seq");
         }
 
+    Q_UNREACHABLE();
     return QVariant();
 }
 

@@ -459,7 +459,6 @@ QVariant DatabasePluginFotomon::save(const Dbt::Tickets& data) {
     int system = x["system"].toInt();
     int category = x["category"].toInt();
 
-    PDEBUG << "---------------------------------------" << data.ticket << data.created;
     bool found = false;
     if (!data.created) {
         q.prepare(R"'(select 1 from tickets where ticket = :ticket;)'");
@@ -599,10 +598,15 @@ QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(int id) {
 QVariant DatabasePluginFotomon::save(const Dbt::TicketStatus& data) {
     MSqlQuery q(m_db);
 
-    q.prepare(R"'(select 1 from tickets_notes where note = :id;)'");
-    q.bindValue(":id", data.id);
-    q.exec();
-    if (q.next()) {
+    bool found = false;
+    if (!data.created) {
+        q.prepare(R"'(select 1 from tickets_notes where note = :id;)'");
+        q.bindValue(":id", data.id);
+        q.exec();
+        found = q.next();
+        }
+
+    if (!data.created && found) {
         q.prepare(R"'(
             update tickets_notes set
                 ticket = :ticket,
@@ -620,9 +624,9 @@ QVariant DatabasePluginFotomon::save(const Dbt::TicketStatus& data) {
         q.bindValue(":status", data.status);
         q.exec();
         return QVariant(data.id);
+        }
 
-      } else {
-
+    if (data.created || !found) {
         q.prepare(R"'(
             insert into tickets_notes (ticket, "user", date, description, status)
                 values (:ticket, :user, :date, :description, :status)
@@ -637,6 +641,7 @@ QVariant DatabasePluginFotomon::save(const Dbt::TicketStatus& data) {
         return currval("tickets_notes_note_seq");
         }
 
+    Q_UNREACHABLE();
     return QVariant();
 }
 
@@ -706,10 +711,15 @@ QList<Dbt::TicketTimesheets> DatabasePluginFotomon::ticketTimesheets(bool all) {
 QVariant DatabasePluginFotomon::save(const Dbt::TicketTimesheets& data) {
     MSqlQuery q(m_db);
 
-    q.prepare(R"'(select 1 from ticket_timesheets where id = :id;)'");
-    q.bindValue(":id", data.id);
-    q.exec();
-    if (q.next()) {
+    bool found = false;
+    if (!data.created) {
+        q.prepare(R"'(select 1 from ticket_timesheets where id = :id;)'");
+        q.bindValue(":id", data.id);
+        q.exec();
+        found = q.next();
+        }
+
+    if (!data.created && found) {
         q.prepare(R"'(
             update ticket_timesheets set
                 ticket = :ticket,
@@ -725,9 +735,10 @@ QVariant DatabasePluginFotomon::save(const Dbt::TicketTimesheets& data) {
         q.bindValue(":date_to", data.date_to);
         q.exec();
         return QVariant(data.id);
+        }
 
-       } else {
 
+    if (data.created || !found) {
         q.prepare(R"'(
             insert into ticket_timesheets (ticket, "user", date_from, date_to)
                 values (:ticket, :user, :date_from, :date_to)
@@ -741,6 +752,7 @@ QVariant DatabasePluginFotomon::save(const Dbt::TicketTimesheets& data) {
         return currval("ticket_timesheets_id_seq");
         }
 
+    Q_UNREACHABLE();
     return QVariant();
 }
 
@@ -824,10 +836,15 @@ QList<Dbt::TicketFiles> DatabasePluginFotomon::ticketFiles(bool all) {
 QVariant DatabasePluginFotomon::save(const Dbt::TicketFiles& data) {
     MSqlQuery q(m_db);
 
-    q.prepare(R"'(select 1 from ticket_images where id = :id;)'");
-    q.bindValue(":id", data.id);
-    q.exec();
-    if (q.next()) {
+    bool found = false;
+    if (!data.created) {
+        q.prepare(R"'(select 1 from ticket_images where id = :id;)'");
+        q.bindValue(":id", data.id);
+        q.exec();
+        found = q.next();
+        }
+
+    if (!data.created) {
         q.prepare(R"'(
             update ticket_images set
                 ticket = :ticket,
@@ -847,9 +864,9 @@ QVariant DatabasePluginFotomon::save(const Dbt::TicketFiles& data) {
         q.bindValue(":content", data.content);
         q.exec();
         return QVariant(data.id);
+        }
 
-      } else {
-
+    if (data.created || !found) {
         q.prepare(R"'(
             insert into ticket_images (ticket, "user", date, name, type, content)
                 values (:ticket, :user, :date, :name, :type, :content);
@@ -865,6 +882,7 @@ QVariant DatabasePluginFotomon::save(const Dbt::TicketFiles& data) {
         return currval("ticket_images_id_seq");
         }
 
+    Q_UNREACHABLE();
     return QVariant();
 }
 
@@ -941,10 +959,15 @@ QList<Dbt::TicketValues> DatabasePluginFotomon::ticketValues(bool all) {
 QVariant DatabasePluginFotomon::save(const Dbt::TicketValues& data) {
     MSqlQuery q(m_db);
 
-    q.prepare(R"'(select 1 from ticket_values where id = :id;)'");
-    q.bindValue(":id", data.id);
-    q.exec();
-    if (q.next()) {
+    bool found = false;
+    if (!data.created) {
+        q.prepare(R"'(select 1 from ticket_values where id = :id;)'");
+        q.bindValue(":id", data.id);
+        q.exec();
+        found = q.next();
+        }
+
+    if (!data.created && found) {
         q.prepare(QString(R"'(
             update ticket_values set
                 ticket = :ticket,
@@ -962,9 +985,9 @@ QVariant DatabasePluginFotomon::save(const Dbt::TicketValues& data) {
         // q.bindValue(":value", JSON::json(data.value));
         q.exec();
         return QVariant(data.id);
+        }
 
-      } else {
-
+    if (data.created || !found) {
         q.prepare(QString(R"'(
             insert into ticket_values (ticket, "user", date, name, value)
                 select :ticket, :user, :date, :name, '%1'
@@ -981,6 +1004,7 @@ QVariant DatabasePluginFotomon::save(const Dbt::TicketValues& data) {
         return currval("ticket_values_id_seq");
         }
 
+    Q_UNREACHABLE();
     return QVariant();
 }
 
