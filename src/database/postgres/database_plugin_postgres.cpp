@@ -499,7 +499,7 @@ QList<Dbt::Tickets> DatabasePluginPostgres::tickets(int ticket, bool all) {
         x.ticket        = q.value(i++);
         x.category      = q.value(i++);
         x.date          = q.value(i++).toDateTime();
-        x.price         = q.value(i++);
+        x.price         = q.value(i++).toDouble();
         x.description   = q.value(i++).toString();
         x.user          = q.value(i++).toInt();
         list << x;

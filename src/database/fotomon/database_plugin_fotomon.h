@@ -22,6 +22,13 @@ class DatabasePluginFotomon : public Db::Plugins::DatabasePlugin {
     DatabasePluginFotomon(QObject *);
    ~DatabasePluginFotomon();
 
+    template<typename T> void save(const QList<T>& list) {
+        QListIterator<T> iterator(list);
+        while (iterator.hasNext()) {
+            save(iterator.next());
+            }
+        }
+
     void setDatabaseName(const QString& x) Q_DECL_OVERRIDE { m_databasename = x; }
     void setHostname(const QString& x) Q_DECL_OVERRIDE { m_hostname = x; }
     void setPort(int x) Q_DECL_OVERRIDE { m_port = x; }
@@ -55,6 +62,17 @@ class DatabasePluginFotomon : public Db::Plugins::DatabasePlugin {
     QList<Dbt::TicketTimesheets>            ticketTimesheets(int ticket, bool all) Q_DECL_OVERRIDE;
     QList<Dbt::TicketTimesheets>            ticketTimesheets(bool all) Q_DECL_OVERRIDE;
 
+    QVariant save(const Dbt::Tickets& data) Q_DECL_OVERRIDE;
+    QVariant save(const Dbt::TicketsVw& data) Q_DECL_OVERRIDE;
+    QVariant save(const Dbt::TicketStatus& data) Q_DECL_OVERRIDE;
+    QVariant save(const Dbt::TicketValues& data) Q_DECL_OVERRIDE;
+    QVariant save(const Dbt::TicketFiles& data) Q_DECL_OVERRIDE;
+    QVariant save(const Dbt::TicketTimesheets& data) Q_DECL_OVERRIDE;
+
+    void remove(const Dbt::Tickets& data) Q_DECL_OVERRIDE;
+    void remove(const Dbt::TicketValues& data) Q_DECL_OVERRIDE;
+    void remove(const Dbt::TicketFiles& data) Q_DECL_OVERRIDE;
+    void remove(const Dbt::TicketTimesheets& data) Q_DECL_OVERRIDE;
 
     bool    open() Q_DECL_OVERRIDE; 
     bool    close() Q_DECL_OVERRIDE;
@@ -66,6 +84,7 @@ class DatabasePluginFotomon : public Db::Plugins::DatabasePlugin {
     void            createTemporaryTableTickets(int ticket, bool all);
     static QString  parentCategoryKey(const QVariant& type, const QVariant& system, const QVariant& category, int parent_type);
     static QString        categoryKey(const QVariant& type, const QVariant& system, const QVariant& category, int parent_type);
+    QVariant        currval(const QString& sequence);
 
 
     bool            m_temporaryTableTicketsCreated;

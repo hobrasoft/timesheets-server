@@ -212,14 +212,14 @@ struct Tickets {
     QVariant    ticket;
     QVariant    category;
     QDateTime   date;
-    QVariant    price;
+    double      price;
     QString     description;
     int         user;
 
     virtual QVariantMap toMap() const;
     static Tickets fromMap(const QVariantMap&);
-    Tickets() { user = 0; }
-    Tickets(const QVariant& x) { ticket = x; }
+    Tickets() { user = 0; price = 0; }
+    Tickets(const QVariant& x) { ticket = x; price = 0; }
     Tickets(const Tickets& x) { operator=(x); }
     Tickets& operator=(const Tickets& x) {
         ticket = x.ticket;

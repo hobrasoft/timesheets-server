@@ -6,6 +6,7 @@
 #include "database_plugin_fotomon.h"
 #include "msettings.h"
 #include "msqlquery.h"
+#include "json.h"
 #include "pdebug.h"
 #include <QUuid>
 #include <QSqlError>
@@ -60,6 +61,19 @@ void DatabasePluginFotomon::begin() {
 void DatabasePluginFotomon::commit() {
     MSqlQuery q(m_db);
     q.exec("commit;");
+}
+
+
+QVariant DatabasePluginFotomon::currval(const QString& sequence) {
+    MSqlQuery q(m_db);
+    QVariant cv;
+    q.prepare(R"'(select currval(:sequence);)'");
+    q.bindValue(":sequence", sequence);
+    q.exec();
+    if (q.next()) {
+        cv = q.value(0);
+        }
+    return cv;
 }
 
   
@@ -437,7 +451,94 @@ QList<Dbt::TicketsVw> DatabasePluginFotomon::ticketsVw(int ticket, bool all) {
 }
 
 
+QVariant DatabasePluginFotomon::save(const Dbt::Tickets& data) {
+    MSqlQuery q(m_db);
 
+    QVariantMap x = JSON::data(data.category.toByteArray()).toMap();
+    int type = x["type"].toInt();
+    int system = x["system"].toInt();
+    int category = x["category"].toInt();
+
+    q.prepare(R"'(select 1 from tickets where ticket = :ticket;)'");
+    q.bindValue(":ticket", data.ticket);
+    q.exec();
+    if (q.next()) {
+        q.prepare(R"'(
+            update tickets set
+                type = :type,
+                system = :system,
+                category = :category,
+                date = :date,
+                price = :price,
+                description = :description,
+               "user" = :user
+                where ticket = :ticket
+            )'");
+        q.bindValue(":type", type);
+        q.bindValue(":system", system);
+        q.bindValue(":category", category);
+        q.bindValue(":date", data.date);
+        q.bindValue(":price", data.price);
+        q.bindValue(":description", data.description);
+        q.bindValue(":user", data.user);
+        q.bindValue(":ticket", data.ticket);
+        q.exec();
+        return QVariant(data.ticket);
+      
+      } else {
+        
+        q.prepare(R"'(
+            insert into tickets (type, system, category, date, price, description, "user")
+                        values (:type, :system, :category, :date, :price, :description, :user);
+            )'");
+        q.bindValue(":type", type);
+        q.bindValue(":system", system);
+        q.bindValue(":category", category);
+        q.bindValue(":date", data.date);
+        q.bindValue(":price", data.price);
+        q.bindValue(":description", data.description);
+        q.bindValue(":user", data.user);
+        q.exec();
+        return currval("tickets_ticket_seq");
+        }
+
+    return QVariant();
+
+}
+
+template<typename T>
+QList<T> remapTicket(const QList<T>& input, int ticket) {
+    QList<T> list;
+    QListIterator<T> iterator(input);
+    while (iterator.hasNext()) {
+        T x = iterator.next();
+        x.ticket = ticket;
+        list << x;
+        }
+    return list;
+}
+
+
+QVariant DatabasePluginFotomon::save(const Dbt::TicketsVw& data) {
+    MSqlQuery q(m_db);
+    q.begin();
+    int ticket = save(dynamic_cast<const Dbt::Tickets&>(data)).toInt();
+    save(remapTicket(data.timesheets, ticket));
+    save(remapTicket(data.statuses, ticket));
+    save(remapTicket(data.values, ticket));
+    save(remapTicket(data.files, ticket));
+    q.commit();
+
+    return QVariant();
+}
+
+
+void DatabasePluginFotomon::remove(const Dbt::Tickets& id) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from tickets where ticket = :id;)'");
+    q.bindValue(":id", id.ticket);
+    q.exec();
+}
 
 
 QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(int ticket, bool all) {
@@ -486,70 +587,402 @@ QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(int id) {
 }
 
 
-QList<Dbt::TicketTimesheets> DatabasePluginFotomon::ticketTimesheets(int ticket, bool all) {
-    Q_UNUSED(ticket);
-    Q_UNUSED(all);
-    QList<Dbt::TicketTimesheets> list;
-    return list;
+QVariant DatabasePluginFotomon::save(const Dbt::TicketStatus& data) {
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(select 1 from tickets_notes where note = :id;)'");
+    q.bindValue(":id", data.id);
+    q.exec();
+    if (q.next()) {
+        q.prepare(R"'(
+            update tickets_notes set
+                ticket = :ticket,
+               "user" = :user,
+                date = :date,
+                description = :description,
+                status = :status
+                where note = :id
+            )'");
+        q.bindValue(":id", data.id);
+        q.bindValue(":user", data.user);
+        q.bindValue(":ticket", data.ticket);
+        q.bindValue(":date", data.date);
+        q.bindValue(":description", data.description);
+        q.bindValue(":status", data.status);
+        q.exec();
+        return QVariant(data.id);
+
+      } else {
+
+        q.prepare(R"'(
+            insert into tickets_notes (ticket, "user", date, description, status)
+                values (:ticket, :user, :date, :description, :status)
+            )'");
+        q.bindValue(":user", data.user);
+        q.bindValue(":ticket", data.ticket);
+        q.bindValue(":date", data.date);
+        q.bindValue(":description", data.description);
+        q.bindValue(":status", data.status);
+        q.exec();
+
+        return currval("tickets_notes_note_seq");
+        }
+
+    return QVariant();
 }
 
 
-QList<Dbt::TicketTimesheets> DatabasePluginFotomon::ticketTimesheets(bool all) {
-    Q_UNUSED(all);
+QList<Dbt::TicketTimesheets> DatabasePluginFotomon::ticketTimesheets(int ticket, bool all) {
+    createTemporaryTableTickets(ticket, all);
     QList<Dbt::TicketTimesheets> list;
+    MSqlQuery q(m_db);
+    q.prepare(R"'(
+        select tt.id, tt.ticket, tt."user", tt.date_from, tt.date_to
+            from temporary_tickets t, ticket_timesheets tt
+            where t.ticket = tt.ticket
+              and t.ticket = :ticket
+            ;
+        )'");
+    q.bindValue(":user", userId());
+    q.bindValue(":ticket", ticket);
+    q.exec();
+    while (q.next()) {
+        int i=0;
+        Dbt::TicketTimesheets x;
+        x.id            = q.value(i++).toInt();
+        x.ticket        = q.value(i++).toInt();
+        x.user          = q.value(i++).toInt();
+        x.date_from     = q.value(i++).toDateTime();
+        x.date_to       = q.value(i++).toDateTime();
+        list << x;
+        }
     return list;
 }
 
 
 QList<Dbt::TicketTimesheets> DatabasePluginFotomon::ticketTimesheets(int id) {
-    Q_UNUSED(id);
     QList<Dbt::TicketTimesheets> list;
+    MSqlQuery q(m_db);
+    q.prepare(R"'(
+        select tt.id, tt.ticket, tt."user", tt.date_from, tt.date_to
+            from ticket_timesheets tt, tickets t, users_categories uc
+            where t.ticket = tt.ticket
+              and t.category = uc.category
+              and uc."user" = :user
+              and :id = tt.id
+            ;
+        )'");
+    q.bindValue(":user", userId());
+    q.bindValue(":id", id);
+    q.exec();
+    while (q.next()) {
+        int i=0;
+        Dbt::TicketTimesheets x;
+        x.id            = q.value(i++).toInt();
+        x.ticket        = q.value(i++).toInt();
+        x.user          = q.value(i++).toInt();
+        x.date_from     = q.value(i++).toDateTime();
+        x.date_to       = q.value(i++).toDateTime();
+        list << x;
+        }
     return list;
 }
 
 
+QList<Dbt::TicketTimesheets> DatabasePluginFotomon::ticketTimesheets(bool all) {
+    return ticketTimesheets(-1, all);
+}
+
+
+QVariant DatabasePluginFotomon::save(const Dbt::TicketTimesheets& data) {
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(select 1 from ticket_timesheets where id = :id;)'");
+    q.bindValue(":id", data.id);
+    q.exec();
+    if (q.next()) {
+        q.prepare(R"'(
+            update ticket_timesheets set
+                ticket = :ticket,
+               "user" = :user,
+                date_from = :date_from,
+                date_to = :date_to
+                where id = :id
+            )'");
+        q.bindValue(":id", data.id);
+        q.bindValue(":user", data.user);
+        q.bindValue(":ticket", data.ticket);
+        q.bindValue(":date_from", data.date_from);
+        q.bindValue(":date_to", data.date_to);
+        q.exec();
+        return QVariant(data.id);
+
+       } else {
+
+        q.prepare(R"'(
+            insert into ticket_timesheets (ticket, "user", date_from, date_to)
+                values (:ticket, :user, :date_from, :date_to)
+            )'");
+        q.bindValue(":user", data.user);
+        q.bindValue(":ticket", data.ticket);
+        q.bindValue(":date_from", data.date_from);
+        q.bindValue(":date_to", data.date_to);
+        q.exec();
+
+        return currval("ticket_timesheets_id_seq");
+        }
+
+    return QVariant();
+}
+
+
+void DatabasePluginFotomon::remove(const Dbt::TicketTimesheets& id) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from ticket_timesheets where id = :id;)'");
+    q.bindValue(":id", id.id);
+    q.exec();
+}
+
+
+
 QList<Dbt::TicketFiles> DatabasePluginFotomon::ticketFiles(int ticket, bool all) {
-    Q_UNUSED(ticket);
-    Q_UNUSED(all);
+    createTemporaryTableTickets(ticket, all);
     QList<Dbt::TicketFiles> list;
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        select f.id, f."user", f.date, f.ticket, f.name, f.type, f.content
+            from temporary_tickets t, ticket_images f
+            where t.ticket = f.ticket
+            ;
+        )'");
+    q.exec();
+    while (q.next()) {
+        int i=0;
+        Dbt::TicketFiles x;
+        x.id        = q.value(i++).toInt();
+        x.user      = q.value(i++).toInt();
+        x.date      = q.value(i++).toDateTime();
+        x.ticket    = q.value(i++).toInt();
+        x.name      = q.value(i++).toString();
+        x.type      = q.value(i++).toString();
+        x.content   = q.value(i++).toByteArray();
+        list << x;
+        }
+
+    return list;
+}
+
+
+QList<Dbt::TicketFiles> DatabasePluginFotomon::ticketFiles(int id) {
+    QList<Dbt::TicketFiles> list;
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        select f.id, f."user", f.date, f.ticket, f.name, f.type, f.content
+            from ticket_images f, users u, tickets t, users_categories uc
+            where f.id = :id
+              and t.ticket = f.ticket
+              and t.category = uc.category
+              and u."user" = f."user"
+            ;
+        )'");
+    q.bindValue(":id", id);
+    q.bindValue(":user", userId());
+    q.exec();
+    while (q.next()) {
+        int i=0;
+        Dbt::TicketFiles x;
+        x.id        = q.value(i++).toInt();
+        x.user      = q.value(i++).toInt();
+        x.date      = q.value(i++).toDateTime();
+        x.ticket    = q.value(i++).toInt();
+        x.name      = q.value(i++).toString();
+        x.type      = q.value(i++).toString();
+        x.content   = q.value(i++).toByteArray();
+        list << x;
+        }
+
     return list;
 }
 
 
 QList<Dbt::TicketFiles> DatabasePluginFotomon::ticketFiles(bool all) {
-    Q_UNUSED(all);
-    QList<Dbt::TicketFiles> list;
-    return list;
+    return ticketFiles(-1, all);
 }
 
 
-QList<Dbt::TicketFiles> DatabasePluginFotomon::ticketFiles(int ticket) {
-    Q_UNUSED(ticket);
-    QList<Dbt::TicketFiles> list;
-    return list;
+QVariant DatabasePluginFotomon::save(const Dbt::TicketFiles& data) {
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(select 1 from ticket_images where id = :id;)'");
+    q.bindValue(":id", data.id);
+    q.exec();
+    if (q.next()) {
+        q.prepare(R"'(
+            update ticket_images set
+                ticket = :ticket,
+                date = :date,
+               "user" = :user,
+                name = :name,
+                type = :type,
+                content = :content
+                where id = :id
+            )'");
+        q.bindValue(":id", data.id);
+        q.bindValue(":ticket", data.ticket);
+        q.bindValue(":user", data.user);
+        q.bindValue(":date", data.date);
+        q.bindValue(":name", data.name);
+        q.bindValue(":type", data.type);
+        q.bindValue(":content", data.content);
+        q.exec();
+        return QVariant(data.id);
+
+      } else {
+
+        q.prepare(R"'(
+            insert into ticket_images (ticket, "user", date, name, type, content)
+                values (:ticket, :user, :date, :name, :type, :content);
+            )'");
+        q.bindValue(":id", data.id);
+        q.bindValue(":ticket", data.ticket);
+        q.bindValue(":user", data.user);
+        q.bindValue(":date", data.date);
+        q.bindValue(":name", data.name);
+        q.bindValue(":type", data.type);
+        q.bindValue(":content", data.content);
+        q.exec();
+        return currval("ticket_images_id_seq");
+        }
+
+    return QVariant();
+}
+
+
+void DatabasePluginFotomon::remove(const Dbt::TicketFiles& id) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from ticket_images where id = :id;)'");
+    q.bindValue(":id", id.id);
+    q.exec();
 }
 
 
 QList<Dbt::TicketValues> DatabasePluginFotomon::ticketValues(int ticket, bool all) {
-    Q_UNUSED(ticket);
-    Q_UNUSED(all);
+    createTemporaryTableTickets(ticket, all);
     QList<Dbt::TicketValues> list;
+    MSqlQuery q(m_db);
+    q.prepare(R"'(
+        select tv.id, tt.ticket, tv.name, tv.value, tv."user", tv.date
+            from temporary_tickets tt, ticket_values tv
+            where tt.ticket = tv.ticket
+            ;
+        )'");
+    q.exec();
+    while (q.next()) {
+        int i=0;
+        Dbt::TicketValues x;
+        x.id            = q.value(i++).toInt();
+        x.ticket        = q.value(i++).toInt();
+        x.name          = q.value(i++).toString();
+        x.value         = JSON::data(q.value(i++).toByteArray());
+        x.user          = q.value(i++).toInt();
+        x.date          = q.value(i++).toDateTime();
+        list << x;
+        }
+    return list;
+}
+
+
+QList<Dbt::TicketValues> DatabasePluginFotomon::ticketValues(int id) {
+    QList<Dbt::TicketValues> list;
+    MSqlQuery q(m_db);
+    q.prepare(R"'(
+        select tv.id, tv.ticket, tv.date, tv.name, tv.value, tv."user"
+            from tickets tt, ticket_values tv, users_categories uc
+            where tt.ticket = tv.ticket
+              and tt.category = uc.category
+              and uc.user = :user
+              and :id = tv.id
+            ;
+        )'");
+    q.bindValue(":id", id);
+    q.bindValue(":user", userId());
+    q.exec();
+    while (q.next()) {
+        int i=0;
+        Dbt::TicketValues x;
+        x.id            = q.value(i++).toInt();
+        x.ticket        = q.value(i++).toInt();
+        x.date          = q.value(i++).toDateTime();
+        x.name          = q.value(i++).toString();
+        x.value         = JSON::data(q.value(i++).toByteArray());
+        x.user          = q.value(i++).toInt();
+        list << x;
+        }
     return list;
 }
 
 
 QList<Dbt::TicketValues> DatabasePluginFotomon::ticketValues(bool all) {
-    Q_UNUSED(all);
-    QList<Dbt::TicketValues> list;
-    return list;
+    return ticketValues(-1, all);
 }
 
 
-QList<Dbt::TicketValues> DatabasePluginFotomon::ticketValues(int ticket) {
-    Q_UNUSED(ticket);
-    QList<Dbt::TicketValues> list;
-    return list;
+QVariant DatabasePluginFotomon::save(const Dbt::TicketValues& data) {
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(select 1 from ticket_values where id = :id;)'");
+    q.bindValue(":id", data.id);
+    q.exec();
+    if (q.next()) {
+        q.prepare(QString(R"'(
+            update ticket_values set
+                ticket = :ticket,
+               "user" = :user,
+                date = :date,
+                name = :name,
+                value = '%1'
+                where id = :id
+            )'").arg(QString::fromUtf8(JSON::json(data.value))));
+        q.bindValue(":id", data.id);
+        q.bindValue(":ticket", data.ticket);
+        q.bindValue(":user", data.user);
+        q.bindValue(":date", data.date);
+        q.bindValue(":name", data.name);
+        // q.bindValue(":value", JSON::json(data.value));
+        q.exec();
+        return QVariant(data.id);
+
+      } else {
+
+        q.prepare(QString(R"'(
+            insert into ticket_values (ticket, "user", date, name, value)
+                select :ticket, :user, :date, :name, '%1'
+                where not exists (select 1 from ticket_values where id = :id);
+            )'").arg(QString::fromUtf8(JSON::json(data.value))));
+        q.bindValue(":id", data.id);
+        q.bindValue(":ticket", data.ticket);
+        q.bindValue(":user", data.user);
+        q.bindValue(":date", data.date);
+        q.bindValue(":name", data.name);
+        // q.bindValue(":value", JSON::json(data.value));
+        q.exec();
+
+        return currval("ticket_values_id_seq");
+        }
+
+    return QVariant();
 }
+
+
+void DatabasePluginFotomon::remove(const Dbt::TicketValues& id) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from ticket_values where id = :id;)'");
+    q.bindValue(":id", id.id);
+    q.exec();
+}
+
 
 QList<Dbt::UsersCategories> DatabasePluginFotomon::usersCategories(int id, int user, const QString& category) {
     Q_UNUSED(id);
