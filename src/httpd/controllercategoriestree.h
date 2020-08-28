@@ -28,6 +28,8 @@ Je-li zadané id, vypíše všechny kategorie, které mají jak rodiče toto id.
 Není-li zadané id, vypíše všechny kategorie od vrcholku stromu. 
 Zadaná kategorie (rodičovská) ve výpisu není!
 
+@param maxdept - do jaké hloubky se má jít (default 128). Při maxdepth 0 se vypíše pouze první kategorie ve stromu, žádná podkategorie.
+
 Implementuje metody:
 - get
 
@@ -56,7 +58,9 @@ class ControllerCategoriesTree : public AbstractController {
   private slots:
 
   private:
-    QVariantList subtree(const QString& id);
+    QVariantList subtree(const QString& id, int depth);
+
+    int m_maxdepth;
 
 };
 
