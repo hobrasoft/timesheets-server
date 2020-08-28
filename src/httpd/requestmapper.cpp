@@ -19,6 +19,7 @@
 // nové API
 #include "controllerserver.h"
 #include "controllercategories.h"
+#include "controllercategoriestree.h"
 #include "controllerstatusorder.h"
 #include "controllerstatuses.h"
 #include "controllertickets.h"
@@ -93,6 +94,7 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
      */
     ROUTER("/api/v1/tickettimesheets",                 ControllerTicketTimesheets);
     ROUTER("/api/v1/userscategories",                  ControllerUsersCategories);
+    ROUTER("/api/v1/categoriestree",                   ControllerCategoriesTree);
     ROUTER("/api/v1/ticketvalues",                     ControllerTicketValues);
     ROUTER("/api/v1/ticketstatus",                     ControllerTicketStatus);
     ROUTER("/api/v1/ticketfiles",                      ControllerTicketFiles);

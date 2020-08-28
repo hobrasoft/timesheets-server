@@ -4,6 +4,7 @@
  * @author Petr Bravenec <petr.bravenec@hobrasoft.cz>
  */
 #include "authenticateduser.h"
+#include "pdebug.h"
 #include "db.h"
 
 AuthenticatedUser::AuthenticatedUser(QObject *parent) : QObject(parent) {

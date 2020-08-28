@@ -120,6 +120,7 @@ void DatabasePluginPostgres::commit() {
 
   
 QList<Dbt::Users> DatabasePluginPostgres::authenticate(const QString& login, const QString& password) {
+    PDEBUG << login << password;
     QString md5 = QString::fromUtf8(QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Md5).toHex());
     QList<Dbt::Users> list;
     MSqlQuery q(m_db);
@@ -268,6 +269,36 @@ QList<Dbt::Categories> DatabasePluginPostgres::categories(const QString& id) {
 
     return list;
 }
+
+
+QList<Dbt::Categories> DatabasePluginPostgres::subcategories(const QString& id) {
+    QList<Dbt::Categories> list;
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        select c.category, c.parent_category, c.description, c.price 
+        from categories c, users_categories uc
+        where c.category = uc.category
+          and uc."user" = :user
+          and ((:id1 <= 0 and c.parent_category is null) or :id2 = c.parent_category);
+        )'");
+    q.bindValue(":user", userId());
+    q.bindValue(":id1", id.toInt());
+    q.bindValue(":id2", id.toInt());
+    q.exec();
+    while (q.next()) {
+        int i=0;
+        Dbt::Categories x;
+        x.category = q.value(i++).toString();
+        x.parent_category = null(q.value(i++).toString());
+        x.description = q.value(i++).toString();
+        x.price = q.value(i++).toDouble();
+        list << x;
+        }
+
+    return list;
+}
+
 
 
 void DatabasePluginPostgres::remove(const Dbt::Users& id) {

@@ -326,6 +326,12 @@ QList<Dbt::Categories> DatabasePluginFotomon::categories(const QString& id) {
 }
 
 
+QList<Dbt::Categories> DatabasePluginFotomon::subcategories(const QString& id) {
+    QList<Dbt::Categories> list;
+    return list;
+}
+
+
 QList<Dbt::StatusOrder> DatabasePluginFotomon::statusOrder(const QString& id) {
     Q_UNUSED(id);
     createTemporaryTableCategories();

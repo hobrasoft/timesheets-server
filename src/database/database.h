@@ -40,6 +40,7 @@ class Database : public QObject {
     QList<Dbt::Users>                       authenticate(const QString& user, const QString& password);
     QList<Dbt::Users>                       users(int id = -1);
     QList<Dbt::Categories>                  categories(const QString& id = QString());
+    QList<Dbt::Categories>                  subcategories(const QString& parent = QString());
     QList<Dbt::UsersCategories>             usersCategories(int id = -1, int user = -1, const QString& category = QString());
     QList<Dbt::StatusOrder>                 statusOrder(const QString& id = QString());
     QList<Dbt::Statuses>                    statuses(const QString& id = QString());
