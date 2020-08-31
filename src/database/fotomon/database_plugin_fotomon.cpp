@@ -417,6 +417,11 @@ QList<Dbt::Tickets> DatabasePluginFotomon::tickets(int ticket, bool all) {
 }
 
 
+QList<Dbt::TicketsVw> DatabasePluginFotomon::ticketsVw(const Dbt::Categories&) {
+    return ticketsVw(-1, true);
+}
+
+
 QList<Dbt::TicketsVw> DatabasePluginFotomon::ticketsVw(bool all) {
     Q_UNUSED(all);
     return ticketsVw(-1, all);

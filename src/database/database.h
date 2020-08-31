@@ -47,9 +47,11 @@ class Database : public QObject {
 
     QList<Dbt::Tickets>                     tickets(bool all = false);
     QList<Dbt::Tickets>                     tickets(int ticket = -1, bool all = false);
+    QList<Dbt::TicketsVw>                   tickets(const Dbt::Categories& category);
 
     QList<Dbt::TicketsVw>                   ticketsVw(bool all = false);
     QList<Dbt::TicketsVw>                   ticketsVw(int ticket = -1, bool all = false);
+    QList<Dbt::TicketsVw>                   ticketsVw(const Dbt::Categories& category);
 
     QList<Dbt::TicketStatus>                ticketStatus(int id);
     QList<Dbt::TicketStatus>                ticketStatus(bool all = false);

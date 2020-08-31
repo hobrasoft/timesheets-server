@@ -30,7 +30,7 @@ void ControllerTicketValues::serviceIdGet (HobrasoftHttpd::HttpRequest *request,
                         ? db()->ticketValues(all)
                         : db()->ticketValues(id.toInt())
                         ;
-    if (list.isEmpty()) {
+    if (ticket > 0 && list.isEmpty()) {
         serviceError(request, response, 404, "not-found", "NotFound");
         return;
         }

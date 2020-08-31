@@ -46,9 +46,11 @@ class DatabasePlugin : public QObject {
 
     virtual QList<Dbt::Tickets>                     tickets(bool all) = 0;
     virtual QList<Dbt::Tickets>                     tickets(int ticket, bool all) = 0;
+    virtual QList<Dbt::Tickets>                     tickets(const Dbt::Categories&) = 0;
 
     virtual QList<Dbt::TicketsVw>                   ticketsVw(bool all) = 0;
     virtual QList<Dbt::TicketsVw>                   ticketsVw(int ticket, bool all) = 0;
+    virtual QList<Dbt::TicketsVw>                   ticketsVw(const Dbt::Categories&) = 0;
 
     virtual QList<Dbt::TicketStatus>                ticketStatus(int id) = 0;
     virtual QList<Dbt::TicketStatus>                ticketStatus(bool all) = 0;

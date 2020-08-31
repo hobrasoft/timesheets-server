@@ -23,12 +23,15 @@ void ControllerTicketsVw::serviceList (HobrasoftHttpd::HttpRequest *request, Hob
 
 
 void ControllerTicketsVw::serviceIdGet (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QString& id) {
+    QString category = request->parameter("category");
     bool all = QVariant(request->parameter("all")).toBool();
-    auto list = db()->ticketsVw(id.toInt(), all);
-    if (list.isEmpty()) {
-        serviceError(request, response, 404, "not-found", "NotFound");
-        return;
+    QList<Dbt::TicketsVw> list;
+    if (category.isEmpty()) {
+        list = db()->ticketsVw(id.toInt(), all);
+      } else {
+        list = db()->ticketsVw(Dbt::Categories(category));
         }
+
     serviceOK(request, response, list[0].toMap());
 }
 

@@ -539,6 +539,34 @@ QList<Dbt::Tickets> DatabasePluginPostgres::tickets(int ticket, bool all) {
 }
 
 
+QList<Dbt::Tickets> DatabasePluginPostgres::tickets(const Dbt::Categories& category) {
+    createTemporaryTableTickets(-1, true);
+    QList<Dbt::Tickets> list;
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        select ticket, category, date, price, description, "user"
+            from temporary_tickets 
+           where category = :category;
+        )'");
+    q.bindValue(":category", category.category);
+    q.exec();
+    while (q.next()) {
+        Dbt::Tickets x;
+        int i=0;
+        x.ticket        = q.value(i++);
+        x.category      = q.value(i++);
+        x.date          = q.value(i++).toDateTime();
+        x.price         = q.value(i++).toDouble();
+        x.description   = q.value(i++).toString();
+        x.user          = q.value(i++).toInt();
+        list << x;
+        }
+    return list;
+}
+
+
+
 QList<Dbt::TicketsVw> DatabasePluginPostgres::ticketsVw(bool all) {
     return ticketsVw(-1, all);
 }
@@ -554,6 +582,23 @@ QList<Dbt::TicketsVw> DatabasePluginPostgres::ticketsVw(int ticket, bool all) {
         x.statuses = ticketStatus(list1[i].ticket.toInt(), all);
         x.values = ticketValues(list1[i].ticket.toInt(), all);
         x.files = ticketFiles(list1[i].ticket.toInt(), all);
+        list << x;
+        }
+
+    return list;
+}
+
+
+QList<Dbt::TicketsVw> DatabasePluginPostgres::ticketsVw(const Dbt::Categories& category) {
+    QList<Dbt::Tickets> list1 = tickets(category);
+    QList<Dbt::TicketsVw> list;
+    MSqlQuery q(m_db);
+    for (int i=0; i<list1.size(); i++) {
+        Dbt::TicketsVw x = list1[i];
+        x.timesheets = ticketTimesheets(list1[i].ticket.toInt(), true);
+        x.statuses = ticketStatus(list1[i].ticket.toInt(), true);
+        x.values = ticketValues(list1[i].ticket.toInt(), true);
+        x.files = ticketFiles(list1[i].ticket.toInt(), true);
         list << x;
         }
 
