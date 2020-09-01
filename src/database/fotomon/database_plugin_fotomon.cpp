@@ -417,13 +417,13 @@ QList<Dbt::Tickets> DatabasePluginFotomon::tickets(int ticket, bool all) {
 }
 
 
-QList<Dbt::Tickets> DatabasePlubinFotomon::tickets(const Dbt::Categories&) {
+QList<Dbt::Tickets> DatabasePluginFotomon::tickets(const Dbt::Categories&) {
     return tickets(-1, true);
 }
 
 
 QList<Dbt::TicketsVw> DatabasePluginFotomon::ticketsVw(const Dbt::Categories&) {
-
+    return ticketsVw(-1, true);
 }
 
 
