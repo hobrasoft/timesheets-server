@@ -18,18 +18,23 @@ ControllerTicketsVw::ControllerTicketsVw(HobrasoftHttpd::HttpConnection *parent)
 
 void ControllerTicketsVw::serviceList (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
     bool all = QVariant(request->parameter("all")).toBool();
-    serviceOK(request, response, toList(db()->ticketsVw(all)));
+    QString category = request->parameter("category");
+    QList<Dbt::TicketsVw> list;
+    if (category.isEmpty()) {
+        list = db()->ticketsVw(all);
+      } else {
+        list = db()->ticketsVw(Dbt::Categories(category));
+        }
+    serviceOK(request, response, toList(list));
 }
 
 
 void ControllerTicketsVw::serviceIdGet (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QString& id) {
-    QString category = request->parameter("category");
     bool all = QVariant(request->parameter("all")).toBool();
-    QList<Dbt::TicketsVw> list;
-    if (category.isEmpty()) {
-        list = db()->ticketsVw(id.toInt(), all);
-      } else {
-        list = db()->ticketsVw(Dbt::Categories(category));
+    auto list = db()->ticketsVw(id.toInt(), all);
+    if (list.isEmpty()) {
+        serviceError(request, response, 404, "not-found", "Not found");
+        return;
         }
 
     serviceOK(request, response, list[0].toMap());

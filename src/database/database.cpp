@@ -237,3 +237,8 @@ QList<Dbt::TicketTimesheets> Database::ticketTimesheets(int ticket, bool all) {
     return m_dbplugin->ticketTimesheets(ticket, all);
 }
 
+
+QList<Dbt::ClientSettings> Database::clientSettings() {
+    return m_dbplugin->clientSettings();
+}
+

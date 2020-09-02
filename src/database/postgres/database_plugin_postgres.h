@@ -58,6 +58,7 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     QList<Dbt::TicketTimesheets>            ticketTimesheets(int ticket, bool all) Q_DECL_OVERRIDE;
     QList<Dbt::TicketTimesheets>            ticketTimesheets(bool all) Q_DECL_OVERRIDE;
 
+    QList<Dbt::ClientSettings>              clientSettings() Q_DECL_OVERRIDE;
 
     template<typename T> void save(const QList<T>& list) {
         QListIterator<T> iterator(list);

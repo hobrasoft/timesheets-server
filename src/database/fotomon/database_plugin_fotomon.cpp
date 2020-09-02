@@ -417,6 +417,11 @@ QList<Dbt::Tickets> DatabasePluginFotomon::tickets(int ticket, bool all) {
 }
 
 
+QList<Dbt::Tickets> DatabasePluginFotomon::tickets(const Dbt::Categories&) {
+    return tickets(-1, true);
+}
+
+
 QList<Dbt::TicketsVw> DatabasePluginFotomon::ticketsVw(const Dbt::Categories&) {
     return ticketsVw(-1, true);
 }
@@ -1035,4 +1040,32 @@ QList<Dbt::UsersCategories> DatabasePluginFotomon::usersCategories(int id, int u
     QList<Dbt::UsersCategories> list;
     return list;
 }
+
+
+QList<Dbt::ClientSettings> DatabasePluginFotomon::clientSettings() {
+    QList<Dbt::ClientSettings> list;
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        select multiple_timesheets, show_price, can_change_category, edit_categories, 
+               show_multiple_timesheets, show_show_price, show_can_change_category, show_edit_categories
+        from ticket_client_settings;
+        )'");
+    q.exec();
+    while (q.next()) {
+        Dbt::ClientSettings x;
+        int i = 0;
+        x.multiple_timesheets = q.value(i++).toBool();
+        x.show_price = q.value(i++).toBool();
+        x.can_change_category = q.value(i++).toBool();
+        x.edit_categories = q.value(i++).toBool();
+        x.show_multiple_timesheets = q.value(i++).toBool();
+        x.show_show_price = q.value(i++).toBool();
+        x.show_can_change_category = q.value(i++).toBool();
+        x.show_edit_categories = q.value(i++).toBool(); 
+        list << x;
+        }
+    return list;
+}
+
 

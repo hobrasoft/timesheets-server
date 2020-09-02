@@ -68,6 +68,8 @@ class DatabasePlugin : public QObject {
     virtual QList<Dbt::TicketTimesheets>            ticketTimesheets(bool all) = 0;
     virtual QList<Dbt::TicketTimesheets>            ticketTimesheets(int ticket, bool all) = 0;
 
+    virtual QList<Dbt::ClientSettings>              clientSettings() = 0;
+
 
     virtual void remove(const Dbt::Users& data) { Q_UNUSED(data); }
     virtual void remove(const Dbt::UsersCategories& data) { Q_UNUSED(data); }

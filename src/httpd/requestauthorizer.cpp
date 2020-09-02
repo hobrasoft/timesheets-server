@@ -15,6 +15,7 @@
 #include "sessionstore.h"
 #include "security/guard.h"
 #include "security/roles.h"
+#include "db.h"
 #include "json.h"
 #include "pdebug.h"
 
@@ -80,7 +81,22 @@ bool RequestAuthorizer::isLoggedIn(HobrasoftHttpd::HttpRequest *request, Hobraso
         data["server_git_branch"]  = GIT_BRANCH;
         data["server_version"]     = VERSION;
         data["server_qt_version"]  = qtVersion();
-        data["role"] = "Spravuje fše";
+
+        Db::Database *db = Db::Database::create(this);
+        QList<Dbt::ClientSettings> cslist = db->clientSettings();
+        if (cslist.size() == 1) {
+            const Dbt::ClientSettings& cs = cslist[0];
+            data["multiple_timesheets"]      = cs.multiple_timesheets;
+            data["show_price"]               = cs.show_price;
+            data["can_change_category"]      = cs.can_change_category;
+            data["edit_categories"]          = cs.edit_categories;
+            data["show_multiple_timesheets"] = cs.show_multiple_timesheets;
+            data["show_show_price"]          = cs.show_show_price;
+            data["show_can_change_category"] = cs.show_can_change_category;
+            data["show_edit_categories"]     = cs.show_edit_categories;
+            }
+        db->deleteLater();
+
         response->setStatus(200, "OK");
         response->setHeader("Content-Type",  "application/json");
         response->setHeader("Cache-Control", "no-cache,public");

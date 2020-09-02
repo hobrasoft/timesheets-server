@@ -111,4 +111,16 @@ create table ticket_files (
     content         bytea
 );
 
+
+create table client_settings (
+    multiple_timesheets         bool,
+    show_price                  bool,
+    can_change_category         bool,
+    edit_categories             bool,
+    show_multiple_timesheets    bool,
+    show_show_price             bool,
+    show_can_change_category    bool,
+    show_edit_categories        bool
+);
+
 commit;

@@ -242,6 +242,33 @@ QVariant DatabasePluginPostgres::save(const Dbt::Categories& data) {
 }
 
 
+QList<Dbt::ClientSettings> DatabasePluginPostgres::clientSettings() {
+    QList<Dbt::ClientSettings> list;
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        select multiple_timesheets, show_price, can_change_category, edit_categories, 
+               show_multiple_timesheets, show_show_price, show_can_change_category, show_edit_categories
+        from client_settings;
+        )'");
+    q.exec();
+    while (q.next()) {
+        Dbt::ClientSettings x;
+        int i = 0;
+        x.multiple_timesheets = q.value(i++).toBool(); 
+        x.show_price = q.value(i++).toBool(); 
+        x.can_change_category = q.value(i++).toBool(); 
+        x.edit_categories = q.value(i++).toBool(); 
+        x.show_multiple_timesheets = q.value(i++).toBool(); 
+        x.show_show_price = q.value(i++).toBool(); 
+        x.show_can_change_category = q.value(i++).toBool(); 
+        x.show_edit_categories = q.value(i++).toBool(); 
+        list << x;
+        }
+    return list;
+}
+
+
 QList<Dbt::Categories> DatabasePluginPostgres::categories(const QString& id) {
     QList<Dbt::Categories> list;
     MSqlQuery q(m_db);

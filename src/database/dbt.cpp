@@ -44,6 +44,36 @@ Users Users::fromMap(const QVariantMap& data) {
 }
 
 
+QVariantMap ClientSettings::toMap() const {
+    QVariantMap x;
+    x["multiple_timesheets"] = multiple_timesheets;
+    x["show_price"] = show_price;
+    x["can_change_category"] = can_change_category;
+    x["edit_categories"] = edit_categories;
+    x["show_multiple_timesheets"] = show_multiple_timesheets;
+    x["show_show_price"] = show_show_price;
+    x["show_can_change_category"] = show_can_change_category;
+    x["show_edit_categories"] = show_edit_categories;
+    return x;
+}
+
+
+ClientSettings ClientSettings::fromMap(const QVariantMap& map) {
+    ClientSettings x;
+    x.multiple_timesheets = map["multiple_timesheets"].toBool();
+    x.show_price = map["show_price"].toBool();
+    x.can_change_category = map["can_change_category"].toBool();
+    x.edit_categories = map["edit_categories"].toBool();
+    x.show_multiple_timesheets = map["show_multiple_timesheets"].toBool();
+    x.show_show_price = map["show_show_price"].toBool();
+    x.show_can_change_category = map["show_can_change_category"].toBool();
+    x.show_edit_categories = map["show_edit_categories"].toBool();
+    return x;
+}
+
+
+
+
 QVariantMap Categories::toMap() const {
     QVariantMap data;
     data["category"] = category;

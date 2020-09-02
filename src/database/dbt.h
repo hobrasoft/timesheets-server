@@ -42,6 +42,30 @@ struct Users {
 };
 
 
+struct ClientSettings {
+    bool    multiple_timesheets;
+    bool    show_price;
+    bool    can_change_category;
+    bool    edit_categories;
+    bool    show_multiple_timesheets;
+    bool    show_show_price;
+    bool    show_can_change_category;
+    bool    show_edit_categories;
+    ClientSettings() {
+        multiple_timesheets = true;
+        show_price = true;
+        can_change_category = true;
+        edit_categories = true;
+        show_multiple_timesheets = true;
+        show_show_price = true;
+        show_can_change_category = true;
+        show_edit_categories = true;
+        }
+    QVariantMap toMap() const;
+    static ClientSettings fromMap(const QVariantMap&);
+};
+
+
 struct Categories {
     QString     category;           // primary key
     QString     parent_category;
