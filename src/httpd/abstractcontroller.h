@@ -286,6 +286,7 @@ class AbstractController : public HobrasoftHttpd::HttpRequestHandler {
     static QVariantMap putKey(const QVariant& key) {
         QVariantMap data; 
         data["key"] = key; 
+        data["ok"] = true; 
         return data;
         }
 
