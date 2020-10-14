@@ -218,7 +218,7 @@ QVariant DatabasePluginPostgres::save(const Dbt::Categories& data) {
         q.bindValue(0, parent_category);
         q.bindValue(1, data.description);
         q.bindValue(2, data.price);
-        q.bindValue(3, category);
+        q.bindValue(3, category.toInt());
         q.exec();
         return QVariant(data.category);
         }
