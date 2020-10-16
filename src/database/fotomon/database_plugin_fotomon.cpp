@@ -649,8 +649,8 @@ QVariant DatabasePluginFotomon::save(const Dbt::TicketStatus& data) {
 
     if (data.created || !found) {
         q.prepare(R"'(
-            insert into tickets_notes (ticket, "user", date, description, status)
-                values (:ticket, :user, :date, :description, :status)
+            insert into tickets_notes (ticket, "user", date, description, status, formal_description)
+                values (:ticket, :user, :date, :description, :status, '[]')
             )'");
         q.bindValue(":user", data.user);
         q.bindValue(":ticket", data.ticket);
