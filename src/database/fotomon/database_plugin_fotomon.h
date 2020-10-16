@@ -42,6 +42,7 @@ class DatabasePluginFotomon : public Db::Plugins::DatabasePlugin {
     QList<Dbt::UsersCategories>             usersCategories(int id, int user, const QString& category) Q_DECL_OVERRIDE;
     QList<Dbt::StatusOrder>                 statusOrder(const QString& id) Q_DECL_OVERRIDE;
     QList<Dbt::Statuses>                    statuses(const QString& id) Q_DECL_OVERRIDE;
+    QList<Dbt::Statuses>                    statuses(const QString&, const QString&) Q_DECL_OVERRIDE;
     QList<Dbt::Tickets>                     tickets(bool all) Q_DECL_OVERRIDE;
     QList<Dbt::Tickets>                     tickets(int ticket, bool all) Q_DECL_OVERRIDE;
     QList<Dbt::Tickets>                     tickets(const Dbt::Categories&) Q_DECL_OVERRIDE;

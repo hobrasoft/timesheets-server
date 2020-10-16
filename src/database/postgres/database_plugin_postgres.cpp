@@ -1103,6 +1103,35 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& id) {
 }
 
 
+QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& category, const QString& prevstatus) {
+    if ((category.isEmpty() || category == "") && 
+        (prevstatus.isEmpty() || prevstatus == "")) { return statuses(); }
+    QList<Dbt::Statuses> list;
+    MSqlQuery q(m_db);
+    q.prepare(R"'(
+        select s.status, s.description, s.abbreviation, s.color, s.closed
+        from status_order so, statuses s
+        where so.next_status = s.status
+          and so.category = :category
+          and so.prev_status = :prevstatus
+        order by s.description
+        )'");
+    q.bindValue(":id", id);
+    q.exec();
+    while (q.next()) {
+        int i=0;
+        Dbt::Statuses x;
+        x.status = q.value(i++).toString();
+        x.description = q.value(i++).toString();
+        x.abbreviation = q.value(i++).toString();
+        x.color = q.value(i++).toString();
+        x.closed = q.value(i++).toBool();
+        list << x;
+        }
+    return list;
+}
+
+
 void DatabasePluginPostgres::remove(const Dbt::Statuses& id) {
     MSqlQuery q(m_db);
     q.prepare(R"'(delete from statuses where status = :id;)'");

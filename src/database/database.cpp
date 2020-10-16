@@ -148,6 +148,11 @@ QList<Dbt::Statuses> Database::statuses(const QString& id) {
 }
 
 
+QList<Dbt::Statuses> Database::statuses(const QString& category, const QString& prevStatus) {
+    return m_dbplugin->statuses(category, prevStatus);
+}
+
+
 QList<Dbt::StatusOrder> Database::statusOrder(const QString& id) {
     return m_dbplugin->statusOrder(id);
 }

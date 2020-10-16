@@ -15,7 +15,9 @@ ControllerStatuses::ControllerStatuses(HobrasoftHttpd::HttpConnection *parent) :
 
 
 void ControllerStatuses::serviceList (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
-    serviceOK(request, response, toList(db()->statuses()));
+    QString category = request->parameter("category");
+    QString status   = request->parameter("previousStatus");
+    serviceOK(request, response, toList(db()->statuses(category, previousStatus)));
 }
 
 

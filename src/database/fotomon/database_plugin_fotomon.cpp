@@ -388,6 +388,11 @@ QList<Dbt::Statuses> DatabasePluginFotomon::statuses(const QString& id) {
 }
 
 
+QList<Dbt::Statuses> DatabasePluginFotomon::statuses(const QString& category, const QString& prevstatus) {
+    return statuses();
+}
+
+
 QList<Dbt::Tickets> DatabasePluginFotomon::tickets(bool all) {
     return tickets(-1, all);
 }

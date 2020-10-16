@@ -43,6 +43,7 @@ class DatabasePlugin : public QObject {
     virtual QList<Dbt::UsersCategories>             usersCategories(int id, int user, const QString& category) = 0;
     virtual QList<Dbt::StatusOrder>                 statusOrder(const QString& id) = 0;
     virtual QList<Dbt::Statuses>                    statuses(const QString& id) = 0;
+    virtual QList<Dbt::Statuses>                    statuses(const QString& category, const QString& prevstatus) = 0;
 
     virtual QList<Dbt::Tickets>                     tickets(bool all) = 0;
     virtual QList<Dbt::Tickets>                     tickets(int ticket, bool all) = 0;
