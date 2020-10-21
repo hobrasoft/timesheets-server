@@ -299,6 +299,12 @@ QString DatabasePluginFotomon::parentCategoryKey(const QVariant& type, const QVa
 }
 
 
+QList<Dbt::Categories> DatabasePluginFotomon::categoriesToRoot(const QString& id) {
+    QList<Dbt::Categories> list;
+    return list;
+}
+
+
 QList<Dbt::Categories> DatabasePluginFotomon::categories(const QString& id) {
     Q_UNUSED(id);
     createTemporaryTableCategories();
@@ -389,7 +395,7 @@ QList<Dbt::Statuses> DatabasePluginFotomon::statuses(const QString& id) {
 
 
 QList<Dbt::Statuses> DatabasePluginFotomon::statuses(const QString& category, const QString& prevstatus) {
-    return statuses();
+    return statuses(QString());
 }
 
 

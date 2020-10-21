@@ -12,6 +12,7 @@ SOURCES += \
  $$PWD/controlleruserscategories.cpp \
  $$PWD/controllercategories.cpp \
  $$PWD/controllercategoriestree.cpp \
+ $$PWD/controllercategoriestoroot.cpp \
  $$PWD/controllertickets.cpp \
  $$PWD/controllerticketsvw.cpp \
  $$PWD/controllerticketstatus.cpp \
@@ -27,6 +28,7 @@ HEADERS += \
  $$PWD/controlleruserscategories.h \
  $$PWD/controllercategories.h \
  $$PWD/controllercategoriestree.h \
+ $$PWD/controllercategoriestoroot.h \
  $$PWD/controllertickets.h \
  $$PWD/controllerticketsvw.h \
  $$PWD/controllerticketstatus.h \

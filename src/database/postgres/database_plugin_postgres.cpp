@@ -298,6 +298,39 @@ QList<Dbt::Categories> DatabasePluginPostgres::categories(const QString& id) {
 }
 
 
+QList<Dbt::Categories> DatabasePluginPostgres::categoriesToRoot(const QString& id) {
+    QList<Dbt::Categories> list;
+    MSqlQuery q(m_db);
+    int xid = id.toInt();
+
+    q.prepare(R"'(
+        select c.category, c.parent_category, c.description, c.price 
+        from categories c, users_categories uc
+        where c.category = uc.category
+          and uc."user" = :user
+          and :id = c.category;
+        )'");
+    for (;;) {
+        q.bindValue(":user", userId());
+        q.bindValue(":id", xid);
+        q.exec();
+        bool found = q.next();
+        PDEBUG << xid << found;
+        if (!found) { return list; }
+        int i=0;
+        Dbt::Categories x;
+        x.category = q.value(i++).toString();
+        x.parent_category = null(q.value(i++).toString());
+        x.description = q.value(i++).toString();
+        x.price = q.value(i++).toDouble();
+        list.prepend(x);
+        xid = x.parent_category.toInt();
+        }
+
+    return list;
+}
+
+
 QList<Dbt::Categories> DatabasePluginPostgres::subcategories(const QString& id) {
     QList<Dbt::Categories> list;
     MSqlQuery q(m_db);
@@ -1103,32 +1136,87 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& id) {
 }
 
 
-QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& category, const QString& prevstatus) {
+QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& category, const QString& previousStatus) {
     if ((category.isEmpty() || category == "") && 
-        (prevstatus.isEmpty() || prevstatus == "")) { return statuses(); }
-    QList<Dbt::Statuses> list;
+        (previousStatus.isEmpty() || previousStatus == "")) { return statuses(QString()); }
+    int categoryi = category.toInt();
     MSqlQuery q(m_db);
-    q.prepare(R"'(
-        select s.status, s.description, s.abbreviation, s.color, s.closed
-        from status_order so, statuses s
-        where so.next_status = s.status
-          and so.category = :category
-          and so.prev_status = :prevstatus
-        order by s.description
-        )'");
-    q.bindValue(":id", id);
-    q.exec();
-    while (q.next()) {
-        int i=0;
-        Dbt::Statuses x;
-        x.status = q.value(i++).toString();
-        x.description = q.value(i++).toString();
-        x.abbreviation = q.value(i++).toString();
-        x.color = q.value(i++).toString();
-        x.closed = q.value(i++).toBool();
-        list << x;
+    QString ps = (previousStatus.isEmpty()) ? "0" : previousStatus;
+    auto results = [&q]() {
+        QList<Dbt::Statuses> list;
+        q.exec();
+        while (q.next()) {
+            Dbt::Statuses x;
+            int i=0;
+            x.status = q.value(i++).toString();
+            x.description = q.value(i++).toString();
+            x.abbreviation = q.value(i++).toString();
+            x.color = q.value(i++).toString();
+            x.closed = q.value(i++).toBool();
+            list << x;
+            }
+        return list;
+        };
+
+    bool findNullCategory = (category.isEmpty() || category == "");
+    if (!findNullCategory) {
+        q.prepare(R"'(select 1 from status_order where category = :category;)'");
+        q.bindValue(":category", categoryi);
+        q.exec();
+        findNullCategory = !q.next();
         }
-    return list;
+
+    if (findNullCategory && (previousStatus.isEmpty() || previousStatus == "")) {
+        q.prepare(R"'(
+            select s.status, s.description, s.abbreviation, s.color, s.closed
+            from statuses s, status_order o
+            where s.status = o.next_status
+            and (o.previous_status is null or o.previous_status = '')
+            and (o.category is null);
+            )'");
+        return results();
+        }
+
+    if (findNullCategory) {
+        q.prepare(R"'(
+            select s.status, s.description, s.abbreviation, s.color, s.closed
+            from statuses s, status_order o
+            where s.status = o.next_status
+            and o.previous_status = :previous_status
+            and (o.category is null);
+            )'");
+        q.bindValue(":previous_status", ps);
+        return results();
+        }
+
+    if (!findNullCategory && (previousStatus.isEmpty() || previousStatus == "")) {
+        q.prepare(R"'(
+            select s.status, s.description, s.abbreviation, s.color, s.closed
+            from statuses s, status_order o
+            where s.status = o.next_status
+            and (o.previous_status is null or o.previous_status = '')
+            and o.category = :category;
+            )'");
+        q.bindValue(":category", categoryi);
+        return results();
+        }
+
+
+    if (!findNullCategory) {
+        q.prepare(R"'(
+            select s.status, s.description, s.abbreviation, s.color, s.closed
+            from statuses s, status_order o
+            where s.status = o.next_status
+            and o.previous_status = :previous_status
+            and o.category = :category;
+            )'");
+        q.bindValue(":previous_status", ps);
+        q.bindValue(":category", categoryi);
+        return results();
+        }
+
+    return QList<Dbt::Statuses>();
+
 }
 
 
