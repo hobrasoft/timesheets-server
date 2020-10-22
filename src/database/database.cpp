@@ -143,6 +143,11 @@ QList<Dbt::Categories> Database::subcategories(const QString& id) {
 }
 
 
+QList<Dbt::Categories> Database::categoriesToRoot(const QString& id) {
+    return m_dbplugin->categoriesToRoot(id);
+}
+
+
 QList<Dbt::Statuses> Database::statuses(const QString& id) {
     return m_dbplugin->statuses(id);
 }

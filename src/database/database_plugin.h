@@ -39,6 +39,7 @@ class DatabasePlugin : public QObject {
     virtual QList<Dbt::Users>                       authenticate(const QString& user, const QString& password) = 0;
     virtual QList<Dbt::Users>                       users(int id) = 0;
     virtual QList<Dbt::Categories>                  categories(const QString& id) = 0;
+    virtual QList<Dbt::Categories>                  categoriesToRoot(const QString& id) = 0;
     virtual QList<Dbt::Categories>                  subcategories(const QString& parent) = 0;
     virtual QList<Dbt::UsersCategories>             usersCategories(int id, int user, const QString& category) = 0;
     virtual QList<Dbt::StatusOrder>                 statusOrder(const QString& id) = 0;

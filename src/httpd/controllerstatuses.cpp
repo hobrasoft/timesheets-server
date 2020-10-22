@@ -5,6 +5,7 @@
  */
 
 #include "controllerstatuses.h"
+#include "httprequest.h"
 #include "db.h"
 
 using namespace Httpd;
@@ -17,7 +18,7 @@ ControllerStatuses::ControllerStatuses(HobrasoftHttpd::HttpConnection *parent) :
 void ControllerStatuses::serviceList (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
     QString category = request->parameter("category");
     QString status   = request->parameter("previousStatus");
-    serviceOK(request, response, toList(db()->statuses(category, previousStatus)));
+    serviceOK(request, response, toList(db()->statuses(category, status)));
 }
 
 
