@@ -857,50 +857,54 @@ QList<Dbt::TicketFiles> DatabasePluginFotomon::ticketFiles(bool all) {
 QVariant DatabasePluginFotomon::save(const Dbt::TicketFiles& data) {
     MSqlQuery q(m_db);
 
+    auto saveFile = [](const Dbt::TicketFiles& data) {
+        
+        };
+
     bool found = false;
     if (!data.created) {
-        q.prepare(R"'(select 1 from ticket_images where id = :id;)'");
+        q.prepare(R"'(select file from tickets_files where file = :file and ticket = :ticket;)'");
         q.bindValue(":id", data.id);
+        q.bindValue(":ticket", data.ticket);
         q.exec();
         found = q.next();
         }
 
     if (!data.created) {
+        QFileInfo info = saveFile(data);
         q.prepare(R"'(
-            update ticket_images set
-                ticket = :ticket,
-                date = :date,
-               "user" = :user,
-                name = :name,
-                type = :type,
-                content = :content
-                where id = :id
+            update files set 
+                filename = :filename,
+                upload_date = :date,
+                origname = :name,
+                filetype = :type,
+                filesize = :size
+                where file = :file and ticket = :ticket,
             )'");
-        q.bindValue(":id", data.id);
-        q.bindValue(":ticket", data.ticket);
-        q.bindValue(":user", data.user);
+        q.bindValue(":filename", filename);
         q.bindValue(":date", data.date);
         q.bindValue(":name", data.name);
         q.bindValue(":type", data.type);
-        q.bindValue(":content", data.content);
+        q.bindValue(":size", size);
+        q.bindValue(":file", data.id);
+        q.bindValue(":ticket", data.ticket);
         q.exec();
         return QVariant(data.id);
         }
 
     if (data.created || !found) {
         q.prepare(R"'(
-            insert into ticket_images (ticket, "user", date, name, type, content)
-                values (:ticket, :user, :date, :name, :type, :content);
+            insert into files (filename, upload_date, origname, filetype, filesize, ticket)
+                 values (:filename, :date, :name, :type, :size, :ticket);
             )'");
-        q.bindValue(":id", data.id);
-        q.bindValue(":ticket", data.ticket);
-        q.bindValue(":user", data.user);
+        q.exec();
+        q.bindValue(":filename", filename);
         q.bindValue(":date", data.date);
         q.bindValue(":name", data.name);
         q.bindValue(":type", data.type);
-        q.bindValue(":content", data.content);
-        q.exec();
-        return currval("ticket_images_id_seq");
+        q.bindValue(":size", size);
+        q.bindValue(":ticket", data.ticket);
+        return currval("files_file_seq");
         }
 
     Q_UNREACHABLE();

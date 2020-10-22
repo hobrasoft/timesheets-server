@@ -134,8 +134,7 @@ class MSettings : public QSettings {
     static constexpr const char *DbUser                 = "db/user";
     static constexpr const char *DbPassword             = "db/password";
     static constexpr const char *DbPort                 = "db/port";
-    static constexpr const char *DbMaxMachineValuesDays = "db/maxMachineValuesDays";
-    static constexpr const char *DbMaxTrainingDays      = "db/maxTrainingDays";
+    static constexpr const char *DbFilesDirectory       = "db/files-directory";
     static constexpr const char *HttpdUser              = "httpd/user";
     static constexpr const char *HttpdPassword          = "httpd/password";
     static constexpr const char *HttpdAuthorize         = "httpd/authorize";
@@ -163,8 +162,7 @@ class MSettings : public QSettings {
     QString dbUser() const { return value(DbUser).toString(); }
     QString dbPassword() const { return value(DbPassword).toString(); }
     int     dbPort() const { return value(DbPort, 5432).toInt(); }
-    int     dbMaxMachineValuesDays() { return value(DbMaxMachineValuesDays, 30).toInt(); }
-    int     dbMaxTrainingDays() { return value(DbMaxTrainingDays, 30).toInt(); }
+    QString filesDirectory() const { return value(DbFilesDirectory).toString(); }
 
     // Httpd
     QString httpdUser() const { return value(HttpdUser).toString(); }
