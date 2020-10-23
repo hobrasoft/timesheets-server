@@ -11,6 +11,9 @@
 #include <QUuid>
 #include <QSqlError>
 #include <QCryptographicHash>
+#include <QFileInfo>
+#include <QFile>
+#include <QDir>
 
 using namespace Db::Plugins;
 
@@ -792,6 +795,18 @@ void DatabasePluginFotomon::remove(const Dbt::TicketTimesheets& id) {
 }
 
 
+QByteArray DatabasePluginFotomon::fileContent(const QString& filename) {
+    QByteArray content;
+    QDir dir(MSETTINGS->dbFilesDirectory());
+    QString fullfilename = dir.absoluteFilePath(filename);
+    QFile file(fullfilename);
+    if (file.open(QIODevice::ReadOnly)) {
+        content = file.readAll();
+        file.close();
+        }
+    return content;
+}
+
 
 QList<Dbt::TicketFiles> DatabasePluginFotomon::ticketFiles(int ticket, bool all) {
     createTemporaryTableTickets(ticket, all);
@@ -799,9 +814,10 @@ QList<Dbt::TicketFiles> DatabasePluginFotomon::ticketFiles(int ticket, bool all)
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
-        select f.id, f."user", f.date, f.ticket, f.name, f.type, f.content
-            from temporary_tickets t, ticket_images f
-            where t.ticket = f.ticket
+        select f.file, f.upload_date, tf.ticket, f.origname, f.filetype, f.filename
+            from temporary_tickets t, tickets_files tf, files f
+            where t.ticket = tf.ticket
+              and tf.file = f.file;
             ;
         )'");
     q.exec();
@@ -809,12 +825,12 @@ QList<Dbt::TicketFiles> DatabasePluginFotomon::ticketFiles(int ticket, bool all)
         int i=0;
         Dbt::TicketFiles x;
         x.id        = q.value(i++).toInt();
-        x.user      = q.value(i++).toInt();
+        x.user      = userId();
         x.date      = q.value(i++).toDateTime();
         x.ticket    = q.value(i++).toInt();
         x.name      = q.value(i++).toString();
         x.type      = q.value(i++).toString();
-        x.content   = q.value(i++).toByteArray();
+        x.content   = DatabasePluginFotomon::fileContent(q.value(i++).toString());
         list << x;
         }
 
@@ -827,12 +843,13 @@ QList<Dbt::TicketFiles> DatabasePluginFotomon::ticketFiles(int id) {
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
-        select f.id, f."user", f.date, f.ticket, f.name, f.type, f.content
-            from ticket_images f, users u, tickets t, users_categories uc
-            where f.id = :id
-              and t.ticket = f.ticket
+        select f.file, f.upload_date, tf.ticket, f.origname, f.filetype, f.filename
+            from tickets_files tf, files f, users u, tickets t, users_categories uc
+            where f.file = :id
+              and tf.file = f.file
+              and t.ticket = tf.ticket
               and t.category = uc.category
-              and u."user" = f."user"
+              and t."user" = :user
             ;
         )'");
     q.bindValue(":id", id);
@@ -842,12 +859,12 @@ QList<Dbt::TicketFiles> DatabasePluginFotomon::ticketFiles(int id) {
         int i=0;
         Dbt::TicketFiles x;
         x.id        = q.value(i++).toInt();
-        x.user      = q.value(i++).toInt();
+        x.user      = userId();
         x.date      = q.value(i++).toDateTime();
         x.ticket    = q.value(i++).toInt();
         x.name      = q.value(i++).toString();
         x.type      = q.value(i++).toString();
-        x.content   = q.value(i++).toByteArray();
+        x.content   = DatabasePluginFotomon::fileContent(q.value(i++).toString());
         list << x;
         }
 
@@ -860,24 +877,42 @@ QList<Dbt::TicketFiles> DatabasePluginFotomon::ticketFiles(bool all) {
 }
 
 
+QString DatabasePluginFotomon::suffixFromType(const QString& type) {
+    if (type == "image/png") { return ".png"; }
+    if (type == "image/jpeg") { return ".jpeg"; }
+    if (type == "image/gif") { return ".gif"; }
+    return "";
+
+}
+
 QVariant DatabasePluginFotomon::save(const Dbt::TicketFiles& data) {
     MSqlQuery q(m_db);
 
-    auto saveFile = [](const Dbt::TicketFiles& data) {
-        
-        };
-
     bool found = false;
-    if (!data.created) {
-        q.prepare(R"'(select file from tickets_files where file = :file and ticket = :ticket;)'");
-        q.bindValue(":id", data.id);
-        q.bindValue(":ticket", data.ticket);
-        q.exec();
-        found = q.next();
-        }
+    q.prepare(R"'(select file from tickets_files where file = :file and ticket = :ticket;)'");
+    q.bindValue(":id", data.id);
+    q.bindValue(":ticket", data.ticket);
+    q.exec();
+    found = q.next();
 
-    if (!data.created) {
-        QFileInfo info = saveFile(data);
+    // Save file
+    QString webalizedName = QString("ta%1-%2%3")
+        .arg(data.ticket.toInt())
+        .arg(QUuid::createUuid().toString().remove(QChar('{')).remove(QChar('}')))
+        .arg(suffixFromType(data.type))
+        ;
+    QDir dir(MSETTINGS->dbFilesDirectory());
+    QString filename = dir.absoluteFilePath(webalizedName);
+    QFile file(filename);
+    if (file.open(QIODevice::WriteOnly)) {
+        file.write(data.content);   
+        file.close();
+        }
+    QFileInfo info(filename);
+    PDEBUG << webalizedName << filename << info.fileName();
+
+    if (found) {
+        PDEBUG << "update files" << data.id << data.ticket;
         q.prepare(R"'(
             update files set 
                 filename = :filename,
@@ -885,32 +920,40 @@ QVariant DatabasePluginFotomon::save(const Dbt::TicketFiles& data) {
                 origname = :name,
                 filetype = :type,
                 filesize = :size
-                where file = :file and ticket = :ticket,
+                where file = :fileid
             )'");
-        q.bindValue(":filename", filename);
+        q.bindValue(":filename", info.fileName());
         q.bindValue(":date", data.date);
         q.bindValue(":name", data.name);
         q.bindValue(":type", data.type);
-        q.bindValue(":size", size);
-        q.bindValue(":file", data.id);
+        q.bindValue(":size", info.size());
+        q.bindValue(":fileid", data.id);
         q.bindValue(":ticket", data.ticket);
         q.exec();
         return QVariant(data.id);
         }
 
-    if (data.created || !found) {
+    if (!found) {
         q.prepare(R"'(
-            insert into files (filename, upload_date, origname, filetype, filesize, ticket)
-                 values (:filename, :date, :name, :type, :size, :ticket);
+            insert into files (filename, upload_date, origname, filetype, filesize)
+                 values (:filename, :date, :name, :type, :sizeticket);
             )'");
-        q.exec();
-        q.bindValue(":filename", filename);
+        q.bindValue(":filename", info.fileName());
         q.bindValue(":date", data.date);
         q.bindValue(":name", data.name);
         q.bindValue(":type", data.type);
-        q.bindValue(":size", size);
+        q.bindValue(":size", info.size());
+        q.exec();
+
+        q.prepare(R"'(
+            insert into tickets_files (ticket, file) select :ticket, currval('files_file_seq');
+            )'");
         q.bindValue(":ticket", data.ticket);
-        return currval("files_file_seq");
+        q.exec();
+
+        QVariant rc = currval("files_file_seq");
+        PDEBUG << "insert files" << rc.toInt() << data.ticket;
+        return rc;
         }
 
     Q_UNREACHABLE();

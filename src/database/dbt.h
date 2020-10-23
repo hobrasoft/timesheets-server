@@ -126,6 +126,7 @@ struct Mutable {
     bool        modified;
     bool        created;
     //
+    virtual ~Mutable() {}
     virtual QVariantMap toMap() const;
     static Mutable fromMap(const QVariantMap&);
     Mutable() { id = 0; modified = false; created = false; }
@@ -147,6 +148,7 @@ struct TicketStatus : Mutable {
     QString     status;
     QString     description;
     //
+    virtual ~TicketStatus() {}
     QVariantMap toMap() const Q_DECL_OVERRIDE;
     static TicketStatus fromMap(const QVariantMap&);
     static QList<TicketStatus> fromList(const QVariantList&);
@@ -168,6 +170,7 @@ struct TicketTimesheets : Mutable {
     QDateTime   date_from;
     QDateTime   date_to;
     //
+    virtual ~TicketTimesheets() {}
     QVariantMap toMap() const Q_DECL_OVERRIDE;
     static TicketTimesheets fromMap(const QVariantMap&);
     static QList<TicketTimesheets> fromList(const QVariantList&);
@@ -191,6 +194,7 @@ struct TicketFiles : Mutable {
     QString     type;
     QByteArray  content;
 
+    virtual ~TicketFiles() {}
     QVariantMap toMap() const Q_DECL_OVERRIDE;
     static TicketFiles fromMap(const QVariantMap&);
     static QList<TicketFiles> fromList(const QVariantList&);
@@ -214,6 +218,7 @@ struct TicketValues : Mutable {
     QString     name;
     QVariant    value;
 
+    virtual ~TicketValues() {}
     QVariantMap toMap() const Q_DECL_OVERRIDE;
     static TicketValues fromMap(const QVariantMap&);
     static QList<TicketValues> fromList(const QVariantList&);
@@ -242,6 +247,7 @@ struct Tickets {
     bool        created;
     bool        modified;
 
+    virtual ~Tickets() {}
     virtual QVariantMap toMap() const;
     static Tickets fromMap(const QVariantMap&);
     Tickets() { user = 0; price = 0; created = false; modified = false; }
@@ -268,6 +274,7 @@ struct TicketsVw : Tickets {
     QList<Dbt::TicketFiles>      files;
     QList<Dbt::TicketValues>     values;
 
+    virtual ~TicketsVw() {}
     QVariantMap toMap() const Q_DECL_OVERRIDE;
     static TicketsVw fromMap(const QVariantMap&);
     TicketsVw() : Tickets() {}

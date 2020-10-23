@@ -91,6 +91,8 @@ class DatabasePluginFotomon : public Db::Plugins::DatabasePlugin {
     void            createTemporaryTableTickets(int ticket, bool all);
     static QString  parentCategoryKey(const QVariant& type, const QVariant& system, const QVariant& category, int parent_type);
     static QString        categoryKey(const QVariant& type, const QVariant& system, const QVariant& category, int parent_type);
+    static QByteArray   fileContent(const QString& filename);
+    static QString      suffixFromType(const QString& type);
     QVariant        currval(const QString& sequence);
 
 

@@ -162,7 +162,7 @@ class MSettings : public QSettings {
     QString dbUser() const { return value(DbUser).toString(); }
     QString dbPassword() const { return value(DbPassword).toString(); }
     int     dbPort() const { return value(DbPort, 5432).toInt(); }
-    QString filesDirectory() const { return value(DbFilesDirectory).toString(); }
+    QString dbFilesDirectory() const { return value(DbFilesDirectory).toString(); }
 
     // Httpd
     QString httpdUser() const { return value(HttpdUser).toString(); }
