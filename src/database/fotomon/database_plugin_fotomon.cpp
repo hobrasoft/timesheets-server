@@ -896,10 +896,11 @@ QVariant DatabasePluginFotomon::save(const Dbt::TicketFiles& data) {
     found = q.next();
 
     // Save file
+    QString suffix = suffixFromType(data.type);
     QString webalizedName = QString("ta%1-%2%3")
         .arg(data.ticket.toInt())
         .arg(QUuid::createUuid().toString().remove(QChar('{')).remove(QChar('}')))
-        .arg(suffixFromType(data.type))
+        .arg(suffix)
         ;
     QDir dir(MSETTINGS->dbFilesDirectory());
     QString filename = dir.absoluteFilePath(webalizedName);
@@ -924,7 +925,7 @@ QVariant DatabasePluginFotomon::save(const Dbt::TicketFiles& data) {
             )'");
         q.bindValue(":filename", info.fileName());
         q.bindValue(":date", data.date);
-        q.bindValue(":name", data.name);
+        q.bindValue(":name", data.name + suffix);
         q.bindValue(":type", data.type);
         q.bindValue(":size", info.size());
         q.bindValue(":fileid", data.id);
@@ -940,7 +941,7 @@ QVariant DatabasePluginFotomon::save(const Dbt::TicketFiles& data) {
             )'");
         q.bindValue(":filename", info.fileName());
         q.bindValue(":date", data.date);
-        q.bindValue(":name", data.name);
+        q.bindValue(":name", data.name + suffix);
         q.bindValue(":type", data.type);
         q.bindValue(":size", info.size());
         q.exec();
