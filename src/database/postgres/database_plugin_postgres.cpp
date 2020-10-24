@@ -726,14 +726,28 @@ QVariant DatabasePluginPostgres::save(const Dbt::Tickets& data) {
 }
 
 
+template<typename T>
+QList<T> remapTicket(const QList<T>& input, int ticket) {
+    QList<T> list;
+    QListIterator<T> iterator(input);
+    while (iterator.hasNext()) {
+        T x = iterator.next();
+        x.ticket = ticket;
+        if (ticket <= 0) { x.id = 0; }
+        list << x;
+        }
+    return list;
+}
+
+
 QVariant DatabasePluginPostgres::save(const Dbt::TicketsVw& data) {
     MSqlQuery q(m_db);
     q.begin();
-    save(dynamic_cast<const Dbt::Tickets&>(data));
-    save(data.timesheets);
-    save(data.statuses);
-    save(data.values);
-    save(data.files);
+    int ticket = save(dynamic_cast<const Dbt::Tickets&>(data)).toInt();
+    save(remapTicket(data.timesheets, ticket));
+    save(remapTicket(data.statuses, ticket));
+    save(remapTicket(data.values, ticket));
+    save(remapTicket(data.files, ticket));
     q.commit();
 
     return QVariant();
