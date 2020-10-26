@@ -220,6 +220,25 @@ class AbstractController : public HobrasoftHttpd::HttpRequestHandler {
     virtual void serviceError     (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, int code, const QString& error, const QString& reason);
 
     /**
+     * @brief Pošle chybovou odpověď
+     *
+     * @param code - chybový kód (například 404)
+     * @param error - chybový textový kód, píše se do HTTP statutu
+     * @param reason - vysvětlení chyby
+     *
+     * Posílá odpověď zformátovanou takto:
+     *
+     * ~~~~~~~~~~~~~~
+       Content-Type: application/json
+       Cache-Control: no-cache,public
+      
+       404 text v parametru error
+       { ..... }
+       ~~~~~~~~~~~~~~
+     */
+    virtual void serviceError     (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, int code, const QString& error, const QVariantMap& data);
+
+    /**
      * @brief Měl by poslat v odpovědi kompletní seznam všech objektů ve třídě a ukončit se
      *
      * Defaultní implementace posílá chybu 501 Not Implemented

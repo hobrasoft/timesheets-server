@@ -21,6 +21,7 @@ SOURCES += \
  $$PWD/controllerticketfiles.cpp \
  $$PWD/controllerstatusorder.cpp \
  $$PWD/controllerstatuses.cpp \
+ $$PWD/controllertimesheet.cpp \
 
 HEADERS += \
  $$PWD/controllerserver.h \
@@ -37,6 +38,7 @@ HEADERS += \
  $$PWD/controllerticketfiles.h \
  $$PWD/controllerstatusorder.h \
  $$PWD/controllerstatuses.h \
+ $$PWD/controllertimesheet.h \
 
 HEADERS += \
  $$PWD/httpd.h \

@@ -248,6 +248,26 @@ QList<Dbt::TicketTimesheets> Database::ticketTimesheets(int ticket, bool all) {
 }
 
 
+QList<Dbt::TicketTimesheets> Database::runningTimesheets(int ticket) {
+    return m_dbplugin->runningTimesheets(ticket);
+}
+
+
+QList<Dbt::TicketTimesheets> Database::startTimesheet(int ticket) {
+    return m_dbplugin->startTimesheet(ticket);
+}
+
+
+QList<Dbt::TicketTimesheets> Database::stopTimesheet(int ticket) {
+    return m_dbplugin->stopTimesheet(ticket);
+}
+
+
+QList<Dbt::TicketTimesheets> Database::toggleTimesheet(int ticket) {
+    return m_dbplugin->toggleTimesheet(ticket);
+}
+
+
 QList<Dbt::ClientSettings> Database::clientSettings() {
     return m_dbplugin->clientSettings();
 }

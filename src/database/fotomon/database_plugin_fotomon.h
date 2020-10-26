@@ -66,6 +66,10 @@ class DatabasePluginFotomon : public Db::Plugins::DatabasePlugin {
     QList<Dbt::TicketTimesheets>            ticketTimesheets(int id) Q_DECL_OVERRIDE;
     QList<Dbt::TicketTimesheets>            ticketTimesheets(int ticket, bool all) Q_DECL_OVERRIDE;
     QList<Dbt::TicketTimesheets>            ticketTimesheets(bool all) Q_DECL_OVERRIDE;
+    QList<Dbt::TicketTimesheets>            runningTimesheets(int ticket) Q_DECL_OVERRIDE;
+    QList<Dbt::TicketTimesheets>            startTimesheet(int ticket) Q_DECL_OVERRIDE;
+    QList<Dbt::TicketTimesheets>            stopTimesheet(int ticket) Q_DECL_OVERRIDE;
+    QList<Dbt::TicketTimesheets>            toggleTimesheet(int ticket) Q_DECL_OVERRIDE;
 
     QList<Dbt::ClientSettings>              clientSettings() Q_DECL_OVERRIDE;
 

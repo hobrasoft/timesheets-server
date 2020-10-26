@@ -940,6 +940,199 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(bool all) 
 }
 
 
+QList<Dbt::TicketTimesheets> DatabasePluginPostgres::runningTimesheets(int ticket) {
+    QList<Dbt::TicketTimesheets> list;
+    MSqlQuery q(m_db);
+    q.prepare(R"'(
+        select tt.id, tt.ticket, tt."user", tt.date_from, tt.date_to
+            from ticket_timesheets tt, tickets t, users_categories uc
+            where t.ticket = tt.ticket
+              and t.category = uc.category
+              and uc."user" = :user
+              and :ticket = tt.ticket
+              and tt.date_to is null
+            ;
+        )'");
+    q.bindValue(":user", userId());
+    q.bindValue(":ticket", ticket);
+    q.exec();
+    while (q.next()) {
+        int i=0;
+        Dbt::TicketTimesheets x;
+        x.id            = q.value(i++).toInt();
+        x.ticket        = q.value(i++).toInt();
+        x.user          = q.value(i++).toInt();
+        x.date_from     = q.value(i++).toDateTime();
+        x.date_to       = q.value(i++).toDateTime();
+        list << x;
+        }
+    return list;
+}
+
+
+QList<Dbt::TicketTimesheets> DatabasePluginPostgres::startTimesheet(int ticket) {
+    QList<Dbt::TicketTimesheets> list;
+    MSqlQuery q(m_db);
+
+    // Zkontroluj, jestli je ticket dostupný pro uživatele a je zastavený
+    q.prepare(R"'(
+        select 1
+            from ticket_timesheets tt, tickets t, users_categories uc
+            where t.ticket = tt.ticket
+              and t.category = uc.category
+              and uc."user" = :user
+              and :ticket = tt.ticket
+              and tt.date_to is null
+            ;
+        )'");
+    q.bindValue(":user", userId());
+    q.bindValue(":ticket", ticket);
+    q.exec();
+    if (q.next()) {
+        return list;
+        }
+
+    // Zkontroluj, jestli je ticket dostupný pro uživatele a existující
+    q.prepare(R"'(
+        select 1 
+            from tickets t, users_categories uc
+            where t.category = uc.category
+              and uc."user" = :user
+              and :ticket = t.ticket
+            ;
+        )'");
+    q.bindValue(":user", userId());
+    q.bindValue(":ticket", ticket);
+    q.exec();
+    if (!q.next()) {
+        return list;
+        }
+
+    // Vložit timesheet
+    q.prepare(R"'(
+        insert into ticket_timesheets (ticket, "user", date_from) 
+            values (:ticket, :user, now())
+        )'");
+    q.bindValue(":user", userId());
+    q.bindValue(":ticket", ticket);
+    q.exec();
+    QVariant id = currval("ticket_timesheets_id_seq").toInt();
+    if (id.isNull() || !id.isValid()) {
+        return list;
+        }
+
+    list = ticketTimesheets(id.toInt());
+    return list;
+}
+    
+
+QList<Dbt::TicketTimesheets> DatabasePluginPostgres::stopTimesheet(int ticket) {
+    QList<Dbt::TicketTimesheets> list;
+    MSqlQuery q(m_db);
+
+    // Zkontroluj, jestli je ticket dostupný pro uživatele a je běžící
+    q.prepare(R"'(
+        select tt.id 
+            from ticket_timesheets tt, tickets t, users_categories uc
+            where t.ticket = tt.ticket
+              and t.category = uc.category
+              and uc."user" = :user
+              and :ticket = tt.ticket
+              and tt.date_to is null
+            ;
+        )'");
+    q.bindValue(":user", userId());
+    q.bindValue(":ticket", ticket);
+    q.setForwardOnly(false);
+    q.exec();
+    if (q.size() != 1) {
+        return list;
+        }
+    q.next();
+    int id = q.value(0).toInt();
+
+    // Ukončit timesheet
+    q.prepare(R"'(
+        update ticket_timesheets set date_to = now() where id = :id;
+        )'");
+    q.bindValue(":id", id);
+    q.exec();
+
+    list = ticketTimesheets(id);
+    return list;
+}
+
+
+QList<Dbt::TicketTimesheets> DatabasePluginPostgres::toggleTimesheet(int ticket) {
+    QList<Dbt::TicketTimesheets> list;
+    MSqlQuery q(m_db);
+
+    // Zkontroluj, jestli je ticket dostupný pro uživatele a existující
+    q.prepare(R"'(
+        select 1 
+            from tickets t, users_categories uc
+            where t.category = uc.category
+              and uc."user" = :user
+              and :ticket = t.ticket
+            ;
+        )'");
+    q.bindValue(":user", userId());
+    q.bindValue(":ticket", ticket);
+    q.exec();
+    if (!q.next()) {
+        return list;
+        }
+
+    // Zkontroluj, jestli je ticket dostupný pro uživatele a je běžící
+    q.prepare(R"'(
+        select tt.id 
+            from ticket_timesheets tt, tickets t, users_categories uc
+            where t.ticket = tt.ticket
+              and t.category = uc.category
+              and uc."user" = :user
+              and :ticket = tt.ticket
+              and tt.date_to is null
+            ;
+        )'");
+    q.bindValue(":user", userId());
+    q.bindValue(":ticket", ticket);
+    q.setForwardOnly(false);
+    q.exec();
+    bool found = (q.size() == 1);
+    int id = (found) ? q.next(), q.value(0).toInt() : 0;
+
+    if (!found) {
+        // Vložit timesheet
+        q.prepare(R"'(
+            insert into ticket_timesheets (ticket, "user", date_from)
+                values (:ticket, :user, now())
+            )'");
+        q.bindValue(":user", userId());
+        q.bindValue(":ticket", ticket);
+        q.exec();
+        QVariant newid = currval("ticket_timesheets_id_seq");
+        PDEBUG << "NOve vlozene id" << newid;
+        if (newid.isNull() || !newid.isValid()) {
+            PDEBUG << "id is null";
+            return list;
+            }
+        id = newid.toInt();
+        }
+
+    if (found) {
+        // Ukončit timesheet
+        q.prepare(R"'(
+            update ticket_timesheets set date_to = now() where id = :id;
+            )'");
+        q.bindValue(":id", id);
+        q.exec();
+        }
+
+    list = ticketTimesheets(id);
+    return list;
+}
+
+
 QVariant DatabasePluginPostgres::save(const Dbt::TicketTimesheets& data) {
     MSqlQuery q(m_db);
 

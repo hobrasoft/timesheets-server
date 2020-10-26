@@ -69,6 +69,10 @@ class DatabasePlugin : public QObject {
     virtual QList<Dbt::TicketTimesheets>            ticketTimesheets(int id) = 0;
     virtual QList<Dbt::TicketTimesheets>            ticketTimesheets(bool all) = 0;
     virtual QList<Dbt::TicketTimesheets>            ticketTimesheets(int ticket, bool all) = 0;
+    virtual QList<Dbt::TicketTimesheets>            runningTimesheets(int ticket) = 0;
+    virtual QList<Dbt::TicketTimesheets>            startTimesheet(int ticket) = 0;
+    virtual QList<Dbt::TicketTimesheets>            stopTimesheet(int ticket) = 0;
+    virtual QList<Dbt::TicketTimesheets>            toggleTimesheet(int ticket) = 0;
 
     virtual QList<Dbt::ClientSettings>              clientSettings() = 0;
 

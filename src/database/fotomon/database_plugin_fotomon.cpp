@@ -738,6 +738,26 @@ QList<Dbt::TicketTimesheets> DatabasePluginFotomon::ticketTimesheets(bool all) {
 }
 
 
+QList<Dbt::TicketTimesheets>  DatabasePluginFotomon::runningTimesheets(int ticket) {
+    return QList<Dbt::TicketTimesheets>();
+}
+
+
+QList<Dbt::TicketTimesheets>  DatabasePluginFotomon::startTimesheet(int ticket) {
+    return QList<Dbt::TicketTimesheets>();
+}
+
+
+QList<Dbt::TicketTimesheets>  DatabasePluginFotomon::stopTimesheet(int ticket) {
+    return QList<Dbt::TicketTimesheets>();
+}
+
+
+QList<Dbt::TicketTimesheets>  DatabasePluginFotomon::toggleTimesheet(int ticket) {
+    return QList<Dbt::TicketTimesheets>();
+}
+
+
 QVariant DatabasePluginFotomon::save(const Dbt::TicketTimesheets& data) {
     MSqlQuery q(m_db);
 

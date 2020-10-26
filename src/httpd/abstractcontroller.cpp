@@ -194,6 +194,7 @@ void AbstractController::service(HobrasoftHttpd::HttpRequest *request, Hobrasoft
         }
 }
 
+
 void AbstractController::serviceError(
         HobrasoftHttpd::HttpRequest *request, 
         HobrasoftHttpd::HttpResponse *response, 
@@ -211,7 +212,27 @@ void AbstractController::serviceError(
     r->clearHeaders();
     r->setHeader("Content-Type",  "application/json");
     r->setHeader("Cache-Control", "no-cache,public");
-    r->setStatus(code, reason);
+    r->setStatus(code, error);
+    r->write( JSON::json(data) );
+    r->flush();
+//  connection()->deleteLater();
+}
+
+
+void AbstractController::serviceError(
+        HobrasoftHttpd::HttpRequest *request, 
+        HobrasoftHttpd::HttpResponse *response, 
+        int code, 
+        const QString& error, 
+        const QVariantMap& data) {
+
+    Q_UNUSED(request);
+
+    HobrasoftHttpd::HttpResponse *r = (response == nullptr) ? new HobrasoftHttpd::HttpResponse(connection()) : response;
+    r->clearHeaders();
+    r->setHeader("Content-Type",  "application/json");
+    r->setHeader("Cache-Control", "no-cache,public");
+    r->setStatus(code, error);
     r->write( JSON::json(data) );
     r->flush();
 //  connection()->deleteLater();
