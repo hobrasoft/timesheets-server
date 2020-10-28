@@ -139,6 +139,7 @@ QVariantMap Statuses::toMap() const {
     data["abbreviation"] = abbreviation;
     data["color"] = color;
     data["closed"] = closed;
+    data["can_be_run"] = can_be_run;
     return data;
 }
 
@@ -150,6 +151,7 @@ Statuses Statuses::fromMap(const QVariantMap& data) {
     x.abbreviation = data["abbreviation"].toString();
     x.color = data["color"].toString();
     x.closed= data["closed"].toBool();
+    x.can_be_run = data["can_be_run"].toBool();
     return x;
 }
 

@@ -1317,12 +1317,12 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& id) {
     MSqlQuery q(m_db);
     if (id.isEmpty() || id == "") {
         q.prepare(R"'(
-            select status, description, abbreviation, color, closed
+            select status, description, abbreviation, color, closed, can_be_run
             from statuses
             )'");
       } else {
         q.prepare(R"'(
-            select status, description, abbreviation, color, closed
+            select status, description, abbreviation, color, closed, can_be_run
             from statuses
             where (:id = status);
         )'");
@@ -1337,6 +1337,7 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& id) {
         x.abbreviation = q.value(i++).toString();
         x.color = q.value(i++).toString();
         x.closed = q.value(i++).toBool();
+        x.can_be_run = q.value(i++).toBool();
         list << x;
         }
     return list;
@@ -1360,6 +1361,7 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& category, c
             x.abbreviation = q.value(i++).toString();
             x.color = q.value(i++).toString();
             x.closed = q.value(i++).toBool();
+            x.can_be_run = q.value(i++).toBool();
             list << x;
             }
         return list;
@@ -1375,7 +1377,7 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& category, c
 
     if (findNullCategory && (previousStatus.isEmpty() || previousStatus == "")) {
         q.prepare(R"'(
-            select s.status, s.description, s.abbreviation, s.color, s.closed
+            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run
             from statuses s, status_order o
             where s.status = o.next_status
             and (o.previous_status is null or o.previous_status = '')
@@ -1386,7 +1388,7 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& category, c
 
     if (findNullCategory) {
         q.prepare(R"'(
-            select s.status, s.description, s.abbreviation, s.color, s.closed
+            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run
             from statuses s, status_order o
             where s.status = o.next_status
             and o.previous_status = :previous_status
@@ -1398,7 +1400,7 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& category, c
 
     if (!findNullCategory && (previousStatus.isEmpty() || previousStatus == "")) {
         q.prepare(R"'(
-            select s.status, s.description, s.abbreviation, s.color, s.closed
+            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run
             from statuses s, status_order o
             where s.status = o.next_status
             and (o.previous_status is null or o.previous_status = '')
@@ -1411,7 +1413,7 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& category, c
 
     if (!findNullCategory) {
         q.prepare(R"'(
-            select s.status, s.description, s.abbreviation, s.color, s.closed
+            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run
             from statuses s, status_order o
             where s.status = o.next_status
             and o.previous_status = :previous_status
@@ -1444,18 +1446,20 @@ QVariant DatabasePluginPostgres::save(const Dbt::Statuses& data) {
             abbreviation = :abbreviation,
             color = :color,
             closed = :closed
+            can_be_run = :can_be_run 
             where status = :status
         )'");
     q.bindValue(":description", data.description);
     q.bindValue(":abbreviation", data.abbreviation);
     q.bindValue(":color", data.color);
     q.bindValue(":closed", data.closed);
+    q.bindValue(":can_be_run", data.can_be_run);
     q.bindValue(":status", data.status);
     q.exec();
 
     q.prepare(R"'(
-        insert into statuses (status, description, abbreviation, color, closed)
-            select :status1, :description, :abbreviation, :color, :closed
+        insert into statuses (status, description, abbreviation, color, closed, can_be_run)
+            select :status1, :description, :abbreviation, :color, :closed, :can_be_run
             where not exists (select 1 from statuses where status = :status2);
         )'");
     q.bindValue(":status1", data.status);
@@ -1463,6 +1467,7 @@ QVariant DatabasePluginPostgres::save(const Dbt::Statuses& data) {
     q.bindValue(":abbreviation", data.abbreviation);
     q.bindValue(":color", data.color);
     q.bindValue(":closed", data.closed);
+    q.bindValue(":can_be_run", data.can_be_run);
     q.bindValue(":status2", data.status);
     q.exec();
 
