@@ -23,7 +23,7 @@ void ControllerTicketsVw::serviceList (HobrasoftHttpd::HttpRequest *request, Hob
     if (category.isEmpty()) {
         list = db()->ticketsVw(all);
       } else {
-        list = db()->ticketsVw(Dbt::Categories(category));
+        list = db()->ticketsVw(Dbt::Categories(category), all);
         }
     serviceOK(request, response, toList(list));
 }

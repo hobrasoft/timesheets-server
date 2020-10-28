@@ -294,6 +294,8 @@ QVariantMap TicketStatus::toMap() const {
     data["status"] = status;
     data["date"] = date;
     data["description"] = description;
+    data["status_description"] = status_description;
+    data["status_color"] = status_color;
     return data;
 }
 

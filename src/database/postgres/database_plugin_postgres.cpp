@@ -599,8 +599,8 @@ QList<Dbt::Tickets> DatabasePluginPostgres::tickets(int ticket, bool all) {
 }
 
 
-QList<Dbt::Tickets> DatabasePluginPostgres::tickets(const Dbt::Categories& category) {
-    createTemporaryTableTickets(-1, true);
+QList<Dbt::Tickets> DatabasePluginPostgres::tickets(const Dbt::Categories& category, bool all) {
+    createTemporaryTableTickets(-1, all);
     QList<Dbt::Tickets> list;
     MSqlQuery q(m_db);
 
@@ -649,8 +649,8 @@ QList<Dbt::TicketsVw> DatabasePluginPostgres::ticketsVw(int ticket, bool all) {
 }
 
 
-QList<Dbt::TicketsVw> DatabasePluginPostgres::ticketsVw(const Dbt::Categories& category) {
-    QList<Dbt::Tickets> list1 = tickets(category);
+QList<Dbt::TicketsVw> DatabasePluginPostgres::ticketsVw(const Dbt::Categories& category, bool all) {
+    QList<Dbt::Tickets> list1 = tickets(category, all);
     QList<Dbt::TicketsVw> list;
     MSqlQuery q(m_db);
     for (int i=0; i<list1.size(); i++) {
@@ -760,14 +760,18 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int ticket, bool a
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
-        select ts.id, ts.ticket, ts."user", ts.date, ts.description, ts.status
-            from temporary_tickets t, ticket_status ts, users u
+        select ts.id, ts.ticket, ts."user", ts.date, ts.description, ts.status, s.color, s.description
+            from temporary_tickets t, ticket_status ts, users u, statuses s
             where t.ticket = ts.ticket
               and u."user" = ts."user"
+              and ts.status = s.status
+              and t.ticket = :ticket
+              and u."user" = :user
         )'");
+    q.bindValue(":user", userId());
+    q.bindValue(":ticket", ticket);
     q.exec();
     while (q.next()) {
-    PDEBUG << "------------------------------------" << ticket << all;
         Dbt::TicketStatus x;
         int i=0;
         x.id            = q.value(i++).toInt();
@@ -776,6 +780,8 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int ticket, bool a
         x.date          = q.value(i++).toDateTime();
         x.description   = q.value(i++).toString();
         x.status        = q.value(i++).toString();
+        x.status_color  = q.value(i++).toString();
+        x.status_description = q.value(i++).toString();
         list << x;
         }
     return list;
@@ -792,12 +798,13 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int id) {
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
-        select ts.id, ts.ticket, ts."user", ts.date, ts.description, ts.status
-            from ticket_status ts, users u, tickets t, users_categories uc
+        select ts.id, ts.ticket, ts."user", ts.date, ts.description, ts.status, s.color, s.description
+            from ticket_status ts, users u, tickets t, users_categories uc, statuses s
             where ts.id = :id
               and t.ticket = ts.ticket
               and t.category = uc.category
               and u."user" = ts."user"
+              and ts.status = s.status
         )'");
     q.bindValue(":id", id);
     q.bindValue(":user", userId());
@@ -811,6 +818,8 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int id) {
         x.date          = q.value(i++).toDateTime();
         x.description   = q.value(i++).toString();
         x.status        = q.value(i++).toString();
+        x.status_color  = q.value(i++).toString();
+        x.status_description = q.value(i++).toString();
         list << x;
         }
     return list;
@@ -1111,9 +1120,7 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::toggleTimesheet(int ticket)
         q.bindValue(":ticket", ticket);
         q.exec();
         QVariant newid = currval("ticket_timesheets_id_seq");
-        PDEBUG << "NOve vlozene id" << newid;
         if (newid.isNull() || !newid.isValid()) {
-            PDEBUG << "id is null";
             return list;
             }
         id = newid.toInt();

@@ -173,6 +173,11 @@ QList<Dbt::Tickets> Database::tickets(bool all) {
 }
 
 
+QList<Dbt::Tickets> Database::tickets(const Dbt::Categories& category, bool all) {
+    return m_dbplugin->tickets(category, all);
+}
+
+
 QList<Dbt::TicketsVw> Database::ticketsVw(int ticket, bool all) {
     return m_dbplugin->ticketsVw(ticket, all);
 }
@@ -183,8 +188,8 @@ QList<Dbt::TicketsVw> Database::ticketsVw(bool all) {
 }
 
 
-QList<Dbt::TicketsVw> Database::ticketsVw(const Dbt::Categories& category) {
-    return m_dbplugin->ticketsVw(category);
+QList<Dbt::TicketsVw> Database::ticketsVw(const Dbt::Categories& category, bool all) {
+    return m_dbplugin->ticketsVw(category, all);
 }
 
 

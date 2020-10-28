@@ -39,10 +39,10 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     QList<Dbt::Statuses>                    statuses(const QString&, const QString&) Q_DECL_OVERRIDE;
     QList<Dbt::Tickets>                     tickets(bool all) Q_DECL_OVERRIDE;
     QList<Dbt::Tickets>                     tickets(int ticket, bool all) Q_DECL_OVERRIDE;
-    QList<Dbt::Tickets>                     tickets(const Dbt::Categories&) Q_DECL_OVERRIDE;
+    QList<Dbt::Tickets>                     tickets(const Dbt::Categories&, bool all) Q_DECL_OVERRIDE;
     QList<Dbt::TicketsVw>                   ticketsVw(bool all) Q_DECL_OVERRIDE;
     QList<Dbt::TicketsVw>                   ticketsVw(int ticket, bool all) Q_DECL_OVERRIDE;
-    QList<Dbt::TicketsVw>                   ticketsVw(const Dbt::Categories&) Q_DECL_OVERRIDE;
+    QList<Dbt::TicketsVw>                   ticketsVw(const Dbt::Categories&, bool all) Q_DECL_OVERRIDE;
 
     QList<Dbt::TicketStatus>                ticketStatus(int id) Q_DECL_OVERRIDE;
     QList<Dbt::TicketStatus>                ticketStatus(int ticket, bool all) Q_DECL_OVERRIDE;

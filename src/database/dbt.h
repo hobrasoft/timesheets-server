@@ -147,6 +147,8 @@ struct TicketStatus : Mutable {
     QDateTime   date;
     QString     status;
     QString     description;
+    QString     status_description;
+    QString     status_color;
     //
     virtual ~TicketStatus() {}
     QVariantMap toMap() const Q_DECL_OVERRIDE;
@@ -161,6 +163,8 @@ struct TicketStatus : Mutable {
         date = x.date;
         status = x.status;
         description = x.description;
+        status_description = x.status_description;
+        status_color = x.status_color;
         return *this;
         }
 };
