@@ -110,6 +110,7 @@ struct Statuses {
     QString     abbreviation;
     QString     color;
     bool        closed;
+    bool        can_be_run;
 
     QVariantMap toMap() const;
     static Statuses fromMap(const QVariantMap&);

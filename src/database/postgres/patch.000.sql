@@ -44,7 +44,8 @@ create table statuses (
     description     text not null,
     abbreviation    text,
     color           text,
-    closed          boolean
+    closed          boolean,
+    can_be_run      boolean
 );
 
 
