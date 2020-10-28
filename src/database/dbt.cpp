@@ -298,6 +298,8 @@ QVariantMap TicketStatus::toMap() const {
     data["description"] = description;
     data["status_description"] = status_description;
     data["status_color"] = status_color;
+    data["status_can_be_run"] = status_can_be_run;
+    data["status_closed"] = status_closed;
     return data;
 }
 

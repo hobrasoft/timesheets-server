@@ -150,6 +150,8 @@ struct TicketStatus : Mutable {
     QString     description;
     QString     status_description;
     QString     status_color;
+    bool        status_closed;
+    bool        status_can_be_run;
     //
     virtual ~TicketStatus() {}
     QVariantMap toMap() const Q_DECL_OVERRIDE;
@@ -166,6 +168,8 @@ struct TicketStatus : Mutable {
         description = x.description;
         status_description = x.status_description;
         status_color = x.status_color;
+        status_closed = x.status_closed;
+        status_can_be_run = x.status_can_be_run;
         return *this;
         }
 };

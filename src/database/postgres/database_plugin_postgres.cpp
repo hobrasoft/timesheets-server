@@ -760,7 +760,7 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int ticket, bool a
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
-        select ts.id, ts.ticket, ts."user", ts.date, ts.description, ts.status, s.color, s.description
+        select ts.id, ts.ticket, ts."user", ts.date, ts.description, ts.status, s.color, s.description, s.closed, s.can_be_run
             from temporary_tickets t, ticket_status ts, users u, statuses s
             where t.ticket = ts.ticket
               and u."user" = ts."user"
@@ -782,6 +782,8 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int ticket, bool a
         x.status        = q.value(i++).toString();
         x.status_color  = q.value(i++).toString();
         x.status_description = q.value(i++).toString();
+        x.status_closed = q.value(i++).toBool();
+        x.status_can_be_run = q.value(i++).toBool();
         list << x;
         }
     return list;
@@ -798,7 +800,7 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int id) {
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
-        select ts.id, ts.ticket, ts."user", ts.date, ts.description, ts.status, s.color, s.description
+        select ts.id, ts.ticket, ts."user", ts.date, ts.description, ts.status, s.color, s.description, s.close, s.can_be_run
             from ticket_status ts, users u, tickets t, users_categories uc, statuses s
             where ts.id = :id
               and t.ticket = ts.ticket
@@ -820,6 +822,8 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int id) {
         x.status        = q.value(i++).toString();
         x.status_color  = q.value(i++).toString();
         x.status_description = q.value(i++).toString();
+        x.status_closed = q.value(i++).toBool();
+        x.status_can_be_run = q.value(i++).toBool();
         list << x;
         }
     return list;
