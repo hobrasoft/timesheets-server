@@ -929,6 +929,7 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(int id) {
               and t.category = uc.category
               and uc."user" = :user
               and :id = tt.id
+            order by tt.date_from
             ;
         )'");
     q.bindValue(":user", userId());
@@ -1043,6 +1044,7 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::stopTimesheet(int ticket) {
     QList<Dbt::TicketTimesheets> list;
     MSqlQuery q(m_db);
 
+    q.begin();
     // Zkontroluj, jestli je ticket dostupný pro uživatele a je běžící
     q.prepare(R"'(
         select tt.id 
@@ -1059,6 +1061,7 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::stopTimesheet(int ticket) {
     q.setForwardOnly(false);
     q.exec();
     if (q.size() != 1) {
+        q.commit();
         return list;
         }
     q.next();
@@ -1071,8 +1074,88 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::stopTimesheet(int ticket) {
     q.bindValue(":id", id);
     q.exec();
 
-    list = ticketTimesheets(id);
-    return list;
+    list = ticketTimesheets(ticket, true);
+
+    int remove_secs = 10;
+    int round2_mins = 5;
+    int round5_mins = 5;
+    int join_mins = 5;
+    int remove_singles_mins = 10;
+
+    // step 1 - remove timesheets shorter than ...
+    for (int i=list.size()-1; i>=0; i--) {
+        Dbt::TicketTimesheets& x = list[i];
+        if (x.date_from.secsTo(x.date_to) > remove_secs) { continue; }
+        list.removeAt(i);
+        }
+
+    // step2 - round timeshiits to ...
+    for (int i=list.size()-1; i>=0; i--) {
+        Dbt::TicketTimesheets& x = list[i];
+        int secs;
+        secs = x.date_from.secsTo(x.date_to);
+        secs = secs / (round2_mins * 60) + ( (secs % (round2_mins*60)) ? 1 : 0);
+        secs = secs * (round2_mins * 60);
+        x.date_to = x.date_from.addSecs(secs);
+        }
+
+    // step3 - join overlapinng records
+    for (int i=list.size()-1; i>=1; i--) {
+        Dbt::TicketTimesheets& x0 = list[i-1];
+        Dbt::TicketTimesheets& x1 = list[i];
+
+        if (x0.date_to < x1.date_from) { continue; }
+        x0.date_to = x1.date_to;
+        list.removeAt(i);
+        }
+
+    // step4 - join near records
+    for (int i=list.size()-1; i>=1; i--) {
+        Dbt::TicketTimesheets& x0 = list[i-1];
+        Dbt::TicketTimesheets& x1 = list[i];
+        if (x0.date_to.addSecs(join_mins*60) < x1.date_from) { continue; }
+        x0.date_to = x1.date_to;
+        list.removeAt(i);
+        }
+
+    // step5  - round timetracks to ...
+    for (int i=list.size()-1; i>=0; i--) {
+        Dbt::TicketTimesheets& x = list[i];
+        int secs;
+        secs = x.date_from.secsTo(x.date_to);
+        secs = secs + (round5_mins * 60) -1;
+        secs = secs / (round5_mins * 60);
+        secs = secs * (round5_mins * 60);
+        x.date_to = x.date_from.addSecs(secs);
+        }
+
+    // step6 - remove short single records
+    for (int i=list.size()-1; i>=0; i--) {
+        Dbt::TicketTimesheets& x = list[i];
+        int secs = x.date_from.secsTo(x.date_to);
+        if (secs <= 0) { continue; }
+        if (secs >= remove_singles_mins * 60) { continue; }
+        list.removeAt(i);
+        }
+
+    q.prepare(R"'(delete from ticket_timesheets where ticket = :ticket;)'");
+    q.bindValue(":ticket", ticket);
+    q.exec();
+
+    q.prepare(R"'(insert into ticket_timesheets (ticket, "user", date_from, date_to) 
+            values (:ticket, :user, :date_from, :date_to);
+        )'");
+    for (int i=0; i<list.size(); i++) {
+        Dbt::TicketTimesheets& x = list[i];
+        q.bindValue(":ticket", ticket);
+        q.bindValue(":user", userId());
+        q.bindValue(":date_from", x.date_from);
+        q.bindValue(":date_to", x.date_to);
+        q.exec();
+        }
+
+    q.commit();
+    return list.mid(list.size()-1);
 }
 
 
