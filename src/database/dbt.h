@@ -111,6 +111,7 @@ struct Statuses {
     QString     color;
     bool        closed;
     bool        can_be_run;
+    bool        ignored;
 
     QVariantMap toMap() const;
     static Statuses fromMap(const QVariantMap&);
@@ -152,6 +153,7 @@ struct TicketStatus : Mutable {
     QString     status_color;
     bool        status_closed;
     bool        status_can_be_run;
+    bool        status_ignored;
     //
     virtual ~TicketStatus() {}
     QVariantMap toMap() const Q_DECL_OVERRIDE;
@@ -170,6 +172,7 @@ struct TicketStatus : Mutable {
         status_color = x.status_color;
         status_closed = x.status_closed;
         status_can_be_run = x.status_can_be_run;
+        status_ignored = x.status_ignored;
         return *this;
         }
 };

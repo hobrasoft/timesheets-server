@@ -140,6 +140,7 @@ QVariantMap Statuses::toMap() const {
     data["color"] = color;
     data["closed"] = closed;
     data["can_be_run"] = can_be_run;
+    data["ignored"] = ignored;
     return data;
 }
 
@@ -152,6 +153,7 @@ Statuses Statuses::fromMap(const QVariantMap& data) {
     x.color = data["color"].toString();
     x.closed= data["closed"].toBool();
     x.can_be_run = data["can_be_run"].toBool();
+    x.ignored = data["ignored"].toBool();
     return x;
 }
 
@@ -299,6 +301,7 @@ QVariantMap TicketStatus::toMap() const {
     data["status_description"] = status_description;
     data["status_color"] = status_color;
     data["status_can_be_run"] = status_can_be_run;
+    data["status_ignored"] = status_ignored;
     data["status_closed"] = status_closed;
     return data;
 }

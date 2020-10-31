@@ -760,7 +760,7 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int ticket, bool a
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
-        select ts.id, ts.ticket, ts."user", ts.date, ts.description, ts.status, s.color, s.description, s.closed, s.can_be_run
+        select ts.id, ts.ticket, ts."user", ts.date, ts.description, ts.status, s.color, s.description, s.closed, s.can_be_run, s.ignored
             from temporary_tickets t, ticket_status ts, users u, statuses s
             where t.ticket = ts.ticket
               and u."user" = ts."user"
@@ -784,6 +784,7 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int ticket, bool a
         x.status_description = q.value(i++).toString();
         x.status_closed = q.value(i++).toBool();
         x.status_can_be_run = q.value(i++).toBool();
+        x.status_ignored    = q.value(i++).toBool();
         list << x;
         }
     return list;
@@ -800,7 +801,7 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int id) {
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
-        select ts.id, ts.ticket, ts."user", ts.date, ts.description, ts.status, s.color, s.description, s.close, s.can_be_run
+        select ts.id, ts.ticket, ts."user", ts.date, ts.description, ts.status, s.color, s.description, s.close, s.can_be_run, s.ignored
             from ticket_status ts, users u, tickets t, users_categories uc, statuses s
             where ts.id = :id
               and t.ticket = ts.ticket
@@ -824,6 +825,7 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int id) {
         x.status_description = q.value(i++).toString();
         x.status_closed = q.value(i++).toBool();
         x.status_can_be_run = q.value(i++).toBool();
+        x.status_ignored    = q.value(i++).toBool();
         list << x;
         }
     return list;
@@ -1080,7 +1082,7 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::stopTimesheet(int ticket) {
     int round2_mins = 5;
     int round5_mins = 5;
     int join_mins = 5;
-    int remove_singles_mins = 10;
+    int remove_singles_mins = 3;
 
     // step 1 - remove timesheets shorter than ...
     for (int i=list.size()-1; i>=0; i--) {
@@ -1137,6 +1139,7 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::stopTimesheet(int ticket) {
         if (secs >= remove_singles_mins * 60) { continue; }
         list.removeAt(i);
         }
+
 
     q.prepare(R"'(delete from ticket_timesheets where ticket = :ticket;)'");
     q.bindValue(":ticket", ticket);
@@ -1411,12 +1414,12 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& id) {
     MSqlQuery q(m_db);
     if (id.isEmpty() || id == "") {
         q.prepare(R"'(
-            select status, description, abbreviation, color, closed, can_be_run
+            select status, description, abbreviation, color, closed, can_be_run, ignored
             from statuses
             )'");
       } else {
         q.prepare(R"'(
-            select status, description, abbreviation, color, closed, can_be_run
+            select status, description, abbreviation, color, closed, can_be_run, ignored
             from statuses
             where (:id = status);
         )'");
@@ -1432,6 +1435,7 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& id) {
         x.color = q.value(i++).toString();
         x.closed = q.value(i++).toBool();
         x.can_be_run = q.value(i++).toBool();
+        x.ignored = q.value(i++).toBool();
         list << x;
         }
     return list;
@@ -1456,6 +1460,7 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& category, c
             x.color = q.value(i++).toString();
             x.closed = q.value(i++).toBool();
             x.can_be_run = q.value(i++).toBool();
+            x.ignored = q.value(i++).toBool();
             list << x;
             }
         return list;
@@ -1471,7 +1476,7 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& category, c
 
     if (findNullCategory && (previousStatus.isEmpty() || previousStatus == "")) {
         q.prepare(R"'(
-            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run
+            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run, s.ignored
             from statuses s, status_order o
             where s.status = o.next_status
             and (o.previous_status is null or o.previous_status = '')
@@ -1482,7 +1487,7 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& category, c
 
     if (findNullCategory) {
         q.prepare(R"'(
-            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run
+            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run, s.ignored
             from statuses s, status_order o
             where s.status = o.next_status
             and o.previous_status = :previous_status
@@ -1494,7 +1499,7 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& category, c
 
     if (!findNullCategory && (previousStatus.isEmpty() || previousStatus == "")) {
         q.prepare(R"'(
-            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run
+            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run, s.ignored
             from statuses s, status_order o
             where s.status = o.next_status
             and (o.previous_status is null or o.previous_status = '')
@@ -1507,7 +1512,7 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& category, c
 
     if (!findNullCategory) {
         q.prepare(R"'(
-            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run
+            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run, s.ignored
             from statuses s, status_order o
             where s.status = o.next_status
             and o.previous_status = :previous_status
@@ -1541,6 +1546,7 @@ QVariant DatabasePluginPostgres::save(const Dbt::Statuses& data) {
             color = :color,
             closed = :closed
             can_be_run = :can_be_run 
+            ignored = :ignored
             where status = :status
         )'");
     q.bindValue(":description", data.description);
@@ -1548,12 +1554,13 @@ QVariant DatabasePluginPostgres::save(const Dbt::Statuses& data) {
     q.bindValue(":color", data.color);
     q.bindValue(":closed", data.closed);
     q.bindValue(":can_be_run", data.can_be_run);
+    q.bindValue(":ignored", data.ignored);
     q.bindValue(":status", data.status);
     q.exec();
 
     q.prepare(R"'(
-        insert into statuses (status, description, abbreviation, color, closed, can_be_run)
-            select :status1, :description, :abbreviation, :color, :closed, :can_be_run
+        insert into statuses (status, description, abbreviation, color, closed, can_be_run, ignored)
+            select :status1, :description, :abbreviation, :color, :closed, :can_be_run, :ignored
             where not exists (select 1 from statuses where status = :status2);
         )'");
     q.bindValue(":status1", data.status);
@@ -1562,6 +1569,7 @@ QVariant DatabasePluginPostgres::save(const Dbt::Statuses& data) {
     q.bindValue(":color", data.color);
     q.bindValue(":closed", data.closed);
     q.bindValue(":can_be_run", data.can_be_run);
+    q.bindValue(":ignored", data.ignored);
     q.bindValue(":status2", data.status);
     q.exec();
 
