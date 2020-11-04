@@ -305,6 +305,56 @@ struct TicketsVw : Tickets {
 };
 
 
+struct Overview {
+    struct Days {
+        int         ticket;
+        QString     description;
+        int         user;
+        QString     user_name;
+        QDateTime   date;
+        double      hour_price;
+        double      duration;
+        double      price;
+        QVariantMap toMap() const;
+        Days() { ticket = 0; user = 0; hour_price = 0; duration = 0; price = 0; }
+        };
+    struct Sum {
+        double      duration;
+        double      price;
+        QVariantMap toMap() const;
+        Sum() { duration = 0; price = 0; }
+        };
+    struct Tickets {
+        int         ticket;
+        QString     description;
+        int         user;
+        QString     user_name;
+        double      hour_price;
+        double      duration;
+        double      price;
+        QVariantMap toMap() const;
+        Tickets() { ticket = 0; user = 0; hour_price = 0; duration = 0; price = 0; }
+        };
+    struct TicketsSum {
+        int         ticket;
+        QString     description;
+        double      duration;
+        double      price;
+        QVariantMap toMap() const;
+        TicketsSum() { ticket = 0; duration = 0; price = 0; }
+        };
+
+    // Jeden dotaz
+    Categories          category;
+    QList<Tickets>      tickets;        // group by ticket, user
+    QList<TicketsSum>   ticketsSum;     // group by ticket
+    // Druhý dotaz
+    QList<Days>         days;           // group by date, user
+    Sum                 sum;            // group by category
+    QVariantMap         toMap() const;
+};
+
+
 }
 
 #endif

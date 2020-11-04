@@ -277,3 +277,8 @@ QList<Dbt::ClientSettings> Database::clientSettings() {
     return m_dbplugin->clientSettings();
 }
 
+
+QList<Dbt::Overview> Database::overview(const QString& category, const QStringList& statuses) {
+    return m_dbplugin->overview(category, statuses);
+}
+

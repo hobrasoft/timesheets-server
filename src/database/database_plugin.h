@@ -75,6 +75,7 @@ class DatabasePlugin : public QObject {
     virtual QList<Dbt::TicketTimesheets>            toggleTimesheet(int ticket) = 0;
 
     virtual QList<Dbt::ClientSettings>              clientSettings() = 0;
+    virtual QList<Dbt::Overview>                    overview(const QString& category, const QStringList& statuses) = 0;
 
 
     virtual void remove(const Dbt::Users& data) { Q_UNUSED(data); }

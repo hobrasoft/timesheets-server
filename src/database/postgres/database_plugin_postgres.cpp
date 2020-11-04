@@ -902,6 +902,7 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(int ticket
             from temporary_tickets t, ticket_timesheets tt
             where t.ticket = tt.ticket
               and t.ticket = :ticket
+              order by tt.date_from -- must be sorted!
             ;
         )'");
     q.bindValue(":user", userId());
@@ -1139,7 +1140,6 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::stopTimesheet(int ticket) {
         if (secs >= remove_singles_mins * 60) { continue; }
         list.removeAt(i);
         }
-
 
     q.prepare(R"'(delete from ticket_timesheets where ticket = :ticket;)'");
     q.bindValue(":ticket", ticket);
@@ -1752,6 +1752,89 @@ QList<Dbt::UsersCategories> DatabasePluginPostgres::usersCategories(int id, int 
         return retvals();
         }
 
+    return list;
+}
+
+
+QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& category, const QStringList& statuses) {
+    QList<Dbt::Overview> list;
+    MSqlQuery q(m_db);
+    auto categories = DatabasePluginPostgres::categories(category);
+    if (categories.isEmpty()) { return list; }
+    Dbt::Overview overview;
+    overview.category = categories.first();
+
+    q.exec(R"'(create temporary table overview_categories_tmp(category int);)'");
+    q.exec(R"'(create temporary table overview_statuses_tmp(status text);)'");
+    q.prepare(R"'(insert into overview_categories_tmp values (:category);)'");
+    q.bindValue(":category", category.toInt());
+    q.exec();
+    q.prepare(R"'(insert into overview_statuses_tmp values (:status);)'");
+    for (int i=0; i<statuses.size(); i++) {
+        q.bindValue(":status", statuses[i]);
+        q.exec();
+        }
+    q.exec(R"'(
+            with
+            ticket_last_status as not materialized (
+                select t.ticket, tl.status
+                    from tickets t
+                    left join lateral (select tn.ticket, tn.status
+                                from  ticket_status tn, statuses s
+                                where tn.ticket = t.ticket
+                                  and tn.status = s.status
+                                  and not s.ignored
+                                order by ticket, date desc
+                                limit 1
+                                ) tl using (ticket)
+                ),
+            ticket_timesheets_sum as not materialized (
+                select ticket, "user", sum(date_to - date_from) as duration
+                    from ticket_timesheets
+                    group by ticket, "user"
+                )
+
+            select t.ticket, t.description, t."user", u.name, t.price as hour_price, ls.status, to_hours(ts.duration), round(to_hours(ts.duration) * t.price)
+                from tickets t
+                left join ticket_last_status ls using (ticket)
+                left join ticket_timesheets_sum ts using (ticket, "user")
+                left join users u using ("user")
+                where ls.status in (select status from overview_statuses_tmp)
+                and category in (select category from overview_categories_tmp)
+
+            union all
+            --     0         1              2     3     4     5     6                           7
+            select t.ticket, t.description, -1,   null, null, null, to_hours(sum(ts.duration)), sum(to_hours(ts.duration) * t.price)
+                from tickets t
+                left join ticket_timesheets_sum ts using (ticket, "user")
+                left join ticket_last_status ls using (ticket)
+                where ls.status in (select status from overview_statuses_tmp)
+                and category in (select category from overview_categories_tmp)
+                group by t.ticket
+            )'");
+    while (q.next()) {
+        if (q.value(2).toInt() == -1) {
+            Dbt::Overview::TicketsSum s;
+            s.ticket      = q.value(0).toInt();
+            s.description = q.value(1).toString();
+            s.duration    = q.value(6).toDouble();
+            s.price       = q.value(7).toDouble();
+            overview.ticketsSum << s;
+            continue;
+            }
+        int i = 0;
+        Dbt::Overview::Tickets t;
+        t.ticket        = q.value(i++).toInt();
+        t.description   = q.value(i++).toString();
+        t.user          = q.value(i++).toInt();
+        t.user_name     = q.value(i++).toString();
+        t.hour_price    = q.value(i++).toDouble();
+        t.duration      = q.value(i++).toDouble();
+        t.price         = q.value(i++).toDouble();
+        overview.tickets << t;
+        }
+
+    list << overview;
     return list;
 }
 

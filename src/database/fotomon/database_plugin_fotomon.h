@@ -72,6 +72,7 @@ class DatabasePluginFotomon : public Db::Plugins::DatabasePlugin {
     QList<Dbt::TicketTimesheets>            toggleTimesheet(int ticket) Q_DECL_OVERRIDE;
 
     QList<Dbt::ClientSettings>              clientSettings() Q_DECL_OVERRIDE;
+    QList<Dbt::Overview>                    overview(const QString& category, const QStringList& statuses) Q_DECL_OVERRIDE;
 
     QVariant save(const Dbt::Tickets& data) Q_DECL_OVERRIDE;
     QVariant save(const Dbt::TicketsVw& data) Q_DECL_OVERRIDE;

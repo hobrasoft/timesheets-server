@@ -1,0 +1,34 @@
+/**
+ * @file
+ *
+ * @author Petr Bravenec petr.bravenec@hobrasoft.cz
+ */
+
+#include "controlleroverview.h"
+#include "httprequest.h"
+#include "db.h"
+#include "pdebug.h"
+
+using namespace Httpd;
+
+
+ControllerOverview::ControllerOverview(HobrasoftHttpd::HttpConnection *parent) : AbstractController(parent) {
+}
+
+
+void ControllerOverview::serviceIdGet (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QString& id) {
+    QStringList statuses = request->parameter("statuses").split(",");
+    auto list = db()->categories(id);
+    if (list.isEmpty()) {
+        serviceError(request, response, 404, "not-found", "Not found");
+        return;
+        }
+
+    auto overview = db()->overview(id, statuses);
+
+    serviceOK(request, response, overview.first().toMap());
+}
+
+
+
+

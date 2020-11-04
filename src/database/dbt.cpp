@@ -347,3 +347,67 @@ QList<TicketStatus> TicketStatus::fromList(const QVariantList& list) {
 }
 
 
+QVariantMap Overview::Days::toMap() const {
+    QVariantMap data;
+    data["ticket"] = ticket;
+    data["description"] = description;
+    data["user"] = user;
+    data["user_name"] = user_name;
+    data["date"] = date;
+    data["hour_price"] = hour_price;
+    data["duration"] = duration;
+    data["price"] = price;
+    return data;
+}
+
+
+QVariantMap Overview::Sum::toMap() const {
+    QVariantMap data;
+    data["duration"] = duration;
+    data["price"] = price;
+    return data;
+}
+
+
+QVariantMap Overview::Tickets::toMap() const {
+    QVariantMap data;
+    data["ticket"] = ticket;
+    data["description"] = description;
+    data["user"] = user;
+    data["user_name"] = user_name;
+    data["hour_price"] = hour_price;
+    data["duration"] = duration;
+    data["price"] = price;
+    return data;
+}
+
+
+QVariantMap Overview::TicketsSum::toMap() const {
+    QVariantMap data;
+    data["ticket"] = ticket;
+    data["description"] = description;
+    data["duration"] = duration;
+    data["price"] = price;
+    return data;
+}
+
+
+QVariantMap Overview::toMap() const {
+    QVariantMap data;
+    data["category"] = category.toMap();
+    data["tickets"] = toList(tickets);
+
+    QVariantMap xdays;
+    xdays["records"] = toList(days);
+    xdays["sum"] = sum.toMap();
+    data["days"] = xdays;
+
+    QVariantMap xtickets; 
+    xtickets["records"] = toList(tickets);
+    xtickets["sum"] = toList(ticketsSum);
+    data["tickets"] = xtickets;
+
+    return data;    
+};
+
+
