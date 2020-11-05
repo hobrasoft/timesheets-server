@@ -1834,6 +1834,63 @@ QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& category, c
         overview.tickets << t;
         }
 
+    q.exec(R"'(
+            with
+            ticket_last_status as not materialized (
+                select t.ticket, tl.status
+                    from tickets t
+                    left join lateral (select tn.ticket, tn.status
+                                from  ticket_status tn, statuses s
+                                where tn.ticket = t.ticket
+                                  and tn.status = s.status
+                                  and not s.ignored
+                                order by ticket, date desc
+                                limit 1
+                                ) tl using (ticket)
+                ),
+            ticket_timesheets_sum as not materialized (
+                select ticket, "user", date_to::date as date, sum(date_to - date_from) as duration
+                    from ticket_timesheets
+                    group by ticket, "user", date_to::date
+                )
+
+            select t.ticket, t.description, t."user", t.price as hour_price, ls.status, ts.date, ts.duration, round(to_hours(ts.duration))
+                from tickets t
+                left join ticket_last_status ls using (ticket)
+                left join ticket_timesheets_sum ts using (ticket, "user")
+                left join categories c using (category)
+                where ls.status in (select status from overview_statuses_tmp)
+                and category in (select category from overview_categories_tmp)
+
+            union all
+            --     0     1     2   3     4     5     6              7
+            select null, null, -1, null, null, null, sum(duration), sum(round(to_hours(ts.duration) * t.price))
+                from tickets t
+                left join ticket_last_status ls using (ticket)
+                left join ticket_timesheets_sum ts using (ticket, "user")
+                where ls.status in (select status from overview_statuses_tmp)
+                and category in (select category from overview_categories_tmp)
+            order by date
+            )'");
+    while (q.next()) {
+        if (q.value(2).toInt() == -1) {
+            overview.sum.duration    = q.value(7).toDouble();
+            overview.sum.price       = q.value(8).toDouble();
+            continue;
+            }
+        int i = 0;
+        Dbt::Overview::Days t;
+        t.ticket        = q.value(i++).toInt();
+        t.description   = q.value(i++).toString();
+        t.user          = q.value(i++).toInt();
+        t.user_name     = q.value(i++).toString();
+        t.hour_price    = q.value(i++).toDouble();
+        t.date          = q.value(i++).toDateTime();
+        t.duration      = q.value(i++).toDouble();
+        t.price         = q.value(i++).toDouble();
+        overview.days << t;
+        }
+
     list << overview;
     return list;
 }
