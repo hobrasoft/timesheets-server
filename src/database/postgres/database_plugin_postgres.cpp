@@ -1842,7 +1842,7 @@ QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& overviewId)
                     group by ticket, "user"
                 )
 
-            select t.ticket, t.description, t."user", u.name, t.price as hour_price, ls.status, to_hours(ts.duration), round(to_hours(ts.duration) * t.price)
+            select t.ticket, t.description, t."user", u.name, t.price as hour_price, to_hours(ts.duration), round(to_hours(ts.duration) * t.price)
                 from tickets t
                 left join ticket_last_status ls using (ticket)
                 left join ticket_timesheets_sum ts using (ticket, "user")
@@ -1851,8 +1851,8 @@ QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& overviewId)
                 and category in (select category from overview_categories_tmp)
 
             union all
-            --     0         1              2     3     4     5     6                           7
-            select t.ticket, t.description, -1,   null, null, null, to_hours(sum(ts.duration)), sum(to_hours(ts.duration) * t.price)
+            --     0         1              2     3     4     5                           6
+            select t.ticket, t.description, -1,   null, null, to_hours(sum(ts.duration)), sum(to_hours(ts.duration) * t.price)
                 from tickets t
                 left join ticket_timesheets_sum ts using (ticket, "user")
                 left join ticket_last_status ls using (ticket)
@@ -1865,8 +1865,8 @@ QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& overviewId)
             Dbt::Overview::TicketsSum s;
             s.ticket      = q.value(0).toInt();
             s.description = q.value(1).toString();
-            s.duration    = q.value(6).toDouble();
-            s.price       = q.value(7).toDouble();
+            s.duration    = q.value(5).toDouble();
+            s.price       = q.value(6).toDouble();
             overview.ticketsSum << s;
             continue;
             }

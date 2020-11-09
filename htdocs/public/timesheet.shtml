@@ -1,6 +1,6 @@
 <!DOCTYPE html><html class=" js"><head>
 <meta charset="utf-8">
-<title>Titulek</title>
+<title>Pracovní výkaz</title>
 <link rel="stylesheet" media="screen,projection,tv" href="/public/styles/screen.css">
 <link rel="stylesheet" media="print" href="/public/styles/print.css">
 <script type="text/javascript" src="/public/js/jquery-2.1.0.min.js"></script>
@@ -10,22 +10,21 @@
 
 <div id="header">
 <img src="/public/images/logo.svg" width="25%" heigth="25%">
-<h1>Titulek</h1>
+<h1>Pracovní výkaz</h1>
 <h2>Jméno sestavy</h2>
 <p id="weko"><a href="https://prace.hobrasoft.cz">Odkaz do internetu</a></p>
 </div>
 
 <div id="divreport">
 
-<h3>Pracovní výkaz</h3>
+<h3>Pracovní výkaz po úkolech</h3>
 <table class="report">
 <thead>
 <tr><th>Jméno</th><th>Popis</th><th class="right">Čas</th><th class="right">Cena</th></tr>
 </thead>
 <tbody id="r1">
 </tbody>
-<tfoot>
-<tr><th></th><th>Součet</th><th id="timesum-r1" class="nowrap"></th><th id="sum-r1"></th></tr>
+<tfoot id="f1">
 </tfoot>
 </table>
 
@@ -37,7 +36,7 @@
 <tbody id="r2">
 </tbody>
 <tfoot>
-<tr><th colspan="3">Součet</th><th id="timesum-r2"></th><th></th><th id="sum-r2"></th></tr>
+<tr><th colspan="3"></th><th>Součet</th><th id="timesum-r2"></th><th id="sum-r2"></th></tr>
 </tfoot>
 </table>
 
@@ -48,6 +47,7 @@
 </div>
 
 <script type="text/javascript">
+
 $.urlParam = function(name) {
     var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
     if (results==null) {
@@ -56,6 +56,56 @@ $.urlParam = function(name) {
         return results[1] || 0;
         }
 };
+
+Number.prototype.pad = function(size) {
+    var s = String(this);
+    while (s.length < (size || 2)) { s = "0" + s; }
+    return s;
+    };
+
+Number.prototype.formatHHMM = function() {
+    if (isNaN(this)) { return ""; }
+    var x = this * 3600 + 29;
+    var hh = Math.floor(x/3600);
+    var mm = Math.floor((x- hh*3600)/60);
+    var ss = Math.floor(x%60);
+    return hh.pad(2)+":"+mm.pad(2);
+    };
+
+Number.prototype.floor = function() {
+    return Math.floor(this);
+    }
+
+Date.prototype.formatYYYYMMDD = function() {
+    if (isNaN(this.getTime())) { return ""; }
+    var yy = this.getFullYear();
+    var mt = this.getMonth() + 1;
+    var dd = this.getDate();
+    // return yy.pad(4)+"-"+mt.pad(2)+"-"+dd.pad(2);
+    return dd + '.' + mt + '.' + yy.pad(4);
+    }
+
+String.prototype.formatYYYYMMDD = function() {
+    var date = new Date(this);
+    return date.formatYYYYMMDD();
+    }
+
+Date.prototype.dow = function() {
+    var weekday = new Array(7);
+    weekday[0] = "Neděle";
+    weekday[1] = "Pondělí";
+    weekday[2] = "Úterý";
+    weekday[3] = "Středa";
+    weekday[4] = "Čtvrtek";
+    weekday[5] = "Pátek";
+    weekday[6] = "Sobota";
+    return weekday[this.getDay()];
+    }
+
+String.prototype.dow = function() {
+    var date = new Date(this);
+    return date.dow();
+    }
 
 
 $(document).ready(function(){
@@ -78,153 +128,47 @@ $(document).ready(function(){
 
 function drawReport(data) {
     $("#header h2").text(data.category.description);
+    $("#weko").html('<a href="'+window.location.href+'">'+window.location.href+'</a>');
 
-    var rtickets = data.tickets.records;
+    var rtickets = data.tickets.records.sort(function(a,b){return a.ticket-b.ticket;});
     for (var i=0; i<rtickets.length; i++) {
-        console.log("konsoluji " + i);
         $("#r1").append(
             '<tr>' +
             '<td>' + rtickets[i].user_name + '</td>' + 
             '<td>' + rtickets[i].description + '</td>' +
-            '<td>' + rtickets[i].duration + '</td>' +
-            '<td class="right">' + rtickets[i].price + '</td>' + 
+            '<td class="right">' + rtickets[i].duration.formatHHMM() + '</td>' +
+            '<td class="right">' + rtickets[i].price.toFixed(0) + ' Kč</td>' + 
             '</tr>\n'
             );
         }
 
-    var rdays = data.days.records;
+    var rsums = data.tickets.sum.sort(function(a,b){return a.ticket-b.ticket;});
+    for (var i=0; i<rsums.length; i++) {
+        $("#f1").append(
+            '<tr>' +
+            '<th></th>' + 
+            '<th>' + rsums[i].description + '</th>' +
+            '<th class="right">' + rsums[i].duration.formatHHMM() + '</th>' +
+            '<th class="right">' + rsums[i].price.toFixed(0) + ' Kč</th>' + 
+            '</tr>\n'
+            );
+        }
+
+    var rdays = data.days.records.sort(function(a,b){return (a.date>b.date)?1:(a.date<b.date)?-1:0;});
     for (var i=0; i < rdays.length; i++) {
         $("#r2").append(
                 '<tr>' +
-                '<td class="right">' + rdays[i].date + '</td>' +
-                '<td>' + 'Pondeli' + '</td>' +
+                '<td class="right">' + rdays[i].date.formatYYYYMMDD() + '</td>' +
+                '<td>' + rdays[i].date.dow()  + '</td>' +
                 '<td>' + rdays[i].user_name + ' </td>' +
                 '<td>' + rdays[i].description + ' </td>' +
-                '<td class="right">' + rdays[i].duration.toFixed(2) + ' h</td>' +
+                '<td class="right">' + rdays[i].duration.formatHHMM() + '</td>' +
                 '<td class="right">' + rdays[i].price.toFixed(0) + ' Kč</td>' + 
                 '</tr>\n'
                 );
-        
         }
-
-/*
-
-    var id = deko.id();
-    var doc = deko.get(id);
-    var parent = deko.linksToMe(id);
-    var parentid = parent.rows[0].value.docid;
-    var parentdoc = deko.get(parentid);
-    var parentlinks = deko.linksFromMe(parentid);
-    var url = "http://weko.hobrasoft.cz/timesheet/default/" + deko.hash(parentid);
-    var sum = 0;
-    var timesum = 0;
-
-    for (var i=0; i<parentlinks.rows.length; i++) {
-        var xtype = parentlinks.rows[i].value.doctype;
-        var xid   = parentlinks.rows[i].value.docid;
-
-//        if (xtype == 'timesheet' || xtype == 'note' || xtype == 'event') {
-          if (xtype == 'timesheet') {
-            var xdoc = deko.get(xid);
-            var icon = (xtype == 'note') ? xdoc.icon : xtype;
-            var time = xdoc.duration;
-            if (time == null) { time = ""; } else { timesum += time; time = time.toFixed(2) + "&nbsp;h"; }
-            var price = xdoc.price;
-            if (price == null) { price = ""; } else { sum += price; price = price.toFixed(2); }
-
-            var datestring = (xtype == 'timesheet') ? xdoc.enddate : (xtype == 'note') ? xdoc.datetime : '';
-            var date = Date.parse(datestring.replace('.000',''));
-            if (Object.prototype.toString.call(date) === "[object Date]" && !isNaN(date.getTime())) {
-                datestring = date.toString('d.M.yyyy');
-              } else {
-                datestring = "";
-                }
-
-            // kdo volal?
-            if (icon == 'phone' || icon == 'mail') {
-                var idstome = deko.linksToMe(xid);
-                for (var p=0; p<idstome.rows.length; p++) {
-                    if (idstome.rows[p].value.doctype != "person") continue;
-                    var pdoc = deko.get(idstome.rows[p].value.docid);
-                    datestring += '<br>' + pdoc.firstname + ' ' + pdoc.surname;
-                    }
-                }
-
-            $("#r1").append(
-                '<tr>' +
-                '<td><!-- <img src="/public/images/' + icon + '.svg"> --></td>' +
-                '<td class="right">' + datestring + '</td>' +
-                '<td>' + xdoc.name + '</td>' +
-                '<td>' + time + '</td>' +
-                '<td class="right">' + price + '</td>' + 
-                '</tr>\n'
-                );
-
-            if (timesum > 0) {
-                $("th#timesum").text(timesum.toFixed(2) + ' h');
-                $("th#sum").text(sum.toFixed(2));
-                }
-
-            }
-        }
-
-    sum = 0;
-    timesum = 0;
-    var dateval = new Object;
-    for (var i=0; i<parentlinks.rows.length; i++) {
-        var xtype = parentlinks.rows[i].value.doctype;
-        var xid   = parentlinks.rows[i].value.docid;
-
-        if (xtype == 'timesheet') {
-            var xdoc = deko.get(xid);
-            var hourprice = xdoc.hourprice;
-            for (var j=0; j<xdoc.timetrack.length; j++) {
-                var datetimef = Date.parse(xdoc.timetrack[j].from.replace('.000',''));
-                var datetimet = Date.parse(xdoc.timetrack[j].to.replace('.000',''));
-                console.log(xdoc.timetrack[j].from + ' ' + datetimef);
-                if (datetimef == null || datetimet == null) { continue; }
-                var datef = datetimef.toString('yyyy-MM-dd');
-                var duration = (datetimet.getTime() - datetimef.getTime()) / 3600000;
-                var price = duration * hourprice;
-                if (dateval[datef] == undefined) {
-                    dateval[datef] = new Object;
-                    dateval[datef].duration = duration;
-                    dateval[datef].price = price;
-                    dateval[datef].count = 1;
-                    timesum = timesum + duration;
-                    sum = sum + price;
-                  } else {
-                    dateval[datef].duration = dateval[datef].duration + duration;
-                    dateval[datef].price = dateval[datef].price + price;
-                    dateval[datef].count = dateval[datef].count + 1;
-                    timesum = timesum + duration;
-                    sum = sum + price;
-                    }
-                }
-            }
-        }
-
-    if (timesum > 0) {
-        $("th#timesum").text(timesum.toFixed(2) + ' h');
-        $("th#sum").text(sum.toFixed(0) + ' Kč');
-        }
-
-    var dnames = [ "Neděle", "Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota", "Neděle" ];
-    for (var key in dateval) {
-        var date = Date.parse(key);
-        $("#r2").append(
-                '<tr>' +
-                '<td class="right">' + date.toString("dd.MM.yyyy") + '</td>' +
-                '<td>' + dnames[date.getDay()] + '</td>' +
-                '<td class="right">' + dateval[key].duration.toFixed(2) + ' h</td>' +
-                '<td class="right">' + dateval[key].count + '</td>' +
-                '<td class="right">' + dateval[key].price.toFixed(0) + ' Kč</td>' + 
-                '</tr>\n'
-                );
-
-        }
-
-*/
+    $("#timesum-r2").text(data.days.sum.duration.formatHHMM());
+    $("#sum-r2").text(data.days.sum.price.toFixed(0) + ' Kč');
 
 }
 
