@@ -76,6 +76,7 @@ class DatabasePlugin : public QObject {
 
     virtual QList<Dbt::ClientSettings>              clientSettings() = 0;
     virtual QList<Dbt::Overview>                    overview(const QString& category, const QStringList& statuses) = 0;
+    virtual QList<Dbt::Overview>                    overview(const QString& overviewId) = 0;
 
 
     virtual void remove(const Dbt::Users& data) { Q_UNUSED(data); }
@@ -115,7 +116,7 @@ class DatabasePlugin : public QObject {
     QSqlDatabase m_db;
 
   public:
-    const AuthenticatedUser *m_authenticatedUser;
+    const AuthenticatedUser *m_authenticatedUser = nullptr;
 
 
 };

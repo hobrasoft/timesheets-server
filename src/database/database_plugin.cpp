@@ -11,7 +11,7 @@ using namespace Db::Plugins;
 
 
 DatabasePlugin::DatabasePlugin(QObject *parent) : QObject (parent) {
-    Q_ASSERT(parent != NULL);
+    Q_ASSERT(parent != nullptr);
     setObjectName("DatabasePlugin-Fotomon");
 }
 

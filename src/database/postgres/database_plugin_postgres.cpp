@@ -12,6 +12,7 @@
 #include <QSqlError>
 #include <QCryptographicHash>
 #include <QFile>
+#include <QRandomGenerator>
 
 using namespace Db::Plugins;
 
@@ -1757,23 +1758,70 @@ QList<Dbt::UsersCategories> DatabasePluginPostgres::usersCategories(int id, int 
 
 
 QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& category, const QStringList& statuses) {
+    QString statusesX;
+    QStringList statusesL;
+    for (int i=0; i<statuses.size(); i++) {
+        statusesL << "'" + statuses[i] + "'";
+        }
+    statusesL.sort();
+    statusesX = "array[" +statusesL.join(",") + "]";
+
     QList<Dbt::Overview> list;
     MSqlQuery q(m_db);
-    auto categories = DatabasePluginPostgres::categories(category);
-    if (categories.isEmpty()) { return list; }
+    q.prepare(R"'(
+        select key, category, statuses 
+            from overview_params 
+            where category = :category
+              and statuses = )'" + statusesX );
+    q.bindValue(":category", category);
+    q.exec();
+    if (q.next()) { 
+        list = overview(q.value(0).toString());
+        return list;
+        }
+
+    quint32 rnd = QRandomGenerator::global()->generate();
+    q.prepare("insert into overview_params (key, category, statuses) values (:key, :category, " + statusesX + ");");
+    q.bindValue(":key", rnd);
+    q.bindValue(":category", category);
+    q.exec();
+    list = overview(QString::number(rnd));
+    return list;
+
+}
+
+
+QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& overviewId) {
+    QList<Dbt::Overview> list;
+    MSqlQuery q(m_db);
     Dbt::Overview overview;
-    overview.category = categories.first();
+    overview.id = overviewId;
+
+    q.prepare(R"'(
+        select c.category, c.parent_category, c.description, c.price 
+        from categories c, overview_params p
+        where c.category = p.category
+          and p.key = :key
+        )'");
+    q.bindValue(":key", overviewId);
+    q.exec();
+    if (!q.next()) { return list; }
+    overview.category.category          =      q.value(0).toString();
+    overview.category.parent_category   = null(q.value(1).toString());
+    overview.category.description       =      q.value(2).toString();
+    overview.category.price             =      q.value(3).toDouble();
 
     q.exec(R"'(create temporary table overview_categories_tmp(category int);)'");
     q.exec(R"'(create temporary table overview_statuses_tmp(status text);)'");
-    q.prepare(R"'(insert into overview_categories_tmp values (:category);)'");
-    q.bindValue(":category", category.toInt());
+
+    q.prepare(R"'(insert into overview_categories_tmp select (category) from overview_params where key = :key;)'");
+    q.bindValue(":key", overviewId);
     q.exec();
-    q.prepare(R"'(insert into overview_statuses_tmp values (:status);)'");
-    for (int i=0; i<statuses.size(); i++) {
-        q.bindValue(":status", statuses[i]);
-        q.exec();
-        }
+
+    q.prepare(R"'(insert into overview_statuses_tmp select unnest(statuses) from overview_params where key = :key;)'");
+    q.bindValue(":key", overviewId);
+    q.exec();
+
     q.exec(R"'(
             with
             ticket_last_status as not materialized (
@@ -1874,8 +1922,8 @@ QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& category, c
             )'");
     while (q.next()) {
         if (q.value(2).toInt() == -1) {
-            overview.sum.duration    = q.value(7).toDouble();
-            overview.sum.price       = q.value(8).toDouble();
+            overview.sum.duration    = q.value(6).toDouble();
+            overview.sum.price       = q.value(7).toDouble();
             continue;
             }
         int i = 0;

@@ -23,6 +23,7 @@ SOURCES += \
  $$PWD/controllerstatuses.cpp \
  $$PWD/controllertimesheet.cpp \
  $$PWD/controlleroverview.cpp \
+ $$PWD/controlleroverviewpublic.cpp \
 
 HEADERS += \
  $$PWD/controllerserver.h \
@@ -41,6 +42,7 @@ HEADERS += \
  $$PWD/controllerstatuses.h \
  $$PWD/controllertimesheet.h \
  $$PWD/controlleroverview.h \
+ $$PWD/controlleroverviewpublic.h \
 
 HEADERS += \
  $$PWD/httpd.h \

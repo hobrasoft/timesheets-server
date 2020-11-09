@@ -4,6 +4,7 @@
  * @author Petr Bravenec <petr.bravenec@hobrasoft.cz>
  */
 #include "dbt.h"
+#include "msettings.h"
 #include "pdebug.h"
 
 using namespace Dbt;
@@ -406,6 +407,8 @@ QVariantMap Overview::toMap() const {
     xtickets["records"] = toList(tickets);
     xtickets["sum"] = toList(ticketsSum);
     data["tickets"] = xtickets;
+
+    data["id"] = id;
 
     return data;    
 };
