@@ -1780,12 +1780,13 @@ QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& category, c
         return list;
         }
 
-    quint32 rnd = QRandomGenerator::global()->generate();
+    quint64 rnd = QRandomGenerator::global()->generate64();
+    QString rnds = QString::number(rnd, 36).toUpper();
     q.prepare("insert into overview_params (key, category, statuses) values (:key, :category, " + statusesX + ");");
-    q.bindValue(":key", rnd);
+    q.bindValue(":key", rnds);
     q.bindValue(":category", category);
     q.exec();
-    list = overview(QString::number(rnd));
+    list = overview(rnds);
     return list;
 
 }
@@ -1795,7 +1796,7 @@ QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& overviewId)
     QList<Dbt::Overview> list;
     MSqlQuery q(m_db);
     Dbt::Overview overview;
-    overview.id = overviewId;
+    overview.id = overviewId.toUpper();
 
     q.prepare(R"'(
         select c.category, c.parent_category, c.description, c.price 
@@ -1803,7 +1804,7 @@ QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& overviewId)
         where c.category = p.category
           and p.key = :key
         )'");
-    q.bindValue(":key", overviewId);
+    q.bindValue(":key", overviewId.toUpper());
     q.exec();
     if (!q.next()) { return list; }
     overview.category.category          =      q.value(0).toString();
@@ -1815,11 +1816,11 @@ QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& overviewId)
     q.exec(R"'(create temporary table overview_statuses_tmp(status text);)'");
 
     q.prepare(R"'(insert into overview_categories_tmp select (category) from overview_params where key = :key;)'");
-    q.bindValue(":key", overviewId);
+    q.bindValue(":key", overviewId.toUpper());
     q.exec();
 
     q.prepare(R"'(insert into overview_statuses_tmp select unnest(statuses) from overview_params where key = :key;)'");
-    q.bindValue(":key", overviewId);
+    q.bindValue(":key", overviewId.toUpper());
     q.exec();
 
     q.exec(R"'(
