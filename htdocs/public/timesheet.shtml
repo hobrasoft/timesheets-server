@@ -169,7 +169,7 @@ function drawReport(data) {
         }
     $("#timesum-r2").text(data.days.sum.duration.formatHHMM());
     $("#sum-r2").text(data.days.sum.price.toFixed(0) + ' Kč');
-
+    $("#createdate").text((new Date()).formatYYYYMMDD());
 }
 
 </script>
