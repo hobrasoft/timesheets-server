@@ -1,0 +1,177 @@
+<!DOCTYPE html><html class=" js"><head>
+<meta charset="utf-8">
+<title>Pracovní výkaz</title>
+<link rel="stylesheet" media="screen,projection,tv" href="/public/styles/screen.css">
+<link rel="stylesheet" media="print" href="/public/styles/print.css">
+<script type="text/javascript" src="/public/js/jquery-2.1.0.min.js"></script>
+</head>
+
+<body style="background-color: white;">
+
+<div id="header">
+<img src="/public/images/logo.svg" width="25%" heigth="25%">
+<h1>Pracovní výkaz</h1>
+<h2>Jméno sestavy</h2>
+<p id="weko"><a href="https://prace.hobrasoft.cz">Odkaz do internetu</a></p>
+</div>
+
+<div id="divreport">
+
+<h3>Pracovní výkaz po úkolech</h3>
+<table class="report">
+<thead>
+<tr><th>Jméno</th><th>Popis</th><th class="right">Čas</th><th class="right">Cena</th></tr>
+</thead>
+<tbody id="r1">
+</tbody>
+<tfoot id="f1">
+</tfoot>
+</table>
+
+<h3>Pracovní výkaz po dnech</h3>
+<table class="report">
+<thead>
+</th><th class="right">Datum</th><th></th><th>Jméno</th><th>Popis</th><th class="right">Čas</th><th class="right">Cena</th></tr>
+</thead>
+<tbody id="r2">
+</tbody>
+<tfoot>
+<tr><th colspan="3"></th><th>Součet</th><th id="timesum-r2"></th><th id="sum-r2"></th></tr>
+</tfoot>
+</table>
+
+</div><!-- id=divreport -->
+
+<div id="footer">
+<p>Datum vytvoření: <span id="createdate"></span></p>
+</div>
+
+<script type="text/javascript">
+
+$.urlParam = function(name) {
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+    if (results==null) {
+        return null;
+      } else {
+        return results[1] || 0;
+        }
+};
+
+Number.prototype.pad = function(size) {
+    var s = String(this);
+    while (s.length < (size || 2)) { s = "0" + s; }
+    return s;
+    };
+
+Number.prototype.formatHHMM = function() {
+    if (isNaN(this)) { return ""; }
+    var x = this * 3600 + 29;
+    var hh = Math.floor(x/3600);
+    var mm = Math.floor((x- hh*3600)/60);
+    var ss = Math.floor(x%60);
+    return hh.pad(2)+":"+mm.pad(2);
+    };
+
+Number.prototype.floor = function() {
+    return Math.floor(this);
+    }
+
+Date.prototype.formatYYYYMMDD = function() {
+    if (isNaN(this.getTime())) { return ""; }
+    var yy = this.getFullYear();
+    var mt = this.getMonth() + 1;
+    var dd = this.getDate();
+    // return yy.pad(4)+"-"+mt.pad(2)+"-"+dd.pad(2);
+    return dd + '.' + mt + '.' + yy.pad(4);
+    }
+
+String.prototype.formatYYYYMMDD = function() {
+    var date = new Date(this);
+    return date.formatYYYYMMDD();
+    }
+
+Date.prototype.dow = function() {
+    var weekday = new Array(7);
+    weekday[0] = "Neděle";
+    weekday[1] = "Pondělí";
+    weekday[2] = "Úterý";
+    weekday[3] = "Středa";
+    weekday[4] = "Čtvrtek";
+    weekday[5] = "Pátek";
+    weekday[6] = "Sobota";
+    return weekday[this.getDay()];
+    }
+
+String.prototype.dow = function() {
+    var date = new Date(this);
+    return date.dow();
+    }
+
+
+$(document).ready(function(){
+    var id = $.urlParam("id");
+    console.log("id: " + id);
+    var rq = new XMLHttpRequest();
+    rq.onreadystatechange = function() {
+        if (rq.readyState == XMLHttpRequest.DONE && rq.status == 200) {
+            drawReport(JSON.parse(rq.responseText));
+            }
+        };
+    rq.onerror = function() {
+        console.log("error");
+        console.log(rq.responseText);
+        };
+    rq.open("GET", "/api/v1/overview/0x"+id, true);
+    rq.send();
+    });
+
+
+function drawReport(data) {
+    $("#header h2").text(data.category.description);
+    $("#weko").html('<a href="'+window.location.href+'">'+window.location.href+'</a>');
+
+    var rtickets = data.tickets.records.sort(function(a,b){return a.ticket-b.ticket;});
+    for (var i=0; i<rtickets.length; i++) {
+        $("#r1").append(
+            '<tr>' +
+            '<td>' + rtickets[i].user_name + '</td>' + 
+            '<td>' + rtickets[i].description + '</td>' +
+            '<td class="right">' + rtickets[i].duration.formatHHMM() + '</td>' +
+            '<td class="right">' + rtickets[i].price.toFixed(0) + ' Kč</td>' + 
+            '</tr>\n'
+            );
+        }
+
+    var rsums = data.tickets.sum.sort(function(a,b){return a.ticket-b.ticket;});
+    for (var i=0; i<rsums.length; i++) {
+        $("#f1").append(
+            '<tr>' +
+            '<th></th>' + 
+            '<th>' + rsums[i].description + '</th>' +
+            '<th class="right">' + rsums[i].duration.formatHHMM() + '</th>' +
+            '<th class="right">' + rsums[i].price.toFixed(0) + ' Kč</th>' + 
+            '</tr>\n'
+            );
+        }
+
+    var rdays = data.days.records.sort(function(a,b){return (a.date>b.date)?1:(a.date<b.date)?-1:0;});
+    for (var i=0; i < rdays.length; i++) {
+        $("#r2").append(
+                '<tr>' +
+                '<td class="right">' + rdays[i].date.formatYYYYMMDD() + '</td>' +
+                '<td>' + rdays[i].date.dow()  + '</td>' +
+                '<td>' + rdays[i].user_name + ' </td>' +
+                '<td>' + rdays[i].description + ' </td>' +
+                '<td class="right">' + rdays[i].duration.formatHHMM() + '</td>' +
+                '<td class="right">' + rdays[i].price.toFixed(0) + ' Kč</td>' + 
+                '</tr>\n'
+                );
+        }
+    $("#timesum-r2").text(data.days.sum.duration.formatHHMM());
+    $("#sum-r2").text(data.days.sum.price.toFixed(0) + ' Kč');
+    $("#createdate").text((new Date()).formatYYYYMMDD());
+}
+
+</script>
+</body>
+

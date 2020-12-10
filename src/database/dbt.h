@@ -357,14 +357,13 @@ struct Overview {
         TicketsSum() { ticket = 0; duration = 0; price = 0; }
         };
 
-    // Jeden dotaz
     Categories          category;
     QList<Tickets>      tickets;        // group by ticket, user
     QList<TicketsSum>   ticketsSum;     // group by ticket
-    // Druhý dotaz
     QList<Days>         days;           // group by date, user
     Sum                 sum;            // group by category
     QVariantMap         toMap() const;
+    QString             id;
 };
 
 

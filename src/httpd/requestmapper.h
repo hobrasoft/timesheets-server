@@ -49,7 +49,6 @@ class RequestMapper : public HobrasoftHttpd::HttpRequestHandler {
 
   private:
     QString     m_path;      ///< Obsluhovaná cesta (URL adresa)
-    QByteArray  readFile(const QString& path, HobrasoftHttpd::HttpResponse *response); ///< Funkce pro obsluhu shtml souborů
 
     RequestAuthorizer *m_authorizer;
 

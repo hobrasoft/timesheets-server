@@ -26,6 +26,11 @@ void ControllerOverview::serviceIdGet (HobrasoftHttpd::HttpRequest *request, Hob
 
     auto overview = db()->overview(id, statuses);
 
+    if (overview.isEmpty()) {
+        serviceError(request, response, 404, "not-found", "Not found");
+        return;
+        }
+
     serviceOK(request, response, overview.first().toMap());
 }
 

@@ -123,7 +123,6 @@ class MSettings : public QSettings {
     /*
      * Seznam řetězců pro jednotlivé konfigurační parametry
      */
-    static constexpr const char *Initialized            = "wellness/initialized";
     static constexpr const char *LogAll                 = "log/all";
     static constexpr const char *LogInclude             = "log/include";
     static constexpr const char *LogExclude             = "log/exclude";
@@ -138,6 +137,7 @@ class MSettings : public QSettings {
     static constexpr const char *HttpdUser              = "httpd/user";
     static constexpr const char *HttpdPassword          = "httpd/password";
     static constexpr const char *HttpdAuthorize         = "httpd/authorize";
+    static constexpr const char *ServerAesKey           = "server/aes-key";
     static constexpr const char *ServerName             = "server/name";
     static constexpr const char *ServerDescription      = "server/description";
     static constexpr const char *ServerEnableRemoteRestart = "server/enable-remote-restart";
@@ -146,8 +146,6 @@ class MSettings : public QSettings {
     /*
      * Seznam přístupových metod
      */
-    bool    initialized() const { return value(Initialized, false).toBool(); }
-    void    setInitialized(bool x) { setValue(Initialized, x); }
 
     // Logování
     bool    logAll() const { return value(LogAll, true).toBool(); }
@@ -173,6 +171,7 @@ class MSettings : public QSettings {
     QString serverName() const { return value(ServerName).toString(); }
     QString serverDescription() const { return value(ServerDescription).toString(); }
     bool    serverEnableRemoteRestart() const { return value(ServerEnableRemoteRestart, false).toBool(); }
+    QString serverAesKey() const { return value(ServerAesKey).toString(); }
 
   protected:
 
