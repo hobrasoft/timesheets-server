@@ -403,16 +403,24 @@ QList<Dbt::Statuses> DatabasePluginFotomon::statuses(const QString& category, co
 
 
 QList<Dbt::StatusTemplates> DatabasePluginFotomon::statusTemplates(int id) {
-    createTemporaryTableCategories();
-
     MSqlQuery q(m_db);
     QList<Dbt::StatusTemplates> list;
 
+    /* Too large document :-(
+    createTemporaryTableCategories();
     q.prepare(R"X(select t.note_template, t.status, c.category, t.code, t.title->>:lang, t.description
         from timesheet_categories c, tickets_notes_templates t
         where c.type = t.type
           and (t.note_template = :id1 or 0 > :id2)
         )X");
+    */
+
+    q.prepare(R"X(select note_template, status, null, code, title->>:lang, description
+        from tickets_notes_templates
+        where note_template = :id1 or 0 > :id2;
+        )X");
+
+
     q.bindValue(":id1", id);
     q.bindValue(":id2", id);
     q.bindValue(":lang", userLang());
@@ -444,7 +452,7 @@ QList<Dbt::Tickets> DatabasePluginFotomon::tickets(int ticket, bool all) {
     QList<Dbt::Tickets> list;
     MSqlQuery q(m_db);
 
-    q.prepare(R"X(select ticket, type, system, category, date, description from temporary_tickets;)X");
+    q.prepare(R"X(select ticket, type, system, 1, date, description from temporary_tickets;)X");
     q.exec();
     while (q.next()) {
         Dbt::Tickets x;
