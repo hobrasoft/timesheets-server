@@ -23,6 +23,7 @@
 #include "controllercategoriestree.h"
 #include "controllerstatusorder.h"
 #include "controllerstatuses.h"
+#include "controllerstatustemplates.h"
 #include "controllertickets.h"
 #include "controllerticketsvw.h"
 #include "controllerticketstatus.h"
@@ -97,6 +98,7 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
      */
     ROUTER("/api/v1/tickettimesheets",                 ControllerTicketTimesheets);
     ROUTER("/api/v1/categoriestoroot",                 ControllerCategoriesToRoot);
+    ROUTER("/api/v1/statustemplates",                  ControllerStatusTemplates);
     ROUTER("/api/v1/userscategories",                  ControllerUsersCategories);
     ROUTER("/api/v1/categoriestree",                   ControllerCategoriesTree);
     ROUTER("/api/v1/ticketvalues",                     ControllerTicketValues);

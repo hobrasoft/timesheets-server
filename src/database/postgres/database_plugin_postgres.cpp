@@ -1577,6 +1577,13 @@ QVariant DatabasePluginPostgres::save(const Dbt::Statuses& data) {
 }
 
 
+QList<Dbt::StatusTemplates> DatabasePluginPostgres::statusTemplates(int id) {
+    MSqlQuery q(m_db);
+    QList<Dbt::StatusTemplates> list;
+    return list;
+}
+
+
 QList<Dbt::TicketFiles> DatabasePluginPostgres::ticketFiles(int ticket, bool all) {
     createTemporaryTableTickets(ticket, all);
     QList<Dbt::TicketFiles> list;

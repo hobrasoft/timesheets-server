@@ -158,6 +158,11 @@ QList<Dbt::Statuses> Database::statuses(const QString& category, const QString& 
 }
 
 
+QList<Dbt::StatusTemplates> Database::statusTemplates(int id) {
+    return m_dbplugin->statusTemplates(id);
+}
+
+
 QList<Dbt::StatusOrder> Database::statusOrder(const QString& id) {
     return m_dbplugin->statusOrder(id);
 }

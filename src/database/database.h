@@ -47,6 +47,8 @@ class Database : public QObject {
     QList<Dbt::Statuses>                    statuses(const QString& id = QString());
     QList<Dbt::Statuses>                    statuses(const QString& category, const QString& prevStatus);
 
+    QList<Dbt::StatusTemplates>             statusTemplates(int id = -1);
+
     QList<Dbt::Tickets>                     tickets(bool all = false);
     QList<Dbt::Tickets>                     tickets(int ticket = -1, bool all = false);
     QList<Dbt::Tickets>                     tickets(const Dbt::Categories& category, bool all = false);

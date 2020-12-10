@@ -158,6 +158,18 @@ Statuses Statuses::fromMap(const QVariantMap& data) {
 }
 
 
+QVariantMap StatusTemplates::toMap() const {
+    QVariantMap data;
+    data["id"] = status;
+    data["status"] = status;
+    data["category"] = category;
+    data["code"] = code;
+    data["title"] = title;
+    data["description"] = description;
+    return data;
+}
+
+
 Tickets Tickets::fromMap(const QVariantMap& map) {
     Tickets x;
     x.ticket = map["ticket"];

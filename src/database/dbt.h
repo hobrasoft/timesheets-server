@@ -120,6 +120,19 @@ struct Statuses {
 };
 
 
+struct StatusTemplates {
+    int         id;
+    QString     status;
+    QString     category;
+    QString     code;
+    QString     title;
+    QString     description;
+
+    QVariantMap toMap() const;
+    StatusTemplates() { id = -1; }
+};
+
+
 // Tabulky modifikovatelné
 struct Mutable {
     int         id;
