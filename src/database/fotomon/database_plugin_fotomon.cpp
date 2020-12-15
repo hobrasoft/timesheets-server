@@ -625,7 +625,8 @@ QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(int ticket, bool al
 
     q.prepare(R"'(
         select tn.note, tn.ticket, t."user", tn.date, tn.status,
-                case when tn.description != '' then tn.description else tn.formal_description->0->'description'->>'cs' end as description
+                case when tn.description != '' then tn.description else tn.formal_description->0->'description'->>'cs' end as description, 
+                tn.formal_description
             from tickets_notes tn, temporary_tickets t
             where tn.ticket = t.ticket
               and (:ticket1 <= 0 or :ticket2 = t.ticket)
@@ -645,6 +646,7 @@ QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(int ticket, bool al
         x.date          = q.value(i++).toDateTime();
         x.status        = q.value(i++).toString();
         x.description   = q.value(i++).toString();
+        x.description2  = JSON::data(q.value(i++).toString().toUtf8()).toMap();
         list << x;
         }
     return list;
@@ -676,15 +678,18 @@ QVariant DatabasePluginFotomon::save(const Dbt::TicketStatus& data) {
         }
 
     if (!data.created && found) {
-        q.prepare(R"'(
+        QByteArray description2 = JSON::json(data.description2);
+        if (description2 == "{}") { description2 = ""; }
+        q.prepare(QString(R"'(
             update tickets_notes set
                 ticket = :ticket,
                "user" = :user,
                 date = :date,
                 description = :description,
+                formal_description = %1,
                 status = :status
                 where note = :id
-            )'");
+            )'").arg((description2=="") ? "null" : QString("'%1'").arg(QString::fromUtf8(description2)) ) );
         q.bindValue(":id", data.id);
         q.bindValue(":user", data.user);
         q.bindValue(":ticket", data.ticket);
@@ -696,10 +701,12 @@ QVariant DatabasePluginFotomon::save(const Dbt::TicketStatus& data) {
         }
 
     if (data.created || !found) {
-        q.prepare(R"'(
+        QByteArray description2 = JSON::json(data.description2);
+        if (description2 == "{}") { description2 = ""; }
+        q.prepare(QString(R"'(
             insert into tickets_notes (ticket, "user", date, description, status, formal_description)
-                values (:ticket, :user, :date, :description, :status, '[]')
-            )'");
+                values (:ticket, :user, :date, :description, :status, %1)
+            )'").arg((description2=="") ? "null" : QString("'%1'").arg(QString::fromUtf8(description2)) ) );
         q.bindValue(":user", data.user);
         q.bindValue(":ticket", data.ticket);
         q.bindValue(":date", data.date);

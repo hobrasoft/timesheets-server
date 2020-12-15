@@ -161,7 +161,7 @@ Statuses Statuses::fromMap(const QVariantMap& data) {
 
 QVariantMap StatusTemplates::toMap() const {
     QVariantMap data;
-    data["id"] = status;
+    data["id"] = id;
     data["status"] = status;
     data["category"] = category;
     data["code"] = code;
@@ -275,6 +275,7 @@ TicketStatus TicketStatus::fromMap(const QVariantMap& data) {
     x.date = data["date"].toDateTime();
     x.status = data["status"].toString();
     x.description = data["description"].toString();
+    x.description2 = data["description2"].toMap();
     return x;
 }
 
@@ -311,6 +312,7 @@ QVariantMap TicketStatus::toMap() const {
     data["status"] = status;
     data["date"] = date;
     data["description"] = description;
+    data["description2"] = description2;
     data["status_description"] = status_description;
     data["status_color"] = status_color;
     data["status_can_be_run"] = status_can_be_run;

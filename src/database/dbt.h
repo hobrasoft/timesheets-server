@@ -162,6 +162,7 @@ struct TicketStatus : Mutable {
     QDateTime   date;
     QString     status;
     QString     description;
+    QVariantMap description2;
     QString     status_description;
     QString     status_color;
     bool        status_closed;
@@ -181,6 +182,7 @@ struct TicketStatus : Mutable {
         date = x.date;
         status = x.status;
         description = x.description;
+        description2 = x.description2;
         status_description = x.status_description;
         status_color = x.status_color;
         status_closed = x.status_closed;
