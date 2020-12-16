@@ -47,7 +47,6 @@ void ControllerTimesheet::serviceStop(HobrasoftHttpd::HttpRequest *request, Hobr
     PDEBUG;
     QList<Dbt::TicketTimesheets> list1 = db()->runningTimesheets(id);
     if (list1.isEmpty()) {
-        PDEBUG << "konflict";
         QVariantMap item;
         item["ok"] = false;
         item["error"] = "conflict";
@@ -56,17 +55,22 @@ void ControllerTimesheet::serviceStop(HobrasoftHttpd::HttpRequest *request, Hobr
         return;
         }
 
-    QList<Dbt::TicketTimesheets> list2 = db()->stopTimesheet(id);
-    if (list2.isEmpty()) {
-        PDEBUG << "error";
-        serviceError(request, response, 400, "error", "Timesheet could not be stopped");
-        return;
+    QVariantList items;
+    for (int i=0; i<list1.size(); i++) {
+        int xid = list1[0].ticket.toInt();
+        QList<Dbt::TicketTimesheets> list2 = db()->stopTimesheet(xid);
+        if (list2.isEmpty()) {
+            PDEBUG << "error";
+            serviceError(request, response, 400, "error", "Timesheet could not be stopped");
+            return;
+            }
+        QVariantMap item = list2[0].toMap();
+        item.remove("created");
+        item.remove("modified");
+        items << item;
         }
 
-    QVariantMap item = list2[0].toMap();
-    item.remove("created");
-    item.remove("modified");
-    serviceOK(request, response, item);
+    serviceOK(request, response, items);
 }
 
 
@@ -94,7 +98,9 @@ void ControllerTimesheet::service(HobrasoftHttpd::HttpRequest *request, Hobrasof
 
     while (parts.size() == 3) {
         bool ok;
-        int id = parts[2].toInt(&ok);
+        QString sid = parts[2];
+        int id = sid.toInt(&ok);
+        if (sid == "all") { ok = true; id = 0; }
         if (!ok) { break; }
 
         if (parts[0] == "timesheet" && parts[1] == "start") {

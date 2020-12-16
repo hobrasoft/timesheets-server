@@ -72,7 +72,7 @@ class Database : public QObject {
     QList<Dbt::TicketTimesheets>            ticketTimesheets(int id);
     QList<Dbt::TicketTimesheets>            ticketTimesheets(bool all = false);
     QList<Dbt::TicketTimesheets>            ticketTimesheets(int ticket, bool all);
-    QList<Dbt::TicketTimesheets>            runningTimesheets(int ticket);
+    QList<Dbt::TicketTimesheets>            runningTimesheets(int ticket = -1);
     QList<Dbt::TicketTimesheets>            startTimesheet(int ticket);
     QList<Dbt::TicketTimesheets>            stopTimesheet(int ticket);
     QList<Dbt::TicketTimesheets>            toggleTimesheet(int ticket);

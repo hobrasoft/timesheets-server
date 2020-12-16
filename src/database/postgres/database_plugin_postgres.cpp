@@ -967,12 +967,13 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::runningTimesheets(int ticke
             where t.ticket = tt.ticket
               and t.category = uc.category
               and uc."user" = :user
-              and :ticket = tt.ticket
               and tt.date_to is null
+              and (:ticket1 = tt.ticket or :ticket2 <= 0)
             ;
         )'");
     q.bindValue(":user", userId());
-    q.bindValue(":ticket", ticket);
+    q.bindValue(":ticket1", ticket);
+    q.bindValue(":ticket2", ticket);
     q.exec();
     while (q.next()) {
         int i=0;
