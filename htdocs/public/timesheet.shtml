@@ -136,8 +136,8 @@ function drawReport(data) {
             '<tr>' +
             '<td>' + rtickets[i].user_name + '</td>' + 
             '<td>' + rtickets[i].description + '</td>' +
-            '<td class="right">' + rtickets[i].duration.formatHHMM() + '</td>' +
-            '<td class="right">' + rtickets[i].price.toFixed(0) + ' Kč</td>' + 
+            '<td class="right nowrap">' + rtickets[i].duration.formatHHMM() + '</td>' +
+            '<td class="right nowrap">' + rtickets[i].price.toFixed(0) + ' Kč</td>' + 
             '</tr>\n'
             );
         }
@@ -162,8 +162,8 @@ function drawReport(data) {
                 '<td>' + rdays[i].date.dow()  + '</td>' +
                 '<td>' + rdays[i].user_name + ' </td>' +
                 '<td>' + rdays[i].description + ' </td>' +
-                '<td class="right">' + rdays[i].duration.formatHHMM() + '</td>' +
-                '<td class="right">' + rdays[i].price.toFixed(0) + ' Kč</td>' + 
+                '<td class="right nowrap">' + rdays[i].duration.formatHHMM() + '</td>' +
+                '<td class="right nowrap">' + rdays[i].price.toFixed(0) + ' Kč</td>' + 
                 '</tr>\n'
                 );
         }
