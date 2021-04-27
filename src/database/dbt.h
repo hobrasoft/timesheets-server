@@ -347,6 +347,7 @@ struct Overview {
         double      hour_price;
         double      duration;
         double      price;
+        QString     status;
         QVariantMap toMap() const;
         Tickets() { ticket = 0; user = 0; hour_price = 0; duration = 0; price = 0; }
         };

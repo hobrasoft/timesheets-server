@@ -1860,11 +1860,12 @@ QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& overviewId)
                 and category in (select category from overview_categories_tmp)
 
             union all
-            --     0         1              2     3     4     5                           6
-            select t.ticket, t.description, -1,   null, null, to_hours(sum(ts.duration)), sum(to_hours(ts.duration) * t.price)
+            --     0         1              2     3     4     5                           6                                     7
+            select t.ticket, t.description, -1,   null, null, to_hours(sum(ts.duration)), sum(to_hours(ts.duration) * t.price), st.description
                 from tickets t
                 left join ticket_timesheets_sum ts using (ticket, "user")
                 left join ticket_last_status ls using (ticket)
+                left join statuses st using (status)
                 where ls.status in (select status from overview_statuses_tmp)
                 and category in (select category from overview_categories_tmp)
                 group by t.ticket
@@ -1888,6 +1889,7 @@ QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& overviewId)
         t.hour_price    = q.value(i++).toDouble();
         t.duration      = q.value(i++).toDouble();
         t.price         = q.value(i++).toDouble();
+        t.status        = q.value(i++).toString();
         overview.tickets << t;
         }
 

@@ -393,6 +393,7 @@ QVariantMap Overview::Tickets::toMap() const {
     data["hour_price"] = hour_price;
     data["duration"] = duration;
     data["price"] = price;
+    data["status"] = status;
     return data;
 }
 
