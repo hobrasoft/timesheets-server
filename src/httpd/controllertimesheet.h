@@ -30,6 +30,14 @@ Na server se posílá příkaz (start, stop, toggle) a id ticketu, který se má
 /api/v1/timesheet/start/<id>
 @endcode
 
+Běžící výkazy lze zastavit hromadně jediným příkazem. Start a Toggle takto ovládat nelze!
+Chceme-li zastavit všechny běžící pracovní výkazy, je možné použít příkaz:
+
+@code
+/api/v1/timesheet/stop/all
+@endcode
+
+
 Implementuje metody:
 - get
 
@@ -37,13 +45,13 @@ Implementuje metody:
 Vrací jednoduchou informaci:
 
 @code
-{
+[{
 "id": 34,                                   // ID záznamu, primární klíč
 "user": 2,                                  // ID uživatele, kterému záznam patří
 "ticket": 1,                                // ID ticketu
 "date_from": "2020-08-13T15:12:25.619",     // Začátek pracovního úkonu
 "date_to": null                             // Konec pracovního úkonu, pokud ticket běží, vrací null
-}
+}]
 @endcode
 
 Příklady:
@@ -52,13 +60,13 @@ Nastartování zastaveného ticketu s id 111 (stejný efekt by měl u zastavené
 
 /api/v1/timesheet/start/1
 @code
-{
+[{
 "ticket": 1111, 
 "id": 34, 
 "user": 2, 
 "date_from": "2020-10-26T07:22:00",
 "date_to": null                     // Běží, není ukončeno
-}
+}]
 @endcode
 
 
@@ -66,13 +74,13 @@ Zastavení běžícího ticketu s id 111 (stejný efekt by měl u běžícího t
 
 /api/v1/timesheet/stop/1
 @code
-{
+[{
 "ticket": 1111, 
 "id": 34, 
 "user": 2, 
 "date_from": "2020-10-26T07:22:00",
 "date_to": "2020-10-26T07:24:12"    // Neběží, je ukončeno
-}
+}]
 @endcode
 
 
@@ -81,13 +89,13 @@ tj. v tabulce přibyl nový záznam:
 
 /api/v1/timesheet/start/1
 @code
-{
+[{
 "ticket": 1111, 
 "id": 35,                           // Nový záznam
 "user": 2, 
 "date_from": "2020-10-26T07:22:00",
 "date_to": null                     // Běží, není ukončeno
-}
+}]
 @endcode
 
 Pokud dojde k pokusu nastartovat běžící záznam, nebo k pokusu ukončit zastavený záznam, vrací chybu, HTTP status 409 Conflict.
@@ -96,13 +104,13 @@ mezi různými klienty:
 
 /api/v1/start/1
 @code
-{
+[{
 "ticket": 1111, 
 "id": 35,                           // Nový záznam
 "ok": false,
 "error": "running"
 "reason": "The ticket is running already"
-}
+}]
 @endcode
 
 */

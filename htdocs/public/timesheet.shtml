@@ -146,7 +146,7 @@ function drawReport(data) {
     for (var i=0; i<rsums.length; i++) {
         $("#f1").append(
             '<tr>' +
-            '<th></th>' + 
+            '<th>' + rsums[i].status + '</th>' + 
             '<th>' + rsums[i].description + '</th>' +
             '<th class="right">' + rsums[i].duration.formatHHMM() + '</th>' +
             '<th class="right">' + rsums[i].price.toFixed(0) + ' Kč</th>' + 
