@@ -52,6 +52,9 @@ class RequestMapper : public HobrasoftHttpd::HttpRequestHandler {
 
     RequestAuthorizer *m_authorizer;
 
+    void serviceShtmlFile(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response);
+    QByteArray readFile(const QString& path, HobrasoftHttpd::HttpResponse *response);
+
 };
 
 }

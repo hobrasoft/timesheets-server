@@ -80,6 +80,13 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
         return;
         }
 
+    if (m_path.startsWith("/html/login.shtml")) {
+        serviceShtmlFile(request, response);
+        response->flush();
+        return;
+        }
+
+
     // Možné bez přihlášení
     ROUTER("/api/v1/overview/0x",       ControllerOverviewPublic);
     ROUTER("/api/v1/server/about",      ControllerServer);
@@ -87,18 +94,6 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
     // Kontrola přihlášení
     if (!m_authorizer->isLoggedIn(request, response)) {
         return;
-        }
-
-    QList<PluginInterface *> plugins = PLUGINSTORE->plugins();
-    for (int i=0; i<plugins.size(); i++) {
-        PluginInterface *plugin = plugins[i];
-        if (!plugin->path().isEmpty() && m_path.startsWith(plugin->path())) {
-            HttpRequestHandler *controller = plugin->createController(connection());
-            if (controller != NULL) {
-                controller->service(request, response);
-                return;
-                }
-            }
         }
 
     /**
@@ -124,5 +119,68 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
 
     StaticFileController(connection()).service(request, response);
 }
+
+
+void RequestMapper::serviceShtmlFile(HttpRequest *request, HttpResponse *response) {
+    Q_UNUSED(request);
+    QByteArray data;
+    try {
+        data = readFile(m_path, response);
+        }
+    catch (...) {
+        return;
+        }
+    response->setHeader("Content-Type", "text/html; charset=" + connection()->settings()->encoding());
+    response->write(data);
+    response->flush();
+}
+
+
+QByteArray RequestMapper::readFile(const QString& path, HttpResponse *response) {
+    QByteArray data;
+    if (path.startsWith("/..") || path.startsWith("..")) {
+        response->setStatus(403,"Forbidden");
+        response->write(QString("403 Forbidden: %1<br>\nDo not use ../ in your file path").arg(path).toUtf8());
+        response->flush();
+        throw false;
+        }
+
+    QFile file(connection()->settings()->docroot()+"/"+path);
+    if (!file.exists()) {
+        response->setStatus(404, "Not found");
+        response->write(QString("404 File not found: %1").arg(file.fileName()).toUtf8());
+        response->flush();
+        throw false;
+        }
+
+    if (!file.open(QIODevice::ReadOnly)) {
+        response->setStatus(403, "Forbidden");
+        response->write(QString("403 Forbidden: %1").arg(file.fileName()).toUtf8());
+        response->flush();
+        throw false;
+        }
+
+    QString rolename = Security::Roles::toString(m_authorizer->role());
+
+    while (!file.atEnd()) {
+        QString line = QString::fromUtf8(file.readLine());
+        line = line.replace("${ROLE}", rolename);
+        // if (line.contains(QRegExp("^\\s*<!--\\s*#include\\s+\".+\"\\s*-->\\s*$"))) {
+        if (line.contains(QRegExp(R"X(^\s*<!--\s*#include\s+['"].+['"]\s*-->\s*$)X"))) {
+            QStringList lineparts = line.split(QRegExp(R"X(['"])X"));
+            if (lineparts.size() != 3) {
+                continue;
+                }
+            data += readFile(lineparts[1], response);
+            continue;
+            }
+        data += line.toUtf8();
+        }
+
+    file.close();
+    return data;
+}
+
+
 
 
