@@ -17,6 +17,15 @@
 
 <div id="divreport">
 
+<h3>Souhrn podle stavu</h3>
+<table class="report">
+<thead>
+<tr><th>Stav</th><th class="right">Čas</th><th class="right">Cena</th></tr>
+</thead>
+<tbody id="st">
+</tbody>
+</table>
+
 <h3>Pracovní výkaz po úkolech</h3>
 <table class="report">
 <thead>
@@ -129,6 +138,18 @@ $(document).ready(function(){
 function drawReport(data) {
     $("#header h2").text(data.category.description);
     $("#weko").html('<a href="'+window.location.href+'">'+window.location.href+'</a>');
+
+
+    for (var i=0; i<data.status_sum.length; i++) {
+        console.log("xxxxxxxxxxxxxxxxxx "+i);
+        $("#st").append(
+            '<tr>' + 
+            '<td>' + data.status_sum[i].status + '</td>' + 
+            '<td>' + data.status_sum[i].duration.formatHHMM() + '</td>' + 
+            '<td>' + data.status_sum[i].price.toFixed(0) + '</td>' + 
+            '</tr>\n'
+            );
+        }
 
     var rtickets = data.tickets.records.sort(function(a,b){return a.ticket-b.ticket;});
     for (var i=0; i<rtickets.length; i++) {

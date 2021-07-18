@@ -356,13 +356,22 @@ struct Overview {
         QString     description;
         double      duration;
         double      price;
+        QString     status;
         QVariantMap toMap() const;
         TicketsSum() { ticket = 0; duration = 0; price = 0; }
+        };
+    struct StatusSum {
+        double      duration;
+        double      price;
+        QString     status;
+        QVariantMap toMap() const;
+        StatusSum() { duration = 0; price = 0; }
         };
 
     Categories          category;
     QList<Tickets>      tickets;        // group by ticket, user
     QList<TicketsSum>   ticketsSum;     // group by ticket
+    QList<StatusSum>    statusSum;      // group by status
     QList<Days>         days;           // group by date, user
     Sum                 sum;            // group by category
     QVariantMap         toMap() const;
