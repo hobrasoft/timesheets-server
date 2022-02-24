@@ -1,0 +1,79 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<form>
+<input type="hidden" id="category"></input>
+
+<label>Description</label>
+<div id="description"></div>
+
+<table>
+<thead>
+<tr>
+    <th>#ID</th>
+    <th>User ID</th>
+    <th>User Name</th>
+    <th></th>
+</tr>
+</thead>
+<tbody>
+<tr style="display: none;" id="template-user">
+    <td class="id-id"></td>
+    <td class="id-user"></td>
+    <td class="id-name"></td>
+    <td class="id-member"></td>
+</tr>
+</tbody>
+</table>
+
+<button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
+<button type="button" class="btn btn-primary" id="btn-save">Save</button>
+</form>
+
+<script>
+function goBack() {
+    window.location.replace('index.shtml');
+}
+
+$(document).ready(function(){
+    var category = parseInt($.urlParam("category"));
+
+    if (category == 0 || isNaN(category)) {
+        goBack()
+        }
+
+    var api = new Api();
+    api.onFinished = function(result) {
+        for (var u=0; u < result.length; u++) {
+            var x = $("#template-user").clone();
+            var id_id = x.find(".id-id");
+            var id_user = x.find(".id-user");
+            var id_name = x.find(".id-name");
+            var id_member= x.find(".id-member");
+            $(id_id).html(result[u].id);
+            $(id_user).html(result[u].user);
+            $(id_name).html(result[u].name);
+            $(id_member).attr("id", "u"+result[u].user);
+            $("tbody").append(x);
+            $(x).show();
+        /*
+        var api2 = new Api();
+        api2.onFinished = function(result) {
+            };
+        api2.categoriesUsers(category);
+        */
+        };
+    api.users();
+
+    $("#btn-cancel").click(function(event){
+        goBack();
+        });
+
+    $("#btn-save").click(function(event){
+        goBack();
+        });
+
+    });
+</script>
+
+<!-- #include '/inc/footer.html' -->

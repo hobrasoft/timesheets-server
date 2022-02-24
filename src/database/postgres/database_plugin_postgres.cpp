@@ -140,6 +140,7 @@ QList<Dbt::Users> DatabasePluginPostgres::authenticate(const QString& login, con
         x.admin         = q.value(i++).toBool();
         list << x;
         }
+
     return list;
 }
 
@@ -745,6 +746,7 @@ QVariant DatabasePluginPostgres::save(const Dbt::TicketsVw& data) {
     MSqlQuery q(m_db);
     q.begin();
     int ticket = save(dynamic_cast<const Dbt::Tickets&>(data)).toInt();
+    removeTicketsDetails(ticket);
     save(remapTicket(data.timesheets, ticket));
     save(remapTicket(data.statuses, ticket));
     save(remapTicket(data.values, ticket));
@@ -755,6 +757,15 @@ QVariant DatabasePluginPostgres::save(const Dbt::TicketsVw& data) {
 }
 
 
+void DatabasePluginPostgres::removeTicketsDetails(int ticket) {
+    MSqlQuery q(m_db);
+    q.exec(QString(R"'(delete from ticket_timesheets where ticket = %1;)'").arg(ticket));
+    q.exec(QString(R"'(delete from ticket_status where ticket = %1;)'").arg(ticket));
+    q.exec(QString(R"'(delete from ticket_values where ticket = %1;)'").arg(ticket));
+    q.exec(QString(R"'(delete from ticket_files where ticket = %1;)'").arg(ticket));
+}
+
+
 QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int ticket, bool all) {
     createTemporaryTableTickets(ticket, all);
     QList<Dbt::TicketStatus> list;
@@ -762,14 +773,11 @@ QList<Dbt::TicketStatus> DatabasePluginPostgres::ticketStatus(int ticket, bool a
 
     q.prepare(R"'(
         select ts.id, ts.ticket, ts."user", ts.date, ts.description, ts.status, s.color, s.description, s.closed, s.can_be_run, s.ignored
-            from temporary_tickets t, ticket_status ts, users u, statuses s
+            from temporary_tickets t, ticket_status ts, statuses s
             where t.ticket = ts.ticket
-              and u."user" = ts."user"
               and ts.status = s.status
               and t.ticket = :ticket
-              and u."user" = :user
         )'");
-    q.bindValue(":user", userId());
     q.bindValue(":ticket", ticket);
     q.exec();
     while (q.next()) {
@@ -906,7 +914,6 @@ QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(int ticket
               order by tt.date_from -- must be sorted!
             ;
         )'");
-    q.bindValue(":user", userId());
     q.bindValue(":ticket", ticket);
     q.exec();
     while (q.next()) {

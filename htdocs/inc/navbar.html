@@ -7,22 +7,32 @@
       <span class="navbar-toggler-icon"></span>
     </button>
 
+    <div id="navbar-servername">
+    </div>
+    <div id="navbar-username">
+    </div>
 
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul id="custom-nav" class="nav ms-auto mb-2 mb-lg-0">
         <li class="nav-item"><a class="nav-link" href="streams.html"><i class="bi bi-display" title="List of streams"></i></a></li>
+        <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-plus-circle" title="Create an item"></i></a>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="category.shtml" title="Add new category">Add category</a></li>
+                <li><a class="dropdown-item" href="task.shtml" title="Add new task">Add task</a></li>
+            </ul>
+            </li>
         <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-gear" title="Settings"></i></a>
             <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="settings-streams.html" title="Streams settings">Streams</a></li>
+                <li><a class="dropdown-item" href="categoriestree.shtml" title="Streams settings">Categories tree</a></li>
                 <li><a class="dropdown-item" href="settings-faces.html" title="Face recognition settings">Face recognition</a></li>
                 <li><a class="dropdown-item" href="settings-users.html" title="Users settings">Users</a></li>
                 <li><a class="dropdown-item" href="settings-network.html" title="Network settings">Network</a></li>
                 <li><a class="dropdown-item" href="settings-ssl.html" title="HTTPS and SSL settings">SSL</a></li>
                 <li><a class="dropdown-item" href="settings-system.html" title="Restart, reboot, power-off, system information">System</a></li>
-                <li><a class="dropdown-item" href="about.html" title="Information about the application">About</a></li>
+                <li><a class="dropdown-item" href="about.shtml" title="Information about the application">About</a></li>
             </ul>
             </li>
-        <li class="nav-item"><a class="nav-link" href="logout.html"><i class="bi bi-box-arrow-right" title="Logout"></i></a></li>
+        <li class="nav-item"><a class="nav-link" href="/public/login.shtml"><i class="bi bi-box-arrow-right" title="Logout"></i></a></li>
       </ul>
 
     </div>

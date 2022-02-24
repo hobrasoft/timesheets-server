@@ -16,8 +16,8 @@ ControllerUsersCategories::ControllerUsersCategories(HobrasoftHttpd::HttpConnect
 
 
 void ControllerUsersCategories::serviceList (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
-    int user = (request->parameter("user") == "") ? -1 : request->parameter("user").toInt();
-    QString category = (request->parameter("category") == "") ? QString() : request->parameter("user");
+    int user = (request->parameter("userid") == "") ? -1 : request->parameter("userid").toInt();
+    QString category = (request->parameter("category") == "") ? QString() : request->parameter("category");
     serviceOK(request, response, toList(db()->usersCategories(-1, user, category)));
 }
 

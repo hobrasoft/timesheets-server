@@ -1,0 +1,104 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<form>
+<input type="hidden" id="category"></input>
+<input type="hidden" id="parent_category"></input>
+
+<label>Parent category</label>
+<div id="parent-description"></div>
+
+<label for="description">Description</label>
+<input type="text" id="description"></input>
+
+<label for="price">Price</label>
+<input type="number" id="price" value=0></input>
+
+<button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
+<button type="button" class="btn btn-primary" id="btn-save">Save</button>
+<button type="button" class="btn btn-danger" id="btn-del" data-bs-toggle="modal" data-bs-target="#confirm-delete">Delete</button>
+</form>
+
+<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>This will delete the category.</h2>
+            </div>
+            <div class="modal-body">
+                <p>Do you really want to delete the category?</p>
+                <p>This will delete the category and all its subcategories and tasks!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="btn-delete" class="btn btn-danger btn-ok">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+function goBack() {
+    window.location.replace('index.shtml');
+}
+
+$(document).ready(function(){
+    var category = parseInt($.urlParam("category"));
+    var parentCategory = sessionStorage.getItem("currentCategory");
+
+    if (category == 0 || isNaN(category)) {
+        $("#btn-del").hide();
+        }
+
+    if ((category == 0 || isNaN(category)) && parentCategory > 0) {
+        var api = new Api();
+        api.onFinished = function(result) {
+            $("#parent_category").val(parentCategory);
+            $("#parent-description").text(result.description);
+            $("#price").val(result.price);
+            };
+        api.category(parentCategory);
+        }
+
+    if (category > 0) {
+        var api = new Api();
+        api.onFinished = function(result) {
+            $("#category").val(result.category);
+            $("#parent_category").val(result.parent_category);
+            $("#description").val(result.description);
+            $("#price").val(result.price);
+            if (result.parent_category > 0) {
+                var api2 = new Api();
+                api2.onFinished = function(result2) { $("#parent-description").text(result2.description); };
+                api2.category(result.parent_category);
+                }
+            };
+        api.category(category);
+        }
+
+    $("#btn-cancel").click(function(event){
+        goBack();
+        });
+
+    $("#btn-save").click(function(event){
+        var category = $("#category").val();
+        var parent_category = $("#parent_category").val();
+        var description = $("#description").val();
+        var price = $("#price").val();
+        var data = {category: category, parent_category: parent_category, description: description, price: price};
+        var api = new Api();
+        api.onFinished = function() { goBack(); }
+        api.saveCategory(data);
+        });
+
+    $("#btn-delete").click(function(event){
+        var category = $("#category").val();
+        api.onFinished = function() { goBack(); }
+        api.removeCategory(category);
+        });
+
+    });
+</script>
+
+<!-- #include '/inc/footer.html' -->

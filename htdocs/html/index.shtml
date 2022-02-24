@@ -1,0 +1,119 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<div id="x1">
+</div>
+<div id="x2">
+</div>
+
+<div id="current-description">Most upper category</div>
+
+<table>
+<thead>
+<tr>
+    <th>#ID</th>
+    <th>Description</th>
+    <th></th>
+    <th>Status</th>
+    <th>Time</th>
+    <th>Price</th>
+</tr>
+</thead>
+<tbody id="tbody">
+<tr id="template-category" style="display: none;">
+    <td><span class="category-id"></span></td>
+    <td><a class="category-id-href" href=""><span class="category-description"></span></a></td>
+    <td><a class="category-id-edit" href="" style="display: none;">Edit</a></td>
+</tr>
+<tr id="template-ticket" style="display: none;">
+    <td class="ticket-id"></td>
+    <td class="ticket-description"></td>
+    <td><a class="ticket-id-edit" href="">Edit</a></td>
+    <td class="ticket-status"></td>
+    <td class="ticket-time"></td>
+    <td class="ticket-money"></td>
+</tr>
+</tbody>
+</table>
+
+<script>
+$(document).ready(function(){
+    var currentCategory = ($.urlParam("category") == null) 
+        ? parseInt(sessionStorage.getItem("currentCategory"))
+        : parseInt($.urlParam("category"));
+    sessionStorage.setItem("currentCategory", currentCategory);
+    
+    $.getJSON("/api/v1/categories/"+currentCategory, function(result) {
+        if (result.category == currentCategory) {
+            var x = $('#template-category').clone();
+            var id_category_id = x.find(".category-id");
+            var id_category_id_href = x.find(".category-id-href");
+            var id_category_description = x.find(".category-description");
+            $(id_category_id).html(result.category);
+            $(id_category_description).html("..");
+            $(id_category_id_href).attr("href", "?category="+result.parent_category);
+            $(x).attr("id",null);
+            $("tbody").append(x);
+            $(x).show();
+            $("#current-description").text(result.description);
+            }
+
+        $.getJSON("/api/v1/categoriestree/"+currentCategory+"?maxdepth=0", function(result) {
+            // $("#x1").html(JSON.stringify(result));
+            for (var c=0; c<result.length; c++) {
+                var x = $('#template-category').clone();
+                var id_category_id = x.find(".category-id");
+                var id_category_id_href = x.find(".category-id-href");
+                var id_category_id_edit = x.find(".category-id-edit");
+                var id_category_description = x.find(".category-description");
+                $(id_category_id).html(result[c].category);
+                $(id_category_description).html(result[c].description);
+                $(id_category_id_href).attr("href", "?category="+result[c].category);
+                $(id_category_id_edit).attr("href", "category.shtml?category="+result[c].category);
+                $(id_category_id_edit).show();
+                $(x).attr("id",null);
+                $("tbody").append(x);
+                $(x).show();
+                }
+            $.getJSON("/api/v1/ticketsvw?category="+currentCategory, function(result) {
+                // $("#x2").html(JSON.stringify(result));
+                for (var t=0; t<result.length; t++) {
+                    var x = $('#template-ticket').clone();
+                    var id_ticket_id = x.find(".ticket-id");
+                    var id_ticket_description = x.find(".ticket-description");
+                    var id_ticket_id_edit = x.find(".ticket-id-edit");
+                    var id_ticket_status = x.find(".ticket-status");
+                    var id_ticket_time = x.find(".ticket-time");
+                    var id_ticket_money = x.find(".ticket-money");
+                    var last_status = result[t].statuses
+                            .sort(function(a,b){return (a.date>b.date)?1:(a.date<b.date)?-1:0;})
+                            .filter(function(x){return !x.status_ignored;})
+                            .pop();
+                    var seconds = Number(result[t].timesheets.reduce(function(accumulator, currentValue) {
+                            if (typeof currentValue == 'undefined') { return accumulator; }
+                            if (typeof currentValue.date_to == 'undefined') { return accumulator; }
+                            if (typeof currentValue.date_from == 'undefined') { return accumulator; }
+                            var t = (currentValue.date_to === '')
+                                    ? currentValue.date_from.secsTo(new Date())
+                                    : currentValue.date_from.secsTo(currentValue.date_to);
+                            return accumulator + t
+                            }, 0))
+                    var money = Math.round(seconds * result[t].price / 3600);
+
+                    $(id_ticket_id).html(result[t].ticket);
+                    $(id_ticket_description).html(result[t].description);
+                    $(id_ticket_id_edit).attr("href", "ticket.shtml?ticket="+result[t].ticket);
+                    $(id_ticket_status).html(last_status.status_description);
+                    $(id_ticket_time).html(seconds.formatHHMMSS());
+                    $(id_ticket_money).html(money);
+                    $(x).attr("id",null);
+                    $("tbody").append(x);
+                    $(x).show();
+                    }
+                });
+            });
+        });
+    });
+</script>
+
+<!-- #include '/inc/footer.html' -->

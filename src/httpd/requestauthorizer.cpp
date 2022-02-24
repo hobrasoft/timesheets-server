@@ -61,6 +61,17 @@ bool RequestAuthorizer::isLoggedIn(HobrasoftHttpd::HttpRequest *request, Hobraso
 
     m_authenticatedUser = new AuthenticatedUser(this);
 
+    if (!m_authenticatedUser->authenticate(user, password) && (
+        request->path().contains(QRegExp(R"%(\.shtml)%")) ||
+        request->path().contains(QRegExp(R"%(\.html)%")))) {
+        m_authenticatedUser->setAuthenticated(false);
+        response->setStatus(302, "Found");
+        response->setHeader("Location", "/public/login.shtml");
+        response->write("302 Found");
+        response->flush();
+        return false;
+        }
+
     if (!m_authenticatedUser->authenticate(user, password)) {
         response->setStatus(401, "Unauthorized");
         response->flush();

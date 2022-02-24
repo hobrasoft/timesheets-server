@@ -1,0 +1,34 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<div>Server name</div>
+<div id="server-name"></div>
+
+<div>Server description</div>
+<div id="server-description"></div>
+
+<div>Server QT version</div>
+<div id="server-qt-version"></div>
+
+<div>Server version</div>
+<div id="server-version"></div>
+
+<div>Server GIT branch</div>
+<div id="server-git-branch"></div>
+
+<div>Server GIT commit</div>
+<div id="server-git-commit"></div>
+
+<script>
+$(document).ready(function(){
+    userinfo = JSON.parse(localStorage.getItem("userinfo"));
+    $("#server-name").html(userinfo.server_name);
+    $("#server-description").html(userinfo.server_description);
+    $("#server-qt-version").html(userinfo.server_qt_version);
+    $("#server-version").html(userinfo.server_version);
+    $("#server-git-branch").html(userinfo.server_git_branch);
+    $("#server-git-commit").html(userinfo.server_git_commit);
+    });
+</script>
+
+<!-- #include '/inc/footer.html' -->

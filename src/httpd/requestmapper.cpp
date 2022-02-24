@@ -74,14 +74,14 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
             return; \
             }
 
-    if (m_path.startsWith("/public/")) {
-        StaticFileController(connection()).service(request, response);
+    if (m_path.contains(QRegExp("^/public/.*\\.shtml"))) {
+        serviceShtmlFile(request, response);
         response->flush();
         return;
         }
 
-    if (m_path.startsWith("/html/login.shtml")) {
-        serviceShtmlFile(request, response);
+    if (m_path.startsWith("/public/")) {
+        StaticFileController(connection()).service(request, response);
         response->flush();
         return;
         }
@@ -116,6 +116,12 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
     ROUTER("/api/v1/tickets",                          ControllerTickets);
     ROUTER("/api/v1/server",                           ControllerServer);
     ROUTER("/api/v1/users",                            ControllerUsers);
+
+    if (m_path.contains(QRegExp(".*\\.shtml"))) {
+        serviceShtmlFile(request, response);
+        response->flush();
+        return;
+        }
 
     StaticFileController(connection()).service(request, response);
 }

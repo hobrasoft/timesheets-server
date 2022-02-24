@@ -107,8 +107,9 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     void    commit() Q_DECL_OVERRIDE;
 
   protected:
-    void    createTemporaryTableTickets(int ticket, bool all = false);
+    void    createTemporaryTableTickets (int ticket, bool all = false);
     QVariant currval(const QString& sequence);
+    void     removeTicketsDetails(int ticket);
 
   private:
     QString         m_databasename;
