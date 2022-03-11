@@ -204,12 +204,16 @@ QVariant DatabasePluginPostgres::save(const Dbt::Categories& data) {
                              ?  data.category.toInt()
                              : QVariant(QVariant::Int);
 
+    if (parent_category.toInt() == category.toInt()) {
+        parent_category = QVariant();
+        }
+
     // TODO: Kontrola, aby nešlo založit novou kategorii v nadřízené kategorii bez přístupu
 
     q.prepare(R"'(select 1 from categories where category = :category;)'");
     q.bindValue(":category", data.category);
     q.exec();
-    if (q.next()) {
+    if (q.next() && ! parent_category.isNull()) {
         q.prepare(R"'(
             update categories set
                 parent_category = ?,
@@ -218,6 +222,19 @@ QVariant DatabasePluginPostgres::save(const Dbt::Categories& data) {
                 where category = ?
             )'");
         q.bindValue(0, parent_category);
+        q.bindValue(1, data.description);
+        q.bindValue(2, data.price);
+        q.bindValue(3, category.toInt());
+        q.exec();
+        return QVariant(data.category);
+        }
+    if (q.next() && parent_category.isNull()) {
+        q.prepare(R"'(
+            update categories set
+                description = ?,
+                price = ?
+                where category = ?
+            )'");
         q.bindValue(1, data.description);
         q.bindValue(2, data.price);
         q.bindValue(3, category.toInt());
