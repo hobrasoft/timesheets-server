@@ -4,6 +4,219 @@
 <link rel="stylesheet" media="screen,projection,tv" href="/public/styles/screen.css">
 <link rel="stylesheet" media="print" href="/public/styles/print.css">
 <script type="text/javascript" src="/public/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+
+Number.prototype.pad = function(size) {
+    var s = String(this);
+    while (s.length < (size || 2)) { s = "0" + s; }
+    return s;
+    };
+
+Number.prototype.formatHHMM = function() {
+    if (isNaN(this)) { return ""; }
+    var x = this * 3600 + 29;
+    var hh = Math.floor(x/3600);
+    var mm = Math.floor((x- hh*3600)/60);
+    var ss = Math.floor(x%60);
+    return hh.pad(2)+":"+mm.pad(2);
+    };
+
+Number.prototype.floor = function() {
+    return Math.floor(this);
+    }
+
+Date.prototype.formatYYYYMMDD = function() {
+    if (isNaN(this.getTime())) { return ""; }
+    var yy = this.getFullYear();
+    var mt = this.getMonth() + 1;
+    var dd = this.getDate();
+    // return yy.pad(4)+"-"+mt.pad(2)+"-"+dd.pad(2);
+    return dd + '.' + mt + '.' + yy.pad(4);
+    }
+
+String.prototype.formatYYYYMMDD = function() {
+    var date = new Date(this);
+    return date.formatYYYYMMDD();
+    }
+
+Date.prototype.dow = function() {
+    var weekday = new Array(7);
+    weekday[0] = "Neděle";
+    weekday[1] = "Pondělí";
+    weekday[2] = "Úterý";
+    weekday[3] = "Středa";
+    weekday[4] = "Čtvrtek";
+    weekday[5] = "Pátek";
+    weekday[6] = "Sobota";
+    return weekday[this.getDay()];
+    }
+
+String.prototype.dow = function() {
+    var date = new Date(this);
+    return date.dow();
+    }
+
+function base64Encode(str) {
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+        function toSolidBytes(match, p1) {
+            return String.fromCharCode('0x' + p1);
+    }));
+}
+
+function download(filename, text) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:application/vnd.ms-excel;base64,' + base64Encode(text));
+    //element.setAttribute('download', filename);
+    element.setAttribute('Content-Disposition', 'download; filename=' + filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+} // download()
+
+function downloadXls() {
+    var id = $.urlParam("id");
+    var rq = new XMLHttpRequest();
+    rq.onreadystatechange = function() {
+        if (rq.readyState == XMLHttpRequest.DONE && rq.status == 200) {
+            download(
+                'report.xls',
+                drawXls(id, JSON.parse(rq.responseText))
+            ); // download()
+        } // if
+    }; // function()
+    rq.onerror = function() {
+        console.log("error");
+        console.log(rq.responseText);
+    }; // function()
+    rq.open("GET", "/api/v1/overview/0x"+id, true);
+    rq.send();
+} // downloadXls
+
+function drawXls(id, data) {
+    var content = "<html xmlns=\"http://www.w3.org/TR/REC-html40\" xmlns:o=\"urn:schemas-microsoft-com:office:office\" xmlns:x=\"urn:schemas-microsoft-com:office:excel\">\r\n";
+    content += "<head>\r\n";
+    content += "  <title>Report</title>\r\n";
+    content += "  <meta http-equiv=\"Content-Type\" content=\"text/plain; charset=UTF-8\">\r\n";
+    content += "</head>\r\n";
+    content += "<body>\r\n";
+    content += "<table>\r\n";
+
+    content += "  <tr>\r\n";
+    content += "    <td colspan=\"7\"><h1>Pracovní výkaz " + data.category.description + "</h1></td>\r\n";
+    content += "  </tr>\r\n";
+
+    content += "  <tr>\r\n";
+    content += "    <td colspan=\"7\"><a href=\"https://prace.hobrasoft.cz/public/timesheet.shtml?id=" + id +"\">https://prace.hobrasoft.cz/public/timesheet.shtml?id=" + id + "</a></td>\r\n";
+    content += "  </tr>\r\n";
+
+    content += "  <tr>\r\n";
+    content += "    <td></td>\r\n";
+    content += "    <td></td>\r\n";
+    content += "    <td></td>\r\n";
+    content += "    <td></td>\r\n";
+    content += "    <td></td>\r\n";
+    content += "    <td></td>\r\n";
+    content += "    <td></td>\r\n";
+    content += "  </tr>\r\n";
+
+    content += "  <tr>\r\n";
+    content += "    <td colspan=\"7\"><h2>Pracovní výkaz po úkolech</h2></td>\r\n";
+    content += "  </tr>\r\n";
+    content += "  <tr>\r\n";
+    content += "    <th>Jméno</th>\r\n";
+    content += "    <th>Popis</th>\r\n";
+    content += "    <th align=\"right\">Čas</th>\r\n";
+    content += "    <th align=\"right\">Cena</th>\r\n";
+    content += "    <th>Měna</th>\r\n";
+    content += "    <th></th>\r\n";
+    content += "    <th></th>\r\n";
+    content += "  </tr>\r\n";
+
+    var rtickets = data.tickets.records.sort(function(a, b) {
+        return a.ticket - b.ticket;
+    });
+    for (var i = 0; i < rtickets.length; i++) {
+        content += "  <tr>\r\n";
+        content += "    <td>" + rtickets[i].user_name + "</td>\r\n";
+        content += "    <td>" + rtickets[i].description + "</td>\r\n";
+        content += "    <td align=\"right\">" + rtickets[i].duration.formatHHMM() + "</td>\r\n";
+        content += "    <td align=\"right\">" + rtickets[i].price.toFixed(0) + "</td>\r\n";
+        content += "    <td align=\"left\">Kč</td>\r\n";
+        content += "  </tr>\r\n";
+    } // for
+
+    content += "  <tr>\r\n";
+    content += "    <td></td>\r\n";
+    content += "    <td></td>\r\n";
+    content += "    <td></td>\r\n";
+    content += "    <td></td>\r\n";
+    content += "    <td></td>\r\n";
+    content += "    <td></td>\r\n";
+    content += "    <td></td>\r\n";
+    content += "  </tr>\r\n";
+
+    content += "  <tr>\r\n";
+    content += "    <td colspan=\"7\"><h2>Pracovní výkaz po dnech</h2></td>\r\n";
+    content += "  </tr>\r\n";
+    content += "  <tr>\r\n";
+    content += "    <th align=\"right\">Datum</th>\r\n";
+    content += "    <th></th>\r\n";
+    content += "    <th>Jméno</th>\r\n";
+    content += "    <th>Popis</th>\r\n";
+    content += "    <th align=\"right\">Čas</th>\r\n";
+    content += "    <th align=\"right\">Cena</th>\r\n";
+    content += "    <th align=\"left\">Měna</th>\r\n";
+    content += "  </tr>\r\n";
+
+    var rdays = data.days.records.sort(function(a, b) {
+        return (a.date > b.date)
+            ? 1
+            : (a.date < b.date)
+                ? -1
+                : 0;
+    });
+    for (var i = 0; i < rdays.length; i++) {
+        content += "  <tr>\r\n";
+        content += "    <td align=\"right\">" + rdays[i].date.formatYYYYMMDD() + "</td>\r\n";
+        content += "    <td>" + rdays[i].date.dow() + "</td>\r\n";
+        content += "    <td>" + rdays[i].user_name + "</td>\r\n";
+        content += "    <td>" + rdays[i].description + "</td>\r\n";
+        content += "    <td align=\"right\">" + rdays[i].duration.formatHHMM() + "</td>\r\n";
+        content += "    <td align=\"right\">" + rdays[i].price.toFixed(0) + "</td>\r\n";
+        content += "    <td>Kč</td>\r\n";
+        content += "  </tr>\r\n";
+    } // for
+    content += "  <tr>\r\n";
+    content += "    <th align=\"left\" colspan=\"4\">Součet</th>\r\n";
+    content += "    <th align=\"right\">" + data.days.sum.duration.formatHHMM() + "</th>\r\n";
+    content += "    <th align=\"right\">" + data.days.sum.price.toFixed(0) + "</th>\r\n";
+    content += "    <th align=\"left\">Kč</th>\r\n";
+    content += "  </tr>\r\n";
+
+    content += "  <tr>\r\n";
+    content += "    <td></td>\r\n";
+    content += "    <td></td>\r\n";
+    content += "    <td></td>\r\n";
+    content += "    <td></td>\r\n";
+    content += "    <td></td>\r\n";
+    content += "    <td></td>\r\n";
+    content += "    <td></td>\r\n";
+    content += "  </tr>\r\n";
+
+    content += "  <tr>\r\n";
+    content += "    <td>Datum vytvoření:</td>\r\n";
+    content += "    <td>" + (new Date().formatYYYYMMDD()) + "</td>\r\n";
+    content += "  </tr>\r\n";
+
+    content += "</table>\r\n";
+    content += "</body>\r\n";
+    content += "</html>\r\n";
+
+    return content;
+} // drawXls()
+
+</script>
 </head>
 
 <body style="background-color: white;">
@@ -13,6 +226,7 @@
 <h1>Pracovní výkaz</h1>
 <h2>Jméno sestavy</h2>
 <p id="weko"><a href="https://prace.hobrasoft.cz">Odkaz do internetu</a></p>
+<p class="no-print"><button onclick="downloadXls()">Stáhtnout XLS</button></p>
 </div>
 
 <div id="divreport">
@@ -66,57 +280,6 @@ $.urlParam = function(name) {
         }
 };
 
-Number.prototype.pad = function(size) {
-    var s = String(this);
-    while (s.length < (size || 2)) { s = "0" + s; }
-    return s;
-    };
-
-Number.prototype.formatHHMM = function() {
-    if (isNaN(this)) { return ""; }
-    var x = this * 3600 + 29;
-    var hh = Math.floor(x/3600);
-    var mm = Math.floor((x- hh*3600)/60);
-    var ss = Math.floor(x%60);
-    return hh.pad(2)+":"+mm.pad(2);
-    };
-
-Number.prototype.floor = function() {
-    return Math.floor(this);
-    }
-
-Date.prototype.formatYYYYMMDD = function() {
-    if (isNaN(this.getTime())) { return ""; }
-    var yy = this.getFullYear();
-    var mt = this.getMonth() + 1;
-    var dd = this.getDate();
-    // return yy.pad(4)+"-"+mt.pad(2)+"-"+dd.pad(2);
-    return dd + '.' + mt + '.' + yy.pad(4);
-    }
-
-String.prototype.formatYYYYMMDD = function() {
-    var date = new Date(this);
-    return date.formatYYYYMMDD();
-    }
-
-Date.prototype.dow = function() {
-    var weekday = new Array(7);
-    weekday[0] = "Neděle";
-    weekday[1] = "Pondělí";
-    weekday[2] = "Úterý";
-    weekday[3] = "Středa";
-    weekday[4] = "Čtvrtek";
-    weekday[5] = "Pátek";
-    weekday[6] = "Sobota";
-    return weekday[this.getDay()];
-    }
-
-String.prototype.dow = function() {
-    var date = new Date(this);
-    return date.dow();
-    }
-
-
 $(document).ready(function(){
     var id = $.urlParam("id");
     console.log("id: " + id);
@@ -141,7 +304,6 @@ function drawReport(data) {
 
 
     for (var i=0; i<data.status_sum.length; i++) {
-        console.log("xxxxxxxxxxxxxxxxxx "+i);
         $("#st").append(
             '<tr>' + 
             '<td>' + data.status_sum[i].status + '</td>' + 

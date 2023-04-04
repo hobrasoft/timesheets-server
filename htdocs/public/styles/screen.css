@@ -362,3 +362,7 @@ img.right {
   margin-bottom: 10px;
   padding-bottom: 10px;
 }
+
+.no-print {
+  display: inline;
+}
