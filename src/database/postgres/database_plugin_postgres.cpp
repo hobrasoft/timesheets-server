@@ -1848,31 +1848,25 @@ QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& overviewId)
     q.exec(R"'(create temporary table overview_statuses_tmp(status text);)'");
 
     q.prepare(R"'(
-            with recursive tree(category, parent_category) as (
+            with recursive tree(category, parent_category, depth) as (
 
                 -- nerekurzivni
-                select category, parent_category
-                    from categories
+                select category, parent_category, 0 as depth
+                from categories
+                where category in (select category from overview_params where key = :key)
 
                 -- rekurzivni
                 union all
-                select category, parent_category
+                select c.category, c.parent_category, t.depth+1 as depth
                     from tree t
-                    where t.parent_category = category
+                    left join categories c on (c.parent_category = t.category)
+                    where depth < 10
+                      and c.category is not null
 
-            ),
-            xcategory as (
-                select category from overview_params where key = :key
             )
-
-            insert into overview_categories_tmp 
+            insert into overview_categories_tmp (category) 
             select category
-            from tree
-            where parent_category = (select category from xcategory)
-            union all
-            select category
-            from categories
-            where category = (select category from xcategory);
+            from tree;
             )'");
 
     q.bindValue(":key", overviewId.toUpper());
