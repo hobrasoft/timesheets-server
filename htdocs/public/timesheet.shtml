@@ -243,6 +243,15 @@ function drawXls(id, data) {
 </tbody>
 </table>
 
+<h3>Souhrn podle lidí</h3>
+<table class="report">
+<thead>
+<tr><th>Kdo</th><th class="right">Čas</th><th class="right">Cena</th></tr>
+</thead>
+<tbody id="li">
+</tbody>
+</table>
+
 <h3>Pracovní výkaz po úkolech</h3>
 <table class="report">
 <thead>
@@ -257,7 +266,7 @@ function drawXls(id, data) {
 <h3>Pracovní výkaz po dnech</h3>
 <table class="report">
 <thead>
-</th><th class="right">Datum</th><th></th><th>Jméno</th><th>Popis</th><th class="right">Čas</th><th class="right">Kč/h</th><th class="right">Cena</th></tr>
+<tr><th class="right">Datum</th><th></th><th>Jméno</th><th>Popis</th><th class="right">Čas</th><th class="right">Kč/h</th><th class="right">Cena</th></tr>
 </thead>
 <tbody id="r2">
 </tbody>
@@ -312,6 +321,16 @@ function drawReport(data) {
             '<td>' + data.status_sum[i].status + '</td>' + 
             '<td>' + data.status_sum[i].duration.formatHHMM() + '</td>' + 
             '<td>' + data.status_sum[i].price.toFixed(0) + '</td>' + 
+            '</tr>\n'
+            );
+        }
+
+    for (var i=0; i<data.people_sum.length; i++) {
+        $("#li").append(
+            '<tr>' + 
+            '<td>' + data.people_sum[i].user_name + '</td>' + 
+            '<td>' + data.people_sum[i].duration.formatHHMM() + '</td>' + 
+            '<td>' + data.people_sum[i].price.toFixed(0) + '</td>' + 
             '</tr>\n'
             );
         }

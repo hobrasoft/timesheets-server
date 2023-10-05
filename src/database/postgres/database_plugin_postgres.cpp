@@ -1847,7 +1847,34 @@ QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& overviewId)
     q.exec(R"'(create temporary table overview_categories_tmp(category int);)'");
     q.exec(R"'(create temporary table overview_statuses_tmp(status text);)'");
 
-    q.prepare(R"'(insert into overview_categories_tmp select (category) from overview_params where key = :key;)'");
+    q.prepare(R"'(
+            with recursive tree(category, parent_category) as (
+
+                -- nerekurzivni
+                select category, parent_category
+                    from categories
+
+                -- rekurzivni
+                union all
+                select category, parent_category
+                    from tree t
+                    where t.parent_category = category
+
+            ),
+            xcategory as (
+                select category from overview_params where key = :key
+            )
+
+            insert into overview_categories_tmp 
+            select category
+            from tree
+            where parent_category = (select category from xcategory)
+            union all
+            select category
+            from categories
+            where category = (select category from xcategory);
+            )'");
+
     q.bindValue(":key", overviewId.toUpper());
     q.exec();
 
@@ -1876,6 +1903,7 @@ QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& overviewId)
                     group by ticket, "user"
                 )
 
+            -- detaily
             select t.ticket, t.description, t."user", u.name, t.price as hour_price, to_hours(ts.duration), round(to_hours(ts.duration) * t.price), ls.description
                 from tickets t
                 left join ticket_last_status ls using (ticket)
@@ -1885,6 +1913,7 @@ QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& overviewId)
                 and category in (select category from overview_categories_tmp)
 
             union all
+            -- Součet za jednotlivé tickety
             --     0         1              2     3     4     5           6        7
             select g.ticket, g.description, -1,   null, null, g.duration, g.price, st.description
                 from (
@@ -1899,6 +1928,7 @@ QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& overviewId)
                 left join ticket_last_status st using(ticket)
 
             union all
+            -- Součet za jednotlivé statusy
             select null, null, -2, null, null, to_hours(sum(ts.duration)) as duration, round(sum(to_hours(ts.duration) * t.price)) as price, ls.description
                 from ticket_last_status ls
                 left join tickets t using (ticket)
@@ -1906,6 +1936,18 @@ QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& overviewId)
                 where ls.status in (select status from overview_statuses_tmp)
                   and category in (select category from overview_categories_tmp)
                 group by ls.description
+
+            union all
+            -- Součet za jednotlivé lidi
+            --     0     1      2  3       4     5                                       6                                                     7
+            select null, null, -3, u.name, null, to_hours(sum(ts.duration)) as duration, round(sum(to_hours(ts.duration) * t.price)) as price, null
+                from ticket_last_status ls
+                left join tickets t using (ticket)
+                left join users u using ("user")
+                left join ticket_timesheets_sum ts using (ticket)
+                where ls.status in (select status from overview_statuses_tmp)
+                  and category in (select category from overview_categories_tmp)
+                group by t."user", u.name
 
             )'");
     while (q.next()) {
@@ -1925,6 +1967,14 @@ QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& overviewId)
             s.price       = q.value(6).toDouble();
             s.status      = q.value(7).toString();
             overview.statusSum << s;
+            continue;
+            }
+        if (q.value(2).toInt() == -3) {
+            Dbt::Overview::UserSum s;
+            s.user_name   = q.value(3).toString();
+            s.duration    = q.value(5).toDouble();
+            s.price       = q.value(6).toDouble();
+            overview.userSum << s;
             continue;
             }
 

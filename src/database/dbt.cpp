@@ -418,6 +418,15 @@ QVariantMap Overview::StatusSum::toMap() const {
 }
 
 
+QVariantMap Overview::UserSum::toMap() const {
+    QVariantMap data;
+    data["duration"] = duration;
+    data["price"] = price;
+    data["user_name"] = user_name;
+    return data;
+}
+
+
 QVariantMap Overview::toMap() const {
     QVariantMap data;
     data["category"] = category.toMap();
@@ -434,6 +443,7 @@ QVariantMap Overview::toMap() const {
     data["tickets"] = xtickets;
 
     data["status_sum"] = toList(statusSum);
+    data["people_sum"] = toList(userSum);
 
     data["id"] = id;
 
