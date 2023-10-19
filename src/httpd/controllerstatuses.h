@@ -8,6 +8,7 @@
 #define _Httpd_ControllerStatuses_H_
 
 #include <QObject>
+#include "json.h"
 #include "abstractcontroller.h"
 
 

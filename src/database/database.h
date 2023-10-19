@@ -8,6 +8,7 @@
 
 #include <QObject>
 #include <QVariant>
+#include <QStringList>
 #include "authenticateduser.h"
 #include "dbt.h"
 #include "database_plugin.h"
@@ -46,6 +47,7 @@ class Database : public QObject {
     QList<Dbt::StatusOrder>                 statusOrder(const QString& id = QString());
     QList<Dbt::Statuses>                    statuses(const QString& id = QString());
     QList<Dbt::Statuses>                    statuses(const QString& category, const QString& prevStatus);
+    QList<Dbt::Statuses>                    statuses(const QString& category, const QStringList& prevStatuses);
 
     QList<Dbt::StatusTemplates>             statusTemplates(int id = -1);
 

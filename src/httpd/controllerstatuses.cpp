@@ -18,7 +18,25 @@ ControllerStatuses::ControllerStatuses(HobrasoftHttpd::HttpConnection *parent) :
 void ControllerStatuses::serviceList (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
     QString category = request->parameter("category");
     QString status   = request->parameter("previousStatus");
-    serviceOK(request, response, toList(db()->statuses(category, status)));
+    QString statuses = request->parameter("previousStatuses"); 
+    if (status == "" && statuses == "") {
+        serviceOK(request, response, toList(db()->statuses(category, status)));
+        return;
+        }
+    if (status != "" && statuses == "") {
+        serviceOK(request, response, toList(db()->statuses(category, status)));
+        return;
+        }
+    if (status == "" && statuses != "") {
+        QStringList statusesList;
+        QVariantList list1 = JSON::data(statuses.toUtf8()).toList();
+        for (int i=0; i<list1.size(); i++) {
+            statusesList << list1[i].toString();
+            }
+        serviceOK(request, response, toList(db()->statuses(category, statusesList)));
+        return;
+        }
+    serviceError(request, response, 400, "bad-parameterers", "Bad parameters: previousStatus=<int> or previousStatuses=<JSON array> must be sent");
 }
 
 

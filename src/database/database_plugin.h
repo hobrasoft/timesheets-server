@@ -8,6 +8,7 @@
 
 #include <QSqlDatabase>
 #include <QObject>
+#include <QStringList>
 #include "dbt.h"
 #include "authenticateduser.h"
 
@@ -45,6 +46,7 @@ class DatabasePlugin : public QObject {
     virtual QList<Dbt::StatusOrder>                 statusOrder(const QString& id) = 0;
     virtual QList<Dbt::Statuses>                    statuses(const QString& id) = 0;
     virtual QList<Dbt::Statuses>                    statuses(const QString& category, const QString& prevstatus) = 0;
+    virtual QList<Dbt::Statuses>                    statuses(const QString& category, const QStringList& prevstatuses);
 
     virtual QList<Dbt::StatusTemplates>             statusTemplates(int id) = 0;
 
@@ -104,7 +106,6 @@ class DatabasePlugin : public QObject {
     virtual QVariant save(const Dbt::TicketValues& data) { Q_UNUSED(data); return QVariant(); }
     virtual QVariant save(const Dbt::TicketFiles& data) { Q_UNUSED(data); return QVariant(); }
     virtual QVariant save(const Dbt::TicketTimesheets& data) { Q_UNUSED(data); return QVariant(); }
-
 
   protected:
     int     userId() const;

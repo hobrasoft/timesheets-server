@@ -41,5 +41,35 @@ QString DatabasePlugin::userLang() const {
 }
 
 
+QList<Dbt::Statuses> DatabasePlugin::statuses(const QString& category, const QStringList& previousStatuses) {
+    QList<Dbt::Statuses> values;
+    for (int i=0; i<previousStatuses.size(); i++) {
+        values += statuses(category, previousStatuses[i]);
+        }
 
+    QMap<QString, int> counts;
+    for (int i=0; i<values.size(); i++) {
+        counts[values[i].status] += 1;
+        }
+
+    QList<QString> selected;
+    QMapIterator<QString, int> iterator(counts);
+    while (iterator.hasNext()) {
+        iterator.next();
+        const QString& status = iterator.key();
+        const int count = iterator.value();
+        if (count != previousStatuses.size()) { continue; }
+        selected << status;
+        }
+
+    QList<Dbt::Statuses> list;
+    QList<QString> selected2;
+    for (int i=0; i<values.size(); i++) {
+        if (selected2.contains(values[i].status)) { continue; }
+        if (!selected.contains(values[i].status)) { continue; }
+        selected2 << values[i].status;
+        list << values[i];
+        }
+    return list;
+}
 
