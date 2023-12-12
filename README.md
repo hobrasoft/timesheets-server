@@ -26,17 +26,22 @@ The configuration file can be located (in search order):
 - /etc//timesheet-server.conf
 - on the command line: -C &lt;path-to-configuration-file&gt;
 
-@code
+```
 [db]
-name     = &lt:username&gt;                 // database name
-server   = &lt:database.hobrasoft.cz&gt;    // database server
-port     = &lt:port number&gt;              // default 5432
-user     = &lt;user&gt;                     // database user name
-password = &lt:password&gt;                 // database password
-@code
+name     = &lt:username&gt;                         // database name
+server   = &lt:database.hobrasoft.cz&gt;            // database server
+port     = &lt:port number&gt;                      // default 5432
+user     = &lt;user&gt;                             // database user name
+password = &lt:password&gt;                         // database password
+
+[httpd]
+thread   = true                                     // Starts thread for each http request
+address  = [2001:db8::100]:80 [192.168.1.100]:80    // Space separated list of listening addresses and ports
+root     = /usr/lib/share/timesheets-server/htdocs  // Path to html content
+```
 
 
 ## API Documentation
 
-- https://potkan.hobrasoft.cz/doc/timesheets-server/group__apiurl.html
+- http://potkan.hobrasoft.cz/doc/timesheets-server/group__apiurl.html
 
