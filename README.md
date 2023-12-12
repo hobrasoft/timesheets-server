@@ -28,11 +28,11 @@ The configuration file can be located (in search order):
 
 ```
 [db]
-name     = &lt:username&gt;                         // database name
-server   = &lt:database.hobrasoft.cz&gt;            // database server
-port     = &lt:port number&gt;                      // default 5432
-user     = &lt;user&gt;                             // database user name
-password = &lt:password&gt;                         // database password
+name     = <username>                            // database name
+server   = <database.hobrasoft.cz>               // database server
+port     = <port number>                         // default 5432
+user     = <user>                                // database user name
+password = <password>                            // database password
 
 [httpd]
 thread   = true                                     // Starts thread for each http request
