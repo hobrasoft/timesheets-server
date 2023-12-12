@@ -26,6 +26,14 @@ The configuration file can be located (in search order):
 - /etc//timesheet-server.conf
 - on the command line: -C &lt;path-to-configuration-file&gt;
 
+@code
+[db]
+name     = &lt:username&gt;                 // database name
+server   = &lt:database.hobrasoft.cz&gt;    // database server
+port     = &lt:port number&gt;              // default 5432
+user     = &lt;user&gt;                     // database user name
+password = &lt:password&gt;                 // database password
+@code
 
 
 ## API Documentation
