@@ -13,13 +13,19 @@ Timesheet server is the server part of Hobrasoft's timesheet suite:
 - https://github.com/hobrasoft/timesheets-kde
 - https://github.com/hobrasoft/timesheets-android
 
-
-
 ## Build process
     git submodule init
     git submodule update
     qmake
     make
+
+## Configuration
+The configuration file can be located (in search order):
+- ~/.config/hobrasoft.cz/timesheet-server.conf
+- ~/.timesheet-server.conf
+- /etc//timesheet-server.conf
+- on the command line: -C &lt;path-to-configuration-file&gt;
+
 
 
 ## API Documentation
