@@ -86,6 +86,8 @@ bool RequestAuthorizer::isLoggedIn(HobrasoftHttpd::HttpRequest *request, Hobraso
         data["userid"]             = m_authenticatedUser->user();
         data["username"]           = m_authenticatedUser->login();
         data["name"]               = m_authenticatedUser->name();
+        data["admin"]              = m_authenticatedUser->admin();
+        data["lang"]               = m_authenticatedUser->lang();
         data["server_name"]        = MSETTINGS->serverName();
         data["server_description"] = MSETTINGS->serverDescription();
         data["server_git_commit"]  = GIT_COMMIT;

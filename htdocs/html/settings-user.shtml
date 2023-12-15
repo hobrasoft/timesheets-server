@@ -1,0 +1,97 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<form>
+<input type="hidden" id="user"></input>
+
+<label for="enabled">Enabled</label><br>
+<input type="checkbox" id="enabled"></input><br>
+
+<label for="admin">Administrator</label><br>
+<input type="checkbox" id="admin"></input><br>
+
+<label for="lang">Language</label>
+<input type="text" id="lang"></input>
+
+<label for="login">Login</label>
+<input type="text" id="login"></input>
+
+<label for="name">Name</label>
+<input type="text" id="name"></input>
+
+<button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
+<button type="button" class="btn btn-primary" id="btn-save">Save</button>
+<button type="button" class="btn btn-danger" id="btn-del" data-bs-toggle="modal" data-bs-target="#confirm-delete">Delete</button>
+</form>
+
+<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>This will delete the category.</h2>
+            </div>
+            <div class="modal-body">
+                <p>Do you really want to delete the user?</p>
+                <p>User with some tickets or timesheets could not be deleted!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="btn-delete" class="btn btn-danger btn-ok">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+function goBack() {
+    window.location.replace('settings-users.shtml');
+}
+
+$(document).ready(function(){
+    var user = parseInt($.urlParam("user"));
+
+    if (user == 0 || isNaN(user)) {
+        $("#btn-del").hide();
+        }
+
+    if (user > 0) {
+        var api = new Api();
+        api.onFinished = function(result) {
+            $("#user").val(result.user);
+            $("#enabled").attr("checked", result.enabled);
+            $("#admin").attr("checked", result.admin);
+            $("#lang").val(result.lang);
+            $("#login").val(result.login);
+            $("#name").val(result.name);
+            };
+        api.user(user);
+        }
+
+    $("#btn-cancel").click(function(event){
+        goBack();
+        });
+
+    $("#btn-save").click(function(event){
+        var user = $("#user").val();
+        var admin = $("#admin").prop("checked");
+        var enabled = $("#enabled").prop("checked");
+        var lang = $("#lang").val();
+        var login = $("#login").val();
+        var name = $("#name").val();
+        var data = {user: user, admin: admin, lang: lang, login: login, name: name, enabled: enabled};
+        var api = new Api();
+        api.onFinished = function() { goBack(); }
+        api.saveUser(data);
+        });
+
+    $("#btn-delete").click(function(event){
+        var user = $("#user").val();
+        api.onFinished = function() { goBack(); }
+        api.removeUser(user);
+        });
+
+    });
+</script>
+
+<!-- #include '/inc/footer.html' -->

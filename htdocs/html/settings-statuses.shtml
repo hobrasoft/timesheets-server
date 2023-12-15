@@ -1,0 +1,65 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<h2 id="current-description">Users</h2>
+
+<table class="table table-bordered">
+<thead>
+<tr>
+    <th>#ID</th>
+    <th>Description</th>
+    <th>Abbr</th>
+    <th>Color</th>
+    <th>Closed</th>
+    <th>Can be run</th>
+    <th>Ignored</th>
+    <th></th>
+</tr>
+</thead>
+<tbody id="tbody">
+<tr id="template-user" style="display: none;">
+    <td><span class="status-status"></span></td>
+    <td><span class="status-description"></span></td>
+    <td><span class="status-abbr"></span></td>
+    <td><span class="status-color"></span></td>
+    <td><span class="status-closed"></span></td>
+    <td><span class="status-can-be-run"></span></td>
+    <td><span class="status-ignored"></span></td>
+    <td><a class="status-edit" href=""><img src="edit.svg" width="16" height="16"/></a></td>
+</tr>
+</tbody>
+</table>
+
+<script>
+$(document).ready(function(){
+    $.getJSON("/api/v1/users", function(result) {
+        for (var t=0; t<result.length; t++) {
+            var x = $('#template-user').clone();
+            var id_status_status = x.find(".status-status");
+            var id_status_description = x.find(".status-description");
+            var id_status_abbr = x.find(".status-abbr");
+            var id_status_color = x.find(".status-color");
+            var id_status_closed = x.find(".status-closed");
+            var id_status_can_be_run = x.find(".status-can-be-run");
+            var id_status_ignored = x.find(".status-ignored");
+            var id_status_edit = x.find(".status-edit");
+
+            $(id_status_status).html(result[t].status);
+            $(id_status_description).html(result[t].description);
+            $(id_status_abbr).html(result[t].abbreviation);
+            $(id_status_color).html(result[t].color);
+            $(id_status_closed).html(result[t].closed);
+            $(id_status_can_be_run).html(result[t].can_be_run);
+            $(id_status_ignored).html(result[t].ignored);
+
+            var href="settings-user.shtml?user="+result[t].user;
+            $(id_status_edit).attr("href", href);
+
+            $("tbody").append(x);
+            $(x).show();
+            }
+        });
+    });
+</script>
+
+<!-- #include '/inc/footer.html' -->

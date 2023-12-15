@@ -1,0 +1,56 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<h2 id="current-description">Users</h2>
+
+<table class="table table-bordered">
+<thead>
+<tr>
+    <th>Enabled</th>
+    <th>Admin</th>
+    <th>Language</th>
+    <th>Login</th>
+    <th>Name</th>
+</tr>
+</thead>
+<tbody id="tbody">
+<tr id="template-user" style="display: none;">
+    <td><span class="user-enabled"></span></td>
+    <td><span class="user-admin"></span></td>
+    <td><span class="user-lang"></span></td>
+    <td><span class="user-login"></span></td>
+    <td><span class="user-name"></span></td>
+    <td><a class="user-edit" href=""><img src="edit.svg" width="16" height="16"/></a></td>
+</tr>
+</tbody>
+</table>
+
+<script>
+$(document).ready(function(){
+    $.getJSON("/api/v1/users", function(result) {
+        for (var t=0; t<result.length; t++) {
+            var x = $('#template-user').clone();
+            var id_user_enabled = x.find(".user-enabled");
+            var id_user_admin   = x.find(".user-admin");
+            var id_user_lang    = x.find(".user-lang");
+            var id_user_login   = x.find(".user-login");
+            var id_user_name    = x.find(".user-name");
+            var id_user_edit    = x.find(".user-edit");
+
+            $(id_user_enabled).html(result[t].enabled);
+            $(id_user_admin).html(result[t].admin);
+            $(id_user_lang).html(result[t].lang);
+            $(id_user_login).html(result[t].login);
+            $(id_user_name).html(result[t].name);
+
+            var href="settings-user.shtml?user="+result[t].user;
+            $(id_user_edit).attr("href", href);
+
+            $("tbody").append(x);
+            $(x).show();
+            }
+        });
+    });
+</script>
+
+<!-- #include '/inc/footer.html' -->

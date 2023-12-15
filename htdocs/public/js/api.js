@@ -61,18 +61,20 @@ class Api {
         this.categories = function () { this.get("categories"); }
         this.categoriesToRoot = function (c) { this.get("categoriestoroot/"+c); }
         this.categoriestree = function (category) { this.get("categoriestree/"+category,"maxdepth=0"); }
+        this.saveCategory = function (c) { this.put("categories/", JSON.stringify(c)); }
+        this.removeCategory = function(c) { this.delete("categories/" + c); }
         this.ticketsvw = function (category) { this.get("ticketsvw", "category=" + category); }
         this.ticketsvwall = function () { this.get("ticketsvw", ""); }
         this.ticketvw = function (ticket) { this.get("ticketsvw/"+ticket+"?all=true"); }
-        this.saveCategory = function (c) { this.put("categories/", JSON.stringify(c)); }
+        this.saveTicket = function(t) { this.put("ticketsvw/", JSON.stringify(t)); }
+        this.removeTicket = function(t) { this.delete("tickets/" + t); }
         this.statuses = function (category, prevstatus) { this.get("statuses", "category="+category+"&previousStatus="+prevstatus); }
         this.user = function (user) { this.get("users/" + user); }
-        this.users = function (user) { this.get("users"); }
-        this.saveTicket = function(t) { this.put("ticketsvw/", JSON.stringify(t)); }
+        this.users = function () { this.get("users"); }
+        this.saveUser = function(data) { this.put("users/", JSON.stringify(data)); }
+        this.removeUser = function(user) { this.delete("users/" + user); }
         this.startTimesheet = function(t) { this.get("timesheet/start/" + t); }
         this.stopTimesheet = function(t) { this.get("timesheet/stop/" + t); }
-        this.removeTicket = function(t) { this.delete("tickets/" + t); }
-        this.removeCategory = function(c) { this.delete("categories/" + c); }
         this.authenticate = function(user, password) { this.get("authenticate"); }
         this.statusesAll = function () { this.get("statuses"); }
         this.overview = function (category, statuses) { this.get("overview/" + category,  "statuses=" + statuses.join(",")); }

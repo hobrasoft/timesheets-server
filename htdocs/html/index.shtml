@@ -1,17 +1,12 @@
 <!-- #include '/inc/header.html' -->
 <!-- #include '/inc/navbar.html' -->
 
-<div id="x1">
-</div>
-<div id="x2">
-</div>
+<h2 id="current-description">Most upper category</h2>
 
-<div id="current-description">Most upper category</div>
-
-<table>
+<table class="table table-bordered">
 <thead>
 <tr>
-    <th>#ID</th>
+    <th></th>
     <th>Description</th>
     <th></th>
     <th>Status</th>
@@ -21,14 +16,14 @@
 </thead>
 <tbody id="tbody">
 <tr id="template-category" style="display: none;">
-    <td><span class="category-id"></span></td>
+    <td><a class="ticket-startstop" href=""><img src="folder.svg" width="16" height="16"/></a></td>
     <td><a class="category-id-href" href=""><span class="category-description"></span></a></td>
-    <td><a class="category-id-edit" href="" style="display: none;">Edit</a></td>
+    <td><a class="category-id-edit" href="" style="display: none;"><img src="edit.svg" width="16" height="16"/></a></td>
 </tr>
 <tr id="template-ticket" style="display: none;">
-    <td class="ticket-id"></td>
+    <td><a class="ticket-startstop" href=""><img class="ticket-startstop-svg" src="stopwatch-light.svg" width="16" height="16"/></a></td>
     <td class="ticket-description"></td>
-    <td><a class="ticket-id-edit" href="">Edit</a></td>
+    <td><a class="ticket-id-edit" href=""><img src="edit.svg" width="16" height="16"/></a></td>
     <td class="ticket-status"></td>
     <td class="ticket-time"></td>
     <td class="ticket-money"></td>
@@ -37,12 +32,27 @@
 </table>
 
 <script>
+function startstop(event) {
+    event.preventDefault();
+    var ticket = $(event.target).data("id");
+    $.getJSON("/api/v1/ticketsvw/"+ticket, function(resultx) {
+        var running = resultx.timesheets.reduce(function(acc, cur) { return acc = acc || cur.date_to == null || cur.date_to === ''; }, false);
+        var icon = running ? "stopwatch-light.svg" : "stopwatch.svg";
+        $(event.target).attr("src", icon);
+        if (running) {
+            $.getJSON("/api/v1/timesheet/stop/" + ticket);
+          } else {
+            $.getJSON("/api/v1/timesheet/start/" + ticket);
+            }
+        });
+    }
+
 $(document).ready(function(){
     var currentCategory = ($.urlParam("category") == null) 
         ? parseInt(sessionStorage.getItem("currentCategory"))
         : parseInt($.urlParam("category"));
     sessionStorage.setItem("currentCategory", currentCategory);
-    
+
     $.getJSON("/api/v1/categories/"+currentCategory, function(result) {
         if (result.category == currentCategory) {
             var x = $('#template-category').clone();
@@ -59,7 +69,6 @@ $(document).ready(function(){
             }
 
         $.getJSON("/api/v1/categoriestree/"+currentCategory+"?maxdepth=0", function(result) {
-            // $("#x1").html(JSON.stringify(result));
             for (var c=0; c<result.length; c++) {
                 var x = $('#template-category').clone();
                 var id_category_id = x.find(".category-id");
@@ -79,7 +88,8 @@ $(document).ready(function(){
                 // $("#x2").html(JSON.stringify(result));
                 for (var t=0; t<result.length; t++) {
                     var x = $('#template-ticket').clone();
-                    var id_ticket_id = x.find(".ticket-id");
+                    var id_ticket_startstop = x.find(".ticket-startstop");
+                    var id_ticket_startstop_svg = x.find(".ticket-startstop-svg");
                     var id_ticket_description = x.find(".ticket-description");
                     var id_ticket_id_edit = x.find(".ticket-id-edit");
                     var id_ticket_status = x.find(".ticket-status");
@@ -97,10 +107,15 @@ $(document).ready(function(){
                                     ? currentValue.date_from.secsTo(new Date())
                                     : currentValue.date_from.secsTo(currentValue.date_to);
                             return accumulator + t
-                            }, 0))
+                            }, 0));
                     var money = Math.round(seconds * result[t].price / 3600);
-
-                    $(id_ticket_id).html(result[t].ticket);
+                    var running = result[t].timesheets.reduce(function(acc, cur) { return acc = acc || cur.date_to == null || cur.date_to === ''; }, false);
+                    var ticket = result[t].ticket;
+                    var icon = running ? "stopwatch.svg" : "stopwatch-light.svg";
+                    $(id_ticket_startstop).attr("href","void("+ticket+");");
+                    $(id_ticket_startstop_svg).data("id",ticket);
+                    $(id_ticket_startstop_svg).attr("src", icon);
+                    $(id_ticket_startstop_svg).click(function(event) { startstop(event); });
                     $(id_ticket_description).html(result[t].description);
                     $(id_ticket_id_edit).attr("href", "ticket.shtml?ticket="+result[t].ticket);
                     $(id_ticket_status).html(last_status.status_description);

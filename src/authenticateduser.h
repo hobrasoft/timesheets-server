@@ -20,6 +20,7 @@ class AuthenticatedUser : public QObject {
     QString name() const { return m_name; }
     QString login() const { return m_login; }
     QString lang() const { return m_lang; }
+    bool    admin() const { return m_admin; }
 
 
     void setAuthenticated(bool x) { m_authenticated = x; }
@@ -33,6 +34,7 @@ class AuthenticatedUser : public QObject {
     QString m_name;
     QString m_login;
     QString m_lang;
+    bool    m_admin;
 
 };
 

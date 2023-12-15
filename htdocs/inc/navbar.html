@@ -1,20 +1,22 @@
 <nav class="navbar navbar-light bg-light navbar-expand-lg">
   <div class="container-fluid">
 
-    <a class="navbar-brand" href="http://hobrasoft.cz/"><img src="/public/images/logo-small.png" class="img-responsive"></a> 
+    <div class="navbar-brand">
+    <a href="http://hobrasoft.cz/"><img src="/public/images/logo-small.png" class="img-responsive"></a> 
+    </div>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="navbar-servername">
+    <div id="navbar-servername" class="text-nowrap navbar-brand">
     </div>
-    <div id="navbar-username">
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;</div>
+    <div id="navbar-username" class="text-nowrap navbar-brand">
     </div>
 
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul id="custom-nav" class="nav ms-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link" href="streams.html"><i class="bi bi-display" title="List of streams"></i></a></li>
         <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-plus-circle" title="Create an item"></i></a>
             <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="category.shtml" title="Add new category">Add category</a></li>
@@ -23,12 +25,8 @@
             </li>
         <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-gear" title="Settings"></i></a>
             <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="categoriestree.shtml" title="Streams settings">Categories tree</a></li>
-                <li><a class="dropdown-item" href="settings-faces.html" title="Face recognition settings">Face recognition</a></li>
-                <li><a class="dropdown-item" href="settings-users.html" title="Users settings">Users</a></li>
-                <li><a class="dropdown-item" href="settings-network.html" title="Network settings">Network</a></li>
-                <li><a class="dropdown-item" href="settings-ssl.html" title="HTTPS and SSL settings">SSL</a></li>
-                <li><a class="dropdown-item" href="settings-system.html" title="Restart, reboot, power-off, system information">System</a></li>
+                <li><a class="dropdown-item" href="settings-users.shtml" title="Users settings">Users</a></li>
+                <li><a class="dropdown-item" href="settings-statuses.shtml" title="Statuses settings">Statuses</a></li>
                 <li><a class="dropdown-item" href="about.shtml" title="Information about the application">About</a></li>
             </ul>
             </li>

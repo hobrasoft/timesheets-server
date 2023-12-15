@@ -27,6 +27,7 @@ bool AuthenticatedUser::authenticate(const QString& login, const QString& passwo
     m_user = item.user;
     m_name = item.name;
     m_lang = item.lang;
+    m_admin = item.admin;
     m_authenticated = true;
     return true;
 }
