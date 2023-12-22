@@ -5,6 +5,7 @@
  */
 #include "dbt.h"
 #include "msettings.h"
+#include "json.h"
 #include "pdebug.h"
 
 using namespace Dbt;
@@ -142,6 +143,9 @@ QVariantMap Statuses::toMap() const {
     data["closed"] = closed;
     data["can_be_run"] = can_be_run;
     data["ignored"] = ignored;
+    if (can_have_next) {
+        data["next"] = toList(next);
+        }
     return data;
 }
 
@@ -155,6 +159,12 @@ Statuses Statuses::fromMap(const QVariantMap& data) {
     x.closed= data["closed"].toBool();
     x.can_be_run = data["can_be_run"].toBool();
     x.ignored = data["ignored"].toBool();
+    if (data.contains("next")) {
+        const QVariantList next = data["next"].toList();
+        for (int i=0; i<next.size(); i++) {
+            x.next << Statuses::fromMap(next[i].toMap());
+            }
+        }
     return x;
 }
 

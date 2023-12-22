@@ -112,11 +112,24 @@ struct Statuses {
     bool        closed;
     bool        can_be_run;
     bool        ignored;
+    bool        can_have_next;   // Není součástí tabulky, flag pro generování next
+    QList<Statuses> next;
 
     QVariantMap toMap() const;
     static Statuses fromMap(const QVariantMap&);
-    Statuses(const QString& id) { status = id; closed = false; }
-    Statuses() { closed = false; }
+    Statuses(const QString& id) { clear(); status = id; }
+    Statuses() { clear(); }
+    void clear() { 
+        closed = false; 
+        can_be_run = false; 
+        ignored = false; 
+        can_have_next = false; 
+        status = QString(); 
+        description = QString(); 
+        abbreviation = QString(); 
+        color = QString(); 
+        next.clear();
+        }
 };
 
 

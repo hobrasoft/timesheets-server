@@ -1440,21 +1440,33 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& id) {
     MSqlQuery q(m_db);
     if (id.isEmpty() || id == "") {
         q.prepare(R"'(
-            select status, description, abbreviation, color, closed, can_be_run, ignored
-            from statuses
+            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run, s.ignored, 
+                   n.status, n.description, n.abbreviation, n.color, n.closed, n.can_be_run, n.ignored 
+            from statuses s 
+            left join status_order o on (s.status = o.previous_status) 
+            left join statuses n on (o.next_status = n.status)
+            order by s.status, n.status
             )'");
       } else {
         q.prepare(R"'(
-            select status, description, abbreviation, color, closed, can_be_run, ignored
-            from statuses
-            where (:id = status);
+            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run, s.ignored, 
+                   n.status, n.description, n.abbreviation, n.color, n.closed, n.can_be_run, n.ignored 
+            from statuses s 
+            left join status_order o on (s.status = o.previous_status) 
+            left join statuses n on (o.next_status = n.status)
+            where (:id = s.status)
+            order by s.status, n.status
         )'");
         }
     q.bindValue(":id", id);
     q.exec();
+    Dbt::Statuses x;
     while (q.next()) {
         int i=0;
-        Dbt::Statuses x;
+        if (!x.status.isEmpty() && x.status != q.value(0).toString()) {
+            list << x;
+            x.clear();
+            }
         x.status = q.value(i++).toString();
         x.description = q.value(i++).toString();
         x.abbreviation = q.value(i++).toString();
@@ -1462,6 +1474,20 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& id) {
         x.closed = q.value(i++).toBool();
         x.can_be_run = q.value(i++).toBool();
         x.ignored = q.value(i++).toBool();
+        x.can_have_next = true; 
+        if (!q.value(i).isNull()) {
+            Dbt::Statuses n;
+            n.status = q.value(i++).toString();
+            n.description = q.value(i++).toString();
+            n.abbreviation = q.value(i++).toString();
+            n.color = q.value(i++).toString();
+            n.closed = q.value(i++).toBool();
+            n.can_be_run = q.value(i++).toBool();
+            n.ignored = q.value(i++).toBool();
+            x.next << n;
+            }
+        }
+    if (!x.status.isEmpty()) {
         list << x;
         }
     return list;
@@ -1565,13 +1591,14 @@ void DatabasePluginPostgres::remove(const Dbt::Statuses& id) {
 QVariant DatabasePluginPostgres::save(const Dbt::Statuses& data) {
     MSqlQuery q(m_db);
 
+    begin();
     q.prepare(R"'(
         update statuses set
             description = :description,
             abbreviation = :abbreviation,
             color = :color,
-            closed = :closed
-            can_be_run = :can_be_run 
+            closed = :closed,
+            can_be_run = :can_be_run,
             ignored = :ignored
             where status = :status
         )'");
@@ -1598,6 +1625,25 @@ QVariant DatabasePluginPostgres::save(const Dbt::Statuses& data) {
     q.bindValue(":ignored", data.ignored);
     q.bindValue(":status2", data.status);
     q.exec();
+
+    q.prepare(R"'(
+        delete from status_order
+            where previous_status = :status
+        )'");
+    q.bindValue(":status", data.status);
+    q.exec();
+
+    for (int i=0; i<data.next.size(); i++) {
+        q.prepare(R"'(
+            insert into status_order (previous_status, next_status)
+                values (:previous_status, :next_status);
+            )'");
+        q.bindValue(":previous_status", data.status);
+        q.bindValue(":next_status", data.next[i].status);
+        q.exec();
+        }
+
+    commit();
 
     return QVariant(data.status);
 }
