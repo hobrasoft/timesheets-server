@@ -40,7 +40,7 @@ address  = [2001:db8::100]:80 [192.168.1.100]:80    // Space separated list of l
 root     = /usr/lib/share/timesheets-server/htdocs  // Path to html content
 ```
 
-Database plugins
+## Database plugins
 
 All database functions are built in a single plug-in so
 it should be easy to adapt the server to various IT 
