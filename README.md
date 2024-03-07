@@ -40,6 +40,15 @@ address  = [2001:db8::100]:80 [192.168.1.100]:80    // Space separated list of l
 root     = /usr/lib/share/timesheets-server/htdocs  // Path to html content
 ```
 
+Database plugins
+
+All database functions are built in a single plug-in so
+it should be easy to adapt the server to various IT 
+systems. Postgresql is a default plugin. To adapt to a new
+system, create new database plugin derived from DatabasePlugin class.
+
+With database plugin system it would be easy to connect the
+timesheet server to any information system.
 
 ## API Documentation
 
