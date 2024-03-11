@@ -8,16 +8,11 @@ Install some development packages:
 
 Clone the repository and compile it:
 
-> git clone git@github.com:hobrasoft/timesheets-server.git
->
-> cd timesheet-server
-> 
-> git submodule init
->
-> git submodule update
->
-> qmake
->
+> git clone git@github.com:hobrasoft/timesheets-server.git    
+> cd timesheet-server    
+> git submodule init    
+> git submodule update    
+> qmake    
 > make
 
 Create deb package:
@@ -29,8 +24,7 @@ Now you should have the timesheet-server-<version>-<architecture>.deb package in
 ## Package installation
 
 The package needs two special packages:
-> libqt5network5
->
+> libqt5network5    
 > libqt5sql5-psql
 
 Install deb package:
@@ -53,12 +47,9 @@ In such case, you should install postgresql:
 
 Create database user and database:
 
-> su - postgres
->
-> createuser -P timesheet
->
-> createdb -o timesheet timesheet
->
+> su - postgres    
+> createuser -P timesheet    
+> createdb -o timesheet timesheet    
 > exit
 
 Usualy the local connections to database are allowed in debian. If you use remote connection,
