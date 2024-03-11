@@ -1,0 +1,13 @@
+[Unit]
+Description=Timesheets server
+
+[Service]
+WorkingDirectory=/
+ExecStart=/usr/lib/timesheet-server/bin/timesheet-server
+Restart=always
+User=timesheets
+
+
+[Install]
+WantedBy=multi-user.target
+

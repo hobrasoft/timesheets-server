@@ -137,7 +137,6 @@ class MSettings : public QSettings {
     static constexpr const char *HttpdUser              = "httpd/user";
     static constexpr const char *HttpdPassword          = "httpd/password";
     static constexpr const char *HttpdAuthorize         = "httpd/authorize";
-    static constexpr const char *ServerAesKey           = "server/aes-key";
     static constexpr const char *ServerName             = "server/name";
     static constexpr const char *ServerDescription      = "server/description";
     static constexpr const char *ServerEnableRemoteRestart = "server/enable-remote-restart";
@@ -154,13 +153,14 @@ class MSettings : public QSettings {
     QString logFile() const { return value(LogFile).toString(); }
 
     // Databáze
-    QString dbPlugin() const { return value(DbPlugin, "sqlite").toString(); }
+    QString dbPlugin() const { return value(DbPlugin, "postgres").toString(); }
     QString dbServer() const { return value(DbServer).toString(); }
-    QString dbName() const { return value(DbName, "/var/lib/wellness/wellness.sqlite3").toString(); }
-    QString dbUser() const { return value(DbUser).toString(); }
+    QString dbName() const { return value(DbName, "timesheet").toString(); }
+    QString dbUser() const { return value(DbUser, "timesheet").toString(); }
     QString dbPassword() const { return value(DbPassword).toString(); }
     int     dbPort() const { return value(DbPort, 5432).toInt(); }
     QString dbFilesDirectory() const { return value(DbFilesDirectory).toString(); }
+
 
     // Httpd
     QString httpdUser() const { return value(HttpdUser).toString(); }
@@ -171,7 +171,6 @@ class MSettings : public QSettings {
     QString serverName() const { return value(ServerName).toString(); }
     QString serverDescription() const { return value(ServerDescription).toString(); }
     bool    serverEnableRemoteRestart() const { return value(ServerEnableRemoteRestart, false).toBool(); }
-    QString serverAesKey() const { return value(ServerAesKey).toString(); }
 
   protected:
 
