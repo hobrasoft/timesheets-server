@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ ! -f /etc/timesheet-server.conf ]; then
+    cp /etc/timesheet-server.conf-template /etc/timesheet-server.conf
+    fi
+
+adduser --system timesheets
+
+exit 0
+

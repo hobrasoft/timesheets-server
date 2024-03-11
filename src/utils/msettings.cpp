@@ -41,9 +41,9 @@ QVariant MSettings::value(const QString& key, const QVariant& defaultValue) cons
  *
  * Konfigurační soubor vyhledává v tomto pořadí (jména adresářů se mohou lišit v závislosti na uživateli):
  * - z povelové řádky, parametr -C jméno_souboru
- * - ~/.config/hobrasoft.cz/wellness.conf
- * - ~/.wellness.conf
- * - /etc/wellness.conf
+ * - ~/.config/hobrasoft.cz/timesheet-server.conf
+ * - ~/.timesheet-server.conf
+ * - /etc/timesheet-server.conf
  */
 MSettings *MSettings::instance(QObject *parent) {
     if (m_mSettings == NULL) {

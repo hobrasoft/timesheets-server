@@ -1,0 +1,55 @@
+#!/bin/bash
+
+case `uname -m` in
+    x86_64)
+        ARCH=amd64
+        ;;
+    x86)
+        ARCH=i386
+        ;;
+    i686)
+        ARCH=i686
+        ;;
+esac
+
+if [ "$1" != "" ]; then ARCH=$1; fi
+
+
+if [ "$ARCH" != "armhf" -a "$ARCH" != "i386" -a "$ARCH" != "amd64" -a "$ARCH" != "i686" ]; then
+    echo You have to choose the architecture: armhf, i386 or amd64
+    exit
+    fi
+
+if [ "$ARCH" == "i686" ]; then
+    ARCH=i386
+    fi
+
+VERZE=$(cat src/version.h | grep ' VERSION ' | awk '{print $3;}' | sed 's/"//g')
+
+DIR=/tmp/timesheet-server.$$
+DIRLIB=$DIR/debian/usr/lib/timesheet-server
+DIRSHR=$DIR/debian/usr/share/timesheet-server
+DIRETC=$DIR/debian/etc
+
+(
+rm -fr $DIR
+mkdir -p $DIRLIB
+mkdir -p $DIRSHR
+mkdir -p $DIRETC
+
+find debian -print | cpio -pudm $DIR
+find htdocs -print | cpio -pudm $DIRSHR
+find bin/timesheet-server bin/lib* -print | cpio -pudm $DIRLIB
+
+SIZE=$(du -sb $DIR | awk '{print $1;}')
+
+sed "s/XXXX/$VERZE/; s/AAAA/$ARCH/; s/SSSS/$SIZE/;" < debian-control > $DIR/debian/DEBIAN/control
+
+cd $DIR
+# find $DIR
+fakeroot dpkg-deb --build debian
+)
+
+mv $DIR/debian.deb timesheet-server-$VERZE-$ARCH.deb
+rm -fr $DIR
+

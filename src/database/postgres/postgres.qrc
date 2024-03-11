@@ -2,6 +2,7 @@
 <qresource prefix="/postgres">
     <file>patch.000.sql</file>
     <file>patch.001.sql</file>
+    <file>patch.002.sql</file>
 </qresource>
 </RCC>
 

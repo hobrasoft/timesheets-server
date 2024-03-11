@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# deluser --system timesheets
+
+exit
+

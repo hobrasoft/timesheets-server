@@ -1,0 +1,38 @@
+# timesheets-server.conf-template
+
+[server]
+name = Timesheets
+description = Timesheets server
+
+# Database configuration
+[db]
+plugin   = postgres
+name     = database-name
+server   = database-server-host-name
+port     = 5432
+user     = timesheet
+password =
+
+# Http configuration
+#   threads = start exclusive thread for each request
+#   maxRequestSize = increase for images uploading
+#   address = list of addresses to listen on, separated by space, format IP:port or [IP]:port
+#   root = document root 
+[httpd]
+threads = true
+maxRequestSize = 99999999
+address = [::]:8039
+root = /usr/share/timesheet-server/htdocs/
+
+
+# Logging
+#   file = log file name, if empty, then the stderr is used
+#   all = true | false
+#   include = regular expression, useful in combination with all=false
+#   exclude = regular expression, useful in combination with all=true
+[log]
+all = false
+file =
+include =
+exclude =
+

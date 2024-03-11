@@ -10,3 +10,8 @@ SOURCES += \
 HEADERS += \
  $$PWD/database_plugin_postgres.h \
 
+FILES += \
+ $$PWD/patch.000.sql \
+ $$PWD/patch.001.sql \
+ $$PWD/patch.002.sql \
+

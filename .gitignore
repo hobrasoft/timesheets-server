@@ -8,3 +8,4 @@ civetweb*
 *.pro.user
 .qmake.stash
 wget-log*
+timesheet-server-*.deb
