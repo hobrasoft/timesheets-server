@@ -56,7 +56,7 @@ Usualy the local connections to database are allowed in debian. If you use remot
 fix your */etc/postgresql/15/main/pg_hba.conf* appropriately.
 
 
-## Configuration file.
+## Configuration file
 
 Check the configuration file:
 
@@ -89,5 +89,16 @@ Check the configuration file:
 Start the server:
 
 > systemctl start timesheet-server
+
+At this moment, the server should connect to database and start listening on
+http port 8039 (dependins on configuration). 
+
+We recommend to setup Apache reverse proxy to make the timesheet server available
+on internet, see: 
+
+- https://www.hobrasoft.cz/en/blog/bravenec/reverse-proxy 
+- or INSTALLATION-apache.md
+
+
 
 
