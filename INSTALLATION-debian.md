@@ -19,7 +19,7 @@ Create deb package:
 
 > ./makedeb
 
-Now you should have the timesheet-server-<version>-<architecture>.deb package in your working directory.
+Now you should have the timesheet-server-(version)-(architecture).deb package in your working directory.
 
 ## Package installation
 
@@ -29,7 +29,7 @@ The package needs two special packages:
 
 Install deb package:
 
-> dpkg -i timesheet-server-<version>-<architecture>.deb
+> dpkg -i timesheet-server-(version)-(architecture).deb
 
 If dependency packages are not installed, fix the installation with:
 
