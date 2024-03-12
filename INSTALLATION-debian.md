@@ -73,8 +73,8 @@ Check the configuration file:
     [httpd]
     threads = true
     maxRequestSize = 99999999
-    address = [2a0a:1c01:0:1405::100]:8039
-    root = /home/tycho/SRC/timesheets-server/htdocs
+    address = [2001:db8::99]:8039
+    root = /usr/share/timesheets-server/htdocs
 
     [server]
     name = Timesheets
@@ -93,12 +93,13 @@ Start the server:
 At this moment, the server should connect to database and start listening on
 http port 8039 (dependins on configuration). 
 
-We recommend to setup Apache reverse proxy to make the timesheet server available
-on internet, see: 
+On the localhost, the server should be available at:
 
-- https://www.hobrasoft.cz/en/blog/bravenec/reverse-proxy 
-- or INSTALLATION-apache.md
+> http://[::1]:8039/index.html
 
 
+Or, remotely, on the listening addresss:
+
+> http://[2001:db8::99]:8039/index.html
 
 
