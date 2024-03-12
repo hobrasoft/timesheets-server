@@ -80,6 +80,12 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
         return;
         }
 
+    if (m_path.startsWith("/index.html") || m_path == "/") {
+        StaticFileController(connection()).service(request, response);
+        response->flush();
+        return;
+        }
+
     if (m_path.startsWith("/public/")) {
         StaticFileController(connection()).service(request, response);
         response->flush();
