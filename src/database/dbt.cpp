@@ -60,6 +60,14 @@ QVariantMap ClientSettings::toMap() const {
 }
 
 
+ServerInfo ServerInfo::fromMap(const QVariantMap& data) {
+    ServerInfo x;
+    x.name = data["name"].toInt();
+    x.description = data["description"].toString();
+    return x;
+}
+
+
 ClientSettings ClientSettings::fromMap(const QVariantMap& map) {
     ClientSettings x;
     x.multiple_timesheets = map["multiple_timesheets"].toBool();

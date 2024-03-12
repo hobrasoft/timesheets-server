@@ -11,6 +11,7 @@
 #include "pdebug.h"
 #include "pluginstore.h"
 #include "timesheetserver.h"
+#include "database.h"
 #include <QTimer>
 #include <QFileInfo>
 #include <QDir>
@@ -26,10 +27,14 @@ void ControllerServer::serviceIdGet (HobrasoftHttpd::HttpRequest *request, Hobra
     if (id == "about") {
         AUTHORIZEREQUEST(Security::Permissions::Server);
 
+        QList<Dbt::ServerInfo> list = db()->serverInfo();
+        QString serverName        = (list.isEmpty()) ? MSETTINGS->serverName()        : list.first().name;
+        QString serverDescription = (list.isEmpty()) ? MSETTINGS->serverDescription() : list.first().description;
+
         QVariantMap data;
         data["configfile"]  = MSETTINGS->fileName();
-        data["name"]        = MSETTINGS->serverName();
-        data["description"] = MSETTINGS->serverDescription();
+        data["name"]        = serverName;
+        data["description"] = serverDescription;
         data["git_commit"]  = GIT_COMMIT;
         data["git_branch"]  = GIT_BRANCH;
         data["version"]     = VERSION;
@@ -102,5 +107,15 @@ QVariantList ControllerServer::objects(const QObject *object, int depth) {
         data << objectdata;
         }
     return data;
+}
+
+
+void ControllerServer::serviceIdPut(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QVariantMap& data) {
+    serviceOK(request, response, putKey(db()->save(Dbt::ServerInfo::fromMap(data))));
+}
+
+
+void ControllerServer::serviceIdPost(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QVariantMap& data) {
+    serviceIdPut(request, response, data);
 }
 

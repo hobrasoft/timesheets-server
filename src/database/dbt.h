@@ -66,6 +66,14 @@ struct ClientSettings {
 };
 
 
+struct ServerInfo {
+    QString     name;
+    QString     description;
+
+    static ServerInfo fromMap(const QVariantMap&);
+};
+
+
 struct Categories {
     QString     category;           // primary key
     QString     parent_category;

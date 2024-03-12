@@ -288,6 +288,41 @@ QList<Dbt::ClientSettings> DatabasePluginPostgres::clientSettings() {
 }
 
 
+QList<Dbt::ServerInfo> DatabasePluginPostgres::serverInfo() {
+    QList<Dbt::ServerInfo> list;
+    MSqlQuery q(m_db);
+    q.prepare(R"'(
+        select name, description from server_info;
+        )'");
+    q.exec();
+    while (q.next()) {
+        Dbt::ServerInfo x;
+        int i = 0;
+        x.name = q.value(i++).toString();
+        x.description = q.value(i++).toString();
+        list << x;
+        }
+    return list;
+}
+
+
+QVariant DatabasePluginPostgres::save(const Dbt::ServerInfo& data) {
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        update server_info set
+            name = :name,
+            description = :description
+            ;
+        )'");
+    q.bindValue(":name", data.name);
+    q.bindValue(":description", data.description);
+    q.exec();
+
+    return QVariant();
+}
+
+
 QList<Dbt::Categories> DatabasePluginPostgres::categories(const QString& id) {
     QList<Dbt::Categories> list;
     MSqlQuery q(m_db);

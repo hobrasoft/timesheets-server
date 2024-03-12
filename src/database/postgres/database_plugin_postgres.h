@@ -69,6 +69,7 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     QList<Dbt::ClientSettings>              clientSettings() Q_DECL_OVERRIDE;
     QList<Dbt::Overview>                    overview(const QString& category, const QStringList& statuses) Q_DECL_OVERRIDE;
     QList<Dbt::Overview>                    overview(const QString& overviewId) Q_DECL_OVERRIDE;
+    QList<Dbt::ServerInfo>                  serverInfo() Q_DECL_OVERRIDE;
 
     template<typename T> void save(const QList<T>& list) {
         QListIterator<T> iterator(list);
@@ -99,6 +100,7 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     QVariant save(const Dbt::TicketValues& data) Q_DECL_OVERRIDE;
     QVariant save(const Dbt::TicketFiles& data) Q_DECL_OVERRIDE;
     QVariant save(const Dbt::TicketTimesheets& data) Q_DECL_OVERRIDE;
+    QVariant save(const Dbt::ServerInfo& data) Q_DECL_OVERRIDE;
 
 
     void    upgrade();

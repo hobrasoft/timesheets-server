@@ -82,6 +82,7 @@ class Database : public QObject {
     QList<Dbt::ClientSettings>              clientSettings();
     QList<Dbt::Overview>                    overview(const QString& category, const QStringList& statuses);
     QList<Dbt::Overview>                    overview(const QString& overviewId);
+    QList<Dbt::ServerInfo>                  serverInfo();
 
 
     template<typename T> QVariant save(const T& id) { return m_dbplugin->save(id); }

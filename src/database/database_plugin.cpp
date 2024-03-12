@@ -6,6 +6,7 @@
 
 #include "database_plugin.h"
 #include "database.h"
+#include "msettings.h"
 
 using namespace Db::Plugins;
 
@@ -70,6 +71,16 @@ QList<Dbt::Statuses> DatabasePlugin::statuses(const QString& category, const QSt
         selected2 << values[i].status;
         list << values[i];
         }
+    return list;
+}
+
+
+QList<Dbt::ServerInfo> DatabasePlugin::serverInfo() {
+    QList<Dbt::ServerInfo> list;
+    Dbt::ServerInfo x;
+    x.name = MSETTINGS->serverName();
+    x.description = MSETTINGS->serverDescription();
+    list << x;
     return list;
 }
 

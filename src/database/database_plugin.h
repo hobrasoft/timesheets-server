@@ -79,6 +79,7 @@ class DatabasePlugin : public QObject {
     virtual QList<Dbt::TicketTimesheets>            toggleTimesheet(int ticket) = 0;
 
     virtual QList<Dbt::ClientSettings>              clientSettings() = 0;
+    virtual QList<Dbt::ServerInfo>                  serverInfo();
     virtual QList<Dbt::Overview>                    overview(const QString& category, const QStringList& statuses) = 0;
     virtual QList<Dbt::Overview>                    overview(const QString& overviewId) = 0;
 
@@ -106,6 +107,7 @@ class DatabasePlugin : public QObject {
     virtual QVariant save(const Dbt::TicketValues& data) { Q_UNUSED(data); return QVariant(); }
     virtual QVariant save(const Dbt::TicketFiles& data) { Q_UNUSED(data); return QVariant(); }
     virtual QVariant save(const Dbt::TicketTimesheets& data) { Q_UNUSED(data); return QVariant(); }
+    virtual QVariant save(const Dbt::ServerInfo& data) { Q_UNUSED(data); return QVariant(); }
 
   protected:
     int     userId() const;
