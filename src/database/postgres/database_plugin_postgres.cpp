@@ -2130,7 +2130,41 @@ QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& overviewId)
 
 
 QList<Dbt::OverviewList> DatabasePluginPostgres::overviewList() {
+    MSqlQuery q(m_db);
     QList<Dbt::OverviewList> list;
+
+    QList<Dbt::Statuses> statusesList = statuses(QString());
+    QHash<QString, Dbt::Statuses> statusesHash;
+    for (int i=0; i<statusesList.size(); i++) {
+        const Dbt::Statuses& item = statusesList[i];
+        statusesHash[item.status] = item;
+        }
+
+    q.exec(R"'(
+        select o.key, o.statuses, c.category, c.parent_category, c.description, c.price 
+            from overview_params o
+            left join categories c using (category)
+        )'");
+    while (q.next()) {
+        int i=0;
+        Dbt::OverviewList x;
+        x.key = q.value(i++).toString();
+
+        QStringList statuses = q.value(i++).toString().replace("{","").replace("}","").split(",");
+        for (int i=0; i<statuses.size(); i++) {
+            x.statuses << statusesHash[statuses[i]];
+            }
+
+        Dbt::Categories c;
+        c.category          = q.value(i++).toString();
+        c.parent_category   = q.value(i++).toString();
+        c.description       = q.value(i++).toString();
+        c.price             = q.value(i++).toDouble();
+        x.category = c;
+
+        list << x;
+        }
+
     return list;
 }
 
