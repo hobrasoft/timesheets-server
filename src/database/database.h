@@ -82,6 +82,7 @@ class Database : public QObject {
     QList<Dbt::ClientSettings>              clientSettings();
     QList<Dbt::Overview>                    overview(const QString& category, const QStringList& statuses);
     QList<Dbt::Overview>                    overview(const QString& overviewId);
+    QList<Dbt::OverviewList>                overviewList();
     QList<Dbt::ServerInfo>                  serverInfo();
 
 

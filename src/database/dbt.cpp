@@ -380,6 +380,16 @@ QList<TicketStatus> TicketStatus::fromList(const QVariantList& list) {
 }
 
 
+QVariantMap OverviewList::toMap() const {
+    QVariantMap data;
+    data["key"] = key;
+    data["category"] = category.toMap();
+    data["statuses"] = toList(statuses);
+    return data;
+}
+
+
+
 QVariantMap Overview::Days::toMap() const {
     QVariantMap data;
     data["ticket"] = ticket;

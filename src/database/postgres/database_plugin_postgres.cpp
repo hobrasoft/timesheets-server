@@ -2129,3 +2129,9 @@ QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& overviewId)
 }
 
 
+QList<Dbt::OverviewList> DatabasePluginPostgres::overviewList() {
+    QList<Dbt::OverviewList> list;
+    return list;
+}
+
+

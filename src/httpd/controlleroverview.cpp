@@ -16,6 +16,11 @@ ControllerOverview::ControllerOverview(HobrasoftHttpd::HttpConnection *parent) :
 }
 
 
+void ControllerOverview::serviceList (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
+    serviceOK(request, response, toList(db()->overviewList()));
+}
+
+
 void ControllerOverview::serviceIdGet (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QString& id) {
     QStringList statuses = request->parameter("statuses").split(",");
     auto list = db()->categories(id);

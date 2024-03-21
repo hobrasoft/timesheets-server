@@ -302,3 +302,8 @@ QList<Dbt::Overview> Database::overview(const QString& overviewId) {
     return m_dbplugin->overview(overviewId);
 }
 
+
+QList<Dbt::OverviewList> Database::overviewList() {
+    return m_dbplugin->overviewList();
+}
+

@@ -24,7 +24,7 @@ namespace Httpd {
 /**
 @brief Vrací podklady pro tištěný pracovní výkaz
 
-GET /overviedw/&lt;categoryid&gt;
+GET /overview/&lt;categoryid&gt;
 ---
 
 @param statuses - seznam statutů, které se mají ve výkazu objevit, například: statuses=NEW,INVOICE
@@ -112,6 +112,7 @@ class ControllerOverview : public AbstractController {
 
   protected:
 
+    void serviceList  (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) Q_DECL_OVERRIDE;
     void serviceIdGet (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QString& id) Q_DECL_OVERRIDE;
 
   private slots:

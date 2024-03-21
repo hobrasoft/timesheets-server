@@ -82,6 +82,7 @@ class DatabasePlugin : public QObject {
     virtual QList<Dbt::ServerInfo>                  serverInfo();
     virtual QList<Dbt::Overview>                    overview(const QString& category, const QStringList& statuses) = 0;
     virtual QList<Dbt::Overview>                    overview(const QString& overviewId) = 0;
+    virtual QList<Dbt::OverviewList>                overviewList() = 0;
 
 
     virtual void remove(const Dbt::Users& data) { Q_UNUSED(data); }

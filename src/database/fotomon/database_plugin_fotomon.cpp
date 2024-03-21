@@ -1206,4 +1206,10 @@ QList<Dbt::Overview> DatabasePluginFotomon::overview(const QString& overviewId) 
 }
 
 
+QList<Dbt::OverviewList> DatabasePluginFotomon::overviewList() {
+    QList<Dbt::OverviewList> list;
+    return list;
+}
+
+
 

@@ -341,6 +341,15 @@ struct TicketsVw : Tickets {
 };
 
 
+struct OverviewList {
+    QString              key;
+    Dbt::Categories      category;
+    QList<Dbt::Statuses> statuses;
+    
+    QVariantMap     toMap() const;
+};
+
+
 struct Overview {
     struct Days {
         int         ticket;

@@ -110,10 +110,6 @@ Check the configuration file:
     address = [2001:db8::99]:8039
     root = /usr/lib/share/timesheets-server/htdocs
 
-    [server]
-    name = Timesheets
-    description = Experimental timesheets server
-
     [log]
     all = true
 
@@ -131,14 +127,14 @@ Start the server:
     systemctl start timesheet-server
 
 At this moment, the server should connect to database and start listening on
-http port 8039 (dependins on configuration).
+http port 8039 (depending on configuration).
 
 On the localhost, the server should be available at:
 
 > http://[::1]:8039/index.html
 
 
-Or, remotely, on the listening addresss:
+Or, remotely, at the listening addresss:
 
 > http://[2001:db8::99]:8039/index.html
 

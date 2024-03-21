@@ -69,6 +69,7 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     QList<Dbt::ClientSettings>              clientSettings() Q_DECL_OVERRIDE;
     QList<Dbt::Overview>                    overview(const QString& category, const QStringList& statuses) Q_DECL_OVERRIDE;
     QList<Dbt::Overview>                    overview(const QString& overviewId) Q_DECL_OVERRIDE;
+    QList<Dbt::OverviewList>                overviewList() Q_DECL_OVERRIDE;
     QList<Dbt::ServerInfo>                  serverInfo() Q_DECL_OVERRIDE;
 
     template<typename T> void save(const QList<T>& list) {
