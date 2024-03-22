@@ -40,5 +40,10 @@ void ControllerOverview::serviceIdGet (HobrasoftHttpd::HttpRequest *request, Hob
 }
 
 
+void ControllerOverview::serviceIdDelete (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QString& id) {
+    db()->remove(Dbt::OverviewList(id));
+    serviceOK(request, response);
+}
+
 
 

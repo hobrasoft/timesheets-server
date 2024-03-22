@@ -2168,4 +2168,11 @@ QList<Dbt::OverviewList> DatabasePluginPostgres::overviewList() {
     return list;
 }
 
+void DatabasePluginPostgres::remove(const Dbt::OverviewList& x) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from overview_params where key = :key;)'");
+    q.bindValue(":key", x.key);
+    q.exec();
+}
+
 

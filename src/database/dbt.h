@@ -345,7 +345,9 @@ struct OverviewList {
     QString              key;
     Dbt::Categories      category;
     QList<Dbt::Statuses> statuses;
-    
+
+    OverviewList() {}
+    OverviewList(const QString& x) { key = x; } 
     QVariantMap     toMap() const;
 };
 

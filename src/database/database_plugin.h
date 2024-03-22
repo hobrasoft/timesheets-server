@@ -95,6 +95,7 @@ class DatabasePlugin : public QObject {
     virtual void remove(const Dbt::TicketValues& data) { Q_UNUSED(data); }
     virtual void remove(const Dbt::TicketFiles& data) { Q_UNUSED(data); }
     virtual void remove(const Dbt::TicketTimesheets& data) { Q_UNUSED(data); }
+    virtual void remove(const Dbt::OverviewList& data) { Q_UNUSED(data); }
 
 
     virtual QVariant save(const Dbt::Users& data) { Q_UNUSED(data); return QVariant(); }

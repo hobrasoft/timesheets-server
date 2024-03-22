@@ -89,6 +89,7 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     void remove(const Dbt::TicketValues& data) Q_DECL_OVERRIDE;
     void remove(const Dbt::TicketFiles& data) Q_DECL_OVERRIDE;
     void remove(const Dbt::TicketTimesheets& data) Q_DECL_OVERRIDE;
+    void remove(const Dbt::OverviewList& data) Q_DECL_OVERRIDE;
 
 
     QVariant save(const Dbt::Users& data) Q_DECL_OVERRIDE;
