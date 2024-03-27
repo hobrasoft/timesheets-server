@@ -8,7 +8,7 @@ values
 ('INVOICE', 'Waiting for invoice', 'INVOICE', 'seagreen', true, false, false),
 ('INVOICED', 'Invoiced', 'INVOICED', 'lightgreen', true, false, false),
 ('NEW', 'Open', 'NEW', 'transparent', false, true, false),
-('ARCHIVE', 'Archived', 'ARCHIVE', 'transparent', false, false, false);
+('ARCHIVE', 'Archived', 'ARCHIVE', 'transparent', true, false, false);
 
 insert into status_order (previous_status, next_status)
 values

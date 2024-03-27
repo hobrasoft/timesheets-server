@@ -190,6 +190,14 @@ is used only to obtain SSL certificates from Let's Encrypt authority.
 
 # Clients
 
-You can connect to http but the http is not working properly, at the moment. 
+You can connect to http but the http is not complete, at the moment. 
+You can use KDE or Android client instead. Most complete is the Android client:
+
+- https://github.com/hobrasoft/timesheets-kde
+- https://github.com/hobrasoft/timesheets-android
+
+Default login:
+- user name: admin
+- password: admin
 
 
