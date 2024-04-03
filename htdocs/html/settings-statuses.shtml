@@ -17,7 +17,7 @@
 </tr>
 </thead>
 <tbody id="tbody">
-<tr id="template-user" style="display: none;">
+<tr id="template-status" style="display: none;">
     <td><span class="status-status"></span></td>
     <td><span class="status-description"></span></td>
     <td><span class="status-abbr"></span></td>
@@ -32,9 +32,9 @@
 
 <script>
 $(document).ready(function(){
-    $.getJSON("/api/v1/users", function(result) {
+    $.getJSON("/api/v1/statuses", function(result) {
         for (var t=0; t<result.length; t++) {
-            var x = $('#template-user').clone();
+            var x = $('#template-status').clone();
             var id_status_status = x.find(".status-status");
             var id_status_description = x.find(".status-description");
             var id_status_abbr = x.find(".status-abbr");
@@ -52,7 +52,7 @@ $(document).ready(function(){
             $(id_status_can_be_run).html(result[t].can_be_run);
             $(id_status_ignored).html(result[t].ignored);
 
-            var href="settings-user.shtml?user="+result[t].user;
+            var href="settings-status.shtml?status="+result[t].status;
             $(id_status_edit).attr("href", href);
 
             $("tbody").append(x);

@@ -28,7 +28,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>This will delete the category.</h2>
+                <h3>This will delete the user.</h2>
             </div>
             <div class="modal-body">
                 <p>Do you really want to delete the user?</p>

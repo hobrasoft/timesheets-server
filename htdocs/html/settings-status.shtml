@@ -1,0 +1,140 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<form>
+<label for="status">Status</label><br>
+<input type="text" id="status"></input>
+
+<label for="abbreviation">Abbreviation</label><br>
+<input type="text" id="abbreviation"></input>
+
+<label for="description">Description</label><br>
+<input type="text" id="description"></input>
+
+<label for="color">Color</label><br>
+<input type="text" id="color"></input>
+
+<label for="closed">Closed</label><br>
+<input type="checkbox" id="closed"></input><br>
+
+<label for="can_be_run">Can be run</label><br>
+<input type="checkbox" id="can_be_run"></input><br>
+
+<label for="ignored">Ignored</label><br>
+<input type="checkbox" id="ignored"></input><br>
+
+<h4>Can follow</h4>
+<div id="template-next" style="display: none;">
+    <input type="checkbox" class="next-status">
+    <label class=next-description></label> 
+</div>
+<div id="id-next">
+</div>
+
+<button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
+<button type="button" class="btn btn-primary" id="btn-save">Save</button>
+<button type="button" class="btn btn-danger" id="btn-del" data-bs-toggle="modal" data-bs-target="#confirm-delete">Delete</button>
+
+</form>
+
+<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>This will delete the status.</h3>
+            </div>
+            <div class="modal-body">
+                <p>Do you really want to delete the status?</p>
+                <p>Status used in some ticket could not be deleted!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="btn-delete" class="btn btn-danger btn-ok">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+function goBack() {
+    window.location.replace('settings-statuses.shtml');
+}
+
+$(document).ready(function(){
+    var status = $.urlParam("status");
+
+    if (status === '') {
+        $("#btn-del").hide();
+        }
+
+    if (status !== '') {
+        var api = new Api();
+        api.onFinished = function(result) {
+            $("#status").val(result.status);
+            $("#abbreviation").val(result.abbreviation);
+            $("#description").val(result.description);
+            $("#color").val(result.color);
+            $("#closed").attr("checked", result.closed);
+            $("#can_be_run").attr("checked", result.can_be_run);
+            $("#ignored").attr("checked", result.ignored);
+            var api2 = new Api();
+            api2.onFinished = function(result2) {
+                for (var i=0; i<result2.length; i++) {
+                    console.log("ssssssss " + result2[i].status + " " + result2[i].description);
+                    var x = $('#template-next').clone();
+                    var id_next_status = x.find(".next-status");
+                    var id_next_description = x.find(".next-description");
+                    $(id_next_status).attr('class', 'next-status-data');
+                    $(id_next_status).attr('id', 'next-'+result2[i].status);
+                    $(id_next_description).html(result2[i].description);
+                    $(id_next_description).attr('for', 'next-'+result2[i].status);
+                    $("#id-next").append(x);
+                    $(x).show();
+                    }
+                for (var i=0; i<result.next.length; i++) {
+                    $("#next-"+result.next[i].status).attr("checked", true);
+                    }
+                };
+            api2.statusesAll();
+            };
+        api.status(status);
+        }
+
+    $("#btn-cancel").click(function(event){
+        goBack();
+        });
+
+    $("#btn-save").click(function(event){
+        var data = {};
+        data.status = $("#status").val();
+        data.abbreviation = $("#abbreviation").val();
+        data.description = $("#description").val();
+        data.color = $("#color").val();
+        data.closed = $("#closed").prop("checked");
+        data.can_be_run = $("#can_be_run").prop("checked");
+        data.ignored = $("#ignored").prop("checked");
+        data.next = new Array; 
+        $(".next-status-data").each(function() {
+            var id = $(this).attr('id');
+            var status = id.replace("next-","");
+            var checked  = $(this).prop("checked");
+            if (checked === false) { return; }
+            data.next.push({status: status});
+            });
+        console.log(JSON.stringify(data));
+//      var api = new Api();
+//      api.onFinished = function() { goBack(); }
+//      api.saveStatus(data);
+        });
+
+    $("#btn-delete").click(function(event){
+        var status = $("#status").val();
+        api.onFinished = function() { goBack(); }
+        api.removeStatus(user);
+        });
+
+    });
+</script>
+
+<!-- #include '/inc/footer.html' -->
