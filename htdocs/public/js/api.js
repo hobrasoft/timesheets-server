@@ -48,7 +48,7 @@ class Api {
                     todleto.onError('Unauthorized');
                     }
                 };
-            params = typeof params === 'undefined' ? '' : '&'+params;
+            params = typeof params === 'undefined' ? '' : '?'+params;
             rq.open("GET", todleto.completeUrl(url,params), true);
             rq.send();
             }
