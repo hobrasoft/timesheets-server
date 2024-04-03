@@ -1,7 +1,7 @@
 <!-- #include '/inc/header.html' -->
 <!-- #include '/inc/navbar.html' -->
 
-<h2 id="current-description">Users</h2>
+<h2 id="current-description">Statuses</h2>
 
 <table class="table table-bordered">
 <thead>

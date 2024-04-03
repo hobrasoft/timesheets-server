@@ -4,20 +4,29 @@
 <form>
 <input type="hidden" id="user"></input>
 
-<label for="enabled">Enabled</label><br>
-<input type="checkbox" id="enabled"></input><br>
+<table class="table table-bordered">
 
-<label for="admin">Administrator</label><br>
-<input type="checkbox" id="admin"></input><br>
+<tr><td><label for="enabled">Enabled</label></td>
+    <td><input type="checkbox" id="enabled"></input></td>
+    </tr>
 
-<label for="lang">Language</label>
-<input type="text" id="lang"></input>
+<tr><td><label for="admin">Administrator</label></td>
+    <td><input type="checkbox" id="admin"></input></td>
+    </tr>
 
-<label for="login">Login</label>
-<input type="text" id="login"></input>
+<tr><td><label for="lang">Language</label></td>
+    <td><input type="text" id="lang"></input></td>
+    </tr>
 
-<label for="name">Name</label>
-<input type="text" id="name"></input>
+<tr><td><label for="login">Login</label></td>
+    <td><input type="text" id="login"></input></td>
+    </tr>
+
+<tr><td><label for="name">Name</label></td>
+    <td><input type="text" id="name"></input></td>
+    </tr>
+
+</table>
 
 <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
 <button type="button" class="btn btn-primary" id="btn-save">Save</button>
@@ -65,7 +74,7 @@ $(document).ready(function(){
             $("#login").val(result.login);
             $("#name").val(result.name);
             };
-        api.user(user);
+        api.users(user);
         }
 
     $("#btn-cancel").click(function(event){

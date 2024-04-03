@@ -2,34 +2,48 @@
 <!-- #include '/inc/navbar.html' -->
 
 <form>
-<label for="status">Status</label><br>
-<input type="text" id="status"></input>
+<table class="table table-bordered">
+<tr><td><label for="status">Status</label></td>
+    <td><input type="text" id="status"></input></td>
+    </tr>
 
-<label for="abbreviation">Abbreviation</label><br>
-<input type="text" id="abbreviation"></input>
+<tr><td><label for="abbreviation">Abbreviation</label></td>
+    <td><input type="text" id="abbreviation"></input></td>
+    </tr>
 
-<label for="description">Description</label><br>
-<input type="text" id="description"></input>
+<tr><td><label for="description">Description</label></td>
+    <td><input type="text" id="description"></input></td>
+    </tr>
 
-<label for="color">Color</label><br>
-<input type="text" id="color"></input>
+<tr><td><label for="color">Color</label></td>
+    <td><input type="text" id="color"></input></td>
+    </tr>
 
-<label for="closed">Closed</label><br>
-<input type="checkbox" id="closed"></input><br>
+<tr><td><label for="closed">Closed</label></td>
+    <td><input type="checkbox" id="closed"></input></td>
+    </tr>
 
-<label for="can_be_run">Can be run</label><br>
-<input type="checkbox" id="can_be_run"></input><br>
+<tr><td><label for="can_be_run">Can be run</label></td>
+    <td><input type="checkbox" id="can_be_run"></input></td>
+    </tr>
 
-<label for="ignored">Ignored</label><br>
-<input type="checkbox" id="ignored"></input><br>
+<tr><td><label for="ignored">Ignored</label></td>
+    <td><input type="checkbox" id="ignored"></input></td>
+    </tr>
 
-<h4>Can follow</h4>
-<div id="template-next" style="display: none;">
-    <input type="checkbox" class="next-status">
-    <label class=next-description></label> 
-</div>
-<div id="id-next">
-</div>
+
+<tr><td><h4>Can follow</h4></td>
+    <td>
+        <div id="template-next" style="display: none;">
+            <input type="checkbox" class="next-status">
+            <label class=next-description></label> 
+        </div>
+        <div id="id-next">
+        </div>
+    </td>
+    </tr>
+
+</table>
 
 <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
 <button type="button" class="btn btn-primary" id="btn-save">Save</button>
@@ -41,7 +55,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>This will delete the status.</h3>
+                <h3>This will delete the status</h3>
             </div>
             <div class="modal-body">
                 <p>Do you really want to delete the status?</p>
@@ -123,9 +137,9 @@ $(document).ready(function(){
             data.next.push({status: status});
             });
         console.log(JSON.stringify(data));
-//      var api = new Api();
-//      api.onFinished = function() { goBack(); }
-//      api.saveStatus(data);
+        var api = new Api();
+        api.onFinished = function() { goBack(); }
+        api.saveStatus(data);
         });
 
     $("#btn-delete").click(function(event){

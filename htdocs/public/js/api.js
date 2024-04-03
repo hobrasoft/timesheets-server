@@ -1,11 +1,9 @@
-
 class Api {
     constructor() {
         this.apiPath = "/api/v1/";
         this.onFinished = function(data) { }
         this.onError = function(errorText) { console.log("error1: " + errorText); }
         this.completeUrl = function(url, params) {
-
             // Android && KDE part
             if (typeof settings !== 'undefined') {
                 if (typeof params === 'undefined') {
@@ -22,8 +20,18 @@ class Api {
                     return this.apiPath + url + params;
                     }
                 }
-
             }
+
+        this.inipageAll = function() {
+            if (typeof initpage === 'undefined') { return true; }
+            if (typeof initpage !== 'undefined') { return initpage.all(); }
+            }
+
+        this.inipageUserid = function() {
+            if (typeof initpage === 'undefined') { return 0; }
+            if (typeof initpage !== 'undefined') { return initpage.userid; }
+            }
+
 
         this.get = function(url, params) {
             var rq = new XMLHttpRequest();
@@ -89,8 +97,8 @@ class Api {
         this.categories = function () { this.get("categories"); }
         this.categoriesToRoot = function (c) { this.get("categoriestoroot/"+c); }
         this.categoriestree = function (category) { this.get("categoriestree/"+category,"maxdepth=0"); }
-        this.ticketsvw = function (category) { this.get("ticketsvw", "category=" + category + "&all=" + initpage.all()); }
-        this.ticketsvwall = function () { this.get("ticketsvw", "all=" + initpage.all()); }
+        this.ticketsvw = function (category) { this.get("ticketsvw", "category=" + category + "&all=" + initpageAll()); }
+        this.ticketsvwall = function () { this.get("ticketsvw", "all=" + initpageAll()); }
         this.ticketvw = function (ticket) { this.get("ticketsvw/"+ticket+"?all=true"); }
         this.saveCategory = function (c) { this.put("categories/", JSON.stringify(c)); }
         this.status = function (status) { this.get("statuses/" + status); }
@@ -108,7 +116,7 @@ class Api {
         this.removeCategory = function(c) { this.delete("categories/" + c); }
         this.authenticate = function(user, password) { this.get("authenticate"); }
         this.overview = function (category, statuses) { this.get("overview/" + category,  "statuses=" + statuses.join(",")); }
-        this.appendStatus = function (c) { c.user = initpage.userid; c.date = new Date(); this.put("ticketstatus/", JSON.stringify(c)); }
+        this.appendStatus = function (c) { c.user = initpageUserid(); c.date = new Date(); this.put("ticketstatus/", JSON.stringify(c)); }
         this.serverAbout = function () { this.get("server/about"); }
         this.removeOverview = function(o) { this.delete("overview/" + o); }
         this.overview = function (category, statuses) {
