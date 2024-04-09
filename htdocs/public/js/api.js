@@ -22,7 +22,7 @@ class Api {
                 }
             }
 
-        this.inipageAll = function() {
+        this.initpageAll = function() {
             if (typeof initpage === 'undefined') { return true; }
             if (typeof initpage !== 'undefined') { return initpage.all(); }
             }
@@ -97,13 +97,18 @@ class Api {
         this.categories = function () { this.get("categories"); }
         this.categoriesToRoot = function (c) { this.get("categoriestoroot/"+c); }
         this.categoriestree = function (category) { this.get("categoriestree/"+category,"maxdepth=0"); }
-        this.ticketsvw = function (category) { this.get("ticketsvw", "category=" + category + "&all=" + initpageAll()); }
-        this.ticketsvwall = function () { this.get("ticketsvw", "all=" + initpageAll()); }
+        this.ticketsvw = function (category) { this.get("ticketsvw", "category=" + category + "&all=" + this.initpageAll()); }
+        this.ticketsvwall = function () { this.get("ticketsvw", "all=" + this.initpageAll()); }
         this.ticketvw = function (ticket) { this.get("ticketsvw/"+ticket+"?all=true"); }
         this.saveCategory = function (c) { this.put("categories/", JSON.stringify(c)); }
         this.status = function (status) { this.get("statuses/" + status); }
-        this.statuses = function (category, prevstatus) { this.get("statuses", "category="+category+"&previousStatuses="+JSON.stringify(prevstatus)); }
-        this.statusesAll = function () { this.get("statuses"); }
+        this.statuses = function (category, prevstatus) {
+                    if (typeof category !== 'undefined') {
+                        this.get("statuses", "category="+category+"&previousStatuses="+JSON.stringify(prevstatus));
+                      } else {
+                        this.get("statuses");
+                        }
+                    }
         this.saveStatus = function (x) { this.put("statuses/", JSON.stringify(x)); }
         this.removeStatus = function (x) { this.delete("statuses/" + x); }
         this.users = function (user) { if (typeof user !== 'undefined') { this.get("users/" + user); } else { this.get("users"); } }

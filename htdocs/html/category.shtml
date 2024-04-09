@@ -5,14 +5,21 @@
 <input type="hidden" id="category"></input>
 <input type="hidden" id="parent_category"></input>
 
-<label>Parent category</label>
-<div id="parent-description"></div>
+<table class="table table-bordered">
 
-<label for="description">Description</label>
-<input type="text" id="description"></input>
+<tr><td><label>Parent category</label></td>
+    <td id="parent-description"</td>
+    </tr>
 
-<label for="price">Price</label>
-<input type="number" id="price" value=0></input>
+<tr><td><label for="description">Description</label></td>
+    <td><input type="text" id="description"></input></td>
+    </tr>
+
+<tr><td><label for="price">Price</label></td>
+    <td><input type="number" id="price" value=0></input></td>
+    </tr>
+
+</table>
 
 <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
 <button type="button" class="btn btn-primary" id="btn-save">Save</button>
@@ -70,7 +77,9 @@ $(document).ready(function(){
             $("#price").val(result.price);
             if (result.parent_category > 0) {
                 var api2 = new Api();
-                api2.onFinished = function(result2) { $("#parent-description").text(result2.description); };
+                api2.onFinished = function(result2) { 
+                    $("#parent-description").text(result2.description); 
+                    };
                 api2.category(result.parent_category);
                 }
             };

@@ -6,24 +6,24 @@
 
 <table class="table table-bordered">
 
-<tr><td><label for="enabled">Enabled</label></td>
-    <td><input type="checkbox" id="enabled"></input></td>
+<tr><td><label for="enabled" class="form-label">Enabled</label></td>
+    <td><input type="checkbox" id="enabled" class="form-control"></input></td>
     </tr>
 
-<tr><td><label for="admin">Administrator</label></td>
-    <td><input type="checkbox" id="admin"></input></td>
+<tr><td><label for="admin" class="form-label">Administrator</label></td>
+    <td><input type="checkbox" id="admin" class="form-control"></input></td>
     </tr>
 
-<tr><td><label for="lang">Language</label></td>
-    <td><input type="text" id="lang"></input></td>
+<tr><td><label for="lang" class="form-label">Language</label></td>
+    <td><input type="text" id="lang" class="form-control"></input></td>
     </tr>
 
-<tr><td><label for="login">Login</label></td>
-    <td><input type="text" id="login"></input></td>
+<tr><td><label for="login" class="form-label">Login</label></td>
+    <td><input type="text" id="login" class="form-control"></input></td>
     </tr>
 
-<tr><td><label for="name">Name</label></td>
-    <td><input type="text" id="name"></input></td>
+<tr><td><label for="name" class="form-label">Name</label></td>
+    <td><input type="text" id="name" class="form-control"></input></td>
     </tr>
 
 </table>

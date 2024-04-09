@@ -2,75 +2,85 @@
 <!-- #include '/inc/navbar.html' -->
 
 <h2 id="current-description">Most upper category</h2>
+<h4>Time: <span id="sum-time"></span> Price: <span id="sum-price"></h4>
 <h4 id="drobnav"></h4>
 
-<table class="table table-bordered">
+<table class="table table-bordered table-hover">
 <thead>
-<tr>
+<tr class="table-info">
+    <th></th>
     <th></th>
     <th>Description</th>
-    <th></th>
     <th>Status</th>
     <th>Time</th>
-    <th>Price</th>
+    <th style="text-align: right;">Price</th>
 </tr>
 </thead>
 <tbody id="tbody">
 <tr id="template-category" style="display: none;">
-    <td><a class="ticket-startstop" href=""><img src="folder.svg" width="16" height="16"/></a></td>
+    <td><a class="ticket-startstop" href=""><i class="bi bi-folder"></i></a></td>
+    <td><a class="category-id-edit" href="" style="display: none;"><i class="bi bi-pencil"><i/></a></td>
     <td><a class="category-id-href" href=""><span class="category-description"></span></a></td>
-    <td><a class="category-id-edit" href="" style="display: none;"><img src="edit.svg" width="16" height="16"/></a></td>
 </tr>
 <tr id="template-ticket" style="display: none;">
-    <td><a class="ticket-startstop" href=""><img class="ticket-startstop-svg" src="stopwatch-light.svg" width="16" height="16"/></a></td>
+    <td><a class="ticket-startstop" href=""><i class="ticket-startstop-svg bi bi-stopwatch" width="16" height="16"/></a></td>
+    <td><a class="ticket-id-edit" href=""><i class="bi bi-pencil"></i></a></td>
     <td class="ticket-description"></td>
-    <td><a class="ticket-id-edit" href=""><img src="edit.svg" width="16" height="16"/></a></td>
     <td class="ticket-status"></td>
     <td class="ticket-time"></td>
-    <td class="ticket-money"></td>
+    <td class="ticket-money" style="text-align: right;"></td>
 </tr>
 </tbody>
+<tfooter>
+<tr class="table-info">
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td id="footer-sum-time"></td>
+    <td id="footer-sum-price" style="text-align: right;"></td>
+    </tr>
+</tfooter>
 </table>
 
 <script>
 function startstop(event) {
     event.preventDefault();
-    var ticket = $(event.target).data("id");
+    var element = $(event.target);
+    var ticket = element.data("id");
     var api = new Api();
     api.onFinished = function(resultx) {
-        var running = resultx.timesheets.reduce(function(acc, cur) { return acc = acc || cur.date_to == null || cur.date_to === ''; }, false);
-        var icon = running ? "stopwatch-light.svg" : "stopwatch.svg";
-        $(event.target).attr("src", icon);
-        if (running) {
-            $.getJSON("/api/v1/timesheet/stop/" + ticket);
-          } else {
-            $.getJSON("/api/v1/timesheet/start/" + ticket);
-            }
+        var running = (typeof resultx.timesheets !== 'undefined') ? resultx.timesheets.reduce(function(acc, cur) { return acc = acc || cur.date_to == null || cur.date_to === ''; }, false) : false;
+        var icon = running ? "bi bi-stopwatch" : "bi bi-stopwatch-fill"; // inversion
+        element.attr("class", icon);
+        var api2 = new Api();
+        if ( running) { api2.stopTimesheet(ticket); }
+        if (!running) { api2.startTimesheet(ticket); }
         };
-    api.ticketsvw(ticket);
+    api.ticketvw(ticket);
     }
 
-$(document).ready(function(){
-    var currentCategory = ($.urlParam("category") == null) 
-        ? parseInt(sessionStorage.getItem("currentCategory"))
-        : parseInt($.urlParam("category"));
-    sessionStorage.setItem("currentCategory", currentCategory);
 
-
-    var api1 = new Api();
-    api1.onFinished = function(result1) { 
-        var text = '<a href="?category=0"><i class="bi bi-house-door" title="Home"></i></a>';
-        for (var i=0; i<result1.length; i++) {
-            var category = result1[i].category
-            var description = result1[i].description
-            text += ' / <a href="?category=' + category + '">' + description + '</a>';
+function saveStatusFilter() {
+    var statusFilter = new Array();
+    $(".filter-item").each(function(){
+        if ($(this).prop("checked")) { 
+            statusFilter.push($(this).val());
             }
-        $("#drobnav").html(text);
-        };
-    api1.categoriesToRoot(currentCategory);
+        });
+    localStorage.setItem("statusFilter", JSON.stringify(statusFilter));
+}
+
+function onFilterItemChecked() {
+    saveStatusFilter();
+    loadData();
+}
 
 
-    var api2 = new Api();
+function loadData() {
+    $(".list-item").remove();
+    var currentCategory = sessionStorage.getItem("currentCategory");
+    var api2 = new Api(); // categories()
     api2.onFinished = function(result2) {
         if (result2.category == currentCategory) {
             var x = $('#template-category').clone();
@@ -80,13 +90,14 @@ $(document).ready(function(){
             $(id_category_id).html(result2.category);
             $(id_category_description).html("..");
             $(id_category_id_href).attr("href", "?category="+result2.parent_category);
+            $(x).attr("class","list-item");
             $(x).attr("id",null);
-            $("tbody").append(x);
+            $("#tbody").append(x);
             $(x).show();
             $("#current-description").text(result2.description);
             }
 
-        var api3 = new Api();
+        var api3 = new Api();  // categoriestree()
         api3.onFinished = function(result3) {
             for (var c=0; c<result3.length; c++) {
                 var x = $('#template-category').clone();
@@ -99,12 +110,16 @@ $(document).ready(function(){
                 $(id_category_id_href).attr("href", "?category="+result3[c].category);
                 $(id_category_id_edit).attr("href", "category.shtml?category="+result3[c].category);
                 $(id_category_id_edit).show();
+                $(x).attr("class","list-item");
                 $(x).attr("id",null);
-                $("tbody").append(x);
+                $("#tbody").append(x);
                 $(x).show();
                 }
-            var api4 = new Api();
+            var sumPrice = 0; 
+            var sumTime = 0;
+            var api4 = new Api(); // ticketsvw()
             api4.onFinished = function(result4) {
+                var statusFilter = JSON.parse(localStorage.getItem("statusFilter"));
                 for (var t=0; t<result4.length; t++) {
                     var x = $('#template-ticket').clone();
                     var id_ticket_startstop = x.find(".ticket-startstop");
@@ -118,6 +133,7 @@ $(document).ready(function(){
                             .sort(function(a,b){return (a.date>b.date)?1:(a.date<b.date)?-1:0;})
                             .filter(function(x){return !x.status_ignored;})
                             .pop();
+                    if (typeof last_status !== 'undefined' && !statusFilter.includes(last_status.status)) { continue; }
                     var seconds = Number(result4[t].timesheets.reduce(function(accumulator, currentValue) {
                             if (typeof currentValue == 'undefined') { return accumulator; }
                             if (typeof currentValue.date_to == 'undefined') { return accumulator; }
@@ -127,29 +143,94 @@ $(document).ready(function(){
                                     : currentValue.date_from.secsTo(currentValue.date_to);
                             return accumulator + t
                             }, 0));
+                    var last_status_can_be_run  = (typeof last_status !== 'undefined') ? last_status.status_can_be_run : false;
+                    var last_status_description = (typeof last_status !== 'undefined') ? last_status.status_description : '';
+                    var last_status_color       = (typeof last_status !== 'undefined') ? last_status.status_color : 'transparent';
                     var money = Math.round(seconds * result4[t].price / 3600);
                     var running = result4[t].timesheets.reduce(function(acc, cur) { return acc = acc || cur.date_to == null || cur.date_to === ''; }, false);
                     var ticket = result4[t].ticket;
-                    var icon = running ? "stopwatch.svg" : "stopwatch-light.svg";
+                    var icon = (running) ? "bi bi-stopwatch-fill" 
+                             : (last_status_can_be_run) ? "bi bi-stopwatch" 
+                             : "bi bi-sign-stop";
+                    sumTime += seconds;
+                    sumPrice += money;
                     $(id_ticket_startstop).attr("href","void("+ticket+");");
                     $(id_ticket_startstop_svg).data("id",ticket);
-                    $(id_ticket_startstop_svg).attr("src", icon);
+                    $(id_ticket_startstop_svg).attr("class", icon);
                     $(id_ticket_startstop_svg).click(function(event) { startstop(event); });
                     $(id_ticket_description).html(result4[t].description);
                     $(id_ticket_id_edit).attr("href", "ticket.shtml?ticket="+result4[t].ticket);
-                    $(id_ticket_status).html(last_status.status_description);
+                    $(id_ticket_status).html(last_status_description);
+                    $(id_ticket_status).css('background-color', last_status_color);
                     $(id_ticket_time).html(seconds.formatHHMMSS());
                     $(id_ticket_money).html(money);
                     $(x).attr("id",null);
-                    $("tbody").append(x);
+                    $(x).attr("class","list-item");
+                    $("#tbody").append(x);
                     $(x).show();
                     }
+                $("#sum-time").text(sumTime.formatHHMMSS());
+                $("#sum-price").text(sumPrice);
+                $("#footer-sum-time").text(sumTime.formatHHMMSS());
+                $("#footer-sum-price").text(sumPrice);
                 };
                 api4.ticketsvw(currentCategory);
             };
             api3.categoriestree(currentCategory);
         };
         api2.categories(currentCategory);
+
+}
+
+
+function loadFilter() {
+    var apif = new Api();
+    apif.onFinished = function(resultf) {
+        for (var i=0; i < resultf.length; i++) {
+            var item_id = 'filter-'+resultf[i].status;
+            var statusFilterSet = (localStorage.getItem("statusFilter") !== null);
+            var statusFilter = JSON.parse(localStorage.getItem("statusFilter"));
+            var checked = (statusFilterSet == false) ? ((resultf[i].can_be_run) ? 'checked="checked"' : '')
+                        : (statusFilter.includes(resultf[i].status)) ? 'checked="checked"'
+                        : '';
+            // console.log("statusFilterSet " + statusFilterSet + " " + localStorage.getItem("statusFilter"));
+            $("#status-filter").append(
+                '<li class="dropdown-item"><input class="filter-item" type="checkbox" value="'+resultf[i].status+'" id="'+item_id+'"'+checked+'></input>&nbsp;<label for="'+item_id+'">' + resultf[i].description + '</label></li>'
+                );
+            }
+        $(".filter-item").change(onFilterItemChecked);
+        saveStatusFilter();
+        };
+    apif.statuses();
+}
+
+
+function loadDrobnav() {
+    var api1 = new Api();
+    api1.onFinished = function(result1) { 
+        var text = '<a href="?category=0"><i class="bi bi-house-door" title="Home"></i></a>';
+        for (var i=0; i<result1.length; i++) {
+            var category = result1[i].category
+            var description = result1[i].description
+            text += ' / <a href="?category=' + category + '">' + description + '</a>';
+            }
+        $("#drobnav").html(text);
+        };
+    api1.categoriesToRoot(currentCategory);
+}
+
+
+$(document).ready(function(){
+    $("#navbar-add").show();
+    $("#navbar-filter").show();
+    var currentCategory = ($.urlParam("category") == null) 
+        ? parseInt(sessionStorage.getItem("currentCategory"))
+        : parseInt($.urlParam("category"));
+    sessionStorage.setItem("currentCategory", currentCategory);
+
+    loadFilter();
+    loadDrobnav();
+    loadData();
     });
 </script>
 

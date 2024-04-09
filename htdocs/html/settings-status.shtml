@@ -110,7 +110,7 @@ $(document).ready(function(){
                     $("#next-"+result.next[i].status).attr("checked", true);
                     }
                 };
-            api2.statusesAll();
+            api2.statuses();
             };
         api.status(status);
         }

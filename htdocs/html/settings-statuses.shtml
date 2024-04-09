@@ -6,6 +6,7 @@
 <table class="table table-bordered">
 <thead>
 <tr>
+    <th></th>
     <th>#ID</th>
     <th>Description</th>
     <th>Abbr</th>
@@ -13,11 +14,11 @@
     <th>Closed</th>
     <th>Can be run</th>
     <th>Ignored</th>
-    <th></th>
 </tr>
 </thead>
 <tbody id="tbody">
 <tr id="template-status" style="display: none;">
+    <td><a class="status-edit" href=""><i class="bi bi-pencil"></i></a></td>
     <td><span class="status-status"></span></td>
     <td><span class="status-description"></span></td>
     <td><span class="status-abbr"></span></td>
@@ -25,14 +26,15 @@
     <td><span class="status-closed"></span></td>
     <td><span class="status-can-be-run"></span></td>
     <td><span class="status-ignored"></span></td>
-    <td><a class="status-edit" href=""><img src="edit.svg" width="16" height="16"/></a></td>
 </tr>
 </tbody>
 </table>
 
 <script>
 $(document).ready(function(){
-    $.getJSON("/api/v1/statuses", function(result) {
+    $("#navbar-add-status").show();
+    var api = new Api();
+    api.onFinished = function(result) {
         for (var t=0; t<result.length; t++) {
             var x = $('#template-status').clone();
             var id_status_status = x.find(".status-status");
@@ -58,7 +60,8 @@ $(document).ready(function(){
             $("tbody").append(x);
             $(x).show();
             }
-        });
+        };
+    api.statuses();
     });
 </script>
 
