@@ -1,0 +1,20 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<h2 id="current-description">Report</h2>
+
+<script>
+$(document).ready(function(){
+    var currentCategory = sessionStorage.getItem("currentCategory");
+    var statusFilterSet = (localStorage.getItem("statusFilter") !== null);
+    var statusFilter = JSON.parse(localStorage.getItem("statusFilter"));
+    var api = new Api();
+    api.onFinished = function(result) {
+        window.open("/public/timesheet.shtml?id=" + result.id);
+        window.location.replace('/html/index.shtml');
+        };
+    api.overview(currentCategory, statusFilter);
+    });
+</script>
+
+<!-- #include '/inc/footer.html' -->

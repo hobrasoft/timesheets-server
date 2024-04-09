@@ -94,6 +94,7 @@ function loadData() {
             $(x).attr("id",null);
             $("#tbody").append(x);
             $(x).show();
+            console.log("description " + result2.description);
             $("#current-description").text(result2.description);
             }
 

@@ -94,7 +94,13 @@ class Api {
             }
 
         this.category = function (c) { this.get("categories/"+c); }
-        this.categories = function () { this.get("categories"); }
+        this.categories = function (category) { 
+                    if (typeof category === 'undefined') {
+                        this.get("categories"); 
+                      } else {
+                        this.get("categories/"+category); 
+                        }
+                    }
         this.categoriesToRoot = function (c) { this.get("categoriestoroot/"+c); }
         this.categoriestree = function (category) { this.get("categoriestree/"+category,"maxdepth=0"); }
         this.ticketsvw = function (category) { this.get("ticketsvw", "category=" + category + "&all=" + this.initpageAll()); }
