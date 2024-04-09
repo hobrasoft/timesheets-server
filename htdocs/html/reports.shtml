@@ -1,0 +1,49 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<h2 id="current-description">Reports</h2>
+
+<table class="table table-bordered">
+<thead>
+<tr>
+    <th>#ID</th>
+    <th>Category / Statuses</td>
+</tr>
+</thead>
+<tbody id="tbody">
+<tr id="template-report" style="display: none;">
+    <td><a class="report-id" target="_blank"></a></td>
+    <td><a class="report-div" target="_blank"></a></td>
+</tr>
+</tbody>
+</table>
+
+<script>
+$(document).ready(function(){
+    $("#navbar-add-user").show();
+    var api = new Api();
+    api.onFinished = function(result) {
+        for (var i=0; i<result.length; i++) {
+            var x = $('#template-report').clone();
+            var id_user_id      = x.find(".report-id");
+            var id_user_div     = x.find(".report-div");
+
+            $(id_user_id).html(result[i].key);
+            $(id_user_div).html(
+                result[i].category.description + "<br>" + 
+                result[i].statuses.map(function(d) { return d.abbreviation; }).join(", ")
+                );
+
+            var href = "/public/timesheet.shtml?id=" + result[i].key;
+            $(id_user_id ).attr("href", href);
+            $(id_user_div).attr("href", href);
+
+            $("tbody").append(x);
+            $(x).show();
+            }
+        };
+    api.overview();
+    });
+</script>
+
+<!-- #include '/inc/footer.html' -->

@@ -222,8 +222,11 @@ function loadDrobnav() {
 
 
 $(document).ready(function(){
+    $("#navbar-home").hide();
     $("#navbar-add").show();
     $("#navbar-filter").show();
+    $("#navbar-reload").show();
+    $("#navbar-print").show();
     var currentCategory = ($.urlParam("category") == null) 
         ? parseInt(sessionStorage.getItem("currentCategory"))
         : parseInt($.urlParam("category"));

@@ -18,16 +18,25 @@
 
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul id="custom-nav" class="nav ms-auto mb-2 mb-lg-0">
-        <li class="nav-item" id="navbar-home"><a class="nav-link" href="/html/index.shtml?category=0"><i class="bi bi-house-door" title="Home"></i></a></li>
+        <li class="nav-item" id="navbar-reload" style="display: none"><a class="nav-link" href="/html/index.shtml"><i class="bi bi-arrow-repeat" title="Reload"></i></a></li>
 
-        <li class="nav-item" id="navbar-filter"style="display: none"><a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-funnel" title="Filter statuses"></i></a>
+        <li class="nav-item" id="navbar-home"><a class="nav-link" href="/html/index.shtml"><i class="bi bi-house-door" title="Home"></i></a></li>
+
+        <li class="nav-item" id="navbar-add-user" style="display: none"><a class="nav-link" href="/html/settings-user.shtml"><i class="bi bi-plus-circle" title="Add user"></i></a></li>
+
+        <li class="nav-item" id="navbar-add-status" style="display: none"><a class="nav-link" href="/html/settings-status.shtml"><i class="bi bi-plus-circle" title="Add status"></i></a></li>
+
+        <li class="nav-item" id="navbar-filter" style="display: none"><a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-funnel" title="Filter statuses"></i></a>
             <ul class="dropdown-menu" id="status-filter">
             </ul>
             </li>
 
-        <li class="nav-item" id="navbar-add-user"style="display: none"><a class="nav-link" href="/html/settings-user.shtml"><i class="bi bi-plus-circle" title="Add user"></i></a></li>
-
-        <li class="nav-item" id="navbar-add-status"style="display: none"><a class="nav-link" href="/html/settings-status.shtml"><i class="bi bi-plus-circle" title="Add status"></i></a></li>
+        <li class="nav-item" id="navbar-print" style="display: none"><a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-printer" title="Reports"></i></a>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/html/report-add.shtml">Create new report</a></li>
+                <li><a class="dropdown-item" href="/html/reports.shtml">List reports</a></li>
+            </ul>
+            </li>
 
         <li class="nav-item dropdown" id="navbar-add" style="display: none"><a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-plus-circle" title="Create an item"></i></a>
             <ul class="dropdown-menu">
@@ -35,6 +44,7 @@
                 <li><a class="dropdown-item" href="task.shtml" title="Add new task">Add task</a></li>
             </ul>
             </li>
+
         <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-gear" title="Settings"></i></a>
             <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="settings-users.shtml" title="Users settings">Users</a></li>
@@ -42,6 +52,7 @@
                 <li><a class="dropdown-item" href="about.shtml" title="Information about the application">About</a></li>
             </ul>
             </li>
+
         <li class="nav-item"><a class="nav-link" href="/public/login.shtml"><i class="bi bi-box-arrow-right" title="Logout"></i></a></li>
       </ul>
 
