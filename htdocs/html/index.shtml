@@ -12,6 +12,7 @@
     <th></th>
     <th>Description</th>
     <th>Status</th>
+    <th>Date</th>
     <th>Time</th>
     <th style="text-align: right;">Price</th>
 </tr>
@@ -21,18 +22,24 @@
     <td><a class="ticket-startstop" href=""><i class="bi bi-folder"></i></a></td>
     <td><a class="category-id-edit" href="" style="display: none;"><i class="bi bi-pencil"><i/></a></td>
     <td><a class="category-id-href" href=""><span class="category-description"></span></a></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
 </tr>
 <tr id="template-ticket" style="display: none;">
     <td><a class="ticket-startstop" href=""><i class="ticket-startstop-svg bi bi-stopwatch" width="16" height="16"/></a></td>
     <td><a class="ticket-id-edit" href=""><i class="bi bi-pencil"></i></a></td>
     <td class="ticket-description"></td>
     <td class="ticket-status"></td>
+    <td class="ticket-date"></td>
     <td class="ticket-time"></td>
     <td class="ticket-money" style="text-align: right;"></td>
 </tr>
 </tbody>
 <tfooter>
 <tr class="table-info">
+    <td></td>
     <td></td>
     <td></td>
     <td></td>
@@ -128,6 +135,7 @@ function loadData() {
                     var id_ticket_description = x.find(".ticket-description");
                     var id_ticket_id_edit = x.find(".ticket-id-edit");
                     var id_ticket_status = x.find(".ticket-status");
+                    var id_ticket_date = x.find(".ticket-date");
                     var id_ticket_time = x.find(".ticket-time");
                     var id_ticket_money = x.find(".ticket-money");
                     var last_status = result4[t].statuses
@@ -163,6 +171,7 @@ function loadData() {
                     $(id_ticket_id_edit).attr("href", "ticket.shtml?ticket="+result4[t].ticket);
                     $(id_ticket_status).html(last_status_description);
                     $(id_ticket_status).css('background-color', last_status_color);
+                    $(id_ticket_date).html(result4[t].date.formatYYYYMMDDHHMM());
                     $(id_ticket_time).html(seconds.formatHHMMSS());
                     $(id_ticket_money).html(money);
                     $(x).attr("id",null);
