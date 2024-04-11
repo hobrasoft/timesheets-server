@@ -1,33 +1,57 @@
 <!-- #include '/inc/header.html' -->
 <!-- #include '/inc/navbar.html' -->
 
-<div>Server name</div>
-<div id="server-name"></div>
+<h3>About the application</h3>
 
-<div>Server description</div>
-<div id="server-description"></div>
+<table class="table table-bordered">
+<tr><td>Server name</td>
+    <td id="server-name"></td>
 
-<div>Server QT version</div>
-<div id="server-qt-version"></div>
+<tr><td>Server description</td>
+    <td id="server-description"></td>
+    </tr>
 
-<div>Server version</div>
-<div id="server-version"></div>
+<tr><td>Server QT version</td>
+    <td id="server-qt-version"></td>
+    </tr>
 
-<div>Server GIT branch</div>
-<div id="server-git-branch"></div>
+<tr><td>Server version</td>
+    <td id="server-version"></td>
+    </tr>
 
-<div>Server GIT commit</div>
-<div id="server-git-commit"></div>
+<tr><td>Server GIT branch</td>
+    <td id="server-git-branch"></td>
+    </tr>
+
+<tr><td>Server GIT commit</td>
+    <td id="server-git-commit"></td>
+    </tr>
+
+<tr><td>jQuery version</td>
+    <td id="jquery-version"></td>
+    </tr>
+
+<tr><td>Bootstrap version</td>
+    <td id="bootstrap-version"></td>
+    </tr>
+
+</table>
 
 <script>
 $(document).ready(function(){
-    userinfo = JSON.parse(localStorage.getItem("userinfo"));
-    $("#server-name").html(userinfo.server_name);
-    $("#server-description").html(userinfo.server_description);
-    $("#server-qt-version").html(userinfo.server_qt_version);
-    $("#server-version").html(userinfo.server_version);
-    $("#server-git-branch").html(userinfo.server_git_branch);
-    $("#server-git-commit").html(userinfo.server_git_commit);
+    var api = new Api();
+    api.onFinished = function(result) {
+        console.log(JSON.stringify(result));
+        $("#server-name")        .html(result.name);
+        $("#server-description") .html(result.description);
+        $("#server-qt-version")  .html(result.qt_version);
+        $("#server-version")     .html(result.version);
+        $("#server-git-branch")  .html(result.git_branch);
+        $("#server-git-commit")  .html(result.git_commit);
+        $("#jquery-version")     .html(jQuery.fn.jquery);
+        $("#bootstrap-version")  .html(bootstrap.Tooltip.VERSION);
+        };
+    api.serverAbout();
     });
 </script>
 
