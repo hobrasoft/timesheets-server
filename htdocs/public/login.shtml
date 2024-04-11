@@ -43,16 +43,20 @@
 <script>
 $(document).ready(function(){
     localStorage.removeItem("userinfo");
-    $.getJSON("/api/v1/unauthenticate");
-    $("body").addClass("pachice");
+
+    new Api().unauthenticate();
+
     $("#login").click(function(event) {
         event.preventDefault();
         var user = $("#user").val();
         var password = $("#password").val();
-        $.getJSON("/api/v1/authenticate?user="+user+"&password="+password, function(result) {
+
+        var api2 = new Api();
+        api2.onFinished = function(result) {
             localStorage.setItem("userinfo", JSON.stringify(result));
             window.location.replace('/html/index.shtml');
-            });
+            };
+        api2.authenticate(user, password);
         });
     });
 </script>

@@ -47,6 +47,9 @@ class Api {
                 if (rq.readyState === XMLHttpRequest.DONE && rq.status == 401) {
                     todleto.onError('Unauthorized');
                     }
+                if (rq.readyState === XMLHttpRequest.DONE && rq.status == 404) {
+                    todleto.onError('4040 Not found');
+                    }
                 };
             params = typeof params === 'undefined' ? '' : '?'+params;
             rq.open("GET", todleto.completeUrl(url,params), true);
@@ -125,6 +128,7 @@ class Api {
         this.stopTimesheet = function(t) { this.get("timesheet/stop/" + t); }
         this.removeTicket = function(t) { this.delete("tickets/" + t); }
         this.removeCategory = function(c) { this.delete("categories/" + c); }
+        this.unauthenticate = function(user, password) { this.get("unauthenticate"); }
         this.authenticate = function(user, password) { this.get("authenticate"); }
         this.overview = function (category, statuses) { this.get("overview/" + category,  "statuses=" + statuses.join(",")); }
         this.appendStatus = function (c) { c.user = initpageUserid(); c.date = new Date(); this.put("ticketstatus/", JSON.stringify(c)); }
