@@ -19,7 +19,7 @@
 </thead>
 <tbody id="tbody">
 <tr id="template-category" style="display: none;">
-    <td><a class="ticket-startstop" href=""><i class="bi bi-folder"></i></a></td>
+    <td><a class="category-change" href=""><i class="bi bi-folder"></i></a></td>
     <td><a class="category-id-edit" href="" style="display: none;"><i class="bi bi-pencil"><i/></a></td>
     <td><a class="category-id-href" href=""><span class="category-description"></span></a></td>
     <td></td>
@@ -92,16 +92,17 @@ function loadData() {
         if (result2.category == currentCategory) {
             var x = $('#template-category').clone();
             var id_category_id = x.find(".category-id");
+            var id_category_change = x.find(".category-change");
             var id_category_id_href = x.find(".category-id-href");
             var id_category_description = x.find(".category-description");
             $(id_category_id).html(result2.category);
             $(id_category_description).html("..");
             $(id_category_id_href).attr("href", "?category="+result2.parent_category);
+            $(id_category_change).attr("href", "?category="+result2.parent_category);
             $(x).attr("class","list-item");
             $(x).attr("id",null);
             $("#tbody").append(x);
             $(x).show();
-            console.log("description " + result2.description);
             $("#current-description").text(result2.description);
             }
 
@@ -109,12 +110,14 @@ function loadData() {
         api3.onFinished = function(result3) {
             for (var c=0; c<result3.length; c++) {
                 var x = $('#template-category').clone();
+                var id_category_change = x.find(".category-change");
                 var id_category_id = x.find(".category-id");
                 var id_category_id_href = x.find(".category-id-href");
                 var id_category_id_edit = x.find(".category-id-edit");
                 var id_category_description = x.find(".category-description");
                 $(id_category_id).html(result3[c].category);
                 $(id_category_description).html(result3[c].description);
+                $(id_category_change).attr("href", "?category="+result3[c].category);
                 $(id_category_id_href).attr("href", "?category="+result3[c].category);
                 $(id_category_id_edit).attr("href", "category.shtml?category="+result3[c].category);
                 $(id_category_id_edit).show();
@@ -203,7 +206,6 @@ function loadFilter() {
             var checked = (statusFilterSet == false) ? ((resultf[i].can_be_run) ? 'checked="checked"' : '')
                         : (statusFilter.includes(resultf[i].status)) ? 'checked="checked"'
                         : '';
-            // console.log("statusFilterSet " + statusFilterSet + " " + localStorage.getItem("statusFilter"));
             $("#status-filter").append(
                 '<li class="dropdown-item"><input class="filter-item" type="checkbox" value="'+resultf[i].status+'" id="'+item_id+'"'+checked+'></input>&nbsp;<label for="'+item_id+'">' + resultf[i].description + '</label></li>'
                 );

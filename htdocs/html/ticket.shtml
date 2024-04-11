@@ -42,13 +42,10 @@
 </thead>
 <tbody id="timesheet-tbody">
 <tr id="template-timesheet" style="display: none;">
-    <td>
-    <button type="button" class="btn btn-primary-outline" id="btn-add-status" data-bs-toggle="modal" data-bs-target="#edit-timesheets">
-        <i class="bi bi-pencil"></i>
-        </button></td>
-    <td class="timesheet-from" ></td>
-    <td class="timesheet-to"   ></td>
-    <td class="timesheet-time"   ></td>
+    <td><button type="button" class="btn btn-primary-outline btn-edit-timesheet"><i class="bi bi-pencil"></i></button></td>
+    <td class="timesheet-from"></td>
+    <td class="timesheet-to"></td>
+    <td class="timesheet-time"></td>
     <td class="timesheet-price"></td>
 </tr>
 </tbody>
@@ -124,7 +121,7 @@
 
 
 <!-- Edit one timesheet record dialog -->
-<div class="modal fade" id="edit-timesheets" tabindex="-1" role="dialog">
+<div class="modal fade" id="edit-timesheet" tabindex="-1" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -138,7 +135,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button id="add-new-status-btn-add" class="btn btn-danger btn-ok">OK</button>
+                <button id="edit-timesheet-btn-ok" class="btn btn-danger btn-ok">OK</button>
             </div>
         </div>
     </div>
@@ -227,6 +224,13 @@ $(document).ready(function(){
                 $(id_status_status_description).html(result.statuses[i].status_description);
                 $("#status-tbody").append(x);
                 $(x).show();
+                $(".btn-edit-timesheet").click(function(event){
+                    var element = $(event.target).parent(); // find the line of clicked button
+                    var date_from = element.find(".timesheet-from");
+                    var date_to   = element.find(".timesheet-to");
+                    console.log("element " + $(date_from).html() + " " + $(date_to).html());
+                    $("#edit-timesheet").modal("show");
+                    });
                 }
 
             // Fill the "next status" table in "add new status" dialog
@@ -255,8 +259,7 @@ $(document).ready(function(){
     $("#btn-save").click(function(event){
         var category = $("#category").val();
         var parent_category = $("#parent_category").val();
-        var description = $("#description").val();
-        var price = $("#price").val();
+        var description = $("#description").val(); var price = $("#price").val();
         var data = {category: category, parent_category: parent_category, description: description, price: price};
         /*
         var api = new Api();
@@ -267,9 +270,20 @@ $(document).ready(function(){
         });
 
     $("#btn-delete").click(function(event){
+        goBack();
+        /*
         var category = $("#category").val();
         api.onFinished = function() { goBack(); }
         api.removeCategory(category);
+        */
+        });
+
+    $("#edit-timesheet-btn-ok").click(function(event){
+        $("#edit-timesheet").modal("hide");
+        });
+
+    $("#add-new-status-btn-add").click(function(event){
+        $("#add-new-status").modal("hide");
         });
 
     });

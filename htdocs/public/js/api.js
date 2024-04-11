@@ -129,10 +129,11 @@ class Api {
         this.removeTicket = function(t) { this.delete("tickets/" + t); }
         this.removeCategory = function(c) { this.delete("categories/" + c); }
         this.unauthenticate = function(user, password) { this.get("unauthenticate"); }
-        this.authenticate = function(user, password) { this.get("authenticate"); }
+        this.authenticate = function(user, password) { this.get("authenticate?user=" + user + "&password=" + password); }
         this.overview = function (category, statuses) { this.get("overview/" + category,  "statuses=" + statuses.join(",")); }
         this.appendStatus = function (c) { c.user = initpageUserid(); c.date = new Date(); this.put("ticketstatus/", JSON.stringify(c)); }
         this.serverAbout = function () { this.get("server/about"); }
+        this.saveServer = function (s) { this.put("server/about", JSON.stringify(s)); }
         this.removeOverview = function(o) { this.delete("overview/" + o); }
         this.overview = function (category, statuses) {
                     if (typeof category !== 'undefined')

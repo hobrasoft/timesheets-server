@@ -3,8 +3,7 @@
 
 <h2 id="current-description">Report</h2>
 
-<h3>URL</h3>
-<h4><a id="weko" href="#"></a></h4>
+<div><a id="weko" href="#"></a></div>
 
 <script>
 $(document).ready(function(){
@@ -17,11 +16,11 @@ $(document).ready(function(){
         console.log("sssssssssssssssss");
         var path = "/public/timesheet.shtml?id=" + result.id;
         $("#weko").prop("href", server + path);
+        $("#weko").html(server + path);
         window.open(path);
         window.location.replace('/html/index.shtml');
         };
     api.onError = function(result) {
-        console.log("eeeeeeeeeeeeeeeee");
         window.location.replace('/html/index.shtml');
         }
     api.overview(currentCategory, statusFilter);
