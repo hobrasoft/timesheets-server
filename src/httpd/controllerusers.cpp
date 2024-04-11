@@ -5,6 +5,9 @@
  */
 
 #include "controllerusers.h"
+#include "httprequest.h"
+#include "httpresponse.h"
+#include "json.h"
 #include "pdebug.h"
 #include "db.h"
 
@@ -28,6 +31,29 @@ void ControllerUsers::serviceIdGet(HobrasoftHttpd::HttpRequest *request, Hobraso
         return;
         }
     serviceOK(request, response, list[0].toMap());
+}
+
+
+void ControllerUsers::service(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
+    QString path = request->path();
+    QString method = request->method();
+
+    if ((method == "PUT" || method == "POST") && path.endsWith("/set-password")) {
+        bool ok;
+        QVariantMap data = JSON::data(request->body(), &ok).toMap();
+        if (!ok) {
+            serviceError(request, response, 400, "bad-request", "Could not parse JSON data");
+            return;
+            }
+        QString login       = data["login"].toString();
+        QString oldpassword = data["oldpassword"].toString();
+        QString newpassword = data["newpassword"].toString();
+        db()->changePassword(login, oldpassword, newpassword);
+        serviceOK(request, response);
+        return;
+        }
+
+    AbstractController::service(request, response);
 }
 
 

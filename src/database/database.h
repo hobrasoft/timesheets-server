@@ -38,6 +38,7 @@ class Database : public QObject {
     bool isOpen() const { return m_isOpen; }
     QString     connectionName() const;
 
+    void                                    changePassword(const QString& login, const QString& oldpassword, const QString& newpassword);
     QList<Dbt::Users>                       authenticate(const QString& user, const QString& password);
     QList<Dbt::Users>                       users(int id = -1);
     QList<Dbt::Categories>                  categories(const QString& id = QString());

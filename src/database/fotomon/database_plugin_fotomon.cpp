@@ -79,6 +79,13 @@ QVariant DatabasePluginFotomon::currval(const QString& sequence) {
     return cv;
 }
 
+
+void DatabasePluginFotomon::changePassword(const QString& login, const QString& oldpassword, const QString& newpassword) {
+    Q_UNUSED(login);
+    Q_UNUSED(oldpassword);
+    Q_UNUSED(newpassword);
+}
+
   
 QList<Dbt::Users> DatabasePluginFotomon::authenticate(const QString& login, const QString& password) {
     QString md5 = QString::fromUtf8(QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Md5).toHex());

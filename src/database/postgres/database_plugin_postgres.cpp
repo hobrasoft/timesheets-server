@@ -120,8 +120,33 @@ void DatabasePluginPostgres::commit() {
 }
 
   
+void DatabasePluginPostgres::changePassword(const QString& login, const QString& oldpassword, const QString& newpassword) {
+    QString md5new = QString::fromUtf8(QCryptographicHash::hash(newpassword.toUtf8(), QCryptographicHash::Md5).toHex());
+    QString md5old = QString::fromUtf8(QCryptographicHash::hash(oldpassword.toUtf8(), QCryptographicHash::Md5).toHex());
+    QList<Dbt::Users> list;
+    MSqlQuery q(m_db);
+    q.prepare(R"'(select true from users where "user" = :userid and admin)'");
+    q.bindValue(":userid", userId());
+    q.exec();
+    bool admin = q.next();
+
+    if (admin) {
+        // admin can change password for other users
+        q.prepare("update users set password = :newpassword from users where login = :login and user = :userid and admin;");
+      } else {
+        // non-privileged user can change it's own password only, must know the old password
+        q.prepare("update users set password = :newpassword from users where login = :login and password = :oldpassword and enabled;");
+        }
+    q.bindValue(":userid", userId());
+    q.bindValue(":login", login);
+    q.bindValue(":newpassword", md5new);
+    q.bindValue(":oldpassword", md5old);
+    q.exec();
+    return;
+}
+
+
 QList<Dbt::Users> DatabasePluginPostgres::authenticate(const QString& login, const QString& password) {
-    PDEBUG << login << password;
     QString md5 = QString::fromUtf8(QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Md5).toHex());
     QList<Dbt::Users> list;
     MSqlQuery q(m_db);

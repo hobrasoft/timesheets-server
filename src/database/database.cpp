@@ -118,6 +118,11 @@ void Database::commit() {
 }
 
 
+void Database::changePassword(const QString& login, const QString& oldpassword, const QString& newpassword) {
+    m_dbplugin->changePassword(login, oldpassword, newpassword);
+}
+
+
 QList<Dbt::Users> Database::authenticate(const QString& user, const QString& password) {
     return m_dbplugin->authenticate(user,password);
 }

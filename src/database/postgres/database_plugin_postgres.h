@@ -27,7 +27,8 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     void setPort(int x) Q_DECL_OVERRIDE { m_port = x; }
     void setUserName(const QString& x) Q_DECL_OVERRIDE { m_username = x; }
     void setPassword(const QString& x) Q_DECL_OVERRIDE { m_password = x; }
-  
+
+    void                                    changePassword(const QString& login, const QString& oldpassword, const QString& newpassword) Q_DECL_OVERRIDE;
     QList<Dbt::Users>                       authenticate(const QString& login, const QString& password) Q_DECL_OVERRIDE;
     QList<Dbt::Users>                       users(int id) Q_DECL_OVERRIDE;
     QList<Dbt::UsersCategories>             usersCategories(int id, int user, const QString& category) Q_DECL_OVERRIDE;

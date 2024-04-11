@@ -37,6 +37,7 @@ class DatabasePlugin : public QObject {
     virtual void commit() = 0;
     virtual QString connectionName() const;
 
+    virtual void                                    changePassword(const QString& login, const QString& oldpassword, const QString& newpassword) = 0;
     virtual QList<Dbt::Users>                       authenticate(const QString& user, const QString& password) = 0;
     virtual QList<Dbt::Users>                       users(int id) = 0;
     virtual QList<Dbt::Categories>                  categories(const QString& id) = 0;
