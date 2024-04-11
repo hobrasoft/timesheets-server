@@ -82,20 +82,22 @@ bool RequestAuthorizer::isLoggedIn(HobrasoftHttpd::HttpRequest *request, Hobraso
     if (request->path() == "/api/v1/authenticate") {
         session.add("user", user);
         session.add("password", password);
+        Db::Database *db = Db::Database::create(this, m_authenticatedUser);
+
+        QList<Dbt::ServerInfo> list = db->serverInfo();
         QVariantMap data;
         data["userid"]             = m_authenticatedUser->user();
         data["username"]           = m_authenticatedUser->login();
         data["name"]               = m_authenticatedUser->name();
         data["admin"]              = m_authenticatedUser->admin();
         data["lang"]               = m_authenticatedUser->lang();
-        data["server_name"]        = MSETTINGS->serverName();
-        data["server_description"] = MSETTINGS->serverDescription();
+        data["server_name"]        = (list.isEmpty()) ? MSETTINGS->serverName()        : list.first().name;
+        data["server_description"] = (list.isEmpty()) ? MSETTINGS->serverDescription() : list.first().description;
         data["server_git_commit"]  = GIT_COMMIT;
         data["server_git_branch"]  = GIT_BRANCH;
         data["server_version"]     = VERSION;
         data["server_qt_version"]  = qtVersion();
 
-        Db::Database *db = Db::Database::create(this);
         QList<Dbt::ClientSettings> cslist = db->clientSettings();
         if (cslist.size() == 1) {
             const Dbt::ClientSettings& cs = cslist[0];
