@@ -62,7 +62,7 @@ QVariantMap ClientSettings::toMap() const {
 
 ServerInfo ServerInfo::fromMap(const QVariantMap& data) {
     ServerInfo x;
-    x.name = data["name"].toInt();
+    x.name = data["name"].toString();
     x.description = data["description"].toString();
     return x;
 }

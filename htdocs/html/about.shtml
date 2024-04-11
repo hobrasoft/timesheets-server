@@ -3,12 +3,18 @@
 
 <h3>About the application</h3>
 
+<form>
 <table class="table table-bordered">
 <tr><td>Server name</td>
-    <td id="server-name"></td>
+    <td><input type="text" class="form-control" id="server-name"></input></td>
+    </tr>
 
 <tr><td>Server description</td>
-    <td id="server-description"></td>
+    <td><input type="text" class="form-control" id="server-description"></input></td>
+    </tr>
+
+<tr><td></td>
+    <td><button type="button" class="btn btn-primary" id="btn-save">Save</button></td>
     </tr>
 
 <tr><td>Server QT version</td>
@@ -36,14 +42,15 @@
     </tr>
 
 </table>
+</form>
 
 <script>
 $(document).ready(function(){
     var api = new Api();
     api.onFinished = function(result) {
         console.log(JSON.stringify(result));
-        $("#server-name")        .html(result.name);
-        $("#server-description") .html(result.description);
+        $("#server-name")        .val (result.name);
+        $("#server-description") .val (result.description);
         $("#server-qt-version")  .html(result.qt_version);
         $("#server-version")     .html(result.version);
         $("#server-git-branch")  .html(result.git_branch);
@@ -52,6 +59,20 @@ $(document).ready(function(){
         $("#bootstrap-version")  .html(bootstrap.Tooltip.VERSION);
         };
     api.serverAbout();
+
+
+    $("#btn-save").click(function(event){
+        var name = $("#server-name").val();
+        var description = $("#server-description").val();
+        var data = {name: name, description: description};
+        var api2 = new Api();
+        api2.onFinished = function() {
+            window.location.replace('');
+            };
+        api2.saveServer(data);
+        });
+
+
     });
 </script>
 
