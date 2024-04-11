@@ -4,8 +4,19 @@ $(document).ready(function(){
         $("#navbar-username").html(userinfo.name);
         $("#navbar-servername").html(userinfo.server_name);
         }
-
     });
+
+function userAdmin() {
+    var userinfo = JSON.parse(localStorage.getItem("userinfo"));
+    if (userinfo == null) { return false; }
+    return userinfo.admin;
+}
+
+function userId() {
+    var userinfo = JSON.parse(localStorage.getItem("userinfo"));
+    if (userinfo == null) { return 0; }
+    return userinfo.user;
+}
 
 
 Number.prototype.pad = function(size) {

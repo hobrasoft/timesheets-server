@@ -6,12 +6,12 @@
 
 <table class="table table-bordered">
 
-<tr><td><label for="enabled" class="form-label">Enabled</label></td>
-    <td><input type="checkbox" id="enabled" class="form-control"></input></td>
+<tr><td><label for="enabled" class="form-check-label">Enabled</label></td>
+    <td><input type="checkbox" id="enabled" class="form-check" checked="checked"></input></td>
     </tr>
 
-<tr><td><label for="admin" class="form-label">Administrator</label></td>
-    <td><input type="checkbox" id="admin" class="form-control"></input></td>
+<tr><td><label for="admin" class="form-check-label">Administrator</label></td>
+    <td><input type="checkbox" id="admin" class="form-check"></input></td>
     </tr>
 
 <tr><td><label for="lang" class="form-label">Language</label></td>
@@ -31,6 +31,7 @@
 <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
 <button type="button" class="btn btn-primary" id="btn-save">Save</button>
 <button type="button" class="btn btn-danger" id="btn-del" data-bs-toggle="modal" data-bs-target="#confirm-delete">Delete</button>
+<button type="button" class="btn btn-info" id="btn-password" data-bs-toggle="modal" data-bs-target="#change-password">Change password</button>
 </form>
 
 <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog">
@@ -52,12 +53,42 @@
 </div>
 
 
+<div class="modal fade" id="change-password" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Change password</h2>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                <tr><td><label for="password1">Password</td>
+                    <td><input id="password1" type="password" class="form-control"></input></td>
+                    </tr>
+                <tr><td><label for="password2">Repeat</td>
+                    <td><input id="password2" type="password" class="form-control"></input></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="btn-change-password" class="btn btn-danger btn-ok">Change</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script>
 function goBack() {
     window.location.replace('settings-users.shtml');
 }
 
+
 $(document).ready(function(){
+    if (!userAdmin())  { 
+        $("#btn-save").hide(); 
+        $("#btn-del").hide(); 
+        }
     var user = parseInt($.urlParam("user"));
 
     if (user == 0 || isNaN(user)) {
@@ -82,6 +113,7 @@ $(document).ready(function(){
         });
 
     $("#btn-save").click(function(event){
+        if (!userAdmin())  { return; }
         var user = $("#user").val();
         var admin = $("#admin").prop("checked");
         var enabled = $("#enabled").prop("checked");
@@ -95,9 +127,21 @@ $(document).ready(function(){
         });
 
     $("#btn-delete").click(function(event){
+        if (!userAdmin())  { return; }
         var user = $("#user").val();
+        var api = new Api();
         api.onFinished = function() { goBack(); }
         api.removeUser(user);
+        });
+
+    $("#btn-change-password").click(function(event){
+        var login = $("#login").val();
+        var oldpassword  = $("#password0").val();
+        var newpassword1 = $("#password1").val();
+        var newpassword2 = $("#password2").val();
+        var api = new Api();
+        api.changePassword({login: login, newpassword: newpassword1, olpassword: oldpassword});
+        $("#change-password").modal("hide");
         });
 
     });

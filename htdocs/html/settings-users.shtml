@@ -17,7 +17,7 @@
 </thead>
 <tbody id="tbody">
 <tr id="template-user" style="display: none;">
-    <td><a class="user-edit" href=""><i class="bi bi-pencil"></i></a></td>
+    <td><a class="user-edit" href="" style="display:none;"><i class="bi bi-pencil"></i></a></td>
     <td><span class="user-id"></span></td>
     <td><span class="user-enabled"></span></td>
     <td><span class="user-admin"></span></td>
@@ -42,6 +42,10 @@ $(document).ready(function(){
             var id_user_login   = x.find(".user-login");
             var id_user_name    = x.find(".user-name");
             var id_user_edit    = x.find(".user-edit");
+
+            if (userAdmin() || userId() == result[t].user) {
+                $(id_user_edit).show();
+                }
 
             $(id_user_id).html(result[t].user);
             $(id_user_enabled).html(result[t].enabled);

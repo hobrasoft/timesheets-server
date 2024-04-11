@@ -122,6 +122,7 @@ class Api {
         this.removeStatus = function (x) { this.delete("statuses/" + x); }
         this.users = function (user) { if (typeof user !== 'undefined') { this.get("users/" + user); } else { this.get("users"); } }
         this.saveUser = function (u) { this.put("users/", JSON.stringify(u)); }
+        this.changePassword = function (data) { this.put("users/set-password", JSON.stringify(data)); }
         this.removeUser = function(u) { this.delete("users/" + u); }
         this.saveTicket = function(t) { this.put("ticketsvw/", JSON.stringify(t)); }
         this.startTimesheet = function(t) { this.get("timesheet/start/" + t); }

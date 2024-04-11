@@ -121,6 +121,7 @@ void DatabasePluginPostgres::commit() {
 
   
 void DatabasePluginPostgres::changePassword(const QString& login, const QString& oldpassword, const QString& newpassword) {
+    PDEBUG;
     QString md5new = QString::fromUtf8(QCryptographicHash::hash(newpassword.toUtf8(), QCryptographicHash::Md5).toHex());
     QString md5old = QString::fromUtf8(QCryptographicHash::hash(oldpassword.toUtf8(), QCryptographicHash::Md5).toHex());
     QList<Dbt::Users> list;
@@ -132,10 +133,12 @@ void DatabasePluginPostgres::changePassword(const QString& login, const QString&
 
     if (admin) {
         // admin can change password for other users
-        q.prepare("update users set password = :newpassword from users where login = :login and user = :userid and admin;");
+        PDEBUG << "admin";
+        q.prepare("update users set password = :newpassword where login = :login;");
       } else {
         // non-privileged user can change it's own password only, must know the old password
-        q.prepare("update users set password = :newpassword from users where login = :login and password = :oldpassword and enabled;");
+        PDEBUG << "not admin";
+        q.prepare("update users set password = :newpassword where login = :login and password = :oldpassword and enabled;");
         }
     q.bindValue(":userid", userId());
     q.bindValue(":login", login);

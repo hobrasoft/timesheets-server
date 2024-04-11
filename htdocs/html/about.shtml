@@ -13,7 +13,7 @@
     <td><input type="text" class="form-control" id="server-description"></input></td>
     </tr>
 
-<tr><td></td>
+<tr id="row-save"><td></td>
     <td><button type="button" class="btn btn-primary" id="btn-save">Save</button></td>
     </tr>
 
@@ -46,6 +46,10 @@
 
 <script>
 $(document).ready(function(){
+    if (!userAdmin()) {
+        $("#row-save").hide();
+        $("input").prop('disabled', true);
+        }
     var api = new Api();
     api.onFinished = function(result) {
         console.log(JSON.stringify(result));
