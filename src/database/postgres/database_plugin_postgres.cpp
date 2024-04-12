@@ -238,10 +238,12 @@ QVariant DatabasePluginPostgres::save(const Dbt::Categories& data) {
 
     // TODO: Kontrola, aby nešlo založit novou kategorii v nadřízené kategorii bez přístupu
 
+    q.begin();
     q.prepare(R"'(select 1 from categories where category = :category;)'");
     q.bindValue(":category", data.category);
     q.exec();
-    if (q.next() && ! parent_category.isNull()) {
+    bool exists = q.next();
+    if (exists && ! parent_category.isNull()) {
         q.prepare(R"'(
             update categories set
                 parent_category = ?,
@@ -254,9 +256,9 @@ QVariant DatabasePluginPostgres::save(const Dbt::Categories& data) {
         q.bindValue(2, data.price);
         q.bindValue(3, category.toInt());
         q.exec();
-        return QVariant(data.category);
         }
-    if (q.next() && parent_category.isNull()) {
+
+    if (exists && parent_category.isNull()) {
         q.prepare(R"'(
             update categories set
                 description = ?,
@@ -267,25 +269,46 @@ QVariant DatabasePluginPostgres::save(const Dbt::Categories& data) {
         q.bindValue(2, data.price);
         q.bindValue(3, category.toInt());
         q.exec();
-        return QVariant(data.category);
+        }
+
+    if (!exists) {
+        q.prepare(R"string(
+            insert into categories (parent_category, description, price) values (?, ?, ?);
+            )string");
+        q.bindValue(0, parent_category);
+        q.bindValue(1, data.description);
+        q.bindValue(2, data.price);
+        q.exec();
+        category = currval("categories_category_seq");
+        }
+
+    // empty list of users is ignore
+    // if list is set, then replace old list
+    if (!data.users.isEmpty()) {
+        q.prepare(R"'(delete from users_categories where category = ?;)'");
+        q.bindValue(0, category);
+        q.exec();
         }
 
     q.prepare(R"string(
-        insert into categories (parent_category, description, price) values (?, ?, ?);
-        )string");
-    q.bindValue(0, parent_category);
-    q.bindValue(1, data.description);
-    q.bindValue(2, data.price);
-    q.exec();
-
-    q.prepare(R"string(
-        insert into users_categories ("user", category) values (?, currval('categories_category_seq'));
+        insert into users_categories ("user", category) values (?, ?) on conflict do nothing;
         )string");
     q.bindValue(0, userId());
+    q.bindValue(1, category);
     q.exec();
 
-    return currval("categories_category_seq");
+    for (int i=0; i<data.users.size(); i++) {
+        q.prepare(R"string(
+            insert into users_categories ("user", category) values (?, ?) on conflict do nothing;
+            )string");
+        q.bindValue(0, data.users[i].toInt());
+        q.bindValue(1, category);
+        q.exec();
+        }
 
+    q.commit();
+
+    return category;
 }
 
 
@@ -351,16 +374,27 @@ QVariant DatabasePluginPostgres::save(const Dbt::ServerInfo& data) {
 }
 
 
+QVariantList pgArrayToVariantList(const QVariant& input) {
+    QStringList x = input.toString().replace("{", "").replace("}", "").split(",");
+    QVariantList list;
+    for (int i=0; i<x.size(); i++) {
+        list << x[i];
+        }
+    return list;
+}
+
+
 QList<Dbt::Categories> DatabasePluginPostgres::categories(const QString& id) {
     QList<Dbt::Categories> list;
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
-        select c.category, c.parent_category, c.description, c.price 
-        from categories c, users_categories uc
-        where c.category = uc.category
-          and uc."user" = :user
-          and (:id1 <= 0 or :id2 = c.category);
+        select c.category, c.parent_category, c.description, c.price, ux.users
+        from categories c, users u 
+        left join lateral (select array_agg("user") as users from users_categories where category = c.category) ux on (true)
+        where (:id1 <= 0 or :id2 = c.category)
+          and u."user" = :user and (u.admin or u."user" in (select "user" from users_categories uc where uc.category = c.category))
+            ;
         )'");
     q.bindValue(":user", userId());
     q.bindValue(":id1", id.toInt());
@@ -373,6 +407,7 @@ QList<Dbt::Categories> DatabasePluginPostgres::categories(const QString& id) {
         x.parent_category = null(q.value(i++).toString());
         x.description = q.value(i++).toString();
         x.price = q.value(i++).toDouble();
+        x.users = pgArrayToVariantList(q.value(i++));
         list << x;
         }
 
@@ -386,11 +421,12 @@ QList<Dbt::Categories> DatabasePluginPostgres::categoriesToRoot(const QString& i
     int xid = id.toInt();
 
     q.prepare(R"'(
-        select c.category, c.parent_category, c.description, c.price 
-        from categories c, users_categories uc
-        where c.category = uc.category
-          and uc."user" = :user
-          and :id = c.category;
+        select c.category, c.parent_category, c.description, c.price, ux.users 
+        from categories c, users u
+        left join lateral (select array_agg("user") as users from users_categories where category = c.category) ux on (true)
+        where :id = c.category
+          and u."user" = :user and (u.admin or u."user" in (select "user" from users_categories uc where uc.category = c.category))
+          ;
         )'");
     for (;;) {
         q.bindValue(":user", userId());
@@ -405,6 +441,7 @@ QList<Dbt::Categories> DatabasePluginPostgres::categoriesToRoot(const QString& i
         x.parent_category = null(q.value(i++).toString());
         x.description = q.value(i++).toString();
         x.price = q.value(i++).toDouble();
+        x.users = pgArrayToVariantList(q.value(i++));
         list.prepend(x);
         xid = x.parent_category.toInt();
         }
@@ -418,11 +455,12 @@ QList<Dbt::Categories> DatabasePluginPostgres::subcategories(const QString& id) 
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
-        select c.category, c.parent_category, c.description, c.price 
-        from categories c, users_categories uc
-        where c.category = uc.category
-          and uc."user" = :user
-          and ((:id1 <= 0 and c.parent_category is null) or :id2 = c.parent_category);
+        select c.category, c.parent_category, c.description, c.price, ux.users
+        from categories c, users u
+        left join lateral (select array_agg("user") as users from users_categories where category = c.category) ux on (true)
+        where ((:id1 <= 0 and c.parent_category is null) or :id2 = c.parent_category)
+          and u."user" = :user and (u.admin or u."user" in (select "user" from users_categories uc where uc.category = c.category))
+            ;
         )'");
     q.bindValue(":user", userId());
     q.bindValue(":id1", id.toInt());
@@ -435,6 +473,7 @@ QList<Dbt::Categories> DatabasePluginPostgres::subcategories(const QString& id) 
         x.parent_category = null(q.value(i++).toString());
         x.description = q.value(i++).toString();
         x.price = q.value(i++).toDouble();
+        x.users = pgArrayToVariantList(q.value(i++));
         list << x;
         }
 
@@ -1882,14 +1921,14 @@ QList<Dbt::UsersCategories> DatabasePluginPostgres::usersCategories(int id, int 
         }
 
     if (id <= 0 && !category.isEmpty() && user > 0) {
-        q.prepare(R"'(select id, "user", category from users categories where "user" = :user and category = :category)'");
+        q.prepare(R"'(select id, "user", category from users_categories where "user" = :user and category = :category)'");
         q.bindValue(":user", user);
         q.bindValue(":category", category);
         return retvals();
         }
 
     if (id <= 0 && !category.isEmpty() && user <= 0) {
-        q.prepare(R"'(select id, "user", category from users categories where category = :category)'");
+        q.prepare(R"'(select id, "user", category from users_categories where category = :category)'");
         q.bindValue(":category", category);
         return retvals();
         }

@@ -30,7 +30,9 @@
 
 <script>
 $(document).ready(function(){
-    $("#navbar-add-user").show();
+    if (userAdmin()) {
+        $("#navbar-add-user").show();
+        }
     var api = new Api();
     api.onFinished = function(result) {
         for (var t=0; t<result.length; t++) {

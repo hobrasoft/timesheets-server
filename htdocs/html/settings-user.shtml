@@ -7,11 +7,11 @@
 <table class="table table-bordered">
 
 <tr><td><label for="enabled" class="form-check-label">Enabled</label></td>
-    <td><input type="checkbox" id="enabled" class="form-check" checked="checked"></input></td>
+    <td><input type="checkbox" id="enabled" class="form-check-input" checked="checked"></input></td>
     </tr>
 
 <tr><td><label for="admin" class="form-check-label">Administrator</label></td>
-    <td><input type="checkbox" id="admin" class="form-check"></input></td>
+    <td><input type="checkbox" id="admin" class="form-check-input"></input></td>
     </tr>
 
 <tr><td><label for="lang" class="form-label">Language</label></td>

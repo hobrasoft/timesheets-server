@@ -75,10 +75,11 @@ struct ServerInfo {
 
 
 struct Categories {
-    QString     category;           // primary key
-    QString     parent_category;
-    QString     description;
-    double      price;
+    QString         category;           // primary key
+    QString         parent_category;
+    QString         description;
+    double          price;
+    QVariantList    users;
 
     QVariantMap toMap() const;
     static Categories fromMap(const QVariantMap&);

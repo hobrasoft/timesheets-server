@@ -18,7 +18,7 @@
 </thead>
 <tbody id="tbody">
 <tr id="template-status" style="display: none;">
-    <td><a class="status-edit" href=""><i class="bi bi-pencil"></i></a></td>
+    <td><a class="status-edit" href="" style="display:none"><i class="bi bi-pencil"></i></a></td>
     <td><span class="status-status"></span></td>
     <td><span class="status-description"></span></td>
     <td><span class="status-abbr"></span></td>
@@ -32,7 +32,10 @@
 
 <script>
 $(document).ready(function(){
-    $("#navbar-add-status").show();
+    if (userAdmin()) { 
+        $("#status-edit").show();
+        $("#navbar-add-status").show();
+        }
     var api = new Api();
     api.onFinished = function(result) {
         for (var t=0; t<result.length; t++) {
@@ -45,6 +48,10 @@ $(document).ready(function(){
             var id_status_can_be_run = x.find(".status-can-be-run");
             var id_status_ignored = x.find(".status-ignored");
             var id_status_edit = x.find(".status-edit");
+
+            if (userAdmin()) {
+                $(id_status_edit).show();
+                }
 
             $(id_status_status).html(result[t].status);
             $(id_status_description).html(result[t].description);

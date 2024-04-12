@@ -3,40 +3,40 @@
 
 <form>
 <table class="table table-bordered">
-<tr><td><label for="status">Status</label></td>
-    <td><input type="text" id="status"></input></td>
+<tr><td><label for="status" class="form-label">Status</label></td>
+    <td><input type="text" class="form-control" id="status"></input></td>
     </tr>
 
-<tr><td><label for="abbreviation">Abbreviation</label></td>
-    <td><input type="text" id="abbreviation"></input></td>
+<tr><td><label for="abbreviation" class="form-label">Abbreviation</label></td>
+    <td><input type="text" class="form-control" id="abbreviation"></input></td>
     </tr>
 
-<tr><td><label for="description">Description</label></td>
-    <td><input type="text" id="description"></input></td>
+<tr><td><label for="description" class="form-label">Description</label></td>
+    <td><input type="text" class="form-control" id="description"></input></td>
     </tr>
 
-<tr><td><label for="color">Color</label></td>
-    <td><input type="text" id="color"></input></td>
+<tr><td><label for="color" class="form-label">Color</label></td>
+    <td><input type="text" class="form-control" id="color"></input></td>
     </tr>
 
-<tr><td><label for="closed">Closed</label></td>
-    <td><input type="checkbox" id="closed"></input></td>
+<tr><td><label for="closed" class="form-check-label">Closed</label></td>
+    <td><input type="checkbox" class="form-check-input" id="closed"></input></td>
     </tr>
 
-<tr><td><label for="can_be_run">Can be run</label></td>
-    <td><input type="checkbox" id="can_be_run"></input></td>
+<tr><td><label for="can_be_run" class="form-check-label">Can be run</label></td>
+    <td><input type="checkbox" class="form-check-input" id="can_be_run"></input></td>
     </tr>
 
-<tr><td><label for="ignored">Ignored</label></td>
-    <td><input type="checkbox" id="ignored"></input></td>
+<tr><td><label for="ignored" class="form-check-label">Ignored</label></td>
+    <td><input type="checkbox" class="form-check-input" id="ignored"></input></td>
     </tr>
 
 
-<tr><td><h4>Can follow</h4></td>
+<tr><td><label class="form-label">Can follow</label></td>
     <td>
         <div id="template-next" style="display: none;">
-            <input type="checkbox" class="next-status">
-            <label class=next-description></label> 
+            <input type="checkbox" class="next-status form-check-input">
+            <label class="next-description form-check-label"></label> 
         </div>
         <div id="id-next">
         </div>
@@ -85,6 +85,7 @@ $(document).ready(function(){
     if (status !== '') {
         var api = new Api();
         api.onFinished = function(result) {
+            $("#status").prop('disabled', true);
             $("#status").val(result.status);
             $("#abbreviation").val(result.abbreviation);
             $("#description").val(result.description);
@@ -99,7 +100,7 @@ $(document).ready(function(){
                     var x = $('#template-next').clone();
                     var id_next_status = x.find(".next-status");
                     var id_next_description = x.find(".next-description");
-                    $(id_next_status).attr('class', 'next-status-data');
+                    $(id_next_status).attr('class', 'next-status-data form-check-input');
                     $(id_next_status).attr('id', 'next-'+result2[i].status);
                     $(id_next_description).html(result2[i].description);
                     $(id_next_description).attr('for', 'next-'+result2[i].status);

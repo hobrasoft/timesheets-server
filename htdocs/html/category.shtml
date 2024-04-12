@@ -7,16 +7,27 @@
 
 <table class="table table-bordered">
 
-<tr><td><label>Parent category</label></td>
+<tr><td><label class="form-label">Parent category</label></td>
     <td id="parent-description"</td>
     </tr>
 
-<tr><td><label for="description">Description</label></td>
+<tr><td><label for="description" class="form-label">Description</label></td>
     <td><input type="text" id="description"></input></td>
     </tr>
 
-<tr><td><label for="price">Price</label></td>
+<tr><td><label for="price" class="form-label">Price</label></td>
     <td><input type="number" id="price" value=0></input></td>
+    </tr>
+
+<tr><td><label class="form-label">Users</label></td>
+    <td>
+        <div id="template-user" style="display: none;">
+            <input type="checkbox" class="user-category-checkbox form-check-input">
+            <label class="user-category-label form-check-label"></label>
+        </div>
+        <div id="user-category">
+        </div>
+    </td>
     </tr>
 
 </table>
@@ -75,6 +86,7 @@ $(document).ready(function(){
             $("#parent_category").val(result.parent_category);
             $("#description").val(result.description);
             $("#price").val(result.price);
+            // Find parent category info
             if (result.parent_category > 0) {
                 var api2 = new Api();
                 api2.onFinished = function(result2) { 
@@ -82,6 +94,25 @@ $(document).ready(function(){
                     };
                 api2.category(result.parent_category);
                 }
+            // Create list of permitted users
+            var uapi = new Api();
+            var users = result.users.map(function(x) { return parseInt(x); });
+            uapi.onFinished = function(uresult) {
+                for (var i=0; i<uresult.length; i++) {
+                    var x = $('#template-user').clone();
+                    var id_user_checkbox = x.find(".user-category-checkbox");
+                    var id_user_label    = x.find(".user-category-label");
+                    $(id_user_checkbox).attr('class', 'user-category-data form-check-input');
+                    $(id_user_checkbox).attr('id', 'user-'+uresult[i].user);
+                    $(id_user_checkbox).attr("checked", users.includes(uresult[i].user));
+                    $(id_user_label).attr('for', 'user-'+uresult[i].user);
+                    $(id_user_label).html(uresult[i].name);
+                    $("#user-category").append(x);
+                    console.log(JSON.stringify(users) + " " + uresult[i].user + " " + users.includes(uresult[i].user) );
+                    $(x).show();
+                    }
+                };
+            uapi.users();
             };
         api.category(category);
         }
@@ -91,11 +122,20 @@ $(document).ready(function(){
         });
 
     $("#btn-save").click(function(event){
+        var users = [];
+        $(".user-category-data").each(function() {
+            var id = $(this).attr('id');
+            var user = id.replace("user-","");
+            var checked  = $(this).prop("checked");
+            if (checked === false) { return; }
+            users.push(user);
+            });
+
         var category = $("#category").val();
         var parent_category = $("#parent_category").val();
         var description = $("#description").val();
         var price = $("#price").val();
-        var data = {category: category, parent_category: parent_category, description: description, price: price};
+        var data = {category: category, parent_category: parent_category, description: description, price: price, users: users};
         var api = new Api();
         api.onFinished = function() { goBack(); }
         api.saveCategory(data);

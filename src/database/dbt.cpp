@@ -90,6 +90,7 @@ QVariantMap Categories::toMap() const {
     data["parent_category"] = null(parent_category);
     data["description"] = description;
     data["price"] = price;
+    data["users"] = users;
     return data;
 }
 
@@ -100,6 +101,7 @@ Categories Categories::fromMap(const QVariantMap& data) {
     x.parent_category = data["parent_category"].toString();
     x.description = data["description"].toString();
     x.price = data["price"].toDouble();
+    x.users = data["users"].toList();
     return x;
 }
 
