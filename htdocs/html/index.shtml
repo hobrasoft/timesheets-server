@@ -158,6 +158,7 @@ function loadData() {
                     var last_status_can_be_run  = (typeof last_status !== 'undefined') ? last_status.status_can_be_run : false;
                     var last_status_description = (typeof last_status !== 'undefined') ? last_status.status_description : '';
                     var last_status_color       = (typeof last_status !== 'undefined') ? last_status.status_color : 'transparent';
+                    var last_status_color_fg    = foregroundColor(last_status_color); // last_status_color.foregrounColor();
                     var money = Math.round(seconds * result4[t].price / 3600);
                     var running = result4[t].timesheets.reduce(function(acc, cur) { return acc = acc || cur.date_to == null || cur.date_to === ''; }, false);
                     var ticket = result4[t].ticket;
@@ -173,10 +174,21 @@ function loadData() {
                     $(id_ticket_description).html(result4[t].description);
                     $(id_ticket_id_edit).attr("href", "ticket.shtml?ticket="+result4[t].ticket);
                     $(id_ticket_status).html(last_status_description);
-                    $(id_ticket_status).css('background-color', last_status_color);
                     $(id_ticket_date).html(result4[t].date.formatYYYYMMDDHHMM());
                     $(id_ticket_time).html(seconds.formatHHMMSS());
                     $(id_ticket_money).html(money);
+                    // set colors
+                    // $(id_ticket_description).css('background-color', last_status_color);
+                    // $(id_ticket_description).css('color', last_status_color_fg);
+                    // $(id_ticket_date).css('background-color', last_status_color);
+                    // $(id_ticket_date).css('color', last_status_color_fg);
+                    // $(id_ticket_time).css('background-color', last_status_color);
+                    // $(id_ticket_time).css('color', last_status_color_fg);
+                    // $(id_ticket_money).css('background-color', last_status_color);
+                    // $(id_ticket_money).css('color', last_status_color_fg);
+                    $(id_ticket_status).css('background-color', last_status_color);
+                    $(id_ticket_status).css('color', last_status_color_fg);
+                    //
                     $(x).attr("id",null);
                     $(x).attr("class","list-item");
                     $("#tbody").append(x);

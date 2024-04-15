@@ -61,6 +61,29 @@ function goBack() {
     window.location.replace('index.shtml');
 }
 
+
+function createListOfUsers(users) {
+    // Create list of permitted users
+    console.log("users " + JSON.stringify(users));
+    var uapi = new Api();
+    uapi.onFinished = function(uresult) {
+        for (var i=0; i<uresult.length; i++) {
+            var x = $('#template-user').clone();
+            var id_user_checkbox = x.find(".user-category-checkbox");
+            var id_user_label    = x.find(".user-category-label");
+            $(id_user_checkbox).attr('class', 'user-category-data form-check-input');
+            $(id_user_checkbox).attr('id', 'user-'+uresult[i].user);
+            $(id_user_checkbox).attr("checked", users.includes(uresult[i].user));
+            $(id_user_label).attr('for', 'user-'+uresult[i].user);
+            $(id_user_label).html(uresult[i].name);
+            $("#user-category").append(x);
+            console.log(JSON.stringify(users) + " " + uresult[i].user + " " + users.includes(uresult[i].user) );
+            $(x).show();
+            }
+        };
+    uapi.users();
+}
+
 $(document).ready(function(){
     var category = parseInt($.urlParam("category"));
     var parentCategory = sessionStorage.getItem("currentCategory");
@@ -77,6 +100,11 @@ $(document).ready(function(){
             $("#price").val(result.price);
             };
         api.category(parentCategory);
+        var userid = userId();
+        var users = [];
+        users.push(userid);
+        console.log("userid " + userid);
+        createListOfUsers(users);
         }
 
     if (category > 0) {
@@ -94,25 +122,7 @@ $(document).ready(function(){
                     };
                 api2.category(result.parent_category);
                 }
-            // Create list of permitted users
-            var uapi = new Api();
-            var users = result.users.map(function(x) { return parseInt(x); });
-            uapi.onFinished = function(uresult) {
-                for (var i=0; i<uresult.length; i++) {
-                    var x = $('#template-user').clone();
-                    var id_user_checkbox = x.find(".user-category-checkbox");
-                    var id_user_label    = x.find(".user-category-label");
-                    $(id_user_checkbox).attr('class', 'user-category-data form-check-input');
-                    $(id_user_checkbox).attr('id', 'user-'+uresult[i].user);
-                    $(id_user_checkbox).attr("checked", users.includes(uresult[i].user));
-                    $(id_user_label).attr('for', 'user-'+uresult[i].user);
-                    $(id_user_label).html(uresult[i].name);
-                    $("#user-category").append(x);
-                    console.log(JSON.stringify(users) + " " + uresult[i].user + " " + users.includes(uresult[i].user) );
-                    $(x).show();
-                    }
-                };
-            uapi.users();
+            createListOfUsers(result.users.map(function(x) { return parseInt(x); }));
             };
         api.category(category);
         }

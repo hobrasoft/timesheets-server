@@ -239,8 +239,9 @@ QVariant DatabasePluginPostgres::save(const Dbt::Categories& data) {
     // TODO: Kontrola, aby nešlo založit novou kategorii v nadřízené kategorii bez přístupu
 
     q.begin();
+
     q.prepare(R"'(select 1 from categories where category = :category;)'");
-    q.bindValue(":category", data.category);
+    q.bindValue(":category", data.category.toInt());
     q.exec();
     bool exists = q.next();
     if (exists && ! parent_category.isNull()) {
@@ -265,9 +266,9 @@ QVariant DatabasePluginPostgres::save(const Dbt::Categories& data) {
                 price = ?
                 where category = ?
             )'");
-        q.bindValue(1, data.description);
-        q.bindValue(2, data.price);
-        q.bindValue(3, category.toInt());
+        q.bindValue(0, data.description);
+        q.bindValue(1, data.price);
+        q.bindValue(2, category.toInt());
         q.exec();
         }
 
@@ -280,22 +281,22 @@ QVariant DatabasePluginPostgres::save(const Dbt::Categories& data) {
         q.bindValue(2, data.price);
         q.exec();
         category = currval("categories_category_seq");
+        // insert permission for creator
+        q.prepare(R"string(
+            insert into users_categories ("user", category) values (?, ?) on conflict do nothing;
+            )string");
+        q.bindValue(0, userId());
+        q.bindValue(1, category);
+        q.exec();
         }
 
-    // empty list of users is ignore
+    // empty list of users is ignored
     // if list is set, then replace old list
     if (!data.users.isEmpty()) {
         q.prepare(R"'(delete from users_categories where category = ?;)'");
         q.bindValue(0, category);
         q.exec();
         }
-
-    q.prepare(R"string(
-        insert into users_categories ("user", category) values (?, ?) on conflict do nothing;
-        )string");
-    q.bindValue(0, userId());
-    q.bindValue(1, category);
-    q.exec();
 
     for (int i=0; i<data.users.size(); i++) {
         q.prepare(R"string(
