@@ -89,6 +89,7 @@ QVariantMap Categories::toMap() const {
     data["category"] = category;
     data["parent_category"] = null(parent_category);
     data["description"] = description;
+    data["description_tree"] = description_tree;
     data["price"] = price;
     data["users"] = users;
     return data;

@@ -390,7 +390,7 @@ QList<Dbt::Categories> DatabasePluginPostgres::categories(const QString& id) {
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
-        select c.category, c.parent_category, c.description, c.price, ux.users
+        select c.category, c.parent_category, c.description, c.price, ux.users, categories_tree_description(c.category) as description_tree
         from categories c, users u 
         left join lateral (select array_agg("user") as users from users_categories where category = c.category) ux on (true)
         where (:id1 <= 0 or :id2 = c.category)
@@ -409,6 +409,7 @@ QList<Dbt::Categories> DatabasePluginPostgres::categories(const QString& id) {
         x.description = q.value(i++).toString();
         x.price = q.value(i++).toDouble();
         x.users = pgArrayToVariantList(q.value(i++));
+        x.description_tree = q.value(i++).toString();
         list << x;
         }
 
@@ -422,7 +423,7 @@ QList<Dbt::Categories> DatabasePluginPostgres::categoriesToRoot(const QString& i
     int xid = id.toInt();
 
     q.prepare(R"'(
-        select c.category, c.parent_category, c.description, c.price, ux.users 
+        select c.category, c.parent_category, c.description, c.price, ux.users, categories_tree_description(c.category) as description_tree 
         from categories c, users u
         left join lateral (select array_agg("user") as users from users_categories where category = c.category) ux on (true)
         where :id = c.category
@@ -443,6 +444,7 @@ QList<Dbt::Categories> DatabasePluginPostgres::categoriesToRoot(const QString& i
         x.description = q.value(i++).toString();
         x.price = q.value(i++).toDouble();
         x.users = pgArrayToVariantList(q.value(i++));
+        x.description_tree = q.value(i++).toString();
         list.prepend(x);
         xid = x.parent_category.toInt();
         }
@@ -456,7 +458,7 @@ QList<Dbt::Categories> DatabasePluginPostgres::subcategories(const QString& id) 
     MSqlQuery q(m_db);
 
     q.prepare(R"'(
-        select c.category, c.parent_category, c.description, c.price, ux.users
+        select c.category, c.parent_category, c.description, c.price, ux.users, categories_tree_description(c.category) as description_tree
         from categories c, users u
         left join lateral (select array_agg("user") as users from users_categories where category = c.category) ux on (true)
         where ((:id1 <= 0 and c.parent_category is null) or :id2 = c.parent_category)
@@ -475,6 +477,7 @@ QList<Dbt::Categories> DatabasePluginPostgres::subcategories(const QString& id) 
         x.description = q.value(i++).toString();
         x.price = q.value(i++).toDouble();
         x.users = pgArrayToVariantList(q.value(i++));
+        x.description_tree = q.value(i++).toString();
         list << x;
         }
 

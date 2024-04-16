@@ -78,6 +78,7 @@ struct Categories {
     QString         category;           // primary key
     QString         parent_category;
     QString         description;
+    QString         description_tree;
     double          price;
     QVariantList    users;
 

@@ -188,7 +188,7 @@ $(document).ready(function(){
             apic.onFinished = function(resultc) {
                 for (var i=0; i<resultc.length; i++) {
                     var selected = (resultc[i].category == result.category) ? selected='selected="selected"' : '';
-                    $("#category").append('<option value="'+resultc[i].category+'" '+selected+'>'+resultc[i].description+'</option>');
+                    $("#category").append('<option value="'+resultc[i].category+'" '+selected+'>'+resultc[i].description_tree+'</option>');
                     }
                 }
             apic.categories();

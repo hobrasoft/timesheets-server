@@ -3,12 +3,11 @@
 
 <form>
 <input type="hidden" id="category"></input>
-<input type="hidden" id="parent_category"></input>
 
 <table class="table table-bordered">
 
 <tr><td><label class="form-label">Parent category</label></td>
-    <td id="parent-description"</td>
+    <td><select id="parent_category" class="form-select"></select></td>
     </tr>
 
 <tr><td><label for="description" class="form-label">Description</label></td>
@@ -64,7 +63,6 @@ function goBack() {
 
 function createListOfUsers(users) {
     // Create list of permitted users
-    console.log("users " + JSON.stringify(users));
     var uapi = new Api();
     uapi.onFinished = function(uresult) {
         for (var i=0; i<uresult.length; i++) {
@@ -77,11 +75,24 @@ function createListOfUsers(users) {
             $(id_user_label).attr('for', 'user-'+uresult[i].user);
             $(id_user_label).html(uresult[i].name);
             $("#user-category").append(x);
-            console.log(JSON.stringify(users) + " " + uresult[i].user + " " + users.includes(uresult[i].user) );
             $(x).show();
             }
         };
     uapi.users();
+}
+
+function createParentCategoriesSelection(parent_category) {
+    // Fill and set the category selection 
+    console.log("createParentCategoriesSelection " + parent_category);
+    var apic = new Api();
+    apic.onFinished = function(resultc) {
+        var resultcs = resultc.toSorted(function(a,b) { return (a.description_tree > b.description_tree) ? 1 : (a.description_tree < b.description_tree) ? -1 : 0; } );
+        for (var i=0; i<resultcs.length; i++) {
+            var selected = (resultcs[i].category == parent_category) ? selected='selected="selected"' : '';
+            $("#parent_category").append('<option value="'+resultcs[i].parent_category+'" '+selected+'>'+resultcs[i].description_tree+'</option>');
+            }
+        }
+    apic.categories();
 }
 
 $(document).ready(function(){
@@ -103,7 +114,6 @@ $(document).ready(function(){
         var userid = userId();
         var users = [];
         users.push(userid);
-        console.log("userid " + userid);
         createListOfUsers(users);
         }
 
@@ -111,18 +121,10 @@ $(document).ready(function(){
         var api = new Api();
         api.onFinished = function(result) {
             $("#category").val(result.category);
-            $("#parent_category").val(result.parent_category);
             $("#description").val(result.description);
             $("#price").val(result.price);
-            // Find parent category info
-            if (result.parent_category > 0) {
-                var api2 = new Api();
-                api2.onFinished = function(result2) { 
-                    $("#parent-description").text(result2.description); 
-                    };
-                api2.category(result.parent_category);
-                }
             createListOfUsers(result.users.map(function(x) { return parseInt(x); }));
+            createParentCategoriesSelection(result.parent_category);
             };
         api.category(category);
         }
