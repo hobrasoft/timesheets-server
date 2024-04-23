@@ -87,12 +87,19 @@ function goBack() {
 $(document).ready(function(){
     if (!userAdmin())  { 
         $("#btn-save").hide(); 
-        $("#btn-del").hide(); 
+        $("#btn-del").hide();
+        $("#user").prop('disabled', true);
+        $("#enabled").prop('disabled', true);
+        $("#admin").prop('disabled', true);
+        $("#lang").prop('disabled', true);
+        $("#login").prop('disabled', true);
+        $("#name").prop('disabled', true);
         }
     var user = parseInt($.urlParam("user"));
 
     if (user == 0 || isNaN(user)) {
         $("#btn-del").hide();
+        $("#btn-password").hide();
         }
 
     if (user > 0) {
