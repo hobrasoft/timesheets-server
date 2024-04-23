@@ -81,9 +81,9 @@ function createListOfUsers(users) {
     uapi.users();
 }
 
-function createParentCategoriesSelection(parent_category) {
+function createParentCategoriesSelection(category, parent_category) {
     // Fill and set the category selection 
-    console.log("createParentCategoriesSelection " + parent_category);
+    console.log("createParentCategoriesSelection " + category);
     var apic = new Api();
     apic.onFinished = function(resultc) {
         var resultcs = resultc.toSorted(function(a,b) { return (a.description_tree > b.description_tree) ? 1 : (a.description_tree < b.description_tree) ? -1 : 0; } );
@@ -92,7 +92,7 @@ function createParentCategoriesSelection(parent_category) {
             $("#parent_category").append('<option value="'+resultcs[i].parent_category+'" '+selected+'>'+resultcs[i].description_tree+'</option>');
             }
         }
-    apic.categories();
+    apic.categoriessiblings(category);
 }
 
 $(document).ready(function(){
@@ -124,7 +124,7 @@ $(document).ready(function(){
             $("#description").val(result.description);
             $("#price").val(result.price);
             createListOfUsers(result.users.map(function(x) { return parseInt(x); }));
-            createParentCategoriesSelection(result.parent_category);
+            createParentCategoriesSelection(category, result.parent_category);
             };
         api.category(category);
         }

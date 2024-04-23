@@ -21,6 +21,7 @@
 #include "controllercategories.h"
 #include "controllercategoriestoroot.h"
 #include "controllercategoriestree.h"
+#include "controllercategoriessiblings.h"
 #include "controllerstatusorder.h"
 #include "controllerstatuses.h"
 #include "controllerstatustemplates.h"
@@ -105,6 +106,7 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
     /**
      * Po přihlášení zpracovává ostatní speciální požadavky (event streamy).
      */
+    ROUTER("/api/v1/categoriessiblings",               ControllerCategoriesSiblings);
     ROUTER("/api/v1/tickettimesheets",                 ControllerTicketTimesheets);
     ROUTER("/api/v1/categoriestoroot",                 ControllerCategoriesToRoot);
     ROUTER("/api/v1/statustemplates",                  ControllerStatusTemplates);

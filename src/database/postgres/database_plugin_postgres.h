@@ -35,6 +35,7 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     QList<Dbt::Categories>                  categories(const QString& id) Q_DECL_OVERRIDE;
     QList<Dbt::Categories>                  categoriesToRoot(const QString& id) Q_DECL_OVERRIDE;
     QList<Dbt::Categories>                  subcategories(const QString& id) Q_DECL_OVERRIDE;
+    QList<Dbt::Categories>                  siblingcategories(const QString& id) Q_DECL_OVERRIDE;
     QList<Dbt::StatusOrder>                 statusOrder(const QString& id) Q_DECL_OVERRIDE;
     QList<Dbt::Statuses>                    statuses(const QString&) Q_DECL_OVERRIDE;
     QList<Dbt::Statuses>                    statuses(const QString&, const QString&) Q_DECL_OVERRIDE;

@@ -44,6 +44,7 @@ class Database : public QObject {
     QList<Dbt::Categories>                  categories(const QString& id = QString());
     QList<Dbt::Categories>                  categoriesToRoot(const QString& id);
     QList<Dbt::Categories>                  subcategories(const QString& parent = QString());
+    QList<Dbt::Categories>                  siblingcategories(const QString& parent = QString());
     QList<Dbt::UsersCategories>             usersCategories(int id = -1, int user = -1, const QString& category = QString());
     QList<Dbt::StatusOrder>                 statusOrder(const QString& id = QString());
     QList<Dbt::Statuses>                    statuses(const QString& id = QString());

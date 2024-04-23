@@ -106,6 +106,7 @@ class Api {
                     }
         this.categoriesToRoot = function (c) { this.get("categoriestoroot/"+c); }
         this.categoriestree = function (category) { this.get("categoriestree/"+category,"maxdepth=0"); }
+        this.categoriessiblings = function (category) { this.get("categoriessiblings/"+category); }
         this.ticketsvw = function (category) { this.get("ticketsvw", "category=" + category + "&all=" + this.initpageAll()); }
         this.ticketsvwall = function () { this.get("ticketsvw", "all=" + this.initpageAll()); }
         this.ticketvw = function (ticket) { this.get("ticketsvw/"+ticket+"?all=true"); }

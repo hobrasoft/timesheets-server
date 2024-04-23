@@ -11,12 +11,12 @@
     <td><input type="text" id="date" class="form-control" disabled></input></td>
     </tr>
 
-<tr><td><label for="description">Description</label></td>
-    <td><input type="text" id="description"class="form-control" ></input></td>
-    </tr>
-
 <tr><td><label for="owner-name">Ticket's owner name</label></td>
     <td><input type="text" id="owner-name" class="form-control" disabled></input></td>
+    </tr>
+
+<tr><td><label for="description">Description</label></td>
+    <td><input type="text" id="description"class="form-control" ></input></td>
     </tr>
 
 <tr><td><label for="price">Price</label></td>
@@ -38,6 +38,7 @@
     <th>To</th>
     <th>Time</th>
     <th>Price</th>
+    <th>User name</th>
 </tr>
 </thead>
 <tbody id="timesheet-tbody">
@@ -47,6 +48,7 @@
     <td class="timesheet-to"></td>
     <td class="timesheet-time"></td>
     <td class="timesheet-price"></td>
+    <td class="timesheet-user-name"></td>
 </tr>
 </tbody>
 </table>
@@ -57,17 +59,22 @@
 <table class="table table-bordered">
 <thead>
 <tr>
+    <th></th>
     <th>Date &amp; time</th>
     <th>Status</th>
     <th>Description</th>
+    <th>Text</th>
+    <th>User name</th>
 </tr>
 </thead>
 <tbody id="status-tbody">
 <tr id="template-status" style="display: none;">
+    <td><button type="button" class="btn btn-primary-outline btn-remove-style" style="display: none;"><i class="bi bi-trash"></i></button></td>
     <td><span class="status-date"        href=""></span></td>
     <td><span class="status-status"      href=""></span></td>
     <td><span class="status-status-description" href=""></span></td>
     <td><span class="status-description" href=""></span></td>
+    <td><span class="status-user-name"></span></td>
 </tr>
 </tbody>
 </table>
@@ -144,146 +151,285 @@
 
 <script>
 function goBack() {
-    var parentCategory = sessionStorage.getItem("currentCategory");
-    window.location.replace('index.shtml?category='+parentCategory);
+    var category = sessionStorage.getItem("currentCategory");
+    window.location.replace('index.shtml?category='+category);
 }
+
+
+function findOwnersName() {
+    var user = $("#user").val();
+    var users = JSON.parse(sessionStorage.getItem("usersList"));
+    $("#owner-name").val(users[user]);
+}
+
+
+function fillCategorySelection(category) {
+    var apic = new Api();
+    apic.onFinished = function(resultc) {
+        for (var i=0; i<resultc.length; i++) {
+            var selected = (resultc[i].category == category) ? selected='selected="selected"' : '';
+            $("#category").append('<option value="'+resultc[i].category+'" '+selected+'>'+resultc[i].description_tree+'</option>');
+            }
+        }
+    apic.categories();
+}
+
+
+function fillTimesheetsTableRow(x, timesheet) {
+    var users = JSON.parse(sessionStorage.getItem("usersList"));
+    var user_name = users[timesheet.user];
+    var price = $("#price").val();
+    var id_timesheet_date_from  = x.find(".timesheet-from");
+    var id_timesheet_date_to    = x.find(".timesheet-to");
+    var id_timesheet_time       = x.find(".timesheet-time");
+    var id_timesheet_price      = x.find(".timesheet-price");
+    var id_timesheet_user_name  = x.find(".timesheet-user-name");
+    var interval = timesheet.date_from.secsTo(timesheet.date_to);
+    var price = Math.round(price * interval / 3600);
+    $(id_timesheet_date_from).prop('data-id', timesheet.id);
+    $(id_timesheet_date_from).prop('data-user', timesheet.user);
+    $(id_timesheet_date_from).prop('data', timesheet.date_from);
+    $(id_timesheet_date_from).html(timesheet.date_from.formatYYYYMMDDHHMM());
+    $(id_timesheet_date_to).html(timesheet.date_to.formatYYYYMMDDHHMM());
+    $(id_timesheet_date_to).prop('data',timesheet.date_to);
+    $(id_timesheet_time).html(interval.formatHHMM());
+    $(id_timesheet_price).html(price);
+    $(id_timesheet_user_name).html(user_name);
+    $(x).prop('class', 'tr-timesheet');
+}
+
+
+function fillTimesheetsTable(ptimesheets) {
+    // Fill the timesheets table
+    var timesheets = ptimesheets.sort(function(a,b){return (a.date_from>b.date_to)?1:(a.date<b.date)?-1:0;})
+    for (var i=0; i<timesheets.length; i++) {
+        var x = $("#template-timesheet").clone();
+        fillTimesheetsTableRow(x, timesheets[i]);
+        $("#timesheet-tbody").append(x);
+        $(x).show();
+
+        // When edit button is clicked, then show dialog with date-from and date-to values
+        var clickedLineElement = null;
+        $(".btn-edit-timesheet").click(function(event){
+            // find the TR line of clicked button
+            clickedLineElement = $(event.target);
+            do {
+                clickedLineElement = clickedLineElement.parent();
+                } while (clickedLineElement[0].tagName != 'TR' && typeof clickedLineElement[0].tagName != 'undefined');
+            var id_date_from_val = clickedLineElement.find(".timesheet-from").prop('data');
+            var id_date_to_val   = clickedLineElement.find(".timesheet-to").prop('data');
+            $("#edit-timesheet-from").val(id_date_from_val);
+            $("#edit-timesheet-to").val(id_date_to_val);
+            $("#edit-timesheet").modal("show");
+            });
+
+        // When the dialog with date-from and date-to is closed, propagate values to table
+        $("#edit-timesheet-btn-ok").click(function(event){
+            var date_from = $("#edit-timesheet-from").val();
+            var date_to   = $("#edit-timesheet-to").val();
+            fillTimesheetsTableRow(clickedLineElement, {date_from: date_from, date_to: date_to});
+            $("#edit-timesheet").modal("hide");
+            });
+        }
+}
+
+
+function timesheetsListFromTable() {
+    var list = [];
+    $(".tr-timesheet").each(function() {
+        var ticket      = $("#ticket").val();
+        var id          = $(this).find(".timesheet-from").prop("data-id");
+        var user        = $(this).find(".timesheet-from").prop("data-user");
+        var date_from   = $(this).find(".timesheet-from").html();
+        var date_to     = $(this).find(".timesheet-to").prop("data");
+        list.push({
+            id: id,
+            ticket: ticket,
+            date_from: date_from,
+            date_to: date_to,
+            user: user
+            });
+        });
+    return list;
+}
+
+
+function fillStatusesTableAdd(status) {
+    var users = JSON.parse(sessionStorage.getItem("usersList"));
+    var user_name = users[status.user];
+    var x = $("#template-status").clone();
+    var id_status_date               = x.find(".status-date");
+    var id_status_remove             = x.find(".btn-remove-style");
+    var id_status_status             = x.find(".status-status");
+    var id_status_description        = x.find(".status-description");
+    var id_status_status_description = x.find(".status-status-description");
+    var id_status_user_name          = x.find(".status-user-name");
+
+    $(id_status_date).prop('data', status.date);
+    $(id_status_date).html(status.date.formatYYYYMMDDHHMM());
+    $(id_status_status).html(status.status);
+    $(id_status_status).prop('data-user', status.user);
+    $(id_status_description).html(status.description);
+    $(id_status_status_description).html(status.status_description);
+    $(id_status_user_name).html(user_name);
+    $(x).prop('class', 'tr-status');
+    if (status.created) { 
+        $(id_status_remove).show(); 
+        $(id_status_remove).click(function(event) {
+            $(x).remove();
+            });
+        }
+
+    $("#status-tbody").append(x);
+    $(x).show();
+}
+
+
+function fillStatusesTable(pstatuses) {
+    var statuses = pstatuses.sort(function(a,b){return (a.date>b.date)?1:(a.date<b.date)?-1:0;})
+    for (var i=0; i<statuses.length; i++) {
+        fillStatusesTableAdd(statuses[i]);
+        }
+
+    // Dialog "Add new status"
+    $("#add-new-status-btn-add").click(function(event){
+        var now = new Date();
+        var date = now.toISOString();
+        var user = userId();
+        var status = $("#next-status-id").val();
+        var description = $("#next-status-text").val();
+        var status_description = $('.next-status-option[value="'+status+'"').html();
+        fillStatusesTableAdd({
+            date: date,
+            user: user,
+            status: status,
+            created: true,
+            description: description,
+            status_description: status_description
+            });
+        $("#add-new-status").modal("hide");
+        });
+}
+
+
+// Fill the "next status" table in "add new status" dialog
+function fillNextStatusDialog(statuses) {
+    var category = $("#category").val();
+    var last_status = statuses
+            .sort(function(a,b){return (a.date>b.date)?1:(a.date<b.date)?-1:0;})
+            .filter(function(x){return !x.status_ignored;})
+            .pop();
+    var last_status_list = new Array;
+    last_status_list.push(last_status.status);
+    var apins = new Api();
+    apins.onFinished = function(resultns) {
+        for (var i=0; i<resultns.length; i++) {
+            $("#next-status-id").append('<option value="'+resultns[i].status+'" class="next-status-option">'+resultns[i].description+'</option>');
+            }
+        } 
+    apins.statuses(category, last_status_list);
+}
+
+
+function statusesListFromTable() {
+    var list = [];
+    $(".tr-status").each(function() {
+        var status      = $(this).find(".status-status").html();
+        var date        = $(this).find(".status-date").prop("data");
+        var user        = $(this).find(".status-status").prop("data-user");
+        var description = $(this).find(".status-description").html();
+        list.push({
+            status: status,
+            date: date,
+            user: user,
+            description: description
+            });
+        });
+    return list;
+}
+
 
 
 $(document).ready(function(){
     var ticket = parseInt($.urlParam("ticket"));
 
-    if (ticket == 0 || isNaN(ticket)) {
-        $("#btn-del").hide();
-        }
+    var apiu = new Api();
+    apiu.onFinished = function(resultu) {
+        var users = {};
+        for (var i=0; i<resultu.length; i++) {
+            users[resultu[i].user] = resultu[i].name;
+            }
+        sessionStorage.setItem("usersList", JSON.stringify(users));
 
-    if (ticket == 0 || isNaN(ticket)) {
-        var api = new Api();
-        api.onFinished = function(result) {
-            $("#parent_category").val(parentCategory);
-            $("#parent-description").text(result.description);
-            $("#price").val(result.price);
-            };
-        api.ticketvw(parentCategory);
-        }
+        if (ticket == 0 || isNaN(ticket)) {
+            $("#btn-del").hide();
+            }
 
-    if (ticket > 0) {
-        var api = new Api();
-        api.onFinished = function(result) {
-            $("#ticket").val(result.ticket);
-            $("#description").val(result.description);
-            $("#date").val(result.date.formatYYYYMMDDHHMM());
-            $("#price").val(result.price);
-            $("#category").val(result.category);
+        if (ticket > 0) {
+            var api = new Api();
+            api.onFinished = function(result) {
+                $("#ticket").val(result.ticket);
+                $("#description").val(result.description);
+                $("#date").val(result.date.formatYYYYMMDDHHMM());
+                $("#date").prop('data', result.date);
+                $("#price").val(result.price);
+                $("#user").val(result.user);
 
-            // Find the owner's name
-            $("#user").val(result.user);
-            var apiu = new Api();
-            apiu.onFinished = function(resultu) {
-                $("#owner-name").val(resultu.name);
-                }
-            apiu.users(result.user);
-
-            // Fill and set the category selection
-            var apic = new Api();
-            apic.onFinished = function(resultc) {
-                for (var i=0; i<resultc.length; i++) {
-                    var selected = (resultc[i].category == result.category) ? selected='selected="selected"' : '';
-                    $("#category").append('<option value="'+resultc[i].category+'" '+selected+'>'+resultc[i].description_tree+'</option>');
-                    }
-                }
-            apic.categories();
-
-            // Fill the timesheets table
-            for (var i=0; i<result.timesheets.length; i++) {
-                var x = $("#template-timesheet").clone();
-                var id_timesheet_date_from  = x.find(".timesheet-from");
-                var id_timesheet_date_to    = x.find(".timesheet-to");
-                var id_timesheet_time       = x.find(".timesheet-time");
-                var id_timesheet_price      = x.find(".timesheet-price");
-                var interval = result.timesheets[i].date_from.secsTo(result.timesheets[i].date_to);
-                var price = Math.round(result.price * interval / 3600);
-                $(id_timesheet_date_from).html(result.timesheets[i].date_from.formatYYYYMMDDHHMM());
-                $(id_timesheet_date_to).html(result.timesheets[i].date_to.formatYYYYMMDDHHMM());
-                $(id_timesheet_time).html(interval.formatHHMM());
-                $(id_timesheet_price).html(price);
-                $("#timesheet-tbody").append(x);
-                $(x).show();
-                }
-
-            // Fill the statuses table
-            for (var i=0; i<result.statuses.length; i++) {
-                var x = $("#template-status").clone();
-                var id_status_date               = x.find(".status-date");
-                var id_status_status             = x.find(".status-status");
-                var id_status_description        = x.find(".status-description");
-                var id_status_status_description = x.find(".status-status-description");
-
-                $(id_status_date).html(result.statuses[i].date.formatYYYYMMDDHHMM());
-                $(id_status_status).html(result.statuses[i].status);
-                $(id_status_description).html(result.statuses[i].description);
-                $(id_status_status_description).html(result.statuses[i].status_description);
-                $("#status-tbody").append(x);
-                $(x).show();
-                $(".btn-edit-timesheet").click(function(event){
-                    var element = $(event.target).parent(); // find the line of clicked button
-                    var date_from = element.find(".timesheet-from");
-                    var date_to   = element.find(".timesheet-to");
-                    console.log("element " + $(date_from).html() + " " + $(date_to).html());
-                    $("#edit-timesheet").modal("show");
-                    });
-                }
-
-            // Fill the "next status" table in "add new status" dialog
-            var last_status = result.statuses
-                    .sort(function(a,b){return (a.date>b.date)?1:(a.date<b.date)?-1:0;})
-                    .filter(function(x){return !x.status_ignored;})
-                    .pop();
-            var last_status_list = new Array;
-            last_status_list.push(last_status.status);
-            var apins = new Api();
-            apins.onFinished = function(resultns) {
-                for (var i=0; i<resultns.length; i++) {
-                    $("#next-status-id").append('<option value="'+resultns[i].status+'">'+resultns[i].description+'</option>');
-                    }
-                } 
-            apins.statuses(result.category, last_status_list);
-
-            };
-        api.ticketvw(ticket);
-        }
+                findOwnersName();
+                fillCategorySelection(result.category);
+                fillTimesheetsTable(result.timesheets);
+                fillStatusesTable(result.statuses);
+                fillNextStatusDialog(result.statuses);
+                };
+            api.ticketvw(ticket);
+            }
+        };
+    apiu.users();
 
     $("#btn-cancel").click(function(event){
-        goBack();
-        });
-
-    $("#btn-save").click(function(event){
-        var category = $("#category").val();
-        var parent_category = $("#parent_category").val();
-        var description = $("#description").val(); var price = $("#price").val();
-        var data = {category: category, parent_category: parent_category, description: description, price: price};
-        /*
-        var api = new Api();
-        api.onFinished = function() { goBack(); }
-        api.saveCategory(data);
-        */
         goBack();
         });
 
     $("#btn-delete").click(function(event){
         goBack();
         /*
-        var category = $("#category").val();
+        var ticket = $("#ticket").val();
         api.onFinished = function() { goBack(); }
-        api.removeCategory(category);
+        api.removeTicket(ticket);
         */
         });
 
-    $("#edit-timesheet-btn-ok").click(function(event){
-        $("#edit-timesheet").modal("hide");
-        });
+    $("#btn-save").click(function(event){
+        var ticket = $("#ticket").val();
+        var created = (ticket <= 0);
+        var user = $("#user").val();
+        var date = $("#date").prop("data");
+        var category = $("#category").val();
+        var price = $("#price").val();
+        var description = $("#description").val(); var price = $("#price").val();
+        var statuses = statusesListFromTable();
+        var timesheets = timesheetsListFromTable();
 
-    $("#add-new-status-btn-add").click(function(event){
-        $("#add-new-status").modal("hide");
+        var data = {
+            modified: true, 
+            created: created,
+            ticket: ticket, 
+            user: user, 
+            date: date, 
+            category: category, 
+            price: price, 
+            description: description, 
+            statuses: statuses,
+            timesheets: timesheets
+            };
+
+        console.log(JSON.stringify(data));
+
+        var api = new Api();
+        api.onFinished = function() { goBack(); }
+        api.saveTicket(data);
+
+        // goBack();
         });
 
     });

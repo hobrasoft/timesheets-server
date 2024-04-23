@@ -485,6 +485,45 @@ QList<Dbt::Categories> DatabasePluginPostgres::subcategories(const QString& id) 
 }
 
 
+QList<Dbt::Categories> DatabasePluginPostgres::siblingcategories(const QString& id) {
+    QList<Dbt::Categories> list;
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        with recursive tree as (
+            select category, parent_category
+                from categories where category = :id
+            union all
+            select c.category, c.parent_category
+                from tree t, categories c
+                where
+                    t.category = c.parent_category
+        )
+        select c.category, c.parent_category, c.description, c.price, ux.users, categories_tree_description(c.category) as description_tree
+        from categories c, users u
+        left join lateral (select array_agg("user") as users from users_categories where category = c.category) ux on (true)
+        where u."user" = :user and (u.admin or u."user" in (select "user" from users_categories uc where uc.category = c.category))
+          and c.category not in (select category from tree)
+            ;
+        )'");
+    q.bindValue(":user", userId());
+    q.bindValue(":id",   id.toInt());
+    q.exec();
+    while (q.next()) {
+        int i=0;
+        Dbt::Categories x;
+        x.category = q.value(i++).toString();
+        x.parent_category = null(q.value(i++).toString());
+        x.description = q.value(i++).toString();
+        x.price = q.value(i++).toDouble();
+        x.users = pgArrayToVariantList(q.value(i++));
+        x.description_tree = q.value(i++).toString();
+        list << x;
+        }
+
+    return list;
+}
+
 
 void DatabasePluginPostgres::remove(const Dbt::Users& id) {
     MSqlQuery q(m_db);
