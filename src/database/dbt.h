@@ -196,9 +196,9 @@ struct TicketStatus : Mutable {
     QVariantMap toMap() const Q_DECL_OVERRIDE;
     static TicketStatus fromMap(const QVariantMap&);
     static QList<TicketStatus> fromList(const QVariantList&);
-    TicketStatus() : Mutable() {}
-    TicketStatus(const QVariant& x) : Mutable(x) {}
-    TicketStatus(const Mutable& x) : Mutable(x) {}
+    TicketStatus() : Mutable() { status_closed = false; status_can_be_run = true; status_ignored = false; }
+    TicketStatus(const QVariant& x) : Mutable(x) { status_closed = false; status_can_be_run = true; status_ignored = false; }
+    TicketStatus(const Mutable& x) : Mutable(x) { status_closed = false; status_can_be_run = true; status_ignored = false; }
     TicketStatus(const TicketStatus& x) : Mutable() { operator=(x); }
     TicketStatus& operator=(const TicketStatus& x) {
         Mutable::operator=(x);

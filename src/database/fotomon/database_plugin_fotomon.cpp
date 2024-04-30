@@ -639,9 +639,11 @@ QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(int ticket, bool al
     q.prepare(R"'(
         select tn.note, tn.ticket, t."user", tn.date, tn.status,
                 case when tn.description != '' then tn.description else tn.formal_description->0->'description'->>'cs' end as description, 
-                tn.formal_description
-            from tickets_notes tn, temporary_tickets t
+                tn.formal_description,
+                ts.description, ts.color
+            from tickets_notes tn, temporary_tickets t, tickets_status ts
             where tn.ticket = t.ticket
+              and ts.status = tn.status
               and (:ticket1 <= 0 or :ticket2 = t.ticket)
             ;
         )'");
@@ -660,6 +662,11 @@ QList<Dbt::TicketStatus> DatabasePluginFotomon::ticketStatus(int ticket, bool al
         x.status        = q.value(i++).toString();
         x.description   = q.value(i++).toString();
         x.description2  = JSON::data(q.value(i++).toString().toUtf8()).toMap();
+        x.status_description = q.value(i++).toString();
+        x.status_color       = q.value(i++).toString();
+        // bool status_closed;
+        // bool status_can_be_run;
+        // bool status_ignored;
         list << x;
         }
     return list;

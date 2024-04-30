@@ -157,6 +157,7 @@ function loadData() {
                             }, 0));
                     var last_status_can_be_run  = (typeof last_status !== 'undefined') ? last_status.status_can_be_run : false;
                     var last_status_description = (typeof last_status !== 'undefined') ? last_status.status_description : '';
+                    var last_status_description = (typeof last_status !== 'undefined') ? last_status.status_description : '';
                     var last_status_color       = (typeof last_status !== 'undefined') ? last_status.status_color : 'transparent';
                     var last_status_color_fg    = foregroundColor(last_status_color); // last_status_color.foregrounColor();
                     var money = Math.round(seconds * result4[t].price / 3600);
