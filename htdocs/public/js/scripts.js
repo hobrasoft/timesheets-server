@@ -18,6 +18,12 @@ function userId() {
     return userinfo.userid;
 }
 
+function userName() {
+    var userinfo = JSON.parse(localStorage.getItem("userinfo"));
+    if (userinfo == null) { return ""; }
+    return userinfo.name;
+}
+
 
 Number.prototype.pad = function(size) {
     var s = String(this);

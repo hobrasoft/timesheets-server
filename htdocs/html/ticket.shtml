@@ -165,6 +165,7 @@ function findOwnersName() {
 
 function fillCategorySelection(category) {
     var apic = new Api();
+    $("#category").append('<option value="null">Choose category</option>');
     apic.onFinished = function(resultc) {
         for (var i=0; i<resultc.length; i++) {
             var selected = (resultc[i].category == category) ? selected='selected="selected"' : '';
@@ -315,12 +316,13 @@ function fillStatusesTable(pstatuses) {
 // Fill the "next status" table in "add new status" dialog
 function fillNextStatusDialog(statuses) {
     var category = $("#category").val();
-    var last_status = statuses
+    var last_status = (statuses != null) ? statuses
             .sort(function(a,b){return (a.date>b.date)?1:(a.date<b.date)?-1:0;})
             .filter(function(x){return !x.status_ignored;})
-            .pop();
+            .pop()
+        : null;
     var last_status_list = new Array;
-    last_status_list.push(last_status.status);
+    last_status_list.push((last_status != null) ? last_status.status : null);
     var apins = new Api();
     apins.onFinished = function(resultns) {
         for (var i=0; i<resultns.length; i++) {
@@ -353,6 +355,11 @@ function statusesListFromTable() {
 $(document).ready(function(){
     var ticket = parseInt($.urlParam("ticket"));
 
+    $("#category").on('change', function(event) {
+        var category = $("#category").val();
+        $("#btn-save").prop('disabled', !(category > 0));
+        });
+
     var apiu = new Api();
     apiu.onFinished = function(resultu) {
         var users = {};
@@ -363,6 +370,21 @@ $(document).ready(function(){
 
         if (ticket == 0 || isNaN(ticket)) {
             $("#btn-del").hide();
+            $("#btn-save").prop('disabled', true);
+            var api = new Api();
+            var category = sessionStorage.getItem("currentCategory");
+            api.onFinished = function(result) {
+                var now = new Date();
+                $("#date").val(now.formatYYYYMMDDHHMM());
+                $("#date").prop('data', now);
+                $("#price").val(result.price);
+                $("#user").val(userId());
+
+                findOwnersName();
+                fillCategorySelection(category);
+                fillNextStatusDialog(null);
+                };
+            api.categories(category);
             }
 
         if (ticket > 0) {
@@ -392,11 +414,10 @@ $(document).ready(function(){
 
     $("#btn-delete").click(function(event){
         goBack();
-        /*
         var ticket = $("#ticket").val();
+        var api = new Api();
         api.onFinished = function() { goBack(); }
         api.removeTicket(ticket);
-        */
         });
 
     $("#btn-save").click(function(event){
