@@ -83,13 +83,13 @@ function createListOfUsers(users) {
 
 function createParentCategoriesSelection(category, parent_category) {
     // Fill and set the category selection 
-    console.log("createParentCategoriesSelection " + category);
+    // console.log("createParentCategoriesSelection " + category);
     var apic = new Api();
     apic.onFinished = function(resultc) {
         var resultcs = resultc.toSorted(function(a,b) { return (a.description_tree > b.description_tree) ? 1 : (a.description_tree < b.description_tree) ? -1 : 0; } );
         for (var i=0; i<resultcs.length; i++) {
             var selected = (resultcs[i].category == parent_category) ? selected='selected="selected"' : '';
-            $("#parent_category").append('<option value="'+resultcs[i].parent_category+'" '+selected+'>'+resultcs[i].description_tree+'</option>');
+            $("#parent_category").append('<option value="'+resultcs[i].category+'" '+selected+'>'+resultcs[i].description_tree+'</option>');
             }
         }
     apic.categoriessiblings(category);
@@ -115,6 +115,7 @@ $(document).ready(function(){
         var users = [];
         users.push(userid);
         createListOfUsers(users);
+        createParentCategoriesSelection(null, parentCategory);
         }
 
     if (category > 0) {

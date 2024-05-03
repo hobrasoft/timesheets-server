@@ -18,6 +18,15 @@
 
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul id="custom-nav" class="nav ms-auto mb-2 mb-lg-0">
+
+        <li class="nav-item dropdown" id="navbar-add" style="display: none"><a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-plus-circle" title="Create an item"></i></a>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="category.shtml" title="Add new category">Add category</a></li>
+                <li><a class="dropdown-item" href="ticket.shtml" title="Add new task">Add task</a></li>
+                <li><a class="dropdown-item" href="#" id="add-new-status" title="Add new status to selected">Add new status to selected tasks</a></li>
+            </ul>
+            </li>
+
         <li class="nav-item" id="navbar-reload" style="display: none"><a class="nav-link" href="/html/index.shtml"><i class="bi bi-arrow-repeat" title="Reload"></i></a></li>
 
         <li class="nav-item" id="navbar-home"><a class="nav-link" href="/html/index.shtml"><i class="bi bi-house-door" title="Home"></i></a></li>
@@ -35,13 +44,6 @@
             <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="/html/report-add.shtml">Create new report</a></li>
                 <li><a class="dropdown-item" href="/html/reports.shtml">List reports</a></li>
-            </ul>
-            </li>
-
-        <li class="nav-item dropdown" id="navbar-add" style="display: none"><a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-plus-circle" title="Create an item"></i></a>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="category.shtml" title="Add new category">Add category</a></li>
-                <li><a class="dropdown-item" href="ticket.shtml" title="Add new task">Add task</a></li>
             </ul>
             </li>
 

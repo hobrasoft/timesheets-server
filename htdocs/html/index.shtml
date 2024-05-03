@@ -10,6 +10,7 @@
 <tr class="table-info">
     <th></th>
     <th></th>
+    <th></th>
     <th>Description</th>
     <th>Status</th>
     <th>Date</th>
@@ -21,6 +22,7 @@
 <tr id="template-category" style="display: none;">
     <td><a class="category-change" href=""><i class="bi bi-folder"></i></a></td>
     <td><a class="category-id-edit" href="" style="display: none;"><i class="bi bi-pencil"><i/></a></td>
+    <td></td>
     <td><a class="category-id-href" href=""><span class="category-description"></span></a></td>
     <td></td>
     <td></td>
@@ -30,6 +32,7 @@
 <tr id="template-ticket" style="display: none;">
     <td><a class="ticket-startstop" href=""><i class="ticket-startstop-svg bi bi-stopwatch" width="16" height="16"/></a></td>
     <td><a class="ticket-id-edit" href=""><i class="bi bi-pencil"></i></a></td>
+    <td><input type="checkbox" class="ticket-checkbox"></td>
     <td class="ticket-description"></td>
     <td class="ticket-status"></td>
     <td class="ticket-date"></td>
@@ -44,11 +47,34 @@
     <td></td>
     <td></td>
     <td></td>
+    <td></td>
     <td id="footer-sum-time"></td>
     <td id="footer-sum-price" style="text-align: right;"></td>
     </tr>
 </tfooter>
 </table>
+
+
+<!-- Add new status dialog -->
+<div class="modal fade" id="add-new-status-dialog" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Append new status</h3>
+            </div>
+            <div class="modal-body">
+                <label for="next-status-text" class="form-label">Description</label>
+                <input type="text" id="next-status-text" class="form-control"></input>
+                <label for="next-status-id" class="form-label">Status</label>
+                <select class="form-select" id="next-status-id"></select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="add-new-status-btn-add" class="btn btn-danger btn-ok">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
 function startstop(event) {
@@ -78,9 +104,37 @@ function saveStatusFilter() {
     localStorage.setItem("statusFilter", JSON.stringify(statusFilter));
 }
 
+
 function onFilterItemChecked() {
     saveStatusFilter();
     loadData();
+}
+
+
+function onAddNewStatusClicked() {
+    var previousStatuses = new Array;
+    $(".ticket-checkbox").each(function(){
+        var id = $(this).data("id");
+        var status = $(this).data("status");
+        if (id == null) { return; }
+        if (id === "") { return; }
+        if (!$(this).prop('checked')) { return; }
+        if (previousStatuses.includes(status)) { return; }
+        previousStatuses.push(status);
+        });
+    var api = new Api();
+    api.onFinished = function(result) {
+        console.log("Add New Status Clicked " + JSON.stringify(result));
+        for (var i=0; i<result.length; i++) {
+            console.log("Add New Status Clicked " + JSON.stringify(result[i]));
+            $("#next-status-id").append('<option value="'+result[i].status+'">'+result[i].description+'</option>');
+            }
+        $("#add-new-status-dialog").modal("show");
+        };
+    var currentCategory = sessionStorage.getItem("currentCategory");
+    var pStatus = previousStatuses.map(function(x) { if (x == null) { x = ''; } return x; });
+    api.statuses(currentCategory, pStatus);
+    console.log("Add New Status Clicked " + previousStatuses);
 }
 
 
@@ -88,6 +142,7 @@ function loadData() {
     $(".list-item").remove();
     var currentCategory = sessionStorage.getItem("currentCategory");
     var api2 = new Api(); // categories()
+    $("#add-new-status").click(onAddNewStatusClicked);
     api2.onFinished = function(result2) {
         if (result2.category == currentCategory) {
             var x = $('#template-category').clone();
@@ -141,6 +196,7 @@ function loadData() {
                     var id_ticket_date = x.find(".ticket-date");
                     var id_ticket_time = x.find(".ticket-time");
                     var id_ticket_money = x.find(".ticket-money");
+                    var id_ticket_checkbox = x.find(".ticket-checkbox");
                     var last_status = result4[t].statuses
                             .sort(function(a,b){return (a.date>b.date)?1:(a.date<b.date)?-1:0;})
                             .filter(function(x){return !x.status_ignored;})
@@ -155,6 +211,7 @@ function loadData() {
                                     : currentValue.date_from.secsTo(currentValue.date_to);
                             return accumulator + t
                             }, 0));
+                    var last_status_status      = (typeof last_status !== 'undefined') ? last_status.status : null;
                     var last_status_can_be_run  = (typeof last_status !== 'undefined') ? last_status.status_can_be_run : false;
                     var last_status_description = (typeof last_status !== 'undefined') ? last_status.status_description : '';
                     var last_status_description = (typeof last_status !== 'undefined') ? last_status.status_description : '';
@@ -178,6 +235,8 @@ function loadData() {
                     $(id_ticket_date).html(result4[t].date.formatYYYYMMDDHHMM());
                     $(id_ticket_time).html(seconds.formatHHMMSS());
                     $(id_ticket_money).html(money);
+                    $(id_ticket_checkbox).data("id", ticket);
+                    $(id_ticket_checkbox).data("status", last_status_status);
                     // set colors
                     // $(id_ticket_description).css('background-color', last_status_color);
                     // $(id_ticket_description).css('color', last_status_color_fg);

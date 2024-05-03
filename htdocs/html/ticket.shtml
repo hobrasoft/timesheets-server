@@ -54,7 +54,7 @@
 </table>
 
 <h4>Status
-    <button type="button" class="btn btn-primary-outline" id="btn-add-status" data-bs-toggle="modal" data-bs-target="#add-new-status"><i class="bi bi-plus-circle"></i></button>
+    <button type="button" class="btn btn-primary-outline" id="btn-add-status" data-bs-toggle="modal" data-bs-target="#add-new-status-dialog"><i class="bi bi-plus-circle"></i></button>
     </h4>
 <table class="table table-bordered">
 <thead>
@@ -106,7 +106,7 @@
 
 
 <!-- Add new status dialog -->
-<div class="modal fade" id="add-new-status" tabindex="-1" role="dialog">
+<div class="modal fade" id="add-new-status-dialog" tabindex="-1" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -308,7 +308,7 @@ function fillStatusesTable(pstatuses) {
             description: description,
             status_description: status_description
             });
-        $("#add-new-status").modal("hide");
+        $("#add-new-status-dialog").modal("hide");
         });
 }
 
