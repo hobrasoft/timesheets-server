@@ -76,6 +76,24 @@
     </div>
 </div>
 
+
+<!-- Add new status dialog -->
+<div class="modal fade" id="check-ticket-dialog" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Append new status</h3>
+            </div>
+            <div class="modal-body">
+                <p>Please, select some tickets</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 function startstop(event) {
     event.preventDefault();
@@ -111,6 +129,23 @@ function onFilterItemChecked() {
 }
 
 
+function addNewStatus() {
+    console.log("addNewStatus()");
+    var status = $("#next-status-id").val();
+    var description = $("#next-status-text").val();
+    $(".ticket-checkbox").each(function(){
+        var id = $(this).data("id");
+        if (id == null) { return; }
+        if (id === "") { return; }
+        if (!$(this).prop('checked')) { return; }
+        var api = new Api();
+        api.appendStatus({ "ticket" : id, "status": status, "description": description});
+        });
+    $("#add-new-status-dialog").modal("hide");
+    setTimeout(loadData, 1000);
+}
+
+
 function onAddNewStatusClicked() {
     var previousStatuses = new Array;
     $(".ticket-checkbox").each(function(){
@@ -122,6 +157,10 @@ function onAddNewStatusClicked() {
         if (previousStatuses.includes(status)) { return; }
         previousStatuses.push(status);
         });
+    if (previousStatuses.length == 0) {
+        $("#check-ticket-dialog").modal("show");
+        return;
+        }
     var api = new Api();
     api.onFinished = function(result) {
         console.log("Add New Status Clicked " + JSON.stringify(result));
@@ -142,7 +181,6 @@ function loadData() {
     $(".list-item").remove();
     var currentCategory = sessionStorage.getItem("currentCategory");
     var api2 = new Api(); // categories()
-    $("#add-new-status").click(onAddNewStatusClicked);
     api2.onFinished = function(result2) {
         if (result2.category == currentCategory) {
             var x = $('#template-category').clone();
@@ -311,6 +349,8 @@ $(document).ready(function(){
     $("#navbar-filter").show();
     $("#navbar-reload").show();
     $("#navbar-print").show();
+    $("#add-new-status").click(onAddNewStatusClicked);
+    $("#add-new-status-btn-add").click(addNewStatus);
     var currentCategory = ($.urlParam("category") == null) 
         ? parseInt(sessionStorage.getItem("currentCategory"))
         : parseInt($.urlParam("category"));

@@ -27,9 +27,9 @@ class Api {
             if (typeof initpage !== 'undefined') { return initpage.all(); }
             }
 
-        this.inipageUserid = function() {
-            if (typeof initpage === 'undefined') { return 0; }
+        this.initpageUserid = function() {
             if (typeof initpage !== 'undefined') { return initpage.userid; }
+            if (typeof initpage === 'undefined') { return userId(); }
             }
 
 
@@ -133,7 +133,7 @@ class Api {
         this.unauthenticate = function(user, password) { this.get("unauthenticate"); }
         this.authenticate = function(user, password) { this.get("authenticate?user=" + user + "&password=" + password); }
         this.overview = function (category, statuses) { this.get("overview/" + category,  "statuses=" + statuses.join(",")); }
-        this.appendStatus = function (c) { c.user = initpageUserid(); c.date = new Date(); this.put("ticketstatus/", JSON.stringify(c)); }
+        this.appendStatus = function (c) { c.user = this.initpageUserid(); c.date = new Date(); this.put("ticketstatus/", JSON.stringify(c)); }
         this.serverAbout = function () { this.get("server/about"); }
         this.saveServer = function (s) { this.put("server/about", JSON.stringify(s)); }
         this.removeOverview = function(o) { this.delete("overview/" + o); }
