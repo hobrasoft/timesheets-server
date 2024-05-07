@@ -1,32 +1,36 @@
 <!-- #include '/inc/header.html' -->
 <!-- #include '/inc/navbar.html' -->
 
-<h2 id="current-description">Users</h2>
+<div id="spinner" class="spinner-border screen-spinner" style="width: 3em; height: 3em;" role="status"></div>
 
-<table class="table table-bordered">
-<thead>
-<tr>
-    <th></td>
-    <th>#ID</th>
-    <th>Enabled</th>
-    <th>Admin</th>
-    <th>Language</th>
-    <th>Login</th>
-    <th>Name</th>
-</tr>
-</thead>
-<tbody id="tbody">
-<tr id="template-user" style="display: none;">
-    <td><a class="user-edit" href="" style="display:none;"><i class="bi bi-pencil"></i></a></td>
-    <td><span class="user-id"></span></td>
-    <td><span class="user-enabled"></span></td>
-    <td><span class="user-admin"></span></td>
-    <td><span class="user-lang"></span></td>
-    <td><span class="user-login"></span></td>
-    <td><span class="user-name"></span></td>
-</tr>
-</tbody>
-</table>
+<div class="container">
+    <h2 id="current-description">Users</h2>
+
+    <table class="table table-bordered table-hover">
+    <thead>
+    <tr class="table-info">
+        <th></td>
+        <th>#ID</th>
+        <th>Enabled</th>
+        <th>Admin</th>
+        <th>Language</th>
+        <th>Login</th>
+        <th>Name</th>
+    </tr>
+    </thead>
+    <tbody id="tbody">
+    <tr id="template-user" style="display: none;">
+        <td><a class="user-edit" href="" style="display:none;"><i class="bi bi-pencil"></i></a></td>
+        <td><span class="user-id"></span></td>
+        <td><span class="user-enabled"></span></td>
+        <td><span class="user-admin"></span></td>
+        <td><span class="user-lang"></span></td>
+        <td><span class="user-login"></span></td>
+        <td><span class="user-name"></span></td>
+    </tr>
+    </tbody>
+    </table>
+</div>
 
 <script>
 $(document).ready(function(){
@@ -62,6 +66,7 @@ $(document).ready(function(){
             $("tbody").append(x);
             $(x).show();
             }
+        $("#spinner").hide();
         };
     api.users();
     });

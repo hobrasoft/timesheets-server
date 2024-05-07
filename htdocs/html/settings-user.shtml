@@ -1,38 +1,49 @@
 <!-- #include '/inc/header.html' -->
 <!-- #include '/inc/navbar.html' -->
 
-<form>
-<input type="hidden" id="user"></input>
+<div class="container">
+    <form>
+    <input type="hidden" id="user"></input>
 
-<table class="table table-bordered">
+    <div>&nbsp;</div>
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="login"></input>
+        <label for="login">Login</label>
+    </div>
 
-<tr><td><label for="enabled" class="form-check-label">Enabled</label></td>
-    <td><input type="checkbox" id="enabled" class="form-check-input" checked="checked"></input></td>
-    </tr>
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="name"></input>
+        <label for="name">Name</label>
+    </div>
 
-<tr><td><label for="admin" class="form-check-label">Administrator</label></td>
-    <td><input type="checkbox" id="admin" class="form-check-input"></input></td>
-    </tr>
 
-<tr><td><label for="lang" class="form-label">Language</label></td>
-    <td><input type="text" id="lang" class="form-control"></input></td>
-    </tr>
+    <div class="form-floating mb-3">
+        <div class="form-check form-switch">
+            <input type="checkbox" id="enabled" class="form-check-input" checked="checked"></input>
+            <label for="enabled" class="form-check-label">Enabled</label>
+        </div>
+    </div>
 
-<tr><td><label for="login" class="form-label">Login</label></td>
-    <td><input type="text" id="login" class="form-control"></input></td>
-    </tr>
+    <div class="form-floating mb-3">
+        <div class="form-check form-switch">
+            <input type="checkbox" id="admin" class="form-check-input"></input>
+            <label for="admin" class="form-check-label">Administrator</label>
+        </div>
+    </div>
 
-<tr><td><label for="name" class="form-label">Name</label></td>
-    <td><input type="text" id="name" class="form-control"></input></td>
-    </tr>
+<!--
+    <div class="form-floating mb-3">
+        <input type="text" id="lang" class="form-control"></input>
+        <label for="lang" class="form-label">Language</label>
+    </div>
+-->
 
-</table>
-
-<button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
-<button type="button" class="btn btn-primary" id="btn-save">Save</button>
-<button type="button" class="btn btn-danger" id="btn-del" data-bs-toggle="modal" data-bs-target="#confirm-delete">Delete</button>
-<button type="button" class="btn btn-info" id="btn-password" data-bs-toggle="modal" data-bs-target="#change-password">Change password</button>
-</form>
+    <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
+    <button type="button" class="btn btn-primary" id="btn-save">Save</button>
+    <button type="button" class="btn btn-danger" id="btn-del" data-bs-toggle="modal" data-bs-target="#confirm-delete">Delete</button>
+    <button type="button" class="btn btn-info" id="btn-password" data-bs-toggle="modal" data-bs-target="#change-password">Change password</button>
+    </form>
+</div>
 
 <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog">
     <div class="modal-dialog">

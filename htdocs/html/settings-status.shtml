@@ -1,55 +1,61 @@
 <!-- #include '/inc/header.html' -->
 <!-- #include '/inc/navbar.html' -->
 
-<form>
-<table class="table table-bordered">
-<tr><td><label for="status" class="form-label">Status</label></td>
-    <td><input type="text" class="form-control" id="status"></input></td>
-    </tr>
+<div class="container">
+    <form>
+    <table class="table table-bordered">
+    <tr><td><label for="status" class="form-label">Status</label></td>
+        <td><input type="text" class="form-control" id="status"></input></td>
+        </tr>
 
-<tr><td><label for="abbreviation" class="form-label">Abbreviation</label></td>
-    <td><input type="text" class="form-control" id="abbreviation"></input></td>
-    </tr>
+    <tr><td><label for="abbreviation" class="form-label">Abbreviation</label></td>
+        <td><input type="text" class="form-control" id="abbreviation"></input></td>
+        </tr>
 
-<tr><td><label for="description" class="form-label">Description</label></td>
-    <td><input type="text" class="form-control" id="description"></input></td>
-    </tr>
+    <tr><td><label for="description" class="form-label">Description</label></td>
+        <td><input type="text" class="form-control" id="description"></input></td>
+        </tr>
 
-<tr><td><label for="color" class="form-label">Color</label></td>
-    <td><input type="text" class="form-control" id="color"></input></td>
-    </tr>
+    <tr><td><label for="color" class="form-label">Color</label></td>
+        <td><div class="input-group">
+            <input type="text" class="form-control" id="color"></input>
+            <input type="color" class="form-control form-control-color" id="color-picker"></input>
+            </div>
+        </td>
+        </tr>
 
-<tr><td><label for="closed" class="form-check-label">Closed</label></td>
-    <td><input type="checkbox" class="form-check-input" id="closed"></input></td>
-    </tr>
+    <tr><td><label for="closed" class="form-check-label">Closed</label></td>
+        <td><input type="checkbox" class="form-check-input" id="closed"></input></td>
+        </tr>
 
-<tr><td><label for="can_be_run" class="form-check-label">Can be run</label></td>
-    <td><input type="checkbox" class="form-check-input" id="can_be_run"></input></td>
-    </tr>
+    <tr><td><label for="can_be_run" class="form-check-label">Can be run</label></td>
+        <td><input type="checkbox" class="form-check-input" id="can_be_run"></input></td>
+        </tr>
 
-<tr><td><label for="ignored" class="form-check-label">Ignored</label></td>
-    <td><input type="checkbox" class="form-check-input" id="ignored"></input></td>
-    </tr>
+    <tr><td><label for="ignored" class="form-check-label">Ignored</label></td>
+        <td><input type="checkbox" class="form-check-input" id="ignored"></input></td>
+        </tr>
 
 
-<tr><td><label class="form-label">Can follow</label></td>
-    <td>
-        <div id="template-next" style="display: none;">
-            <input type="checkbox" class="next-status form-check-input">
-            <label class="next-description form-check-label"></label> 
-        </div>
-        <div id="id-next">
-        </div>
-    </td>
-    </tr>
+    <tr><td><label class="form-label">Can follow</label></td>
+        <td>
+            <div id="template-next" style="display: none;">
+                <input type="checkbox" class="next-status form-check-input">
+                <label class="next-description form-check-label"></label> 
+            </div>
+            <div id="id-next">
+            </div>
+        </td>
+        </tr>
 
-</table>
+    </table>
 
-<button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
-<button type="button" class="btn btn-primary" id="btn-save">Save</button>
-<button type="button" class="btn btn-danger" id="btn-del" data-bs-toggle="modal" data-bs-target="#confirm-delete">Delete</button>
+    <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
+    <button type="button" class="btn btn-primary" id="btn-save">Save</button>
+    <button type="button" class="btn btn-danger" id="btn-del" data-bs-toggle="modal" data-bs-target="#confirm-delete">Delete</button>
 
-</form>
+    </form>
+</div>
 
 <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog">
     <div class="modal-dialog">
@@ -82,6 +88,12 @@ $(document).ready(function(){
         $("#btn-del").hide();
         }
 
+    $("#color-picker").on('change', function(event) {
+        var color = $("#color-picker").val();
+        $("#color").val(color);
+        });
+
+
     if (status !== '') {
         var api = new Api();
         api.onFinished = function(result) {
@@ -90,6 +102,7 @@ $(document).ready(function(){
             $("#abbreviation").val(result.abbreviation);
             $("#description").val(result.description);
             $("#color").val(result.color);
+            $("#color-picker").val(result.color);
             $("#closed").attr("checked", result.closed);
             $("#can_be_run").attr("checked", result.can_be_run);
             $("#ignored").attr("checked", result.ignored);

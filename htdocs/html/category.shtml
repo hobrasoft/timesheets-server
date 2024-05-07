@@ -1,40 +1,44 @@
 <!-- #include '/inc/header.html' -->
 <!-- #include '/inc/navbar.html' -->
 
-<form>
-<input type="hidden" id="category"></input>
+<div id="spinner" class="spinner-border screen-spinner" style="width: 3em; height: 3em;" role="status"></div>
 
-<table class="table table-bordered">
+<div class="container">
+    <form>
+    <input type="hidden" id="category"></input>
 
-<tr><td><label class="form-label">Parent category</label></td>
-    <td><select id="parent_category" class="form-select"></select></td>
-    </tr>
+    <table class="table table-bordered">
 
-<tr><td><label for="description" class="form-label">Description</label></td>
-    <td><input type="text" id="description"></input></td>
-    </tr>
+    <tr><td><label class="form-label">Parent category</label></td>
+        <td><select id="parent_category" class="form-select"></select></td>
+        </tr>
 
-<tr><td><label for="price" class="form-label">Price</label></td>
-    <td><input type="number" id="price" value=0></input></td>
-    </tr>
+    <tr><td><label for="description" class="form-label">Description</label></td>
+        <td><input type="text" id="description"></input></td>
+        </tr>
 
-<tr><td><label class="form-label">Users</label></td>
-    <td>
-        <div id="template-user" style="display: none;">
-            <input type="checkbox" class="user-category-checkbox form-check-input">
-            <label class="user-category-label form-check-label"></label>
-        </div>
-        <div id="user-category">
-        </div>
-    </td>
-    </tr>
+    <tr><td><label for="price" class="form-label">Price</label></td>
+        <td><input type="number" id="price" value=0></input></td>
+        </tr>
 
-</table>
+    <tr><td><label class="form-label">Users</label></td>
+        <td>
+            <div id="template-user" style="display: none;">
+                <input type="checkbox" class="user-category-checkbox form-check-input">
+                <label class="user-category-label form-check-label"></label>
+            </div>
+            <div id="user-category">
+            </div>
+        </td>
+        </tr>
 
-<button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
-<button type="button" class="btn btn-primary" id="btn-save">Save</button>
-<button type="button" class="btn btn-danger" id="btn-del" data-bs-toggle="modal" data-bs-target="#confirm-delete">Delete</button>
-</form>
+    </table>
+
+    <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
+    <button type="button" class="btn btn-primary" id="btn-save">Save</button>
+    <button type="button" class="btn btn-danger" id="btn-del" data-bs-toggle="modal" data-bs-target="#confirm-delete">Delete</button>
+    </form>
+</div>
 
 <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog">
     <div class="modal-dialog">
@@ -82,8 +86,6 @@ function createListOfUsers(users) {
 }
 
 function createParentCategoriesSelection(category, parent_category) {
-    // Fill and set the category selection 
-    // console.log("createParentCategoriesSelection " + category);
     var apic = new Api();
     apic.onFinished = function(resultc) {
         var resultcs = resultc.toSorted(function(a,b) { return (a.description_tree > b.description_tree) ? 1 : (a.description_tree < b.description_tree) ? -1 : 0; } );
@@ -91,6 +93,7 @@ function createParentCategoriesSelection(category, parent_category) {
             var selected = (resultcs[i].category == parent_category) ? selected='selected="selected"' : '';
             $("#parent_category").append('<option value="'+resultcs[i].category+'" '+selected+'>'+resultcs[i].description_tree+'</option>');
             }
+        $("#spinner").hide();
         }
     apic.categoriessiblings(category);
 }
@@ -135,6 +138,7 @@ $(document).ready(function(){
         });
 
     $("#btn-save").click(function(event){
+        $("#spinner").show();
         var users = [];
         $(".user-category-data").each(function() {
             var id = $(this).attr('id');

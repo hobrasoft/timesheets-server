@@ -1,89 +1,93 @@
 <!-- #include '/inc/header.html' -->
 <!-- #include '/inc/navbar.html' -->
 
-<form>
-<input type="hidden" id="ticket"></input>
-<input type="hidden" id="user"></input>
+<div id="spinner" class="spinner-border screen-spinner" style="width: 3em; height: 3em;" role="status"></div>
 
-<table class="table table-bordered">
+<div class="container">
+    <form>
+    <input type="hidden" id="ticket"></input>
+    <input type="hidden" id="user"></input>
 
-<tr><td><label for="date">Date and time</label></td>
-    <td><input type="text" id="date" class="form-control" disabled></input></td>
+    <table class="table table-bordered">
+
+    <tr><td><label for="date">Date and time</label></td>
+        <td><input type="text" id="date" class="form-control" disabled></input></td>
+        </tr>
+
+    <tr><td><label for="owner-name">Ticket's owner name</label></td>
+        <td><input type="text" id="owner-name" class="form-control" disabled></input></td>
+        </tr>
+
+    <tr><td><label for="description">Description</label></td>
+        <td><input type="text" id="description"class="form-control" ></input></td>
+        </tr>
+
+    <tr><td><label for="price">Price</label></td>
+        <td><input type="number" id="price" class="form-control" value=0></input></td>
+        </tr>
+
+    <tr><td><label for="category">Category</label></td>
+        <td><select id="category" class="form-select"></select></td>
+        </tr>
+
+    </table>
+
+    <h4>Spent time & price</h4>
+    <table class="table table-bordered">
+    <thead>
+    <tr>
+        <th></th>
+        <th>From</th>
+        <th>To</th>
+        <th>Time</th>
+        <th>Price</th>
+        <th>User name</th>
     </tr>
-
-<tr><td><label for="owner-name">Ticket's owner name</label></td>
-    <td><input type="text" id="owner-name" class="form-control" disabled></input></td>
+    </thead>
+    <tbody id="timesheet-tbody">
+    <tr id="template-timesheet" style="display: none;">
+        <td><button type="button" class="btn btn-primary-outline btn-edit-timesheet"><i class="bi bi-pencil"></i></button></td>
+        <td class="timesheet-from"></td>
+        <td class="timesheet-to"></td>
+        <td class="timesheet-time"></td>
+        <td class="timesheet-price"></td>
+        <td class="timesheet-user-name"></td>
     </tr>
+    </tbody>
+    </table>
 
-<tr><td><label for="description">Description</label></td>
-    <td><input type="text" id="description"class="form-control" ></input></td>
+    <h4>Status
+        <button type="button" class="btn btn-primary-outline" id="btn-add-status" data-bs-toggle="modal" data-bs-target="#add-new-status-dialog"><i class="bi bi-plus-circle"></i></button>
+        </h4>
+    <table class="table table-bordered">
+    <thead>
+    <tr>
+        <th></th>
+        <th>Date &amp; time</th>
+        <th>Status</th>
+        <th>Description</th>
+        <th>Text</th>
+        <th>User name</th>
     </tr>
-
-<tr><td><label for="price">Price</label></td>
-    <td><input type="number" id="price" class="form-control" value=0></input></td>
+    </thead>
+    <tbody id="status-tbody">
+    <tr id="template-status" style="display: none;">
+        <td><button type="button" class="btn btn-primary-outline btn-remove-style" style="display: none;"><i class="bi bi-trash"></i></button></td>
+        <td><span class="status-date"        href=""></span></td>
+        <td><span class="status-status"      href=""></span></td>
+        <td><span class="status-status-description" href=""></span></td>
+        <td><span class="status-description" href=""></span></td>
+        <td><span class="status-user-name"></span></td>
     </tr>
-
-<tr><td><label for="category">Category</label></td>
-    <td><select id="category" class="form-select"></select></td>
-    </tr>
-
-</table>
-
-<h4>Spent time & price</h4>
-<table class="table table-bordered">
-<thead>
-<tr>
-    <th></th>
-    <th>From</th>
-    <th>To</th>
-    <th>Time</th>
-    <th>Price</th>
-    <th>User name</th>
-</tr>
-</thead>
-<tbody id="timesheet-tbody">
-<tr id="template-timesheet" style="display: none;">
-    <td><button type="button" class="btn btn-primary-outline btn-edit-timesheet"><i class="bi bi-pencil"></i></button></td>
-    <td class="timesheet-from"></td>
-    <td class="timesheet-to"></td>
-    <td class="timesheet-time"></td>
-    <td class="timesheet-price"></td>
-    <td class="timesheet-user-name"></td>
-</tr>
-</tbody>
-</table>
-
-<h4>Status
-    <button type="button" class="btn btn-primary-outline" id="btn-add-status" data-bs-toggle="modal" data-bs-target="#add-new-status-dialog"><i class="bi bi-plus-circle"></i></button>
-    </h4>
-<table class="table table-bordered">
-<thead>
-<tr>
-    <th></th>
-    <th>Date &amp; time</th>
-    <th>Status</th>
-    <th>Description</th>
-    <th>Text</th>
-    <th>User name</th>
-</tr>
-</thead>
-<tbody id="status-tbody">
-<tr id="template-status" style="display: none;">
-    <td><button type="button" class="btn btn-primary-outline btn-remove-style" style="display: none;"><i class="bi bi-trash"></i></button></td>
-    <td><span class="status-date"        href=""></span></td>
-    <td><span class="status-status"      href=""></span></td>
-    <td><span class="status-status-description" href=""></span></td>
-    <td><span class="status-description" href=""></span></td>
-    <td><span class="status-user-name"></span></td>
-</tr>
-</tbody>
-</table>
+    </tbody>
+    </table>
 
 
-<button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
-<button type="button" class="btn btn-primary" id="btn-save">Save</button>
-<button type="button" class="btn btn-danger" id="btn-del" data-bs-toggle="modal" data-bs-target="#confirm-delete">Delete</button>
-</form>
+    <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
+    <button type="button" class="btn btn-primary" id="btn-save">Save</button>
+    <button type="button" class="btn btn-danger" id="btn-del" data-bs-toggle="modal" data-bs-target="#confirm-delete">Delete</button>
+    </form>
+</div> <!-- container -->
 
 <!-- Delete dialog -->
 <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog">
@@ -287,13 +291,16 @@ function fillStatusesTableAdd(status) {
 
 
 function fillStatusesTable(pstatuses) {
-    var statuses = pstatuses.sort(function(a,b){return (a.date>b.date)?1:(a.date<b.date)?-1:0;})
-    for (var i=0; i<statuses.length; i++) {
-        fillStatusesTableAdd(statuses[i]);
+    if (pstatuses != null) {
+        var statuses = pstatuses.sort(function(a,b){return (a.date>b.date)?1:(a.date<b.date)?-1:0;})
+        for (var i=0; i<statuses.length; i++) {
+            fillStatusesTableAdd(statuses[i]);
+            }
         }
 
     // Dialog "Add new status"
     $("#add-new-status-btn-add").click(function(event){
+        console.log("Clicked add-new-status-btn-add");
         var now = new Date();
         var date = now.toISOString();
         var user = userId();
@@ -370,7 +377,7 @@ $(document).ready(function(){
 
         if (ticket == 0 || isNaN(ticket)) {
             $("#btn-del").hide();
-            $("#btn-save").prop('disabled', true);
+            // $("#btn-save").prop('disabled', true);
             var api = new Api();
             var category = sessionStorage.getItem("currentCategory");
             api.onFinished = function(result) {
@@ -383,6 +390,8 @@ $(document).ready(function(){
                 findOwnersName();
                 fillCategorySelection(category);
                 fillNextStatusDialog(null);
+                fillStatusesTable(null);
+                $("#spinner").hide();
                 };
             api.categories(category);
             }
@@ -402,6 +411,7 @@ $(document).ready(function(){
                 fillTimesheetsTable(result.timesheets);
                 fillStatusesTable(result.statuses);
                 fillNextStatusDialog(result.statuses);
+                $("#spinner").hide();
                 };
             api.ticketvw(ticket);
             }
@@ -421,6 +431,7 @@ $(document).ready(function(){
         });
 
     $("#btn-save").click(function(event){
+        $("#spinner").show();
         var ticket = $("#ticket").val();
         var created = (ticket <= 0);
         var user = $("#user").val();

@@ -1,22 +1,24 @@
 <!-- #include '/inc/header.html' -->
 <!-- #include '/inc/navbar.html' -->
 
-<h2 id="current-description">Reports</h2>
+<div class="container">
+    <h2 id="current-description">Reports</h2>
 
-<table class="table table-bordered">
-<thead>
-<tr>
-    <th>#ID</th>
-    <th>Category / Statuses</td>
-</tr>
-</thead>
-<tbody id="tbody">
-<tr id="template-report" style="display: none;">
-    <td><a class="report-id" target="_blank"></a></td>
-    <td><a class="report-div" target="_blank"></a></td>
-</tr>
-</tbody>
-</table>
+    <table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>#ID</th>
+        <th>Category / Statuses</td>
+    </tr>
+    </thead>
+    <tbody id="tbody">
+    <tr id="template-report" style="display: none;">
+        <td><a class="report-id" target="_blank"></a></td>
+        <td><a class="report-div" target="_blank"></a></td>
+    </tr>
+    </tbody>
+    </table>
+</div>
 
 <script>
 $(document).ready(function(){

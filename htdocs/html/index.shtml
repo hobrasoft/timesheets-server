@@ -1,58 +1,64 @@
 <!-- #include '/inc/header.html' -->
 <!-- #include '/inc/navbar.html' -->
 
-<h2 id="current-description">Most upper category</h2>
-<h4>Time: <span id="sum-time"></span> Price: <span id="sum-price"></h4>
-<h4 id="drobnav"></h4>
+<div id="spinner" class="spinner-border screen-spinner" style="width: 3em; height: 3em;" role="status"></div>
 
-<table class="table table-bordered table-hover">
-<thead>
-<tr class="table-info">
-    <th></th>
-    <th></th>
-    <th></th>
-    <th>Description</th>
-    <th>Status</th>
-    <th>Date</th>
-    <th>Time</th>
-    <th style="text-align: right;">Price</th>
-</tr>
-</thead>
-<tbody id="tbody">
-<tr id="template-category" style="display: none;">
-    <td><a class="category-change" href=""><i class="bi bi-folder"></i></a></td>
-    <td><a class="category-id-edit" href="" style="display: none;"><i class="bi bi-pencil"><i/></a></td>
-    <td></td>
-    <td><a class="category-id-href" href=""><span class="category-description"></span></a></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-</tr>
-<tr id="template-ticket" style="display: none;">
-    <td><a class="ticket-startstop" href=""><i class="ticket-startstop-svg bi bi-stopwatch" width="16" height="16"/></a></td>
-    <td><a class="ticket-id-edit" href=""><i class="bi bi-pencil"></i></a></td>
-    <td><input type="checkbox" class="ticket-checkbox"></td>
-    <td class="ticket-description"></td>
-    <td class="ticket-status"></td>
-    <td class="ticket-date"></td>
-    <td class="ticket-time"></td>
-    <td class="ticket-money" style="text-align: right;"></td>
-</tr>
-</tbody>
-<tfooter>
-<tr class="table-info">
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td id="footer-sum-time"></td>
-    <td id="footer-sum-price" style="text-align: right;"></td>
+<div class="container">
+    <h2 id="current-description">Most upper category</h2>
+    <h4>Time: <span id="sum-time"></span> Price: <span id="sum-price"></h4>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb" id="drobnav"></ol>
+    </nav>
+
+    <table class="table table-bordered table-hover">
+    <thead>
+    <tr class="table-info">
+        <th></th>
+        <th></th>
+        <th></th>
+        <th>Description</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th style="text-align: right;">Price</th>
     </tr>
-</tfooter>
-</table>
+    </thead>
+    <tbody id="tbody">
+    <tr id="template-category" style="display: none;">
+        <td><a class="category-change" href=""><i class="bi bi-folder"></i></a></td>
+        <td><a class="category-id-edit" href="" style="display: none;"><i class="bi bi-pencil"><i/></a></td>
+        <td></td>
+        <td><a class="category-id-href" href=""><span class="category-description"></span></a></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr id="template-ticket" style="display: none;">
+        <td><a class="ticket-startstop" href=""><i class="ticket-startstop-svg bi bi-stopwatch" width="16" height="16"/></a></td>
+        <td><a class="ticket-id-edit" href=""><i class="bi bi-pencil"></i></a></td>
+        <td><input type="checkbox" class="ticket-checkbox"></td>
+        <td class="ticket-description"></td>
+        <td class="ticket-status"></td>
+        <td class="ticket-date"></td>
+        <td class="ticket-time"></td>
+        <td class="ticket-money" style="text-align: right;"></td>
+    </tr>
+    </tbody>
+    <tfooter>
+    <tr class="table-info">
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td id="footer-sum-time"></td>
+        <td id="footer-sum-price" style="text-align: right;"></td>
+        </tr>
+    </tfooter>
+    </table>
+</div>
 
 
 <!-- Add new status dialog -->
@@ -178,6 +184,7 @@ function onAddNewStatusClicked() {
 
 
 function loadData() {
+    $("#spinner").show();
     $(".list-item").remove();
     var currentCategory = sessionStorage.getItem("currentCategory");
     var api2 = new Api(); // categories()
@@ -292,6 +299,7 @@ function loadData() {
                     $("#tbody").append(x);
                     $(x).show();
                     }
+                $("#spinner").hide();
                 $("#sum-time").text(sumTime.formatHHMMSS());
                 $("#sum-price").text(sumPrice);
                 $("#footer-sum-time").text(sumTime.formatHHMMSS());
@@ -310,6 +318,7 @@ function loadFilter() {
     var apif = new Api();
     apif.onFinished = function(resultf) {
         for (var i=0; i < resultf.length; i++) {
+            if (resultf[i].ignored) { continue; }
             var item_id = 'filter-'+resultf[i].status;
             var statusFilterSet = (localStorage.getItem("statusFilter") !== null);
             var statusFilter = JSON.parse(localStorage.getItem("statusFilter"));
@@ -327,15 +336,16 @@ function loadFilter() {
 }
 
 
-function loadDrobnav() {
+function loadBreadcrumb() {
     var currentCategory = sessionStorage.getItem("currentCategory");
     var api1 = new Api();
     api1.onFinished = function(result1) { 
-        var text = '<a href="?category=0"><i class="bi bi-house-door" title="Home"></i></a>';
+        var text = '<li class="breadcrumb-item"><a href="?category=0"><i class="bi bi-house-door" title="Home"></i></a></li>';
         for (var i=0; i<result1.length; i++) {
             var category = result1[i].category
             var description = result1[i].description
-            text += ' / <a href="?category=' + category + '">' + description + '</a>';
+            var active = (i === (result1.length-1)) ? " active" : "";
+            text += '<li class="breadcrumb-item'+active+'"><a href="?category=' + category + '">' + description + '</a></li>';
             }
         $("#drobnav").html(text);
         };
@@ -357,7 +367,7 @@ $(document).ready(function(){
     sessionStorage.setItem("currentCategory", currentCategory);
 
     loadFilter();
-    loadDrobnav();
+    loadBreadcrumb();
     loadData();
     });
 </script>

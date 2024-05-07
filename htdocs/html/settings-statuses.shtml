@@ -1,34 +1,38 @@
 <!-- #include '/inc/header.html' -->
 <!-- #include '/inc/navbar.html' -->
 
-<h2 id="current-description">Statuses</h2>
+<div id="spinner" class="spinner-border screen-spinner" style="width: 3em; height: 3em;" role="status"></div>
 
-<table class="table table-bordered">
-<thead>
-<tr>
-    <th></th>
-    <th>#ID</th>
-    <th>Description</th>
-    <th>Abbr</th>
-    <th>Color</th>
-    <th>Closed</th>
-    <th>Can be run</th>
-    <th>Ignored</th>
-</tr>
-</thead>
-<tbody id="tbody">
-<tr id="template-status" style="display: none;">
-    <td><a class="status-edit" href="" style="display:none"><i class="bi bi-pencil"></i></a></td>
-    <td><span class="status-status"></span></td>
-    <td><span class="status-description"></span></td>
-    <td><span class="status-abbr"></span></td>
-    <td><span class="status-color"></span></td>
-    <td><span class="status-closed"></span></td>
-    <td><span class="status-can-be-run"></span></td>
-    <td><span class="status-ignored"></span></td>
-</tr>
-</tbody>
-</table>
+<div class="container">
+    <h2 id="current-description">Statuses</h2>
+
+    <table class="table table-bordered">
+    <thead>
+    <tr class="table-info">
+        <th></th>
+        <th>#ID</th>
+        <th>Description</th>
+        <th>Abbr</th>
+        <th>Color</th>
+        <th>Closed</th>
+        <th>Can be run</th>
+        <th>Ignored</th>
+    </tr>
+    </thead>
+    <tbody id="tbody">
+    <tr id="template-status" style="display: none;">
+        <td><a class="status-edit" href="" style="display:none"><i class="bi bi-pencil"></i></a></td>
+        <td class="status-status"></td>
+        <td class="status-description"></td>
+        <td class="status-abbr"></td>
+        <td class="status-color"></td>
+        <td class="status-closed"></td>
+        <td class="status-can-be-run"></td>
+        <td class="status-ignored"></td>
+    </tr>
+    </tbody>
+    </table>
+</div>
 
 <script>
 $(document).ready(function(){
@@ -53,6 +57,12 @@ $(document).ready(function(){
                 $(id_status_edit).show();
                 }
 
+            var color    = result[t].color
+            var color_fg = foregroundColor(color);
+            $(id_status_color).css('background-color', color);
+            $(id_status_color).css('color', color_fg);
+
+
             $(id_status_status).html(result[t].status);
             $(id_status_description).html(result[t].description);
             $(id_status_abbr).html(result[t].abbreviation);
@@ -67,6 +77,7 @@ $(document).ready(function(){
             $("tbody").append(x);
             $(x).show();
             }
+        $("#spinner").hide();
         };
     api.statuses();
     });

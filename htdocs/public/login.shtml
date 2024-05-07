@@ -30,8 +30,13 @@
                         <input type="password" class="form-control" id="password" name="password" placholder="Password">
                     </div>
                     <div>&nbsp;</div>
+
                     <div class="form-group">
                         <button id="login" type="button" class="btn btn-primary">Login</button>
+                        &nbsp;&nbsp;
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id=spinner style="display: none;"></span>
+                        &nbsp;&nbsp;
+                        <span style="display: none;" id="unsucessful">Bad username or password</span>
                     </div>
 
                 </fieldset>
@@ -47,14 +52,23 @@ $(document).ready(function(){
     new Api().unauthenticate();
 
     $("#login").click(function(event) {
+        $("#spinner").show();
         event.preventDefault();
         var user = $("#user").val();
         var password = $("#password").val();
 
         var api2 = new Api();
         api2.onFinished = function(result) {
+            $("#spinner").hide();
             localStorage.setItem("userinfo", JSON.stringify(result));
             window.location.replace('/html/index.shtml');
+            };
+        api2.onError = function(result) {
+            $("#spinner").hide();
+            $("#unsucessful").show();
+            setTimeout(function() {
+                $("#unsucessful").hide();
+                }, 2000);
             };
         api2.authenticate(user, password);
         });

@@ -1,48 +1,52 @@
 <!-- #include '/inc/header.html' -->
 <!-- #include '/inc/navbar.html' -->
 
-<h3>About the application</h3>
+<div id="spinner" class="spinner-border screen-spinner" style="width: 3em; height: 3em;" role="status"></div>
 
-<form>
-<table class="table table-bordered">
-<tr><td>Server name</td>
-    <td><input type="text" class="form-control" id="server-name"></input></td>
-    </tr>
+<div class="container">
+    <h3>About the application</h3>
 
-<tr><td>Server description</td>
-    <td><input type="text" class="form-control" id="server-description"></input></td>
-    </tr>
+    <form>
+    <table class="table table-bordered table-hover">
+    <tr><td>Server name</td>
+        <td><input type="text" class="form-control" id="server-name"></input></td>
+        </tr>
 
-<tr id="row-save"><td></td>
-    <td><button type="button" class="btn btn-primary" id="btn-save">Save</button></td>
-    </tr>
+    <tr><td>Server description</td>
+        <td><input type="text" class="form-control" id="server-description"></input></td>
+        </tr>
 
-<tr><td>Server QT version</td>
-    <td id="server-qt-version"></td>
-    </tr>
+    <tr id="row-save"><td></td>
+        <td><button type="button" class="btn btn-primary" id="btn-save">Save</button></td>
+        </tr>
 
-<tr><td>Server version</td>
-    <td id="server-version"></td>
-    </tr>
+    <tr><td>Server QT version</td>
+        <td id="server-qt-version"></td>
+        </tr>
 
-<tr><td>Server GIT branch</td>
-    <td id="server-git-branch"></td>
-    </tr>
+    <tr><td>Server version</td>
+        <td id="server-version"></td>
+        </tr>
 
-<tr><td>Server GIT commit</td>
-    <td id="server-git-commit"></td>
-    </tr>
+    <tr><td>Server GIT branch</td>
+        <td id="server-git-branch"></td>
+        </tr>
 
-<tr><td>jQuery version</td>
-    <td id="jquery-version"></td>
-    </tr>
+    <tr><td>Server GIT commit</td>
+        <td id="server-git-commit"></td>
+        </tr>
 
-<tr><td>Bootstrap version</td>
-    <td id="bootstrap-version"></td>
-    </tr>
+    <tr><td>jQuery version</td>
+        <td id="jquery-version"></td>
+        </tr>
 
-</table>
-</form>
+    <tr><td>Bootstrap version</td>
+        <td id="bootstrap-version"></td>
+        </tr>
+
+    </table>
+    </form>
+</div>
 
 <script>
 $(document).ready(function(){
@@ -61,6 +65,7 @@ $(document).ready(function(){
         $("#server-git-commit")  .html(result.git_commit);
         $("#jquery-version")     .html(jQuery.fn.jquery);
         $("#bootstrap-version")  .html(bootstrap.Tooltip.VERSION);
+        $("#spinner").hide();
         };
     api.serverAbout();
 
@@ -70,7 +75,9 @@ $(document).ready(function(){
         var description = $("#server-description").val();
         var data = {name: name, description: description};
         var api2 = new Api();
+        $("#spinner").show();
         api2.onFinished = function() {
+            $("#spinner").hide();
             window.location.replace('');
             };
         api2.saveServer(data);
