@@ -197,7 +197,8 @@ function fillTimesheetsTableRow(x, timesheet) {
     $(id_timesheet_date_from).html(timesheet.date_from.formatYYYYMMDDHHMM());
     $(id_timesheet_date_to).html(timesheet.date_to.formatYYYYMMDDHHMM());
     $(id_timesheet_date_to).prop('data',timesheet.date_to);
-    $(id_timesheet_time).html(interval.formatHHMM());
+    console.log('interval: ' + interval);
+    $(id_timesheet_time).html(interval !== '' ? interval.formatHHMM() : '');
     $(id_timesheet_price).html(price);
     $(id_timesheet_user_name).html(user_name);
     $(x).prop('class', 'tr-timesheet');
