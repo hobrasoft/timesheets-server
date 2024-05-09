@@ -23,7 +23,8 @@ Httpd::Httpd::Httpd(const HobrasoftHttpd::HttpSettings *settings, QObject *paren
      */
     SessionStore::sessionStore(settings, this);
     SessionStore::sessionStore()->setSessionCookieName(
-        QUuid::createUuid().toString().replace("{","N").replace("}","").replace("-","_")
+        QString("session_")
+          + QUuid::createUuid().toString().replace("{","N").replace("}","").replace("-","_")
         );
     PluginStore::pluginStore(this);
 }
