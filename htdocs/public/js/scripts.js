@@ -8,12 +8,14 @@ $(document).ready(function(){
         }
 
     // logout automatically when session expires
-    var sessionExpires = sessionStorage.getItem("SessionExpires");
-    var now = new Date();
-    var interval = sessionExpires - now.getTime();
-    setTimeout(function() {
-        window.location.replace('/index.html')
-        }, interval);
+    if (window.location.pathname !== '/public/login.shtml') { 
+        var sessionExpires = sessionStorage.getItem("SessionExpires");
+        var now = new Date();
+        var interval = sessionExpires - now.getTime();
+        setTimeout(function() {
+            window.location.replace('/index.html')
+            }, interval);
+        }
     });
 
 function userAdmin() {
