@@ -1,9 +1,19 @@
 $(document).ready(function(){
+
+    // fill user & server info in headers
     var userinfo = JSON.parse(localStorage.getItem("userinfo"));
     if (userinfo != null) {
         $("#navbar-username").html(userinfo.name);
         $("#navbar-servername").html(userinfo.server_name);
         }
+
+    // logout automatically when session expires
+    var sessionExpires = sessionStorage.getItem("SessionExpires");
+    var now = new Date();
+    var interval = sessionExpires - now.getTime();
+    setTimeout(function() {
+        window.location.replace('/index.html')
+        }, interval);
     });
 
 function userAdmin() {

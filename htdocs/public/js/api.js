@@ -32,6 +32,11 @@ class Api {
             if (typeof initpage === 'undefined') { return userId(); }
             }
 
+        this.storeSessionExpires = function(x) {
+            if (x == null) { return; }
+            var date = new Date(x);
+            sessionStorage.setItem("SessionExpires", date.getTime());
+            }
 
         this.get = function(url, params) {
             var rq = new XMLHttpRequest();
@@ -41,6 +46,7 @@ class Api {
                 todleto.onError(rq.responseText);
                 };
             rq.onreadystatechange = function() {
+                todleto.storeSessionExpires(rq.getResponseHeader("X-Session-Expires"));
                 if (rq.readyState === XMLHttpRequest.DONE && (rq.status == 200 || rq.status == 204)) {
                     todleto.onFinished(JSON.parse(rq.responseText));
                     }
