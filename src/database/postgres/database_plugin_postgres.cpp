@@ -1980,6 +1980,99 @@ QList<Dbt::UsersCategories> DatabasePluginPostgres::usersCategories(int id, int 
 }
 
 
+
+QList<Dbt::CategoriesOverview> DatabasePluginPostgres::categoriesOverview(const QStringList& statuses) {
+    QString statusesX;
+    QStringList statusesL;
+    for (int i=0; i<statuses.size(); i++) {
+        statusesL << "'" + statuses[i] + "'";
+        }
+    statusesL.sort();
+    statusesX = statusesL.join(",");
+
+    QList<Dbt::CategoriesOverview> list;
+    MSqlQuery q(m_db);
+    q.prepare(QString(R"'(
+            with recursive tree as (
+                select category, parent_category, description, 0::int as depth, format('%04s', category) as ordering
+                    from categories where parent_category is null
+                union
+                select c.category, c.parent_category, c.description, t.depth + 1 as depth, t.ordering || format('%04s', c.category) as ordering
+                    from tree t, categories c
+                    where
+                        t.category = c.parent_category
+                ),
+            x_users as (
+                select *
+                    from users
+                    where "user" = :userid
+                ),
+            x_statuses as (
+                select *
+                    from statuses
+                    where status in (%1)
+                    and not ignored
+                ),
+            x_tickets as (
+                select t.*, ls.*, tts.*
+                    from tickets t
+                    left join lateral (select ts.status
+                            from ticket_status ts,
+                                 statuses s
+                            where t.ticket = ts.ticket
+                              and not s.ignored
+                            order by date desc
+                            limit 1) ls on (true)
+                    left join lateral (select to_hours(sum(tt.date_to - coalesce(tt.date_from, now()))) as time
+                        from ticket_timesheets tt,
+                             x_users u
+                        where tt.ticket = t.ticket
+                          and (tt."user" = u."user" or u.admin = true)
+                        group by tt.ticket) tts on (true)
+                    where ls.status in (select status from x_statuses)
+                )
+
+
+            select c.depth, c.category, c.description, x.price, x.time, c.ordering
+                into temporary table xxx
+                from tree c
+                join x_users u on true
+                left join users_categories uc on (uc.category = c.category and uc."user" = u."user")
+                left join (select category, sum(time) as time, round(sum(price*time)) as price
+                                from x_tickets
+                                group by category
+                          ) x on (c.category = x.category)
+                where (uc.category is not null or u.admin = true)
+                order by c.ordering
+            ;
+        )'").arg(statusesX));
+    q.bindValue(":userid", userId());
+    q.exec();
+    q.prepare(R"'(
+            select 'DETAIL' as type, x.depth, x.category, x.description, x.price, x.time, x.ordering
+                from xxx x
+            union all
+            select 'SUM', null, null, 'Total', sum(price), sum(time), null
+                from xxx
+            ;
+            )'");
+    q.exec();
+    while (q.next()) {
+        int i=0;
+        Dbt::CategoriesOverview x;
+        x.type          = q.value(i++).toString();
+        x.depth         = q.value(i++).toInt();
+        x.category      = q.value(i++).toString();
+        x.description   = q.value(i++).toString();
+        x.price         = q.value(i++).toDouble();
+        x.time          = q.value(i++).toDouble();
+        x.ordering      = q.value(i++).toString();
+        list << x;
+        }
+    return list;
+}
+
+
 QList<Dbt::Overview> DatabasePluginPostgres::overview(const QString& category, const QStringList& statuses) {
     QString statusesX;
     QStringList statusesL;

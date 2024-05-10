@@ -21,6 +21,21 @@ void ControllerOverview::serviceList (HobrasoftHttpd::HttpRequest *request, Hobr
 }
 
 
+
+void ControllerOverview::service(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
+    QString path = request->path();
+    QString method = request->method();
+
+    if (method == "GET" && path.endsWith("/overview/categories")) {
+        QStringList statuses = request->parameter("statuses").split(",");
+        serviceOK(request, response, toList(db()->categoriesOverview(statuses)));
+        return;
+        }
+
+    AbstractController::service(request, response);
+}
+
+
 void ControllerOverview::serviceIdGet (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QString& id) {
     QStringList statuses = request->parameter("statuses").split(",");
     auto list = db()->categories(id);

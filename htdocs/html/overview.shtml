@@ -1,0 +1,130 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<div id="spinner" class="spinner-border screen-spinner" style="width: 3em; height: 3em;" role="status"></div>
+
+<div class="container">
+    <h2 id="current-description">Overview</h2>
+    <h4>Time: <span id="sum-time"></span> Price: <span id="sum-price"></h4>
+
+    <table class="table table-bordered table-hover">
+    <thead>
+    <tr class="table-info">
+        <th>Description</th>
+        <th style="text-align: right;">Time</th>
+        <th style="text-align: right;">Price</th>
+    </tr>
+    </thead>
+    <tbody id="tbody">
+    <tr id="template-category" style="display: none;">
+        <td><span class="category-indent"></span><a href="#" class="category-description"></a></td>
+        <td class="category-time" style="text-align: right;"></td>
+        <td class="category-price" style="text-align: right;"></td>
+    </tr>
+    </tbody>
+    <tfooter>
+    <tr class="table-info">
+        <td></td>
+        <td id="footer-sum-time" style="text-align: right;"></td>
+        <td id="footer-sum-price" style="text-align: right;"></td>
+        </tr>
+    </tfooter>
+    </table>
+</div>
+
+
+<script>
+function saveStatusFilter() {
+    var statusFilter = new Array();
+    $(".filter-item").each(function(){
+        if ($(this).prop("checked")) { 
+            statusFilter.push($(this).val());
+            }
+        });
+    localStorage.setItem("statusFilter", JSON.stringify(statusFilter));
+}
+
+
+function onFilterItemChecked() {
+    saveStatusFilter();
+    loadData();
+}
+
+
+function loadData() {
+    $("#spinner").show();
+    $(".list-item").remove();
+    var statusFilterSet = (localStorage.getItem("statusFilter") !== null);
+    var statusFilter = JSON.parse(localStorage.getItem("statusFilter"));
+    var api = new Api(); // categoriesOverview()
+    api.onFinished = function(result) {
+        for (var i=0; i< result.length; i++) {
+            if (result[i].type == "DETAIL") {
+                var x = $('#template-category').clone();
+                var id_category_indent      = x.find(".category-indent");
+                var id_category_description = x.find(".category-description");
+                var id_category_time = x.find(".category-time");
+                var id_category_price = x.find(".category-price");
+                var indent = '';
+                for (var d=0; d<result[i].depth; d++) {
+                    indent += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+                    }
+                $(id_category_indent).html(indent);
+                $(id_category_description).attr("href","index.shtml?category="+result[i].category);
+                $(id_category_description).html(result[i].description);
+                $(id_category_time).html((result[i].time*3600+0.5).formatHHMM());
+                $(id_category_price).html(result[i].price);
+                $(x).attr("class","list-item");
+                $("#tbody").append(x);
+                $(x).show();
+                }
+            if (result[i].type = "SUM") {
+                $("#footer-sum-time").html((result[i].time*3600+0.5).formatHHMM());
+                $("#footer-sum-price").html(result[i].price);
+                $("#sum-time").html(result[i].time);
+                $("#sum-price").html(result[i].price);
+                }
+            }
+        $("#spinner").hide();
+        }
+    api.categoriesOverview(statusFilter);
+
+}
+
+
+function loadFilter() {
+    var apif = new Api();
+    apif.onFinished = function(resultf) {
+        for (var i=0; i < resultf.length; i++) {
+            if (resultf[i].ignored) { continue; }
+            var item_id = 'filter-'+resultf[i].status;
+            var statusFilterSet = (localStorage.getItem("statusFilter") !== null);
+            var statusFilter = JSON.parse(localStorage.getItem("statusFilter"));
+            var checked = (statusFilterSet == false) ? ((resultf[i].can_be_run) ? 'checked="checked"' : '')
+                        : (statusFilter.includes(resultf[i].status)) ? 'checked="checked"'
+                        : '';
+            $("#status-filter").append(
+                '<li class="dropdown-item"><input class="filter-item" type="checkbox" value="'+resultf[i].status+'" id="'+item_id+'"'+checked+'></input>&nbsp;<label for="'+item_id+'">' + resultf[i].description + '</label></li>'
+                );
+            }
+        $(".filter-item").change(onFilterItemChecked);
+        saveStatusFilter();
+        };
+    apif.statuses();
+}
+
+
+$(document).ready(function(){
+    $("#navbar-filter").show();
+    $("#navbar-overview").show();
+    var currentCategory = ($.urlParam("category") == null) 
+        ? parseInt(sessionStorage.getItem("currentCategory"))
+        : parseInt($.urlParam("category"));
+    sessionStorage.setItem("currentCategory", currentCategory);
+
+    loadFilter();
+    loadData();
+    });
+</script>
+
+<!-- #include '/inc/footer.html' -->

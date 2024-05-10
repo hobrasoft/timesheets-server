@@ -144,6 +144,9 @@ class Api {
         this.saveServer = function (s) { this.put("server/about", JSON.stringify(s)); }
         this.removeOverview = function(o) { this.delete("overview/" + o); }
         this.usersCategories = function(c) { this.get("userscategories?category=" + c); }
+        this.categoriesOverview = function (statuses) {
+                    this.get("overview/categories", "statuses=" + statuses.join(","));
+                    }
         this.overview = function (category, statuses) {
                     if (typeof category !== 'undefined')
                         { this.get("overview/" + category,  "statuses=" + statuses.join(",")); }

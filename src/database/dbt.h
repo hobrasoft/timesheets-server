@@ -343,6 +343,20 @@ struct TicketsVw : Tickets {
 };
 
 
+struct CategoriesOverview {
+    QString             type;
+    int                 depth;
+    QString             category;           // primary key
+    QString             description;
+    double              price;
+    double              time;
+    QString             ordering;
+
+    CategoriesOverview() { depth = 0; price = 0; time = 0; }
+    QVariantMap     toMap() const;
+};
+
+
 struct OverviewList {
     QString              key;
     Dbt::Categories      category;

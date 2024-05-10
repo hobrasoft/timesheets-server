@@ -1214,6 +1214,12 @@ QList<Dbt::ClientSettings> DatabasePluginFotomon::clientSettings() {
 }
 
 
+QList<Dbt::CategoriesOverview>  DatabasePluginFotomon::categoriesOverview(const QStringList& statuses) {
+    QList<Dbt::CategoriesOverview> list;
+    return list;
+}
+
+
 QList<Dbt::Overview> DatabasePluginFotomon::overview(const QString& category, const QStringList& statuses) {
     QList<Dbt::Overview> list;
     return list;

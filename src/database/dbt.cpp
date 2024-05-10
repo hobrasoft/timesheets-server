@@ -482,3 +482,16 @@ QVariantMap Overview::toMap() const {
 };
 
 
+
+QVariantMap CategoriesOverview::toMap() const {
+    QVariantMap data;
+    data["type"] = type;
+    data["depth"] = depth;
+    data["category"] = category;           // primary key
+    data["description"] = description;
+    data["price"] = price;
+    data["time"] = time;
+    data["ordering"] = ordering;
+    return data;
+};
+
