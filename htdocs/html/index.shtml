@@ -3,6 +3,22 @@
 
 <div id="spinner" class="spinner-border screen-spinner" style="width: 3em; height: 3em;" role="status"></div>
 
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Categories</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body" id="tree-body">
+        <div id="tree-template" style="display: none;">
+            <a href="#" class="tree-template-href"></a>
+        </div>
+    </div>
+</div>
+
+<button class="btn btn-link sidebar-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas" aria-controls="offcanvas">
+    <i class="bi bi-diagram-3" title="Projects tree"></i>
+</button>
+
 <div class="container">
     <h2 id="current-description">Most upper category</h2>
     <h4>Time: <span id="sum-time"></span> Price: <span id="sum-price"></h4>
@@ -311,6 +327,26 @@ function loadData() {
         };
         api2.categories(currentCategory);
 
+    var apit = new Api();
+    apit.onFinished = function(resultt) {
+        for (var c=0; c<resultt.length; c++) {
+            var indent = '';
+            for (var d=0; d<resultt[c].depth; d++) {
+                indent += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+                }
+
+            var x = $("#tree-template").clone();
+            var id_tree_href = x.find(".tree-template-href");
+            $(id_tree_href).attr('href', '?category='+resultt[c].category);
+            $(id_tree_href).html(indent+resultt[c].description);
+            $(x).attr("id",null);
+            $(x).attr("class", "list-item");
+            $(x).show();
+            $("#tree-body").append(x);
+            }
+        };
+    // apit.categoriestree(0,999);
+    apit.categoriesOverview([]);
 }
 
 

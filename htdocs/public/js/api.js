@@ -111,7 +111,11 @@ class Api {
                         }
                     }
         this.categoriesToRoot = function (c) { this.get("categoriestoroot/"+c); }
-        this.categoriestree = function (category) { this.get("categoriestree/"+category,"maxdepth=0"); }
+        this.categoriestree = function (category, maxdepth) { 
+                    maxdepth = typeof maxdepth == 'undefined' ? 0 : maxdepth;
+                    category = typeof category == 'undefined' ? 0 : category;
+                    this.get("categoriestree/"+category,"maxdepth=" + maxdepth); 
+                    }
         this.categoriessiblings = function (category) { this.get("categoriessiblings/"+category); }
         this.ticketsvw = function (category) { this.get("ticketsvw", "category=" + category + "&all=" + this.initpageAll()); }
         this.ticketsvwall = function () { this.get("ticketsvw", "all=" + this.initpageAll()); }
