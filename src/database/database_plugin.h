@@ -113,6 +113,7 @@ class DatabasePlugin : public QObject {
     virtual QVariant save(const Dbt::TicketFiles& data) { Q_UNUSED(data); return QVariant(); }
     virtual QVariant save(const Dbt::TicketTimesheets& data) { Q_UNUSED(data); return QVariant(); }
     virtual QVariant save(const Dbt::ServerInfo& data) { Q_UNUSED(data); return QVariant(); }
+    virtual QVariant save(const Dbt::AppendStatuses& data) { Q_UNUSED(data); return QVariant(); }
 
   protected:
     int     userId() const;

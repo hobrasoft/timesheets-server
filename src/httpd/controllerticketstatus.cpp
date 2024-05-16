@@ -39,7 +39,17 @@ void ControllerTicketStatus::serviceIdGet (HobrasoftHttpd::HttpRequest *request,
 
 
 void ControllerTicketStatus::serviceIdPut(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QVariantMap& data) {
-    serviceOK(request, response, putKey(db()->save(Dbt::TicketStatus::fromMap(data))));
+    if (data.contains("ticket")) {
+        serviceOK(request, response, putKey(db()->save(Dbt::TicketStatus::fromMap(data))));
+        return;
+        }
+
+    if (data.contains("categories")) {
+        serviceOK(request, response, putKey(db()->save(Dbt::AppendStatuses::fromMap(data))));
+        return;
+        }
+
+    serviceError(request, response, 400, "bad-format", "JSON has bad format, it must contain 'ticket' or 'categories' fields");
 }
 
 

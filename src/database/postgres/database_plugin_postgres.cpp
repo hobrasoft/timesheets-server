@@ -1064,6 +1064,94 @@ QVariant DatabasePluginPostgres::save(const Dbt::TicketStatus& data) {
 }
 
 
+QVariant DatabasePluginPostgres::save(const Dbt::AppendStatuses& data) {
+    PDEBUG << data.toMap();
+
+    QString statusesX;
+    QStringList statusesL;
+    for (int i=0; i<data.recent_status.size(); i++) {
+        statusesL << "'" + data.recent_status[i].toString() + "'";
+        }
+    statusesL.sort();
+    statusesX = statusesL.join(",");
+
+    QString categoriesX;
+    QStringList categoriesL;
+    for (int i=0; i<data.categories.size(); i++) {
+        categoriesL << "'" + data.categories[i].toString() + "'";
+        }
+    categoriesL.sort();
+    categoriesX = categoriesL.join(",");
+
+    MSqlQuery q(m_db);
+    q.prepare(QString(R"'(
+            with
+
+            -- select statuses
+            x_statuses as (
+                select * from statuses
+                where status in (%1)
+                  and not ignored
+                ),
+
+            -- select new status, if possible
+            x_newstatuses as (
+                select distinct s.*
+                 from statuses s, status_order o
+                where status = :status
+                  and s.status = o.next_status
+                  and o.previous_status in (select status from x_statuses)
+                ),
+
+            -- select current user
+            x_users as (
+                select *
+                    from users
+                    where "user" = :userid
+                ),
+
+            -- select valid categories
+            x_categories as (
+                select c.*
+                    from categories c, x_users u
+                    where c.category in (%2)
+                      and (u.admin = true
+                             or c.category in (select category from users_categories where "user" = u."user")
+                          )
+                ),
+
+            -- select tickets with statuses, user, categories
+            x_tickets as (
+                select t.*, ls.*
+                    from tickets t
+                    join x_categories using (category)
+                    left join lateral (select ts.status
+                            from ticket_status ts,
+                                 statuses s
+                            where t.ticket = ts.ticket
+                              and s.status = ts.status
+                              and not s.ignored
+                            order by date desc
+                            limit 1) ls on (true)
+                    where ls.status in (select status from x_statuses)
+                )
+
+            insert into ticket_status (ticket, "user", description, status)
+            select t.ticket, u."user", :description, n.status
+                from x_tickets t, x_users u, x_newstatuses n
+
+        )'").arg(statusesX).arg(categoriesX));
+    q.bindValue(":user", data.status);
+    q.bindValue(":status", data.status);
+    q.bindValue(":description", data.description);
+    q.bindValue(":userid", userId());
+    PDEBUG << q.lastBoundQuery();
+    q.exec();
+
+    return QVariant();
+}
+
+
 QList<Dbt::TicketTimesheets> DatabasePluginPostgres::ticketTimesheets(int ticket, bool all) {
     createTemporaryTableTickets(ticket, all);
     QList<Dbt::TicketTimesheets> list;
@@ -2020,6 +2108,7 @@ QList<Dbt::CategoriesOverview> DatabasePluginPostgres::categoriesOverview(const 
                             from ticket_status ts,
                                  statuses s
                             where t.ticket = ts.ticket
+                              and s.status = ts.status
                               and not s.ignored
                             order by date desc
                             limit 1) ls on (true)
@@ -2033,12 +2122,12 @@ QList<Dbt::CategoriesOverview> DatabasePluginPostgres::categoriesOverview(const 
                 )
 
 
-            select c.depth, c.category, c.description, x.price, x.time, c.ordering
+            select c.depth, c.category, c.description, x.price, x.time, x.tickets_count, c.ordering
                 into temporary table xxx
                 from tree c
                 join x_users u on true
                 left join users_categories uc on (uc.category = c.category and uc."user" = u."user")
-                left join (select category, sum(time) as time, round(sum(price*time)) as price
+                left join (select category, count(1) as tickets_count, sum(time) as time, round(sum(price*time)) as price
                                 from x_tickets
                                 group by category
                           ) x on (c.category = x.category)
@@ -2049,10 +2138,10 @@ QList<Dbt::CategoriesOverview> DatabasePluginPostgres::categoriesOverview(const 
     q.bindValue(":userid", userId());
     q.exec();
     q.prepare(R"'(
-            select 'DETAIL' as type, x.depth, x.category, x.description, x.price, x.time, x.ordering
+            select 'DETAIL' as type, x.depth, x.category, x.description, x.price, x.time, x.tickets_count, x.ordering
                 from xxx x
             union all
-            select 'SUM', null, null, 'Total', sum(price), sum(time), null
+            select 'SUM', null, null, 'Total', sum(price), sum(time), sum(tickets_count), null
                 from xxx
             ;
             )'");
@@ -2066,6 +2155,7 @@ QList<Dbt::CategoriesOverview> DatabasePluginPostgres::categoriesOverview(const 
         x.description   = q.value(i++).toString();
         x.price         = q.value(i++).toDouble();
         x.time          = q.value(i++).toDouble();
+        x.tickets_count = q.value(i++).toInt();
         x.ordering      = q.value(i++).toString();
         list << x;
         }

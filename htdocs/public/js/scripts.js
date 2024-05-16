@@ -37,6 +37,16 @@ function userName() {
 }
 
 
+function tonull(x) {
+    if (x === "") { return ""; }
+    if (x === "00:00") { return ""; }
+    if (typeof x === 'undefined') { return ""; }
+    if (x === null) { return ""; }
+    if (x === 0) { return ""; }
+    return x;
+}
+
+
 Number.prototype.pad = function(size) {
     var s = String(this);
     while (s.length < (size || 2)) { s = "0" + s; }

@@ -346,13 +346,24 @@ struct TicketsVw : Tickets {
 struct CategoriesOverview {
     QString             type;
     int                 depth;
-    QString             category;           // primary key
+    QString             category;
     QString             description;
+    int                 tickets_count;
     double              price;
     double              time;
     QString             ordering;
 
     CategoriesOverview() { depth = 0; price = 0; time = 0; }
+    QVariantMap     toMap() const;
+};
+
+
+struct AppendStatuses {
+    QVariantList        categories;         ///< categories which are appended with new statuse
+    QVariantList        recent_status;      ///< recent statuses 
+    QString             status;             ///< new status
+    QString             description;        ///< new status description
+    static AppendStatuses fromMap(const QVariantMap&);
     QVariantMap     toMap() const;
 };
 

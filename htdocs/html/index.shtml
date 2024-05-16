@@ -9,7 +9,7 @@
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body" id="tree-body">
-        <div id="tree-template" style="display: none;">
+        <div id="tree-template" style="display: none;" class="text-truncate">
             <a href="#" class="tree-template-href"></a>
         </div>
     </div>

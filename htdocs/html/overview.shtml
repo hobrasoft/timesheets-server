@@ -10,14 +10,18 @@
     <table class="table table-bordered table-hover">
     <thead>
     <tr class="table-info">
+        <th></th>
         <th>Description</th>
+        <th style="text-align: right;">Count</th>
         <th style="text-align: right;">Time</th>
         <th style="text-align: right;">Price</th>
     </tr>
     </thead>
     <tbody id="tbody">
     <tr id="template-category" style="display: none;">
+        <td><input type="checkbox" class="category-checkbox"></td>
         <td><span class="category-indent"></span><a href="#" class="category-description"></a></td>
+        <td class="category-count" style="text-align: right;"></td>
         <td class="category-time" style="text-align: right;"></td>
         <td class="category-price" style="text-align: right;"></td>
     </tr>
@@ -25,11 +29,53 @@
     <tfooter>
     <tr class="table-info">
         <td></td>
+        <td></td>
+        <td id="footer-sum-count" style="text-align: right;"></td>
         <td id="footer-sum-time" style="text-align: right;"></td>
         <td id="footer-sum-price" style="text-align: right;"></td>
         </tr>
     </tfooter>
     </table>
+</div>
+
+<!-- Add new status dialog -->
+<div class="modal fade" id="add-new-status-dialog" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Append new status</h3>
+            </div>
+            <div class="modal-body">
+                <p>This will add new status to all tickets in selected categories</p>
+                <label for="next-status-text" class="form-label">Description</label>
+                <input type="text" id="next-status-text" class="form-control"></input>
+                <label for="next-status-id" class="form-label">Status</label>
+                <select class="form-select" id="next-status-id"></select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="add-new-status-btn-add" class="btn btn-danger btn-ok">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Add new status dialog -->
+<div class="modal fade" id="check-category-dialog" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Append new status</h3>
+            </div>
+            <div class="modal-body">
+                <p>Please, select some non-empty categories</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 
@@ -51,6 +97,67 @@ function onFilterItemChecked() {
 }
 
 
+function addNewStatus() {
+    $("#spinner").show();
+    var status = $("#next-status-id").val();
+    var description = $("#next-status-text").val();
+    var categories = [];
+    $(".category-checkbox").each(function(){
+        if (!$(this).prop('checked')) { return; }
+        var category = $(this).data("category");
+        var count = $(this).data("count");
+        if (category == null) { return; }
+        if (category === "") { return; }
+        if (count == null) { return; }
+        if (count == "") { return; }
+        if (count <= 0) { return; }
+        if (categories.includes(category)) { return; }
+        categories.push(category);
+        });
+    var statusFilter = JSON.parse(localStorage.getItem("statusFilter"));
+    var pStatus = statusFilter.map(function(x) { if (x == null) { x = ''; } return x; });
+    var api = new Api();
+    api.appendStatus({ "categories": categories, "recent_status": pStatus, "status": status, "description": description});
+    $("#add-new-status-dialog").modal("hide");
+    setTimeout(loadData, 1000);
+
+}
+
+
+function onAddNewStatusClicked() {
+    var categories = [];
+    $(".category-checkbox").each(function(){
+        if (!$(this).prop('checked')) { return; }
+        var category = $(this).data("category");
+        var count = $(this).data("count");
+        if (category == null) { return; }
+        if (category === "") { return; }
+        if (count == null) { return; }
+        if (count == "") { return; }
+        if (count <= 0) { return; }
+        if (categories.includes(category)) { return; }
+        categories.push(category);
+        });
+    if (categories.length == 0) {
+        $("#check-category-dialog").modal("show");
+        return;
+        }
+    $("#add-new-status-dialog").modal("show");
+
+    var api = new Api();
+    api.onFinished = function(result) {
+        for (var i=0; i<result.length; i++) {
+            console.log("Add New Status Clicked " + JSON.stringify(result[i]));
+            $("#next-status-id").append('<option value="'+result[i].status+'">'+result[i].description+'</option>');
+            }
+        $("#add-new-status-dialog").modal("show");
+        };
+    var statusFilter = JSON.parse(localStorage.getItem("statusFilter"));
+    var pStatus = statusFilter.map(function(x) { if (x == null) { x = ''; } return x; });
+    api.statuses(null, pStatus);
+}
+
+
 function loadData() {
     $("#spinner").show();
     $(".list-item").remove();
@@ -65,6 +172,8 @@ function loadData() {
                 var id_category_description = x.find(".category-description");
                 var id_category_time = x.find(".category-time");
                 var id_category_price = x.find(".category-price");
+                var id_category_count = x.find(".category-count");
+                var id_category_checkbox = x.find(".category-checkbox");
                 var indent = '';
                 for (var d=0; d<result[i].depth; d++) {
                     indent += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
@@ -72,17 +181,22 @@ function loadData() {
                 $(id_category_indent).html(indent);
                 $(id_category_description).attr("href","index.shtml?category="+result[i].category);
                 $(id_category_description).html(result[i].description);
-                $(id_category_time).html((result[i].time*3600+0.5).formatHHMM());
-                $(id_category_price).html(result[i].price);
+                $(id_category_time).html(tonull((result[i].time*3600+0.5).formatHHMM()));
+                $(id_category_price).html(tonull(result[i].price));
+                $(id_category_count).html(tonull(result[i].tickets_count));
+                $(id_category_checkbox).data('category', result[i].category);
+                $(id_category_checkbox).data('count', result[i].tickets_count);
                 $(x).attr("class","list-item");
                 $("#tbody").append(x);
                 $(x).show();
                 }
             if (result[i].type = "SUM") {
-                $("#footer-sum-time").html((result[i].time*3600+0.5).formatHHMM());
-                $("#footer-sum-price").html(result[i].price);
+                $("#footer-sum-time").html(tonull((result[i].time*3600+0.5).formatHHMM()));
+                $("#footer-sum-price").html(tonull(result[i].price));
+                $("#footer-sum-count").html(tonull(result[i].tickets_count));
                 $("#sum-time").html(result[i].time);
-                $("#sum-price").html(result[i].price);
+                $("#sum-count").html(tonull(result[i].tickets_count));
+                $("#sum-price").html(tonull(result[i].price));
                 }
             }
         $("#spinner").hide();
@@ -117,6 +231,9 @@ function loadFilter() {
 $(document).ready(function(){
     $("#navbar-filter").show();
     $("#navbar-overview").show();
+    $("#add-new-status-to-category").show();
+    $("#add-new-status-to-category").click(onAddNewStatusClicked);
+    $("#add-new-status-btn-add").click(addNewStatus);
     var currentCategory = ($.urlParam("category") == null) 
         ? parseInt(sessionStorage.getItem("currentCategory"))
         : parseInt($.urlParam("category"));

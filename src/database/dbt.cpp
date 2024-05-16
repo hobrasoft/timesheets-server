@@ -487,11 +487,33 @@ QVariantMap CategoriesOverview::toMap() const {
     QVariantMap data;
     data["type"] = type;
     data["depth"] = depth;
-    data["category"] = category;           // primary key
+    data["tickets_count"] = tickets_count;
+    data["category"] = category;
     data["description"] = description;
     data["price"] = price;
     data["time"] = time;
     data["ordering"] = ordering;
     return data;
-};
+}
+
+
+AppendStatuses AppendStatuses::fromMap(const QVariantMap& data) {
+    AppendStatuses x;
+    x.categories = data["categories"].toList();
+    x.recent_status  = data["recent_status"].toList();
+    x.status = data["status"].toString();
+    x.description = data["description"].toString();
+    return x;
+}
+
+
+QVariantMap AppendStatuses::toMap() const {
+    QVariantMap data;
+    data["categories"] = categories;
+    data["recent_status"] = recent_status;
+    data["status"] = status;
+    data["description"] = description;
+    return data;
+}
+
 
