@@ -194,7 +194,7 @@ function loadData() {
                 $("#footer-sum-time").html(tonull((result[i].time*3600+0.5).formatHHMM()));
                 $("#footer-sum-price").html(tonull(result[i].price));
                 $("#footer-sum-count").html(tonull(result[i].tickets_count));
-                $("#sum-time").html(result[i].time);
+                $("#sum-time").html((result[i].time*3600+0.5).formatHHMM());
                 $("#sum-count").html(tonull(result[i].tickets_count));
                 $("#sum-price").html(tonull(result[i].price));
                 }

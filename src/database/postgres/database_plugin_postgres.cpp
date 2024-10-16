@@ -2116,7 +2116,7 @@ QList<Dbt::CategoriesOverview> DatabasePluginPostgres::categoriesOverview(const 
                         from ticket_timesheets tt,
                              x_users u
                         where tt.ticket = t.ticket
-                          and (tt."user" = u."user" or u.admin = true)
+                      --  and (tt."user" = u."user" or u.admin = true)
                         group by tt.ticket) tts on (true)
                     where ls.status in (select status from x_statuses)
                 )
