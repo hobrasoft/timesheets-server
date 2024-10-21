@@ -453,6 +453,7 @@ struct Departments {
     QString     abbr;
     QString     description;
 
+    Departments(int d) { department = d; }
     Departments() { department = 0; }
     static Departments fromMap(const QVariantMap&);
     QVariantMap toMap() const;

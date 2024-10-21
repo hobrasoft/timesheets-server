@@ -128,6 +128,7 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     virtual void remove(const Dbt::EmployeeCanOpenDoor& data) Q_DECL_OVERRIDE;
     virtual void remove(const Dbt::EmployeeHasRfid& data) Q_DECL_OVERRIDE;
 
+    QVariant save(const Dbt::Departments& data) Q_DECL_OVERRIDE;
 
 
     void    upgrade();

@@ -88,6 +88,8 @@ class Database : public QObject {
     QList<Dbt::OverviewList>                overviewList();
     QList<Dbt::ServerInfo>                  serverInfo();
 
+    QList<Dbt::Departments>                 departments(int department = -1);
+
 
     template<typename T> QVariant save(const T& id) { return m_dbplugin->save(id); }
     template<typename T> void remove(const T& id) { m_dbplugin->remove(id); }

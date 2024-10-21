@@ -322,3 +322,8 @@ QList<Dbt::CategoriesOverview> Database::categoriesOverview(const QStringList& s
     return m_dbplugin->categoriesOverview(statuses);
 }
 
+
+QList<Dbt::Departments> Database::departments(int department) {
+    return m_dbplugin->departments(department);
+}
+
