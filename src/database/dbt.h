@@ -445,6 +445,129 @@ struct Overview {
     QString             id;
 };
 
+//---------------------------------------------------------------------------------------
+// Docházka
+
+struct Departments {
+    int         department;
+    QString     abbr;
+    QString     description;
+
+    Departments() { department = 0; }
+    static Departments fromMap(const QVariantMap&);
+    QVariantMap toMap() const;
+};
+
+struct Doors {
+    int         door;
+    QString     description;
+
+    Doors() { door = 0; }
+    static Doors fromMap(const QVariantMap&);
+    QVariantMap toMap() const;
+};
+
+struct Rfids {
+    int         rfid;
+    QString     rfid_id;
+    bool        valid;
+    QString     note;
+
+    static Rfids fromMap(const QVariantMap&);
+    QVariantMap toMap() const;
+};
+
+struct Employees {
+    int         employee;
+    QString     firstname;
+    QString     surname;
+    bool        active;
+
+    static Employees fromMap(const QVariantMap&);
+    QVariantMap toMap() const;
+};
+
+struct EventTypes {
+    QString     event_type;
+    QString     description;
+    bool        end_state;              // odchod, ukončení předchozího stavu
+    bool        passage;                // pruchod
+    bool        arrival;                // příchod do práce
+    bool        vacation;               // Dovolená
+    bool        sick_leave;             // nemoc
+    bool        compensatory_leave;     // náhradní volno
+    bool        business_trip;          // Služební cesta
+    bool        break_time;             // Přestávka
+    bool        unpaid_leave;           // Neplacené volno
+    bool        sick_care;              // Ošetřování člena rodiny
+
+    EventTypes() {
+        end_state = false;
+        passage = false;
+        arrival = false;
+        vacation = false;
+        sick_leave = false;
+        compensatory_leave = false;
+        business_trip = false;
+        break_time = false;
+        unpaid_leave = false;
+        sick_care = false;
+        }
+
+    static EventTypes fromMap(const QVariantMap&);
+    QVariantMap toMap() const;
+};
+
+struct Events {
+    int         event;
+    QDateTime   date;
+    QString     event_type;
+    int         employee;
+    bool        valid;
+    QVariant    user_edited;
+
+    Events() { event = 0; employee = 0; valid = false; }
+    static Events fromMap(const QVariantMap&);
+    QVariantMap toMap() const;
+};
+
+struct DepartmentHasManager {
+    int         department;
+    int         user;
+
+    DepartmentHasManager() { department = 0; user = 0; }
+    static DepartmentHasManager fromMap(const QVariantMap&);
+    QVariantMap toMap() const;
+};
+
+struct DepartmentHasMember {
+    int         department;
+    int         employee;
+
+    DepartmentHasMember() { department = 0; employee = 0; }
+    static DepartmentHasMember fromMap(const QVariantMap&);
+    QVariantMap toMap() const;
+};
+
+struct EmployeeCanOpenDoor {
+    int         employee;
+    int         door;
+
+    EmployeeCanOpenDoor() { employee = 0; door = 0; }
+    static EmployeeCanOpenDoor fromMap(const QVariantMap&);
+    QVariantMap toMap() const;
+};
+
+struct EmployeeHasRfid {
+    int         employee;
+    int         rfid;
+
+    EmployeeHasRfid() { employee = 0; rfid = 0; }
+    static EmployeeHasRfid fromMap(const QVariantMap&);
+    QVariantMap toMap() const;
+};
+
+
 
 }
 

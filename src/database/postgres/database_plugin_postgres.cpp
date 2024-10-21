@@ -1883,6 +1883,7 @@ QVariant DatabasePluginPostgres::save(const Dbt::Statuses& data) {
 
 
 QList<Dbt::StatusTemplates> DatabasePluginPostgres::statusTemplates(int id) {
+    Q_UNUSED(id);
     MSqlQuery q(m_db);
     QList<Dbt::StatusTemplates> list;
     return list;
@@ -2466,6 +2467,259 @@ void DatabasePluginPostgres::remove(const Dbt::OverviewList& x) {
     q.prepare(R"'(delete from overview_params where key = :key;)'");
     q.bindValue(":key", x.key);
     q.exec();
+}
+
+
+QList<Dbt::Departments> DatabasePluginPostgres::departments(int department) { 
+    MSqlQuery q(m_db);
+    QList<Dbt::Departments> list;
+    q.prepare(R"'(select department, abbr, description from departments where department = :key1 or 0 = :key2;)'");
+    q.bindValue(":key1", department);
+    q.bindValue(":key2", department);
+    q.exec();
+    while (q.next()) {
+        Dbt::Departments x;
+        int i=0;
+        x.department    = q.value(i++).toInt();
+        x.abbr          = q.value(i++).toString();
+        x.description   = q.value(i++).toString();
+        list << x;
+        }
+    return list;
+}
+
+
+QList<Dbt::Doors> DatabasePluginPostgres::doors(int door) {
+    MSqlQuery q(m_db);
+    QList<Dbt::Doors> list; 
+    q.prepare(R"'(select door, description from departments where department = :key1 or 0 = :key2;)'");
+    q.bindValue(":key1", door);
+    q.bindValue(":key2", door);
+    q.exec();
+    while (q.next()) {
+        Dbt::Doors x;
+        int i=0;
+        x.door          = q.value(i++).toInt();
+        x.description   = q.value(i++).toString();
+        list << x;
+        }
+    return list;
+}
+
+QList<Dbt::Employees> DatabasePluginPostgres::employess(int employee) { 
+    MSqlQuery q(m_db);
+    QList<Dbt::Employees> list; 
+    q.prepare(R"'(select employee, firstname, surname, active where employee = :key1 or 0 = :key2;)'");
+    q.bindValue(":key1", employee);
+    q.bindValue(":key2", employee);
+    q.exec();
+    while (q.next()) {
+        Dbt::Employees x;
+        int i=0;
+        x.employee  = q.value(i++).toInt();
+        x.firstname = q.value(i++).toString();
+        x.surname   = q.value(i++).toString();
+        x.active    = q.value(i++).toBool();
+        list << x;
+        }
+    return list;
+}
+
+QList<Dbt::EventTypes> DatabasePluginPostgres::eventTypes(const QString& eventType) { 
+    MSqlQuery q(m_db);
+    QList<Dbt::EventTypes> list; 
+    q.prepare(R"'(select event_type, description,
+            end_state, passage, arrival, vacation, sick_leave, compensatory_leave, business_trip, break_time, unpaid_leave, sick_care
+        where event_type = :key1 or "" = :key2;
+        )'");
+    q.bindValue(":key1", eventType);
+    q.bindValue(":key2", eventType);
+    q.exec();
+    while (q.next()) {
+        Dbt::EventTypes x;
+        int i=0;
+        x.event_type            = q.value(i++).toString();
+        x.description           = q.value(i++).toString();
+        x.end_state             = q.value(i++).toBool();
+        x.passage               = q.value(i++).toBool();
+        x.arrival               = q.value(i++).toBool();
+        x.vacation              = q.value(i++).toBool();
+        x.sick_leave            = q.value(i++).toBool();
+        x.compensatory_leave    = q.value(i++).toBool();
+        x.business_trip         = q.value(i++).toBool();
+        x.break_time            = q.value(i++).toBool();
+        x.unpaid_leave          = q.value(i++).toBool();
+        x.sick_care             = q.value(i++).toBool();
+        list << x;
+        }
+    return list;
+}
+
+QList<Dbt::Events> DatabasePluginPostgres::events(int event) { 
+    MSqlQuery q(m_db);
+    QList<Dbt::Events> list; 
+    q.prepare(R"'(select event, date, event_type, employee, valid, user_edited from events where event = :key1 or 0 = :key2;)'");
+    q.bindValue(":key1", event);
+    q.bindValue(":key2", event);
+    q.exec();
+    while (q.next()) {
+        Dbt::Events x;
+        int i=0;
+        x.event         = q.value(i++).toInt();
+        x.date          = q.value(i++).toDateTime();
+        x.event_type    = q.value(i++).toString();
+        x.employee      = q.value(i++).toInt();
+        x.valid         = q.value(i++).toBool();
+        x.user_edited   = q.value(i++).toInt();
+        list << x;
+        }
+    return list;
+}
+
+QList<Dbt::DepartmentHasManager> DatabasePluginPostgres::departmentHasManager(const Dbt::DepartmentHasManager& p) { 
+    MSqlQuery q(m_db);
+    QList<Dbt::DepartmentHasManager> list; 
+    q.prepare(R"'(select department, "user" from department_has_member 
+        where (department = ::key11 or 0 = :key12) 
+          and ("user" = :key21 or 0 == :key22);
+        )'");
+    q.bindValue(":key11", p.department);
+    q.bindValue(":key12", p.department);
+    q.bindValue(":key21", p.user);
+    q.bindValue(":key22", p.user);
+    q.exec();
+    while (q.next()) {
+        Dbt::DepartmentHasManager x;
+        int i=0;
+        x.department    = q.value(i++).toInt();
+        x.user          = q.value(i++).toInt();
+        list << x;
+        }
+    return list;
+}
+
+QList<Dbt::DepartmentHasMember> DatabasePluginPostgres::departmentHasMember(const Dbt::DepartmentHasMember& p) { 
+    MSqlQuery q(m_db);
+    QList<Dbt::DepartmentHasMember> list; 
+    q.prepare(R"'(select department, employee from department_has_member 
+        where (department = ::key11 or 0 = :key12) 
+          and (employee = :key21 or 0 == :key22);
+        )'");
+    q.bindValue(":key11", p.department);
+    q.bindValue(":key12", p.department);
+    q.bindValue(":key21", p.employee);
+    q.bindValue(":key22", p.employee);
+    q.exec();
+    while (q.next()) {
+        Dbt::DepartmentHasMember x;
+        int i=0;
+        x.department    = q.value(i++).toInt();
+        x.employee      = q.value(i++).toInt();
+        list << x;
+        }
+    return list;
+}
+
+QList<Dbt::EmployeeCanOpenDoor> DatabasePluginPostgres::employeeCanOpenDoor(const Dbt::EmployeeCanOpenDoor& p) { 
+    MSqlQuery q(m_db);
+    QList<Dbt::EmployeeCanOpenDoor> list; 
+    q.prepare(R"'(select door, employee from employee_can_open_door
+        where (door = ::key11 or 0 = :key12) 
+          and (employee = :key21 or 0 == :key22);
+        )'");
+    q.bindValue(":key11", p.door);
+    q.bindValue(":key12", p.door);
+    q.bindValue(":key21", p.employee);
+    q.bindValue(":key22", p.employee);
+    q.exec();
+    while (q.next()) {
+        Dbt::EmployeeCanOpenDoor x;
+        int i=0;
+        x.door      = q.value(i++).toInt();
+        x.employee  = q.value(i++).toInt();
+        list << x;
+        }
+    return list;
+}
+
+QList<Dbt::EmployeeHasRfid> DatabasePluginPostgres::employeeHasRfid(const Dbt::EmployeeHasRfid& p) { 
+    MSqlQuery q(m_db);
+    QList<Dbt::EmployeeHasRfid> list; 
+    q.prepare(R"'(select employee, rfid from employee_has_rfid
+        where (employee = ::key11 or 0 = :key12) 
+          and (rfid = :key21 or 0 == :key22);
+        )'");
+    q.bindValue(":key11", p.employee);
+    q.bindValue(":key12", p.employee);
+    q.bindValue(":key21", p.rfid);
+    q.bindValue(":key22", p.rfid);
+    q.exec();
+    while (q.next()) {
+        Dbt::EmployeeHasRfid x;
+        int i=0;
+        x.employee  = q.value(i++).toInt();
+        x.rfid      = q.value(i++).toInt();
+        list << x;
+        }
+    return list;
+}
+
+void DatabasePluginPostgres::remove(const Dbt::Departments& data) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from departments where department = :key;)'");
+    q.bindValue(":key", data.department);
+}
+
+void DatabasePluginPostgres::remove(const Dbt::Doors& data) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from doors where door = :key;)'");
+    q.bindValue(":key", data.door);
+}
+
+void DatabasePluginPostgres::remove(const Dbt::Employees& data) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from employees where employee = :key;)'");
+    q.bindValue(":key", data.employee);
+}
+
+void DatabasePluginPostgres::remove(const Dbt::EventTypes& data) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from event_types where event_type = :key;)'");
+    q.bindValue(":key", data.event_type);
+}
+
+void DatabasePluginPostgres::remove(const Dbt::Events& data) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from event where event = :key;)'");
+    q.bindValue(":key", data.event);
+}
+
+void DatabasePluginPostgres::remove(const Dbt::DepartmentHasManager& data) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from departments_has_manager where department = :key1 and "user" = :key2;)'");
+    q.bindValue(":key1", data.department);
+    q.bindValue(":key2", data.user);
+}
+
+void DatabasePluginPostgres::remove(const Dbt::DepartmentHasMember& data) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from departments_has_member where department = :key and employee = :key2;)'");
+    q.bindValue(":key1", data.department);
+    q.bindValue(":key2", data.employee);
+}
+
+void DatabasePluginPostgres::remove(const Dbt::EmployeeCanOpenDoor& data) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from employee_can_open_door where employee = :key1 and door = :key2;)'");
+    q.bindValue(":key1", data.employee);
+    q.bindValue(":key2", data.door);
+}
+
+void DatabasePluginPostgres::remove(const Dbt::EmployeeHasRfid& data) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from employee_has_rfid where employee = :key1 and rfid = :key2;)'");
+    q.bindValue(":key1", data.employee);
+    q.bindValue(":key2", data.rfid);
 }
 
 

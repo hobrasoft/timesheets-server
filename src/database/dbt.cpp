@@ -517,3 +517,138 @@ QVariantMap AppendStatuses::toMap() const {
 }
 
 
+QVariantMap Departments::toMap() const {
+    QVariantMap data;
+    data["department"] = department;
+    data["abbr"] = abbr;
+    data["description"] = description;
+    return data;
+}
+
+
+Departments Departments::fromMap(const QVariantMap& data) {
+    Departments x;
+    x.department  = data["department"].toInt();
+    x.abbr        = data["abbr"].toString();
+    x.description = data["description"] .toString();
+    return x;
+}
+
+QVariantMap EventTypes::toMap() const {
+    QVariantMap data;
+    data["event_type"] = event_type;
+    data["description"] = description;
+    data["event_type"] = event_type;
+    data["description"] = description;
+    data["end_state"] = end_state;
+    data["passage"] = passage;
+    data["arrival"] = arrival;
+    data["vacation"] = vacation;
+    data["sick_leave"] = sick_leave;
+    data["compensatory_leave"] = compensatory_leave;
+    data["business_trip"] = business_trip;
+    data["break_time"] = break_time;
+    data["unpaid_leave"] = unpaid_leave;
+    data["sick_care"] = sick_care;
+    return data;
+}
+
+EventTypes EventTypes::fromMap(const QVariantMap& data) {
+    EventTypes x;
+    x.event_type = data["event_type"].toInt();
+    x.description = data["description"].toString();
+    x.end_state = data["end_state"].toBool();
+    x.passage = data["passage"].toBool();
+    x.arrival = data["arrival"].toBool();
+    x.vacation = data["vacation"].toBool();
+    x.sick_leave = data["sick_leave"].toBool();
+    x.compensatory_leave = data["compensatory_leave"].toBool();
+    x.business_trip = data["business_trip"].toBool();
+    x.break_time = data["break_time"].toBool();
+    x.unpaid_leave = data["unpaid_leave"].toBool();
+    x.sick_care = data["sick_care"].toBool();
+    return x;
+}
+
+QVariantMap Events::toMap() const {
+    QVariantMap data;
+    data["event"] = event;
+    data["date"] = date;
+    data["event_type"] = event_type;
+    data["employee"] = employee;
+    data["valid"] = valid;
+    data["user_edited"] = user_edited;
+    return data;
+}
+
+Events Events::fromMap(const QVariantMap& data) {
+    Events x;
+    x.event = data["event"].toInt(); 
+    x.date = data["date"].toDateTime();
+    x.event_type = data["event_type"].toInt();
+    x.employee = data["employee"].toInt(); 
+    x.valid = data["valid"].toBool(); 
+    x.user_edited = data["user_edited"].toInt();
+    return x;
+}
+
+QVariantMap DepartmentHasManager::toMap() const {
+    QVariantMap data;
+    data["department"] = department;
+    data["user"] = user;
+    return data;
+}
+
+DepartmentHasManager DepartmentHasManager::fromMap(const QVariantMap& data) {
+    DepartmentHasManager x;
+    x.department = data["department"].toInt();
+    x.user = data["user"].toInt();
+    return x;
+}
+
+QVariantMap DepartmentHasMember::toMap() const {
+    QVariantMap data;
+    data["department"] = department;
+    data["employee"] = employee;
+    return data;
+}
+
+DepartmentHasMember DepartmentHasMember::fromMap(const QVariantMap& data) {
+    DepartmentHasMember x;
+    x.department = data["department"].toInt();
+    x.employee = data["employee"].toInt();
+    return x;
+}
+
+QVariantMap EmployeeCanOpenDoor::toMap() const {
+    QVariantMap data;
+    data["employee"] = employee;
+    data["door"] = door;
+    return data;
+}
+
+EmployeeCanOpenDoor EmployeeCanOpenDoor::fromMap(const QVariantMap& data) {
+    EmployeeCanOpenDoor x;
+    x.employee = data["employee"].toInt();
+    x.door = data["door"].toInt();
+    return x;
+}
+
+QVariantMap EmployeeHasRfid::toMap() const {
+    QVariantMap data;
+    data["employee"] = employee;
+    data["rfid"] = rfid;
+    return data;
+}
+
+EmployeeHasRfid EmployeeHasRfid::fromMap(const QVariantMap& data) {
+    EmployeeHasRfid x;
+    x.employee = data["employee"].toInt();
+    x.rfid = data["rfid"].toInt();
+    return x;
+}
+
+
+
+
+

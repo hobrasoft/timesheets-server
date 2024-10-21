@@ -87,6 +87,15 @@ class DatabasePlugin : public QObject {
     virtual QList<Dbt::Overview>                    overview(const QString& overviewId) = 0;
     virtual QList<Dbt::OverviewList>                overviewList() = 0;
 
+    virtual QList<Dbt::Departments>                 departments(int department) { Q_UNUSED(department); return QList<Dbt::Departments>(); }
+    virtual QList<Dbt::Doors>                       doors(int door) { Q_UNUSED(door); return QList<Dbt::Doors>(); }
+    virtual QList<Dbt::Employees>                   employess(int employee) { Q_UNUSED(employee); return QList<Dbt::Employees>(); }
+    virtual QList<Dbt::EventTypes>                  eventTypes(const QString& eventType) { Q_UNUSED(eventType); return QList<Dbt::EventTypes>(); }
+    virtual QList<Dbt::Events>                      events(int event) { Q_UNUSED(event); return QList<Dbt::Events>(); }
+    virtual QList<Dbt::DepartmentHasManager>        departmentHasManager(const Dbt::DepartmentHasManager&) { return QList<Dbt::DepartmentHasManager>(); }
+    virtual QList<Dbt::DepartmentHasMember>         departmentHasMember(const Dbt::DepartmentHasMember&) { return QList<Dbt::DepartmentHasMember>(); }
+    virtual QList<Dbt::EmployeeCanOpenDoor>         employeeCanOpenDoor(const Dbt::EmployeeCanOpenDoor&) { return QList<Dbt::EmployeeCanOpenDoor>(); }
+    virtual QList<Dbt::EmployeeHasRfid>             employeeHasRfid(const Dbt::EmployeeHasRfid&) { return QList<Dbt::EmployeeHasRfid>(); }
 
     virtual void remove(const Dbt::Users& data) { Q_UNUSED(data); }
     virtual void remove(const Dbt::UsersCategories& data) { Q_UNUSED(data); }
@@ -100,6 +109,15 @@ class DatabasePlugin : public QObject {
     virtual void remove(const Dbt::TicketTimesheets& data) { Q_UNUSED(data); }
     virtual void remove(const Dbt::OverviewList& data) { Q_UNUSED(data); }
 
+    virtual void remove(const Dbt::Departments& data) { Q_UNUSED(data); }
+    virtual void remove(const Dbt::Doors& data) { Q_UNUSED(data); }
+    virtual void remove(const Dbt::Employees& data) { Q_UNUSED(data); }
+    virtual void remove(const Dbt::EventTypes& data) { Q_UNUSED(data); }
+    virtual void remove(const Dbt::Events& data) { Q_UNUSED(data); }
+    virtual void remove(const Dbt::DepartmentHasManager& data) { Q_UNUSED(data); }
+    virtual void remove(const Dbt::DepartmentHasMember& data) { Q_UNUSED(data); }
+    virtual void remove(const Dbt::EmployeeCanOpenDoor& data) { Q_UNUSED(data); }
+    virtual void remove(const Dbt::EmployeeHasRfid& data) { Q_UNUSED(data); }
 
     virtual QVariant save(const Dbt::Users& data) { Q_UNUSED(data); return QVariant(); }
     virtual QVariant save(const Dbt::UsersCategories& data) { Q_UNUSED(data); return QVariant(); }
@@ -114,6 +132,16 @@ class DatabasePlugin : public QObject {
     virtual QVariant save(const Dbt::TicketTimesheets& data) { Q_UNUSED(data); return QVariant(); }
     virtual QVariant save(const Dbt::ServerInfo& data) { Q_UNUSED(data); return QVariant(); }
     virtual QVariant save(const Dbt::AppendStatuses& data) { Q_UNUSED(data); return QVariant(); }
+
+    virtual QVariant save(const Dbt::Departments& data) { Q_UNUSED(data); return QVariant(); }
+    virtual QVariant save(const Dbt::Doors& data) { Q_UNUSED(data); return QVariant(); }
+    virtual QVariant save(const Dbt::Employees& data) { Q_UNUSED(data); return QVariant(); }
+    virtual QVariant save(const Dbt::EventTypes& data) { Q_UNUSED(data); return QVariant(); }
+    virtual QVariant save(const Dbt::Events& data) { Q_UNUSED(data); return QVariant(); }
+    virtual QVariant save(const Dbt::DepartmentHasManager& data) { Q_UNUSED(data); return QVariant(); }
+    virtual QVariant save(const Dbt::DepartmentHasMember& data) { Q_UNUSED(data); return QVariant(); }
+    virtual QVariant save(const Dbt::EmployeeCanOpenDoor& data) { Q_UNUSED(data); return QVariant(); }
+    virtual QVariant save(const Dbt::EmployeeHasRfid& data) { Q_UNUSED(data); return QVariant(); }
 
   protected:
     int     userId() const;

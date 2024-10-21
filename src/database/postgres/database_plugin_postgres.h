@@ -82,7 +82,6 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
             }
         }
 
-
     void remove(const Dbt::Users& data) Q_DECL_OVERRIDE;
     void remove(const Dbt::Categories& data) Q_DECL_OVERRIDE;
     void remove(const Dbt::StatusOrder& data) Q_DECL_OVERRIDE;
@@ -107,6 +106,28 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     QVariant save(const Dbt::TicketTimesheets& data) Q_DECL_OVERRIDE;
     QVariant save(const Dbt::ServerInfo& data) Q_DECL_OVERRIDE;
     QVariant save(const Dbt::AppendStatuses& data) Q_DECL_OVERRIDE;
+
+    // docházka
+    QList<Dbt::Departments>                 departments(int department) Q_DECL_OVERRIDE;
+    QList<Dbt::Doors>                       doors(int door) Q_DECL_OVERRIDE;
+    QList<Dbt::Employees>                   employess(int employee) Q_DECL_OVERRIDE;
+    QList<Dbt::EventTypes>                  eventTypes(const QString& eventType) Q_DECL_OVERRIDE;
+    QList<Dbt::Events>                      events(int event) Q_DECL_OVERRIDE;
+    QList<Dbt::DepartmentHasManager>        departmentHasManager(const Dbt::DepartmentHasManager&) Q_DECL_OVERRIDE;
+    QList<Dbt::DepartmentHasMember>         departmentHasMember(const Dbt::DepartmentHasMember&) Q_DECL_OVERRIDE;
+    QList<Dbt::EmployeeCanOpenDoor>         employeeCanOpenDoor(const Dbt::EmployeeCanOpenDoor&) Q_DECL_OVERRIDE;
+    QList<Dbt::EmployeeHasRfid>             employeeHasRfid(const Dbt::EmployeeHasRfid&) Q_DECL_OVERRIDE;
+
+    virtual void remove(const Dbt::Departments& data) Q_DECL_OVERRIDE;
+    virtual void remove(const Dbt::Doors& data) Q_DECL_OVERRIDE;
+    virtual void remove(const Dbt::Employees& data) Q_DECL_OVERRIDE;
+    virtual void remove(const Dbt::EventTypes& data) Q_DECL_OVERRIDE;
+    virtual void remove(const Dbt::Events& data) Q_DECL_OVERRIDE;
+    virtual void remove(const Dbt::DepartmentHasManager& data) Q_DECL_OVERRIDE;
+    virtual void remove(const Dbt::DepartmentHasMember& data) Q_DECL_OVERRIDE;
+    virtual void remove(const Dbt::EmployeeCanOpenDoor& data) Q_DECL_OVERRIDE;
+    virtual void remove(const Dbt::EmployeeHasRfid& data) Q_DECL_OVERRIDE;
+
 
 
     void    upgrade();

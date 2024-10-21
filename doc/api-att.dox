@@ -1,0 +1,76 @@
+/**
+
+@page apiatt API pro docházku
+
+@tableofcontents
+
+@subsection apiatt-employee /employees
+
+@subsubsection apiatt-employee-get GET /employees[/<employee-id>]
+
+Bez parametru employee-id vrací všechny zaměstnance v poli, bez parametru employee-id vrací jednoho zadaného zaměstnance.
+
+@code
+{
+    "employee":     1234,
+    "firstname":    "Petr",
+    "surname":      "Hobrasoft",
+    "active":       true,
+    // Připojeno z jiných tabulek
+    "departments":  [
+            {"department":23, "abbr": "VY", "description": "Výroba"}, ...
+            ],
+    "rfids": [
+            {"rfid": 12, "rfid_id": "ABCD1234", "valid": true, "note": "Poznámka"}, ...
+            ],
+    "doors": [
+            {"door": 1, "description": "Výrobní dílna"},
+            {"door": 2, "description": "Vstupní dveře"}, ...
+            ],
+    "manages_departments: [
+            {"department":23, "abbr": "VY", "description": "Výroba"}, ...
+            ]
+}
+@endcode
+
+@subsubsection apiatt-employee-put PUT /employees[/<employee-id>]
+
+Bez parametru employee-id vytváří nový záznam, s parametrem employee-id přepíše existující záznam.
+
+Vrací aktualizovaný či vytvořený záznam, formát @ref apiatt-get-employees.
+
+V odesílaném objektu lze poslat pouze údaje, které se mají měnit. Údaje, které nejsou uvedené, se 
+v databázi nezmění.
+
+@code
+{
+    "employee":     1234,   // Musí odpovídat parametru employee-id, u nového záznamu nesmí být vyplněné vůbec
+    "firstname":    "Petr",
+    "surname":      "Hobrasoft",
+    "active":       true,
+    // připojeno z jiných tabulek, stačí zadat identifikátor
+    "departments":  [ {"department": 23}, {"department": 13}, ... ],
+    "doors":        [ {"door": 1}, {"door": 2}, ... ],
+    "rfids":        [ {"rfid": 12}, ... ],
+    "manages_departments": [
+                    [ {"department": 23}, ... ]
+}
+@endcode
+
+@subsection apiatt-departments /departments
+
+@subsubsection apiatt-departments-get GET /departments[/<department-id>]
+
+@code
+{
+    "department":   23,
+    "abbr":         "VY",
+    "description":  "Výroba"
+}
+@endcode
+
+@subsubsection apiatt-departments-put PUT /departments[/<department-id>]
+
+Bez parametru department-id vytváří nový záznam, s parametrem department-id prepíše existující záznam.
+
+*/

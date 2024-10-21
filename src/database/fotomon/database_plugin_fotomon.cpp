@@ -310,6 +310,7 @@ QString DatabasePluginFotomon::parentCategoryKey(const QVariant& type, const QVa
 
 
 QList<Dbt::Categories> DatabasePluginFotomon::categoriesToRoot(const QString& id) {
+    Q_UNUSED(id);
     QList<Dbt::Categories> list;
     return list;
 }
@@ -343,12 +344,14 @@ QList<Dbt::Categories> DatabasePluginFotomon::categories(const QString& id) {
 
 
 QList<Dbt::Categories> DatabasePluginFotomon::subcategories(const QString& id) {
+    Q_UNUSED(id);
     QList<Dbt::Categories> list;
     return list;
 }
 
 
 QList<Dbt::Categories> DatabasePluginFotomon::siblingcategories(const QString& id) {
+    Q_UNUSED(id);
     QList<Dbt::Categories> list;
     return list;
 }
@@ -411,6 +414,8 @@ QList<Dbt::Statuses> DatabasePluginFotomon::statuses(const QString& id) {
 
 
 QList<Dbt::Statuses> DatabasePluginFotomon::statuses(const QString& category, const QString& prevstatus) {
+    Q_UNUSED(category);
+    Q_UNUSED(prevstatus);
     return statuses(QString());
 }
 
@@ -805,21 +810,25 @@ QList<Dbt::TicketTimesheets> DatabasePluginFotomon::ticketTimesheets(bool all) {
 
 
 QList<Dbt::TicketTimesheets>  DatabasePluginFotomon::runningTimesheets(int ticket) {
+    Q_UNUSED(ticket);
     return QList<Dbt::TicketTimesheets>();
 }
 
 
 QList<Dbt::TicketTimesheets>  DatabasePluginFotomon::startTimesheet(int ticket) {
+    Q_UNUSED(ticket);
     return QList<Dbt::TicketTimesheets>();
 }
 
 
 QList<Dbt::TicketTimesheets>  DatabasePluginFotomon::stopTimesheet(int ticket) {
+    Q_UNUSED(ticket);
     return QList<Dbt::TicketTimesheets>();
 }
 
 
 QList<Dbt::TicketTimesheets>  DatabasePluginFotomon::toggleTimesheet(int ticket) {
+    Q_UNUSED(ticket);
     return QList<Dbt::TicketTimesheets>();
 }
 
@@ -1215,18 +1224,21 @@ QList<Dbt::ClientSettings> DatabasePluginFotomon::clientSettings() {
 
 
 QList<Dbt::CategoriesOverview>  DatabasePluginFotomon::categoriesOverview(const QStringList& statuses) {
+    Q_UNUSED(statuses);
     QList<Dbt::CategoriesOverview> list;
     return list;
 }
 
 
 QList<Dbt::Overview> DatabasePluginFotomon::overview(const QString& category, const QStringList& statuses) {
+    Q_UNUSED(statuses);
     QList<Dbt::Overview> list;
     return list;
 }
 
 
 QList<Dbt::Overview> DatabasePluginFotomon::overview(const QString& overviewId) {
+    Q_UNUSED(overviewId);
     QList<Dbt::Overview> list;
     return list;
 }
