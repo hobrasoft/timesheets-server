@@ -484,6 +484,8 @@ struct Employees {
     QString     surname;
     bool        active;
 
+    Employees() { employee = 0; active = false; }
+    Employees(int x) { employee = x; active = false; }
     static Employees fromMap(const QVariantMap&);
     QVariantMap toMap() const;
 };

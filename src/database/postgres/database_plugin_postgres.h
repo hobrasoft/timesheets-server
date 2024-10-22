@@ -110,7 +110,7 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     // docházka
     QList<Dbt::Departments>                 departments(int department) Q_DECL_OVERRIDE;
     QList<Dbt::Doors>                       doors(int door) Q_DECL_OVERRIDE;
-    QList<Dbt::Employees>                   employess(int employee) Q_DECL_OVERRIDE;
+    QList<Dbt::Employees>                   employees(int employee) Q_DECL_OVERRIDE;
     QList<Dbt::EventTypes>                  eventTypes(const QString& eventType) Q_DECL_OVERRIDE;
     QList<Dbt::Events>                      events(int event) Q_DECL_OVERRIDE;
     QList<Dbt::DepartmentHasManager>        departmentHasManager(const Dbt::DepartmentHasManager&) Q_DECL_OVERRIDE;
@@ -129,6 +129,7 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     virtual void remove(const Dbt::EmployeeHasRfid& data) Q_DECL_OVERRIDE;
 
     QVariant save(const Dbt::Departments& data) Q_DECL_OVERRIDE;
+    QVariant save(const Dbt::Employees& data) Q_DECL_OVERRIDE;
 
 
     void    upgrade();

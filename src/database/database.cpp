@@ -327,3 +327,8 @@ QList<Dbt::Departments> Database::departments(int department) {
     return m_dbplugin->departments(department);
 }
 
+
+QList<Dbt::Employees> Database::employees(int e) {
+    return m_dbplugin->employees(e);
+}
+

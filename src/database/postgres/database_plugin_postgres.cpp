@@ -2506,10 +2506,10 @@ QList<Dbt::Doors> DatabasePluginPostgres::doors(int door) {
     return list;
 }
 
-QList<Dbt::Employees> DatabasePluginPostgres::employess(int employee) { 
+QList<Dbt::Employees> DatabasePluginPostgres::employees(int employee) { 
     MSqlQuery q(m_db);
     QList<Dbt::Employees> list; 
-    q.prepare(R"'(select employee, firstname, surname, active from attendance.emplyees where employee = :key1 or :key2 <= 0;)'");
+    q.prepare(R"'(select employee, firstname, surname, active from attendance.employees where employee = :key1 or :key2 <= 0;)'");
     q.bindValue(":key1", employee);
     q.bindValue(":key2", employee);
     q.exec();
@@ -2769,5 +2769,44 @@ QVariant DatabasePluginPostgres::save(const Dbt::Departments& data) {
     
 }       
     
+QVariant DatabasePluginPostgres::save(const Dbt::Employees& data) {
+    MSqlQuery q(m_db);
+        
+    q.prepare(R"'(select 1 from attendance.employees where employee = :key)'");
+    q.bindValue(":key", data.employee);
+    q.exec();
+    if (q.next()) {
+        q.prepare(R"'(
+            update attendance.employees set
+                    firstname = :firstname,
+                    surname = :surname,
+                    active = :active
+                where employee = :employee 
+            )'"); 
+        q.bindValue(":firstname",  data.firstname);
+        q.bindValue(":surname",  data.surname);
+        q.bindValue(":active",  data.active);
+        q.bindValue(":employee",  data.employee);
+        q.exec();
+        return QVariant(data.employee);
+        
+      } else {
+        
+        q.prepare(R"'(
+            insert into attendance.employees (firstname, surname, active)
+                values (:firstname, :surname, :active)
+            )'");
+        q.bindValue(":firstname",  data.firstname);
+        q.bindValue(":surname",  data.surname);
+        q.bindValue(":active",  data.active);
+        q.exec();
+        return currval("attendance.employees_employee_seq");
+        }
+    
+    return QVariant();
+    
+}       
+    
+
 
 

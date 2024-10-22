@@ -4,8 +4,8 @@
  * @author Petr Bravenec petr.bravenec@hobrasoft.cz
  */
 
-#ifndef _Httpd_ControllerDepartments_H_
-#define _Httpd_ControllerDepartments_H_
+#ifndef _Httpd_ControllerEmployees_H_
+#define _Httpd_ControllerEmployees_H_
 
 #include <QObject>
 #include "abstractcontroller.h"
@@ -14,7 +14,7 @@
 /**
  * @addtogroup apiurl
  * @{
- * - @ref Httpd::ControllerDepartments - /departments - Manipuluje s informacemi o odděleních v docházce
+ * - @ref Httpd::ControllerEmployees - /employees - Manipuluje s informacemi o zaměstnancích v docházce
  * @}
  */
 
@@ -22,7 +22,7 @@
 namespace Httpd {
 
 /**
-@brief Manipuluje s informacemi o odděleních v docházce
+@brief Manipuluje s informacemi o zaměstnancích v docházce
 
 Vrací seznam oddělení v docházce.
 
@@ -43,10 +43,10 @@ Struktura jednoho záznamu:
 
 
 */
-class ControllerDepartments : public AbstractController {
+class ControllerEmployees : public AbstractController {
     Q_OBJECT
   public:
-    ControllerDepartments(HobrasoftHttpd::HttpConnection *parent);
+    ControllerEmployees(HobrasoftHttpd::HttpConnection *parent);
 
   protected:
 

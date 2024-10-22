@@ -648,6 +648,23 @@ EmployeeHasRfid EmployeeHasRfid::fromMap(const QVariantMap& data) {
     return x;
 }
 
+QVariantMap Employees::toMap() const {
+    QVariantMap data;
+    data["employee"] = employee;
+    data["firstname"] = firstname;
+    data["surname"] = surname;
+    data["active"] = active;
+    return data;
+}
+
+Employees Employees::fromMap(const QVariantMap& data) {
+    Employees x;
+    x.employee = data["employee"].toInt();
+    x.firstname = data["firstname"].toString();
+    x.surname = data["surname"].toString();
+    x.active = data["active"].toBool();
+    return x;
+}
 
 
 

@@ -39,6 +39,7 @@
 
 // Docházka
 #include "controllerdepartments.h"
+#include "controlleremployees.h"
 
 using namespace HobrasoftHttpd;
 using namespace Httpd;
@@ -123,6 +124,7 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
     ROUTER("/api/v1/categories",                       ControllerCategories);
     ROUTER("/api/v1/ticketsvw",                        ControllerTicketsVw);
     ROUTER("/api/v1/timesheet",                        ControllerTimesheet);
+    ROUTER("/api/v1/employees",                        ControllerEmployees);
     ROUTER("/api/v1/overview",                         ControllerOverview);
     ROUTER("/api/v1/statuses",                         ControllerStatuses);
     ROUTER("/api/v1/tickets",                          ControllerTickets);

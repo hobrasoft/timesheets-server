@@ -24,7 +24,7 @@ create table rfids (
 );
 
 create table employees (
-    employee        integer primary key,
+    employee        serial primary key,
     firstname       text not null,
     surname         text not null,
     active          boolean

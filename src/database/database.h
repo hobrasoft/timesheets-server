@@ -89,6 +89,7 @@ class Database : public QObject {
     QList<Dbt::ServerInfo>                  serverInfo();
 
     QList<Dbt::Departments>                 departments(int department = -1);
+    QList<Dbt::Employees>                   employees(int employees = -1);
 
 
     template<typename T> QVariant save(const T& id) { return m_dbplugin->save(id); }

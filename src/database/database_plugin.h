@@ -89,7 +89,7 @@ class DatabasePlugin : public QObject {
 
     virtual QList<Dbt::Departments>                 departments(int department) { Q_UNUSED(department); return QList<Dbt::Departments>(); }
     virtual QList<Dbt::Doors>                       doors(int door) { Q_UNUSED(door); return QList<Dbt::Doors>(); }
-    virtual QList<Dbt::Employees>                   employess(int employee) { Q_UNUSED(employee); return QList<Dbt::Employees>(); }
+    virtual QList<Dbt::Employees>                   employees(int employee) { Q_UNUSED(employee); return QList<Dbt::Employees>(); }
     virtual QList<Dbt::EventTypes>                  eventTypes(const QString& eventType) { Q_UNUSED(eventType); return QList<Dbt::EventTypes>(); }
     virtual QList<Dbt::Events>                      events(int event) { Q_UNUSED(event); return QList<Dbt::Events>(); }
     virtual QList<Dbt::DepartmentHasManager>        departmentHasManager(const Dbt::DepartmentHasManager&) { return QList<Dbt::DepartmentHasManager>(); }
