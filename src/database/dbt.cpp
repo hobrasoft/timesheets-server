@@ -667,5 +667,19 @@ Employees Employees::fromMap(const QVariantMap& data) {
 }
 
 
+QVariantMap Doors::toMap() const {
+    QVariantMap data;
+    data["door"] = door;
+    data["description"] = description;
+    return data;
+}
+
+
+Doors Doors::fromMap(const QVariantMap& data) {
+    Doors x;
+    x.door = data["door"].toInt();
+    x.description = data["description"].toString();
+    return x;
+}
 
 

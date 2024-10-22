@@ -28,6 +28,7 @@ SOURCES += \
  $$PWD/controlleroverviewpublic.cpp \
  $$PWD/controllerdepartments.cpp \
  $$PWD/controlleremployees.cpp \
+ $$PWD/controllerdoors.cpp \
 
 HEADERS += \
  $$PWD/controllerserver.h \
@@ -51,6 +52,7 @@ HEADERS += \
  $$PWD/controlleroverviewpublic.h \
  $$PWD/controllerdepartments.h \
  $$PWD/controlleremployees.h \
+ $$PWD/controllerdoors.h \
 
 HEADERS += \
  $$PWD/httpd.h \

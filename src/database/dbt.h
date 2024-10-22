@@ -464,6 +464,7 @@ struct Doors {
     QString     description;
 
     Doors() { door = 0; }
+    Doors(int x) { door = x; }
     static Doors fromMap(const QVariantMap&);
     QVariantMap toMap() const;
 };

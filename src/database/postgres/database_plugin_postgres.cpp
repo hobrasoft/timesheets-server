@@ -2492,7 +2492,7 @@ QList<Dbt::Departments> DatabasePluginPostgres::departments(int department) {
 QList<Dbt::Doors> DatabasePluginPostgres::doors(int door) {
     MSqlQuery q(m_db);
     QList<Dbt::Doors> list; 
-    q.prepare(R"'(select door, description from attendance.departments where department = :key1 or :key2 <= 0;)'");
+    q.prepare(R"'(select door, description from attendance.doors where door = :key1 or :key2 <= 0;)'");
     q.bindValue(":key1", door);
     q.bindValue(":key2", door);
     q.exec();
@@ -2768,7 +2768,8 @@ QVariant DatabasePluginPostgres::save(const Dbt::Departments& data) {
     return QVariant();
     
 }       
-    
+
+
 QVariant DatabasePluginPostgres::save(const Dbt::Employees& data) {
     MSqlQuery q(m_db);
         
@@ -2807,6 +2808,40 @@ QVariant DatabasePluginPostgres::save(const Dbt::Employees& data) {
     
 }       
     
+
+QVariant DatabasePluginPostgres::save(const Dbt::Doors& data) {
+    MSqlQuery q(m_db);
+        
+    q.prepare(R"'(select 1 from attendance.doors where door = :key)'");
+    q.bindValue(":key", data.door);
+    q.exec();
+    if (q.next()) {
+        q.prepare(R"'(
+            update attendance.doors set
+                    description = :description
+                where door = :door 
+            )'"); 
+        q.bindValue(":description",  data.description);
+        q.bindValue(":door",  data.door);
+        q.exec();
+        return QVariant(data.door);
+        
+      } else {
+        
+        q.prepare(R"'(
+            insert into attendance.doors (description)
+                values (:description)
+            )'");
+        q.bindValue(":description",  data.description);
+        q.exec();
+        return currval("attendance.doors_door_seq");
+        }
+    
+    return QVariant();
+    
+}       
+    
+
 
 
 
