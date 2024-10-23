@@ -505,7 +505,20 @@ struct EventTypes {
     bool        unpaid_leave;           // Neplacené volno
     bool        sick_care;              // Ošetřování člena rodiny
 
+    EventTypes(const QString& id) {
+        clear();
+        event_type = id;
+        }
+
     EventTypes() {
+        clear();
+        }
+
+    static EventTypes fromMap(const QVariantMap&);
+    QVariantMap toMap() const;
+
+    void clear() {
+        event_type.clear();
         end_state = false;
         passage = false;
         arrival = false;
@@ -517,9 +530,6 @@ struct EventTypes {
         unpaid_leave = false;
         sick_care = false;
         }
-
-    static EventTypes fromMap(const QVariantMap&);
-    QVariantMap toMap() const;
 };
 
 struct Events {

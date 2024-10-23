@@ -131,6 +131,8 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     QVariant save(const Dbt::Departments& data) Q_DECL_OVERRIDE;
     QVariant save(const Dbt::Employees& data) Q_DECL_OVERRIDE;
     QVariant save(const Dbt::Doors& data) Q_DECL_OVERRIDE;
+    QVariant save(const Dbt::EventTypes& data) Q_DECL_OVERRIDE;
+    QVariant save(const Dbt::Events& data) Q_DECL_OVERRIDE;
 
 
     void    upgrade();

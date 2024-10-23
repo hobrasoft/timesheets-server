@@ -2807,7 +2807,7 @@ QVariant DatabasePluginPostgres::save(const Dbt::Employees& data) {
     return QVariant();
     
 }       
-    
+
 
 QVariant DatabasePluginPostgres::save(const Dbt::Doors& data) {
     MSqlQuery q(m_db);
@@ -2840,7 +2840,130 @@ QVariant DatabasePluginPostgres::save(const Dbt::Doors& data) {
     return QVariant();
     
 }       
+
+
+QVariant DatabasePluginPostgres::save(const Dbt::EventTypes& data) {
+    MSqlQuery q(m_db);
+        
+    q.prepare(R"'(select 1 from attendance.event_types where event_type = :key)'");
+    q.bindValue(":key", data.event_type);
+    q.exec();
+    if (q.next()) {
+        q.prepare(R"'(
+            update attendance.event_types set
+                    description = :description,
+                    passage = :passage,
+                    end_state = :end_state,
+                    arrival = :arrival,
+                    vacation = :vacation,
+                    sick_leave = :sick_leave,
+                    compensatory_leave = :compensatory_leave,
+                    business_trip = :business_trip,
+                    break_time = :break_time,
+                    unpaid_leave = :unpaid_leave,
+                    sick_care = :sick_care
+                where event_type = :event_type
+            )'"); 
+
+        q.bindValue(":description", data.description);
+        q.bindValue(":passage", data.passage);
+        q.bindValue(":end_state", data.end_state);
+        q.bindValue(":arrival", data.arrival);
+        q.bindValue(":vacation", data.vacation);
+        q.bindValue(":sick_leave", data.sick_leave);
+        q.bindValue(":compensatory_leave", data.compensatory_leave);
+        q.bindValue(":business_trip", data.business_trip);
+        q.bindValue(":break_time", data.break_time);
+        q.bindValue(":unpaid_leave", data.unpaid_leave);
+        q.bindValue(":sick_care", data.sick_care);
+        q.bindValue(":event_type",  data.event_type);
+        q.exec();
+        return QVariant(data.event_type);
+        
+      } else {
+        
+        q.prepare(R"'(
+            insert into attendance.event_types (
+                    event_type, description, 
+                    passage, end_state, arrival, vacation, sick_leave, compensatory_leave,
+                    business_trip, break_time, unpaid_leave, sick_care)
+                values (
+                    :event_type, :description, 
+                    :passage, :end_state, :arrival, :vacation, :sick_leave, :compensatory_leave,
+                    :business_trip, :break_time, :unpaid_leave, :sick_care
+                    );
+            )'");
+        q.bindValue(":event_type", data.event_type);
+        q.bindValue(":description", data.description);
+        q.bindValue(":passage", data.passage);
+        q.bindValue(":end_state", data.end_state);
+        q.bindValue(":arrival", data.arrival);
+        q.bindValue(":vacation", data.vacation);
+        q.bindValue(":sick_leave", data.sick_leave);
+        q.bindValue(":compensatory_leave", data.compensatory_leave);
+        q.bindValue(":business_trip", data.business_trip);
+        q.bindValue(":break_time", data.break_time);
+        q.bindValue(":unpaid_leave", data.unpaid_leave);
+        q.bindValue(":sick_care", data.sick_care);
+        q.exec();
+        return data.event_type;
+        }
     
+    return QVariant();
+    
+}       
+
+
+
+QVariant DatabasePluginPostgres::save(const Dbt::Events& data) {
+    MSqlQuery q(m_db);
+        
+    q.prepare(R"'(select 1 from attendance.events where event = :key)'");
+    q.bindValue(":key", data.event);
+    q.exec();
+    if (q.next()) {
+        q.prepare(R"'(
+            update attendance.events set
+                    date = :date,
+                    envent_type = :event_type,
+                    employee = :employee,
+                    valid = :valid,
+                    user_edited = :user_edited
+                where event = :event
+            )'"); 
+        q.bindValue(":date",  data.date);
+        q.bindValue(":event_type",  data.event_type);
+        q.bindValue(":employee",  data.employee);
+        q.bindValue(":valid",  data.valid);
+        q.bindValue(":user_edited",  data.user_edited);
+        q.bindValue(":event",  data.event);
+        q.exec();
+        return QVariant(data.event);
+        
+      } else {
+        
+        q.prepare(R"'(
+            insert into attendance.events 
+                    (date, event_type, employee, valid, user_edited)
+                values 
+                    (:date, :event_type, :employee, :valid, :user_edited)
+                ;
+            )'");
+        q.bindValue(":date",  data.date);
+        q.bindValue(":event_type",  data.event_type);
+        q.bindValue(":employee",  data.employee);
+        q.bindValue(":valid",  data.valid);
+        q.bindValue(":user_edited",  data.user_edited);
+        q.exec();
+        return currval("attendance.events_event_seq");
+        }
+    
+    return QVariant();
+    
+}       
+
+
+
 
 
 

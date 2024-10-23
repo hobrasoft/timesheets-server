@@ -29,6 +29,7 @@ SOURCES += \
  $$PWD/controllerdepartments.cpp \
  $$PWD/controlleremployees.cpp \
  $$PWD/controllerdoors.cpp \
+ $$PWD/controllereventtypes.cpp \
 
 HEADERS += \
  $$PWD/controllerserver.h \
@@ -53,6 +54,7 @@ HEADERS += \
  $$PWD/controllerdepartments.h \
  $$PWD/controlleremployees.h \
  $$PWD/controllerdoors.h \
+ $$PWD/controllereventtypes.h \
 
 HEADERS += \
  $$PWD/httpd.h \

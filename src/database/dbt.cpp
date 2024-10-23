@@ -555,7 +555,7 @@ QVariantMap EventTypes::toMap() const {
 
 EventTypes EventTypes::fromMap(const QVariantMap& data) {
     EventTypes x;
-    x.event_type = data["event_type"].toInt();
+    x.event_type = data["event_type"].toString();
     x.description = data["description"].toString();
     x.end_state = data["end_state"].toBool();
     x.passage = data["passage"].toBool();

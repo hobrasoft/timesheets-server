@@ -335,3 +335,11 @@ QList<Dbt::Doors> Database::doors(int d) {
     return m_dbplugin->doors(d);
 }
 
+QList<Dbt::EventTypes> Database::eventTypes(const QString& t) {
+    return m_dbplugin->eventTypes(t);
+}
+
+QList<Dbt::Events> Database::events(int t) {
+    return m_dbplugin->events(t);
+}
+
