@@ -154,6 +154,7 @@ QVariantMap Statuses::toMap() const {
     data["closed"] = closed;
     data["can_be_run"] = can_be_run;
     data["ignored"] = ignored;
+    data["show_in_overview"] = show_in_overview;
     if (can_have_next) {
         data["next"] = toList(next);
         }
@@ -170,6 +171,7 @@ Statuses Statuses::fromMap(const QVariantMap& data) {
     x.closed= data["closed"].toBool();
     x.can_be_run = data["can_be_run"].toBool();
     x.ignored = data["ignored"].toBool();
+    x.show_in_overview = data["show_in_overview"].toBool();
     if (data.contains("next")) {
         const QVariantList next = data["next"].toList();
         for (int i=0; i<next.size(); i++) {

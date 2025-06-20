@@ -1,14 +1,14 @@
 begin;
-insert into statuses (status, description, abbreviation, color, closed, can_be_run, ignored)
+insert into statuses (status, description, abbreviation, color, closed, can_be_run, ignored, show_in_overview)
 values
-('PRIORITY', 'High priority', 'PRIORITY', 'red', false, true, false),
-('CLOSED', 'Closed', 'CLOSED', 'green', true, false, false),
-('FREEZED', 'Freezed', 'FREEZED', 'blue', true, false, false), 
-('NOTE', 'Note', 'NOTE', 'transparent', false, true, true),
-('INVOICE', 'Waiting for invoice', 'INVOICE', 'seagreen', true, false, false),
-('INVOICED', 'Invoiced', 'INVOICED', 'lightgreen', true, false, false),
-('NEW', 'Open', 'NEW', 'transparent', false, true, false),
-('ARCHIVE', 'Archived', 'ARCHIVE', 'transparent', true, false, false);
+('PRIORITY', 'High priority', 'PRIORITY', 'red', false, true, false, true),
+('CLOSED', 'Closed', 'CLOSED', 'green', true, false, false, true),
+('FREEZED', 'Freezed', 'FREEZED', 'blue', true, false, false, true),
+('NOTE', 'Note', 'NOTE', 'transparent', false, true, true, true),
+('INVOICE', 'Waiting for invoice', 'INVOICE', 'seagreen', true, false, false, true),
+('INVOICED', 'Invoiced', 'INVOICED', 'lightgreen', true, false, false, true),
+('NEW', 'Open', 'NEW', 'transparent', false, true, false, true),
+('ARCHIVE', 'Archived', 'ARCHIVE', 'transparent', true, false, false, true);
 
 insert into status_order (previous_status, next_status)
 values
