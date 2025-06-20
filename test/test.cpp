@@ -896,5 +896,11 @@ void Test::delTicket() {
     QVERIFY(api()->error() == QNetworkReply::ContentNotFoundError);
 }
 
+void Test::statusOverview() {
+    APIGET("/status-overview/0");
+    QVariantList list = api()->variant().toList();
+    QVERIFY(list.isEmpty() == false);
+}
+
 
 
