@@ -423,6 +423,17 @@ struct Overview {
 };
 
 
+struct StatusOverview {
+    QString     category;
+    int         user;
+    QString     status;
+    double      duration;
+    double      price;
+    QVariantMap toMap() const;
+    StatusOverview() { user = 0; duration = 0; price = 0; }
+};
+
+
 }
 
 #endif
