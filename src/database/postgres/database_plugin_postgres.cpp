@@ -65,12 +65,12 @@ void DatabasePluginPostgres::upgrade() {
     MSqlQuery q(m_db);
     q.exec("select version from version;");
     int version = (q.next()) ? q.value(0).toInt() : -1;
-    for (;;) {
-        version++;
+    for (; version < 1000; version++) {
+        // version++;
         QString patchname = QString(":/postgres/patch.%1.sql").arg(version, 3, 10, QChar('0'));
         QFile file(patchname);
         if (!file.open(QIODevice::ReadOnly)) {
-            return;
+            continue;
             }
         PDEBUG << "aplying db patch " << patchname;
 
@@ -1585,8 +1585,8 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& id) {
     MSqlQuery q(m_db);
     if (id.isEmpty() || id == "") {
         q.prepare(R"'(
-            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run, s.ignored, 
-                   n.status, n.description, n.abbreviation, n.color, n.closed, n.can_be_run, n.ignored 
+            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run, s.ignored, s.show_in_overview,
+                   n.status, n.description, n.abbreviation, n.color, n.closed, n.can_be_run, n.ignored, n.show_in_overview
             from statuses s 
             left join status_order o on (s.status = o.previous_status) 
             left join statuses n on (o.next_status = n.status)
@@ -1594,8 +1594,8 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& id) {
             )'");
       } else {
         q.prepare(R"'(
-            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run, s.ignored, 
-                   n.status, n.description, n.abbreviation, n.color, n.closed, n.can_be_run, n.ignored 
+            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run, s.ignored, s.show_in_overview,
+                   n.status, n.description, n.abbreviation, n.color, n.closed, n.can_be_run, n.ignored, n.show_in_overview
             from statuses s 
             left join status_order o on (s.status = o.previous_status) 
             left join statuses n on (o.next_status = n.status)
@@ -1619,7 +1619,8 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& id) {
         x.closed = q.value(i++).toBool();
         x.can_be_run = q.value(i++).toBool();
         x.ignored = q.value(i++).toBool();
-        x.can_have_next = true; 
+        x.show_in_overview = q.value(i++).toBool();
+        x.can_have_next = true;
         if (!q.value(i).isNull()) {
             Dbt::Statuses n;
             n.status = q.value(i++).toString();
@@ -1629,6 +1630,7 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& id) {
             n.closed = q.value(i++).toBool();
             n.can_be_run = q.value(i++).toBool();
             n.ignored = q.value(i++).toBool();
+            n.show_in_overview = q.value(i++).toBool();
             x.next << n;
             }
         }
@@ -1658,6 +1660,7 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& category, c
             x.closed = q.value(i++).toBool();
             x.can_be_run = q.value(i++).toBool();
             x.ignored = q.value(i++).toBool();
+            x.show_in_overview = q.value(i++).toBool();
             list << x;
             }
         return list;
@@ -1673,7 +1676,7 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& category, c
 
     if (findNullCategory && (previousStatus.isEmpty() || previousStatus == "")) {
         q.prepare(R"'(
-            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run, s.ignored
+            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run, s.ignored, s.show_in_overview
             from statuses s, status_order o
             where s.status = o.next_status
             and (o.previous_status is null or o.previous_status = '')
@@ -1684,7 +1687,7 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& category, c
 
     if (findNullCategory) {
         q.prepare(R"'(
-            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run, s.ignored
+            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run, s.ignored, s.show_in_overview
             from statuses s, status_order o
             where s.status = o.next_status
             and o.previous_status = :previous_status
@@ -1696,7 +1699,7 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& category, c
 
     if (!findNullCategory && (previousStatus.isEmpty() || previousStatus == "")) {
         q.prepare(R"'(
-            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run, s.ignored
+            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run, s.ignored, s.show_in_overview
             from statuses s, status_order o
             where s.status = o.next_status
             and (o.previous_status is null or o.previous_status = '')
@@ -1709,7 +1712,7 @@ QList<Dbt::Statuses> DatabasePluginPostgres::statuses(const QString& category, c
 
     if (!findNullCategory) {
         q.prepare(R"'(
-            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run, s.ignored
+            select s.status, s.description, s.abbreviation, s.color, s.closed, s.can_be_run, s.ignored, s.show_in_overview
             from statuses s, status_order o
             where s.status = o.next_status
             and o.previous_status = :previous_status
@@ -1744,7 +1747,8 @@ QVariant DatabasePluginPostgres::save(const Dbt::Statuses& data) {
             color = :color,
             closed = :closed,
             can_be_run = :can_be_run,
-            ignored = :ignored
+            ignored = :ignored,
+            show_in_overview = :show_in_overview
             where status = :status
         )'");
     q.bindValue(":description", data.description);
@@ -1753,12 +1757,13 @@ QVariant DatabasePluginPostgres::save(const Dbt::Statuses& data) {
     q.bindValue(":closed", data.closed);
     q.bindValue(":can_be_run", data.can_be_run);
     q.bindValue(":ignored", data.ignored);
+    q.bindValue(":show_in_overview", data.show_in_overview);
     q.bindValue(":status", data.status);
     q.exec();
 
     q.prepare(R"'(
-        insert into statuses (status, description, abbreviation, color, closed, can_be_run, ignored)
-            select :status1, :description, :abbreviation, :color, :closed, :can_be_run, :ignored
+        insert into statuses (status, description, abbreviation, color, closed, can_be_run, ignored, show_in_overview)
+            select :status1, :description, :abbreviation, :color, :closed, :can_be_run, :ignored, :show_in_overview
             where not exists (select 1 from statuses where status = :status2);
         )'");
     q.bindValue(":status1", data.status);
@@ -1768,6 +1773,7 @@ QVariant DatabasePluginPostgres::save(const Dbt::Statuses& data) {
     q.bindValue(":closed", data.closed);
     q.bindValue(":can_be_run", data.can_be_run);
     q.bindValue(":ignored", data.ignored);
+    q.bindValue(":show_in_overview", data.show_in_overview);
     q.bindValue(":status2", data.status);
     q.exec();
 
