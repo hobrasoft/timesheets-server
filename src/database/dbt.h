@@ -122,6 +122,7 @@ struct Statuses {
     bool        closed;
     bool        can_be_run;
     bool        ignored;
+    bool        show_in_overview;
     bool        can_have_next;   // Není součástí tabulky, flag pro generování next
     QList<Statuses> next;
 
@@ -131,9 +132,10 @@ struct Statuses {
     Statuses() { clear(); }
     void clear() { 
         closed = false; 
-        can_be_run = false; 
-        ignored = false; 
-        can_have_next = false; 
+        can_be_run = false;
+        ignored = false;
+        show_in_overview = false;
+        can_have_next = false;
         status = QString(); 
         description = QString(); 
         abbreviation = QString(); 
