@@ -36,6 +36,10 @@
         <td><input type="checkbox" class="form-check-input" id="ignored"></input></td>
         </tr>
 
+    <tr><td><label for="show_in_overview" class="form-check-label">Show in overview</label></td>
+        <td><input type="checkbox" class="form-check-input" id="show_in_overview"></input></td>
+        </tr>
+
 
     <tr><td><label class="form-label">Can follow</label></td>
         <td>
@@ -106,6 +110,7 @@ $(document).ready(function(){
             $("#closed").attr("checked", result.closed);
             $("#can_be_run").attr("checked", result.can_be_run);
             $("#ignored").attr("checked", result.ignored);
+            $("#show_in_overview").attr("checked", result.show_in_overview);
             var api2 = new Api();
             api2.onFinished = function(result2) {
                 for (var i=0; i<result2.length; i++) {
@@ -142,6 +147,7 @@ $(document).ready(function(){
         data.closed = $("#closed").prop("checked");
         data.can_be_run = $("#can_be_run").prop("checked");
         data.ignored = $("#ignored").prop("checked");
+        data.show_in_overview = $("#show_in_overview").prop("checked");
         data.next = new Array; 
         $(".next-status-data").each(function() {
             var id = $(this).attr('id');

@@ -17,6 +17,7 @@
         <th>Closed</th>
         <th>Can be run</th>
         <th>Ignored</th>
+        <th>Show in overview</th>
     </tr>
     </thead>
     <tbody id="tbody">
@@ -29,6 +30,7 @@
         <td class="status-closed"></td>
         <td class="status-can-be-run"></td>
         <td class="status-ignored"></td>
+        <td class="status-show-in-overview"></td>
     </tr>
     </tbody>
     </table>
@@ -51,6 +53,7 @@ $(document).ready(function(){
             var id_status_closed = x.find(".status-closed");
             var id_status_can_be_run = x.find(".status-can-be-run");
             var id_status_ignored = x.find(".status-ignored");
+            var id_status_show_in_overview = x.find(".status-show-in-overview");
             var id_status_edit = x.find(".status-edit");
 
             if (userAdmin()) {
@@ -70,6 +73,7 @@ $(document).ready(function(){
             $(id_status_closed).html(result[t].closed);
             $(id_status_can_be_run).html(result[t].can_be_run);
             $(id_status_ignored).html(result[t].ignored);
+            $(id_status_show_in_overview).html(result[t].show_in_overview);
 
             var href="settings-status.shtml?status="+result[t].status;
             $(id_status_edit).attr("href", href);
