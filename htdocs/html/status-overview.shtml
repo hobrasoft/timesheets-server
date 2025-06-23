@@ -21,20 +21,20 @@ $(document).ready(function(){
         statuses.forEach(function(s){ $('#thead-row').append('<th>'+s+'</th>'); });
         var grouped = {};
         result.forEach(function(r){
-            if(!grouped[r.category]) grouped[r.category]={users:{}};
-            if(!grouped[r.category].users[r.user]) grouped[r.category].users[r.user]={};
+            if(!grouped[r.category]) grouped[r.category]={users:{}, description:r.category_description};
+            if(!grouped[r.category].users[r.user]) grouped[r.category].users[r.user]={name:r.user_name};
             grouped[r.category].users[r.user][r.status]=r.duration;
         });
         var overall = {};
         for(var c in grouped){
             var catTot = {};
             var rowCat = $('<tr class="table-primary"></tr>');
-            rowCat.append('<td colspan="2">'+c+'</td>');
+            rowCat.append('<td colspan="2">'+grouped[c].description+'</td>');
             statuses.forEach(function(s){ rowCat.append('<td></td>'); catTot[s]=0; });
             $('#tbody').append(rowCat);
             for(var u in grouped[c].users){
                 var row = $('<tr></tr>');
-                row.append('<td></td><td>'+u+'</td>');
+                row.append('<td></td><td>'+grouped[c].users[u].name+'</td>');
                 statuses.forEach(function(s){ var val=grouped[c].users[u][s]||0; row.append('<td>'+val+'</td>'); catTot[s]+=val; overall[s]=(overall[s]||0)+val; });
                 $('#tbody').append(row);
             }

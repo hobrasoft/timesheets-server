@@ -487,7 +487,9 @@ QVariantMap Overview::toMap() const {
 QVariantMap StatusOverview::toMap() const {
     QVariantMap data;
     data["category"] = category;
+    data["category_description"] = category_description;
     data["user"] = user;
+    data["user_name"] = user_name;
     data["status"] = status;
     data["duration"] = duration;
     data["price"] = price;

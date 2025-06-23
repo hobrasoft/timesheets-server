@@ -2316,16 +2316,18 @@ QList<Dbt::StatusOverview> DatabasePluginPostgres::statusOverview(const QString&
                 from ticket_timesheets
                 group by ticket, "user"
         )
-        select t.category, t."user", ls.status,
+        select t.category, c.description, t."user", u.name, ls.status,
                to_hours(sum(ts.duration)) as duration,
                sum(to_hours(ts.duration) * t.price) as price
             from tickets t
             left join ticket_last_status ls using(ticket)
             left join ticket_timesheets_sum ts using(ticket, "user")
             left join statuses st on (st.status = ls.status)
+            left join users u using ("user")
+            left join categories c on (c.category = t.category)
             where t.category in (select category from tree)
               and st.show_in_overview
-            group by t.category, t."user", ls.status
+            group by t.category, c.description, t."user", u.name, ls.status
             order by t.category, t."user", ls.status
     )'");
     q.bindValue(":cat", category.toInt());
@@ -2334,7 +2336,9 @@ QList<Dbt::StatusOverview> DatabasePluginPostgres::statusOverview(const QString&
         int i=0;
         Dbt::StatusOverview x;
         x.category = q.value(i++).toString();
+        x.category_description = q.value(i++).toString();
         x.user     = q.value(i++).toInt();
+        x.user_name = q.value(i++).toString();
         x.status   = q.value(i++).toString();
         x.duration = q.value(i++).toDouble();
         x.price    = q.value(i++).toDouble();

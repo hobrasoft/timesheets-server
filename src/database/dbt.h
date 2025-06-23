@@ -425,7 +425,9 @@ struct Overview {
 
 struct StatusOverview {
     QString     category;
+    QString     category_description;
     int         user;
+    QString     user_name;
     QString     status;
     double      duration;
     double      price;

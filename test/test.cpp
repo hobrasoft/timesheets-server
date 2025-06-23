@@ -900,6 +900,9 @@ void Test::statusOverview() {
     APIGET("/status-overview/0");
     QVariantList list = api()->variant().toList();
     QVERIFY(list.isEmpty() == false);
+    QVariantMap first = list.first().toMap();
+    QVERIFY(first.contains("user_name"));
+    QVERIFY(first.contains("category_description"));
 }
 
 
