@@ -1,0 +1,55 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<div class="container">
+    <h2>Status overview</h2>
+    <table class="table table-bordered" id="table">
+        <thead><tr id="thead-row"><th>Project</th><th>User</th></tr></thead>
+        <tbody id="tbody"></tbody>
+        <tfoot id="tfoot"></tfoot>
+    </table>
+</div>
+
+<script>
+$(document).ready(function(){
+    var url = new URLSearchParams(window.location.search);
+    var category = url.get('category');
+    if(!category) category = '0';
+    var api = new Api();
+    api.onFinished = function(result){
+        var statuses = Array.from(new Set(result.map(function(r){return r.status;})));
+        statuses.forEach(function(s){ $('#thead-row').append('<th>'+s+'</th>'); });
+        var grouped = {};
+        result.forEach(function(r){
+            if(!grouped[r.category]) grouped[r.category]={users:{}};
+            if(!grouped[r.category].users[r.user]) grouped[r.category].users[r.user]={};
+            grouped[r.category].users[r.user][r.status]=r.duration;
+        });
+        var overall = {};
+        for(var c in grouped){
+            var catTot = {};
+            var rowCat = $('<tr class="table-primary"></tr>');
+            rowCat.append('<td colspan="2">'+c+'</td>');
+            statuses.forEach(function(s){ rowCat.append('<td></td>'); catTot[s]=0; });
+            $('#tbody').append(rowCat);
+            for(var u in grouped[c].users){
+                var row = $('<tr></tr>');
+                row.append('<td></td><td>'+u+'</td>');
+                statuses.forEach(function(s){ var val=grouped[c].users[u][s]||0; row.append('<td>'+val+'</td>'); catTot[s]+=val; overall[s]=(overall[s]||0)+val; });
+                $('#tbody').append(row);
+            }
+            var rowTot = $('<tr class="table-secondary"></tr>');
+            rowTot.append('<td colspan="2">Total</td>');
+            statuses.forEach(function(s){ rowTot.append('<td>'+catTot[s]+'</td>'); });
+            $('#tbody').append(rowTot);
+        }
+        var f = $('<tr class="table-success"></tr>');
+        f.append('<td colspan="2">Overall</td>');
+        statuses.forEach(function(s){ f.append('<td>'+ (overall[s]||0) +'</td>'); });
+        $('#tfoot').append(f);
+    };
+    api.get('status-overview/'+category);
+});
+</script>
+
+<!-- #include '/inc/footer.html' -->

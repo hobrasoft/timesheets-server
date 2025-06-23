@@ -2291,4 +2291,57 @@ void DatabasePluginPostgres::remove(const Dbt::OverviewList& x) {
     q.exec();
 }
 
+QList<Dbt::StatusOverview> DatabasePluginPostgres::statusOverview(const QString& category) {
+    QList<Dbt::StatusOverview> list;
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(
+        with recursive tree as (
+            select category from categories where category = :cat
+            union all
+            select c.category from tree t join categories c on c.parent_category = t.category
+        ),
+        ticket_last_status as not materialized (
+            select t.ticket, tl.status
+                from tickets t
+                left join lateral (
+                    select tn.ticket, tn.status
+                        from ticket_status tn join statuses s on tn.status = s.status
+                        where tn.ticket = t.ticket and not s.ignored
+                        order by tn.date desc limit 1
+                ) tl using(ticket)
+        ),
+        ticket_timesheets_sum as not materialized (
+            select ticket, "user", sum(date_to - date_from) as duration
+                from ticket_timesheets
+                group by ticket, "user"
+        )
+        select t.category, t."user", ls.status,
+               to_hours(sum(ts.duration)) as duration,
+               sum(to_hours(ts.duration) * t.price) as price
+            from tickets t
+            left join ticket_last_status ls using(ticket)
+            left join ticket_timesheets_sum ts using(ticket, "user")
+            left join statuses st on (st.status = ls.status)
+            where t.category in (select category from tree)
+              and st.show_in_overview
+            group by t.category, t."user", ls.status
+            order by t.category, t."user", ls.status
+    )'");
+    q.bindValue(":cat", category.toInt());
+    q.exec();
+    while (q.next()) {
+        int i=0;
+        Dbt::StatusOverview x;
+        x.category = q.value(i++).toString();
+        x.user     = q.value(i++).toInt();
+        x.status   = q.value(i++).toString();
+        x.duration = q.value(i++).toDouble();
+        x.price    = q.value(i++).toDouble();
+        list << x;
+    }
+
+    return list;
+}
+
 

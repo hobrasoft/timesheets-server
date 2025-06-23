@@ -79,6 +79,7 @@ class DatabasePluginFotomon : public Db::Plugins::DatabasePlugin {
     QList<Dbt::Overview>                    overview(const QString& category, const QStringList& statuses) Q_DECL_OVERRIDE;
     QList<Dbt::Overview>                    overview(const QString& overviewId) Q_DECL_OVERRIDE;
     QList<Dbt::OverviewList>                overviewList() Q_DECL_OVERRIDE;
+    QList<Dbt::StatusOverview>              statusOverview(const QString& category) Q_DECL_OVERRIDE;
 
     QVariant save(const Dbt::Tickets& data) Q_DECL_OVERRIDE;
     QVariant save(const Dbt::TicketsVw& data) Q_DECL_OVERRIDE;

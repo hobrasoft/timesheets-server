@@ -1231,5 +1231,11 @@ QList<Dbt::OverviewList> DatabasePluginFotomon::overviewList() {
     return list;
 }
 
+QList<Dbt::StatusOverview> DatabasePluginFotomon::statusOverview(const QString& category) {
+    Q_UNUSED(category);
+    QList<Dbt::StatusOverview> list;
+    return list;
+}
+
 
 

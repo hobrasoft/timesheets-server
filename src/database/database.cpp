@@ -317,3 +317,7 @@ QList<Dbt::OverviewList> Database::overviewList() {
     return m_dbplugin->overviewList();
 }
 
+QList<Dbt::StatusOverview> Database::statusOverview(const QString& category) {
+    return m_dbplugin->statusOverview(category);
+}
+

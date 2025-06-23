@@ -85,6 +85,7 @@ class Database : public QObject {
     QList<Dbt::Overview>                    overview(const QString& category, const QStringList& statuses);
     QList<Dbt::Overview>                    overview(const QString& overviewId);
     QList<Dbt::OverviewList>                overviewList();
+    QList<Dbt::StatusOverview>              statusOverview(const QString& category);
     QList<Dbt::ServerInfo>                  serverInfo();
 
 

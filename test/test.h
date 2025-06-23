@@ -73,6 +73,7 @@ class Test : public QObject {
     void delTicketFile();               // Delete the file
     //
     void delTicket();
+    void statusOverview();
 
 private:
 
