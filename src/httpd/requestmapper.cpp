@@ -41,6 +41,7 @@
 #include "controllerdepartments.h"
 #include "controlleremployees.h"
 #include "controllerdoors.h"
+#include "controllerrfids.h"
 #include "controllereventtypes.h"
 #include "controllerevents.h"
 
@@ -136,6 +137,7 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
     ROUTER("/api/v1/events",                           ControllerEvents);
     ROUTER("/api/v1/users",                            ControllerUsers);
     ROUTER("/api/v1/doors",                            ControllerDoors);
+    ROUTER("/api/v1/rfids",                            ControllerRfids);
 
     if (m_path.contains(QRegExp(".*\\.shtml"))) {
         serviceShtmlFile(request, response);

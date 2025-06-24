@@ -476,6 +476,8 @@ struct Rfids {
     QString     note;
 
     static Rfids fromMap(const QVariantMap&);
+    Rfids() { rfid = 0; valid = false; }
+    Rfids(int id) { rfid = id; valid = false; }
     QVariantMap toMap() const;
 };
 

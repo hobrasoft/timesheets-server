@@ -26,10 +26,11 @@ SOURCES += \
  $$PWD/controllertimesheet.cpp \
  $$PWD/controlleroverview.cpp \
  $$PWD/controlleroverviewpublic.cpp \
- $$PWD/controllerdepartments.cpp \
+$$PWD/controllerdepartments.cpp \
 $$PWD/controlleremployees.cpp \
 $$PWD/controllerdoors.cpp \
- $$PWD/controllerevents.cpp \
+$$PWD/controllerrfids.cpp \
+$$PWD/controllerevents.cpp \
 $$PWD/controllereventtypes.cpp \
 
 HEADERS += \
@@ -52,10 +53,11 @@ HEADERS += \
  $$PWD/controllertimesheet.h \
  $$PWD/controlleroverview.h \
  $$PWD/controlleroverviewpublic.h \
- $$PWD/controllerdepartments.h \
+$$PWD/controllerdepartments.h \
 $$PWD/controlleremployees.h \
 $$PWD/controllerdoors.h \
- $$PWD/controllerevents.h \
+$$PWD/controllerrfids.h \
+$$PWD/controllerevents.h \
 $$PWD/controllereventtypes.h \
 
 HEADERS += \
