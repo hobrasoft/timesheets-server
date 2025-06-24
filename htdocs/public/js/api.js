@@ -144,6 +144,9 @@ class Api {
         this.departments = function (department) { if (typeof department !== 'undefined') { this.get("departments/" + department); } else { this.get("departments"); } }
         this.saveDepartment = function (d) { this.put("departments/", JSON.stringify(d)); }
         this.removeDepartment = function(d) { this.delete("departments/" + d); }
+        this.rfids = function (rfid) { if (typeof rfid !== 'undefined') { this.get("rfids/" + rfid); } else { this.get("rfids"); } }
+        this.saveRfid = function (r) { this.put("rfids/", JSON.stringify(r)); }
+        this.removeRfid = function(r) { this.delete("rfids/" + r); }
         this.saveTicket = function(t) { this.put("ticketsvw/", JSON.stringify(t)); }
         this.startTimesheet = function(t) { this.get("timesheet/start/" + t); }
         this.stopTimesheet = function(t) { this.get("timesheet/stop/" + t); }

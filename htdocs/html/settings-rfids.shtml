@@ -1,0 +1,67 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<div id="spinner" class="spinner-border screen-spinner" style="width: 3em; height: 3em;" role="status"></div>
+
+<div class="container">
+    <h2 id="current-description">RFIDs</h2>
+
+    <table class="table table-bordered table-hover">
+    <thead>
+    <tr class="table-info">
+        <th></th>
+        <th>#ID</th>
+        <th>RFID</th>
+        <th>Valid</th>
+        <th>Note</th>
+    </tr>
+    </thead>
+    <tbody id="tbody">
+    <tr id="template-rfid" style="display: none;">
+        <td><a class="rfid-edit" href="" style="display:none;"><i class="bi bi-pencil"></i></a></td>
+        <td><span class="rfid-id"></span></td>
+        <td><span class="rfid-value"></span></td>
+        <td><span class="rfid-valid"></span></td>
+        <td><span class="rfid-note"></span></td>
+    </tr>
+    </tbody>
+    </table>
+</div>
+
+<script>
+$(document).ready(function(){
+    if (userAdmin()) {
+        $("#navbar-add-rfid").show();
+    }
+    var api = new Api();
+    api.onFinished = function(result) {
+        for (var t=0; t<result.length; t++) {
+            var x = $('#template-rfid').clone();
+            var id_rfid_id    = x.find('.rfid-id');
+            var id_rfid_value = x.find('.rfid-value');
+            var id_rfid_valid = x.find('.rfid-valid');
+            var id_rfid_note  = x.find('.rfid-note');
+            var id_rfid_edit  = x.find('.rfid-edit');
+
+            if (userAdmin()) {
+                $(id_rfid_edit).show();
+            }
+
+            $(id_rfid_id).html(result[t].rfid);
+            $(id_rfid_value).html(result[t].rfid_id);
+            $(id_rfid_valid).html(result[t].valid);
+            $(id_rfid_note).html(result[t].note);
+
+            var href="settings-rfid.shtml?rfid="+result[t].rfid;
+            $(id_rfid_edit).attr("href", href);
+
+            $('tbody').append(x);
+            $(x).show();
+        }
+        $('#spinner').hide();
+    };
+    api.rfids();
+});
+</script>
+
+<!-- #include '/inc/footer.html' -->
