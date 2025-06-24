@@ -1,0 +1,91 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<div class="container">
+    <form>
+    <input type="hidden" id="department"></input>
+
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="abbr"></input>
+        <label for="abbr">Abbreviation</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="description"></input>
+        <label for="description">Description</label>
+    </div>
+
+    <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
+    <button type="button" class="btn btn-primary" id="btn-save">Save</button>
+    <button type="button" class="btn btn-danger" id="btn-del" data-bs-toggle="modal" data-bs-target="#confirm-delete">Delete</button>
+    </form>
+</div>
+
+<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>This will delete the department.</h3>
+            </div>
+            <div class="modal-body">
+                <p>Do you really want to delete the department?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="btn-delete" class="btn btn-danger btn-ok">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function goBack() {
+    window.location.replace('settings-departments.shtml');
+}
+
+$(document).ready(function(){
+    if (!userAdmin())  {
+        $("#btn-save").hide();
+        $("#btn-del").hide();
+        $("#abbr").prop('disabled', true);
+        $("#description").prop('disabled', true);
+    }
+    var department = parseInt($.urlParam("department"));
+
+    if (department == 0 || isNaN(department)) {
+        $("#btn-del").hide();
+    }
+
+    if (department > 0) {
+        var api = new Api();
+        api.onFinished = function(result) {
+            $("#department").val(result.department);
+            $("#abbr").val(result.abbr);
+            $("#description").val(result.description);
+        };
+        api.departments(department);
+    }
+
+    $("#btn-cancel").click(function(event){
+        goBack();
+    });
+
+    $("#btn-save").click(function(event){
+        if (!userAdmin())  { return; }
+        var data = { department: $("#department").val(), abbr: $("#abbr").val(), description: $("#description").val() };
+        var api = new Api();
+        api.onFinished = function() { goBack(); }
+        api.saveDepartment(data);
+    });
+
+    $("#btn-delete").click(function(event){
+        if (!userAdmin())  { return; }
+        var department = $("#department").val();
+        var api = new Api();
+        api.onFinished = function() { goBack(); }
+        api.removeDepartment(department);
+    });
+});
+</script>
+
+<!-- #include '/inc/footer.html' -->

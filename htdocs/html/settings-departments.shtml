@@ -1,0 +1,63 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<div id="spinner" class="spinner-border screen-spinner" style="width: 3em; height: 3em;" role="status"></div>
+
+<div class="container">
+    <h2 id="current-description">Departments</h2>
+
+    <table class="table table-bordered table-hover">
+    <thead>
+    <tr class="table-info">
+        <th></th>
+        <th>#ID</th>
+        <th>Abbr</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody id="tbody">
+    <tr id="template-department" style="display: none;">
+        <td><a class="department-edit" href="" style="display:none;"><i class="bi bi-pencil"></i></a></td>
+        <td><span class="department-id"></span></td>
+        <td><span class="department-abbr"></span></td>
+        <td><span class="department-description"></span></td>
+    </tr>
+    </tbody>
+    </table>
+</div>
+
+<script>
+$(document).ready(function(){
+    if (userAdmin()) {
+        $("#navbar-add-department").show();
+    }
+    var api = new Api();
+    api.onFinished = function(result) {
+        for (var t=0; t<result.length; t++) {
+            var x = $('#template-department').clone();
+            var id_dep_id          = x.find('.department-id');
+            var id_dep_abbr        = x.find('.department-abbr');
+            var id_dep_description = x.find('.department-description');
+            var id_dep_edit        = x.find('.department-edit');
+
+            if (userAdmin()) {
+                $(id_dep_edit).show();
+            }
+
+            $(id_dep_id).html(result[t].department);
+            $(id_dep_abbr).html(result[t].abbr);
+            $(id_dep_description).html(result[t].description);
+
+            var href="settings-department.shtml?department="+result[t].department;
+            $(id_dep_edit).attr("href", href);
+
+            $('tbody').append(x);
+            $(x).show();
+        }
+        $('#spinner').hide();
+    };
+    api.departments();
+});
+</script>
+
+<!-- #include '/inc/footer.html' -->
