@@ -2925,7 +2925,7 @@ QVariant DatabasePluginPostgres::save(const Dbt::Events& data) {
         q.prepare(R"'(
             update attendance.events set
                     date = :date,
-                    envent_type = :event_type,
+                    event_type = :event_type,
                     employee = :employee,
                     valid = :valid,
                     user_edited = :user_edited

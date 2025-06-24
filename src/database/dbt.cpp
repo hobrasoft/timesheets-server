@@ -583,7 +583,7 @@ QVariantMap Events::toMap() const {
 
 Events Events::fromMap(const QVariantMap& data) {
     Events x;
-    x.event = data["event"].toInt(); 
+    x.event = data["event"].toString(); 
     x.date = data["date"].toDateTime();
     x.event_type = data["event_type"].toInt();
     x.employee = data["employee"].toInt(); 
