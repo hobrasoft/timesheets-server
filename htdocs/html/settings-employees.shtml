@@ -1,0 +1,54 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<div id="spinner" class="spinner-border screen-spinner" style="width: 3em; height: 3em;" role="status"></div>
+
+<div class="container">
+    <h2 id="current-description">Employees</h2>
+
+    <table class="table table-bordered table-hover">
+    <thead>
+    <tr class="table-info">
+        <th>#ID</th>
+        <th>First name</th>
+        <th>Surname</th>
+        <th>Active</th>
+    </tr>
+    </thead>
+    <tbody id="tbody">
+    <tr id="template-employee" style="display: none;">
+        <td><span class="employee-id"></span></td>
+        <td><span class="employee-firstname"></span></td>
+        <td><span class="employee-surname"></span></td>
+        <td><span class="employee-active"></span></td>
+    </tr>
+    </tbody>
+    </table>
+</div>
+
+<script>
+$(document).ready(function(){
+    var api = new Api();
+    api.onFinished = function(result) {
+        for (var t=0; t<result.length; t++) {
+            var x = $('#template-employee').clone();
+            var id_emp_id        = x.find('.employee-id');
+            var id_emp_firstname = x.find('.employee-firstname');
+            var id_emp_surname   = x.find('.employee-surname');
+            var id_emp_active    = x.find('.employee-active');
+
+            $(id_emp_id).html(result[t].employee);
+            $(id_emp_firstname).html(result[t].firstname);
+            $(id_emp_surname).html(result[t].surname);
+            $(id_emp_active).html(result[t].active);
+
+            $('tbody').append(x);
+            $(x).show();
+        }
+        $('#spinner').hide();
+    };
+    api.employees();
+});
+</script>
+
+<!-- #include '/inc/footer.html' -->
