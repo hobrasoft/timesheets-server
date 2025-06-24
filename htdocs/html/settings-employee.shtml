@@ -1,0 +1,107 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<div class="container">
+    <form>
+    <input type="hidden" id="employee"></input>
+
+    <div>&nbsp;</div>
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="firstname"></input>
+        <label for="firstname">First name</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="surname"></input>
+        <label for="surname">Surname</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <div class="form-check form-switch">
+            <input type="checkbox" id="active" class="form-check-input" checked="checked"></input>
+            <label for="active" class="form-check-label">Active</label>
+        </div>
+    </div>
+
+    <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
+    <button type="button" class="btn btn-primary" id="btn-save">Save</button>
+    <button type="button" class="btn btn-danger" id="btn-del" data-bs-toggle="modal" data-bs-target="#confirm-delete">Delete</button>
+    </form>
+</div>
+
+<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>This will delete the employee.</h3>
+            </div>
+            <div class="modal-body">
+                <p>Do you really want to delete the employee?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="btn-delete" class="btn btn-danger btn-ok">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function goBack() {
+    window.location.replace('settings-employees.shtml');
+}
+
+$(document).ready(function(){
+    if (!userAdmin())  {
+        $("#btn-save").hide();
+        $("#btn-del").hide();
+        $("#employee").prop('disabled', true);
+        $("#firstname").prop('disabled', true);
+        $("#surname").prop('disabled', true);
+        $("#active").prop('disabled', true);
+        }
+    var employee = parseInt($.urlParam("employee"));
+
+    if (employee == 0 || isNaN(employee)) {
+        $("#btn-del").hide();
+        }
+
+    if (employee > 0) {
+        var api = new Api();
+        api.onFinished = function(result) {
+            $("#employee").val(result.employee);
+            $("#firstname").val(result.firstname);
+            $("#surname").val(result.surname);
+            $("#active").attr("checked", result.active);
+            };
+        api.employees(employee);
+        }
+
+    $("#btn-cancel").click(function(event){
+        goBack();
+        });
+
+    $("#btn-save").click(function(event){
+        if (!userAdmin())  { return; }
+        var data = {};
+        data.employee = $("#employee").val();
+        data.firstname = $("#firstname").val();
+        data.surname = $("#surname").val();
+        data.active = $("#active").prop("checked");
+        var api = new Api();
+        api.onFinished = function() { goBack(); }
+        api.saveEmployee(data);
+        });
+
+    $("#btn-delete").click(function(event){
+        if (!userAdmin())  { return; }
+        var employee = $("#employee").val();
+        var api = new Api();
+        api.onFinished = function() { goBack(); }
+        api.removeEmployee(employee);
+        });
+
+    });
+</script>
+
+<!-- #include '/inc/footer.html' -->
