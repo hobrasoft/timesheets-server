@@ -1,0 +1,59 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<div id="spinner" class="spinner-border screen-spinner" style="width: 3em; height: 3em;" role="status"></div>
+
+<div class="container">
+    <h2 id="current-description">Doors</h2>
+
+    <table class="table table-bordered table-hover">
+    <thead>
+    <tr class="table-info">
+        <th></th>
+        <th>#ID</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody id="tbody">
+    <tr id="template-door" style="display: none;">
+        <td><a class="door-edit" href="" style="display:none;"><i class="bi bi-pencil"></i></a></td>
+        <td><span class="door-id"></span></td>
+        <td><span class="door-description"></span></td>
+    </tr>
+    </tbody>
+    </table>
+</div>
+
+<script>
+$(document).ready(function(){
+    if (userAdmin()) {
+        $("#navbar-add-door").show();
+    }
+    var api = new Api();
+    api.onFinished = function(result) {
+        for (var t=0; t<result.length; t++) {
+            var x = $('#template-door').clone();
+            var id_door_id          = x.find('.door-id');
+            var id_door_description = x.find('.door-description');
+            var id_door_edit        = x.find('.door-edit');
+
+            if (userAdmin()) {
+                $(id_door_edit).show();
+            }
+
+            $(id_door_id).html(result[t].door);
+            $(id_door_description).html(result[t].description);
+
+            var href="settings-door.shtml?door="+result[t].door;
+            $(id_door_edit).attr("href", href);
+
+            $('tbody').append(x);
+            $(x).show();
+        }
+        $('#spinner').hide();
+    };
+    api.doors();
+});
+</script>
+
+<!-- #include '/inc/footer.html' -->

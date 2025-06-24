@@ -1,0 +1,84 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<div class="container">
+    <form>
+    <input type="hidden" id="door"></input>
+
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="description"></input>
+        <label for="description">Description</label>
+    </div>
+
+    <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
+    <button type="button" class="btn btn-primary" id="btn-save">Save</button>
+    <button type="button" class="btn btn-danger" id="btn-del" data-bs-toggle="modal" data-bs-target="#confirm-delete">Delete</button>
+    </form>
+</div>
+
+<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>This will delete the door.</h3>
+            </div>
+            <div class="modal-body">
+                <p>Do you really want to delete the door?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="btn-delete" class="btn btn-danger btn-ok">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function goBack() {
+    window.location.replace('settings-doors.shtml');
+}
+
+$(document).ready(function(){
+    if (!userAdmin())  {
+        $("#btn-save").hide();
+        $("#btn-del").hide();
+        $("#description").prop('disabled', true);
+    }
+    var door = parseInt($.urlParam("door"));
+
+    if (door == 0 || isNaN(door)) {
+        $("#btn-del").hide();
+    }
+
+    if (door > 0) {
+        var api = new Api();
+        api.onFinished = function(result) {
+            $("#door").val(result.door);
+            $("#description").val(result.description);
+        };
+        api.doors(door);
+    }
+
+    $("#btn-cancel").click(function(event){
+        goBack();
+    });
+
+    $("#btn-save").click(function(event){
+        if (!userAdmin())  { return; }
+        var data = { door: $("#door").val(), description: $("#description").val() };
+        var api = new Api();
+        api.onFinished = function() { goBack(); }
+        api.saveDoor(data);
+    });
+
+    $("#btn-delete").click(function(event){
+        if (!userAdmin())  { return; }
+        var door = $("#door").val();
+        var api = new Api();
+        api.onFinished = function() { goBack(); }
+        api.removeDoor(door);
+    });
+});
+</script>
+
+<!-- #include '/inc/footer.html' -->
