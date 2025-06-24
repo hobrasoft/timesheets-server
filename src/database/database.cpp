@@ -343,3 +343,7 @@ QList<Dbt::Events> Database::events(int t) {
     return m_dbplugin->events(t);
 }
 
+QList<Dbt::Rfids> Database::rfids(int r) {
+    return m_dbplugin->rfids(r);
+}
+
