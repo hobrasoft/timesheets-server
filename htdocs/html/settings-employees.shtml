@@ -9,6 +9,7 @@
     <table class="table table-bordered table-hover">
     <thead>
     <tr class="table-info">
+        <th></th>
         <th>#ID</th>
         <th>First name</th>
         <th>Surname</th>
@@ -17,6 +18,7 @@
     </thead>
     <tbody id="tbody">
     <tr id="template-employee" style="display: none;">
+        <td><a class="employee-edit" href="" style="display:none;"><i class="bi bi-pencil"></i></a></td>
         <td><span class="employee-id"></span></td>
         <td><span class="employee-firstname"></span></td>
         <td><span class="employee-surname"></span></td>
@@ -28,6 +30,9 @@
 
 <script>
 $(document).ready(function(){
+    if (userAdmin()) {
+        $("#navbar-add-employee").show();
+    }
     var api = new Api();
     api.onFinished = function(result) {
         for (var t=0; t<result.length; t++) {
@@ -36,11 +41,19 @@ $(document).ready(function(){
             var id_emp_firstname = x.find('.employee-firstname');
             var id_emp_surname   = x.find('.employee-surname');
             var id_emp_active    = x.find('.employee-active');
+            var id_emp_edit      = x.find('.employee-edit');
+
+            if (userAdmin()) {
+                $(id_emp_edit).show();
+            }
 
             $(id_emp_id).html(result[t].employee);
             $(id_emp_firstname).html(result[t].firstname);
             $(id_emp_surname).html(result[t].surname);
             $(id_emp_active).html(result[t].active);
+
+            var href="settings-employee.shtml?employee="+result[t].employee;
+            $(id_emp_edit).attr("href", href);
 
             $('tbody').append(x);
             $(x).show();
