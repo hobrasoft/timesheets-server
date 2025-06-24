@@ -42,6 +42,7 @@
 #include "controlleremployees.h"
 #include "controllerdoors.h"
 #include "controllereventtypes.h"
+#include "controllerevents.h"
 
 using namespace HobrasoftHttpd;
 using namespace Httpd;
@@ -132,6 +133,7 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
     ROUTER("/api/v1/statuses",                         ControllerStatuses);
     ROUTER("/api/v1/tickets",                          ControllerTickets);
     ROUTER("/api/v1/server",                           ControllerServer);
+    ROUTER("/api/v1/events",                           ControllerEvents);
     ROUTER("/api/v1/users",                            ControllerUsers);
     ROUTER("/api/v1/doors",                            ControllerDoors);
 

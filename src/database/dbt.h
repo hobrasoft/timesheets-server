@@ -540,6 +540,7 @@ struct Events {
     bool        valid;
     QVariant    user_edited;
 
+    Events(int id) { event = id; employee = 0; valid = false; }
     Events() { event = 0; employee = 0; valid = false; }
     static Events fromMap(const QVariantMap&);
     QVariantMap toMap() const;
