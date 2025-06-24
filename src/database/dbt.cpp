@@ -682,4 +682,22 @@ Doors Doors::fromMap(const QVariantMap& data) {
     return x;
 }
 
+QVariantMap Rfids::toMap() const {
+    QVariantMap data;
+    data["rfid"] = rfid;
+    data["rfid_id"] = rfid_id;
+    data["valid"] = valid;
+    data["note"] = note;
+    return data;
+}
+
+Rfids Rfids::fromMap(const QVariantMap& data) {
+    Rfids x;
+    x.rfid = data["rfid"].toInt();
+    x.rfid_id = data["rfid_id"].toString();
+    x.valid = data["valid"].toBool();
+    x.note = data["note"].toString();
+    return x;
+}
+
 
