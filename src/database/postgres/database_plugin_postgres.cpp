@@ -2580,8 +2580,8 @@ QList<Dbt::Events> DatabasePluginPostgres::events(int event) {
 QList<Dbt::DepartmentHasManager> DatabasePluginPostgres::departmentHasManager(const Dbt::DepartmentHasManager& p) { 
     MSqlQuery q(m_db);
     QList<Dbt::DepartmentHasManager> list; 
-    q.prepare(R"'(select department, "user" from attendance.department_has_member 
-        where (department = ::key11 or :key12 <= 0) 
+    q.prepare(R"'(select department, "user" from attendance.department_has_manager
+        where (department = :key11 or :key12 <= 0)
           and ("user" = :key21 or :key22 <= 0);
         )'");
     q.bindValue(":key11", p.department);
@@ -2602,8 +2602,8 @@ QList<Dbt::DepartmentHasManager> DatabasePluginPostgres::departmentHasManager(co
 QList<Dbt::DepartmentHasMember> DatabasePluginPostgres::departmentHasMember(const Dbt::DepartmentHasMember& p) { 
     MSqlQuery q(m_db);
     QList<Dbt::DepartmentHasMember> list; 
-    q.prepare(R"'(select department, employee from attendance.department_has_member 
-        where (department = ::key11 or :key12 <= 0) 
+    q.prepare(R"'(select department, employee from attendance.department_has_member
+        where (department = :key11 or :key12 <= 0)
           and (employee = :key21 or :key22 <= 0);
         )'");
     q.bindValue(":key11", p.department);
@@ -2625,7 +2625,7 @@ QList<Dbt::EmployeeCanOpenDoor> DatabasePluginPostgres::employeeCanOpenDoor(cons
     MSqlQuery q(m_db);
     QList<Dbt::EmployeeCanOpenDoor> list; 
     q.prepare(R"'(select door, employee from attendance.employee_can_open_door
-        where (door = ::key11 or :key12 <= 0) 
+        where (door = :key11 or :key12 <= 0)
           and (employee = :key21 or :key22 <= 0);
         )'");
     q.bindValue(":key11", p.door);
@@ -2647,7 +2647,7 @@ QList<Dbt::EmployeeHasRfid> DatabasePluginPostgres::employeeHasRfid(const Dbt::E
     MSqlQuery q(m_db);
     QList<Dbt::EmployeeHasRfid> list; 
     q.prepare(R"'(select employee, rfid from attendance.employee_has_rfid
-        where (employee = ::key11 or :key12 <= 0) 
+        where (employee = :key11 or :key12 <= 0)
           and (rfid = :key21 or :key22 <= 0);
         )'");
     q.bindValue(":key11", p.employee);
@@ -2696,14 +2696,14 @@ void DatabasePluginPostgres::remove(const Dbt::EventTypes& data) {
 
 void DatabasePluginPostgres::remove(const Dbt::Events& data) {
     MSqlQuery q(m_db);
-    q.prepare(R"'(delete from attendance.event where event = :key;)'");
+    q.prepare(R"'(delete from attendance.events where event = :key;)'");
     q.bindValue(":key", data.event);
     q.exec();
 }
 
 void DatabasePluginPostgres::remove(const Dbt::DepartmentHasManager& data) {
     MSqlQuery q(m_db);
-    q.prepare(R"'(delete from attendance.departments_has_manager where department = :key1 and "user" = :key2;)'");
+    q.prepare(R"'(delete from attendance.department_has_manager where department = :key1 and "user" = :key2;)'");
     q.bindValue(":key1", data.department);
     q.bindValue(":key2", data.user);
     q.exec();
@@ -2711,7 +2711,7 @@ void DatabasePluginPostgres::remove(const Dbt::DepartmentHasManager& data) {
 
 void DatabasePluginPostgres::remove(const Dbt::DepartmentHasMember& data) {
     MSqlQuery q(m_db);
-    q.prepare(R"'(delete from attendance.departments_has_member where department = :key and employee = :key2;)'");
+    q.prepare(R"'(delete from attendance.department_has_member where department = :key and employee = :key2;)'");
     q.bindValue(":key1", data.department);
     q.bindValue(":key2", data.employee);
     q.exec();
