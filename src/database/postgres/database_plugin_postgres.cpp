@@ -2643,7 +2643,7 @@ QList<Dbt::EmployeeCanOpenDoor> DatabasePluginPostgres::employeeCanOpenDoor(cons
     return list;
 }
 
-QList<Dbt::EmployeeHasRfid> DatabasePluginPostgres::employeeHasRfid(const Dbt::EmployeeHasRfid& p) { 
+QList<Dbt::EmployeeHasRfid> DatabasePluginPostgres::employeeHasRfid(const Dbt::EmployeeHasRfid& p) {
     MSqlQuery q(m_db);
     QList<Dbt::EmployeeHasRfid> list; 
     q.prepare(R"'(select employee, rfid from attendance.employee_has_rfid
@@ -2660,6 +2660,25 @@ QList<Dbt::EmployeeHasRfid> DatabasePluginPostgres::employeeHasRfid(const Dbt::E
         int i=0;
         x.employee  = q.value(i++).toInt();
         x.rfid      = q.value(i++).toInt();
+        list << x;
+        }
+    return list;
+}
+
+QList<Dbt::Rfids> DatabasePluginPostgres::rfids(int rfid) {
+    MSqlQuery q(m_db);
+    QList<Dbt::Rfids> list;
+    q.prepare(R"'(select rfid, rfid_id, valid, note from attendance.rfids where rfid = :key1 or :key2 <= 0;)'");
+    q.bindValue(":key1", rfid);
+    q.bindValue(":key2", rfid);
+    q.exec();
+    while (q.next()) {
+        Dbt::Rfids x;
+        int i=0;
+        x.rfid    = q.value(i++).toInt();
+        x.rfid_id = q.value(i++).toString();
+        x.valid   = q.value(i++).toBool();
+        x.note    = q.value(i++).toString();
         list << x;
         }
     return list;
@@ -2730,6 +2749,13 @@ void DatabasePluginPostgres::remove(const Dbt::EmployeeHasRfid& data) {
     q.prepare(R"'(delete from attendance.employee_has_rfid where employee = :key1 and rfid = :key2;)'");
     q.bindValue(":key1", data.employee);
     q.bindValue(":key2", data.rfid);
+    q.exec();
+}
+
+void DatabasePluginPostgres::remove(const Dbt::Rfids& data) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from attendance.rfids where rfid = :key;)'");
+    q.bindValue(":key", data.rfid);
     q.exec();
 }
 
@@ -2959,8 +2985,46 @@ QVariant DatabasePluginPostgres::save(const Dbt::Events& data) {
         }
     
     return QVariant();
-    
-}       
+
+}
+
+QVariant DatabasePluginPostgres::save(const Dbt::Rfids& data) {
+    MSqlQuery q(m_db);
+
+    q.prepare(R"'(select 1 from attendance.rfids where rfid = :key)'");
+    q.bindValue(":key", data.rfid);
+    q.exec();
+    if (q.next()) {
+        q.prepare(R"'(
+            update attendance.rfids set
+                    rfid_id = :rfid_id,
+                    valid = :valid,
+                    note = :note
+                where rfid = :rfid
+            )'");
+        q.bindValue(":rfid_id", data.rfid_id);
+        q.bindValue(":valid",   data.valid);
+        q.bindValue(":note",    data.note);
+        q.bindValue(":rfid",    data.rfid);
+        q.exec();
+        return QVariant(data.rfid);
+
+      } else {
+
+        q.prepare(R"'(
+            insert into attendance.rfids (rfid_id, valid, note)
+                values (:rfid_id, :valid, :note)
+            )'");
+        q.bindValue(":rfid_id", data.rfid_id);
+        q.bindValue(":valid",   data.valid);
+        q.bindValue(":note",    data.note);
+        q.exec();
+        return currval("attendance.rfids_rfid_seq");
+        }
+
+    return QVariant();
+
+}
 
 
 

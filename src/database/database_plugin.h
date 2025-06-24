@@ -96,6 +96,7 @@ class DatabasePlugin : public QObject {
     virtual QList<Dbt::DepartmentHasMember>         departmentHasMember(const Dbt::DepartmentHasMember&) { return QList<Dbt::DepartmentHasMember>(); }
     virtual QList<Dbt::EmployeeCanOpenDoor>         employeeCanOpenDoor(const Dbt::EmployeeCanOpenDoor&) { return QList<Dbt::EmployeeCanOpenDoor>(); }
     virtual QList<Dbt::EmployeeHasRfid>             employeeHasRfid(const Dbt::EmployeeHasRfid&) { return QList<Dbt::EmployeeHasRfid>(); }
+    virtual QList<Dbt::Rfids>                       rfids(int rfid) = 0;
 
     virtual void remove(const Dbt::Users& data) { Q_UNUSED(data); }
     virtual void remove(const Dbt::UsersCategories& data) { Q_UNUSED(data); }
@@ -118,6 +119,7 @@ class DatabasePlugin : public QObject {
     virtual void remove(const Dbt::DepartmentHasMember& data) { Q_UNUSED(data); }
     virtual void remove(const Dbt::EmployeeCanOpenDoor& data) { Q_UNUSED(data); }
     virtual void remove(const Dbt::EmployeeHasRfid& data) { Q_UNUSED(data); }
+    virtual void remove(const Dbt::Rfids& data) { Q_UNUSED(data); }
 
     virtual QVariant save(const Dbt::Users& data) { Q_UNUSED(data); return QVariant(); }
     virtual QVariant save(const Dbt::UsersCategories& data) { Q_UNUSED(data); return QVariant(); }
@@ -142,6 +144,7 @@ class DatabasePlugin : public QObject {
     virtual QVariant save(const Dbt::DepartmentHasMember& data) { Q_UNUSED(data); return QVariant(); }
     virtual QVariant save(const Dbt::EmployeeCanOpenDoor& data) { Q_UNUSED(data); return QVariant(); }
     virtual QVariant save(const Dbt::EmployeeHasRfid& data) { Q_UNUSED(data); return QVariant(); }
+    virtual QVariant save(const Dbt::Rfids& data) { Q_UNUSED(data); return QVariant(); }
 
   protected:
     int     userId() const;

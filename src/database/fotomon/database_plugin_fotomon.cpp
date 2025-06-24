@@ -1249,5 +1249,10 @@ QList<Dbt::OverviewList> DatabasePluginFotomon::overviewList() {
     return list;
 }
 
+QList<Dbt::Rfids> DatabasePluginFotomon::rfids(int rfid) {
+    Q_UNUSED(rfid);
+    return QList<Dbt::Rfids>();
+}
+
 
 
