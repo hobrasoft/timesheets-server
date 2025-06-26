@@ -930,5 +930,67 @@ void Test::putDepartmentEmployee() {
     APIDEL("/departments/"+m_department);
 }
 
+void Test::putDoorEmployee() {
+    QVariantMap data;
+    data["description"] = "Test door";
+    APIPUT("/doors/x", data);
+    m_door = api()->variant().toMap()["key"].toString();
+
+    data.clear();
+    data["firstname"] = "Joe";
+    data["surname"] = "Tester";
+    data["active"] = true;
+    APIPUT("/employees/x", data);
+    m_employee = api()->variant().toMap()["key"].toString();
+
+    data.clear();
+    data["employee"] = m_employee.toInt();
+    APIPUT("/doors/"+m_door+"/employees", data);
+    QVERIFY(api()->variant().toMap().contains("ok"));
+
+    APIGET("/doors/"+m_door+"/employees");
+    QVariantList list = api()->variant().toList();
+    bool found = false;
+    for (const QVariant &v : list) {
+        if (v.toMap()["employee"].toString() == m_employee)
+            found = true;
+    }
+    QVERIFY(found);
+
+    APIDEL("/doors/"+m_door+"/employees/"+m_employee);
+    APIDEL("/employees/"+m_employee);
+    APIDEL("/doors/"+m_door);
+}
+
+void Test::putRfidEmployee() {
+    QVariantMap data;
+    data["rfid_id"] = "TEST123";
+    data["valid"] = true;
+    data["note"] = "test";
+    APIPUT("/rfids/x", data);
+    m_rfid = api()->variant().toMap()["key"].toString();
+
+    data.clear();
+    data["firstname"] = "Sue";
+    data["surname"] = "Tester";
+    data["active"] = true;
+    APIPUT("/employees/x", data);
+    m_employee = api()->variant().toMap()["key"].toString();
+
+    data.clear();
+    data["employee"] = m_employee.toInt();
+    APIPUT("/rfids/"+m_rfid+"/employees", data);
+    QVERIFY(api()->variant().toMap().contains("ok"));
+
+    APIGET("/rfids/"+m_rfid+"/employees");
+    QVariant v = api()->variant();
+    bool ok = v.type() == QVariant::List ? !v.toList().isEmpty() : v.type() == QVariant::Map;
+    QVERIFY(ok);
+
+    APIDEL("/rfids/"+m_rfid+"/employees/"+m_employee);
+    APIDEL("/employees/"+m_employee);
+    APIDEL("/rfids/"+m_rfid);
+}
+
 
 

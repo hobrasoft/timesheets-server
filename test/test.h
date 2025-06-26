@@ -74,6 +74,8 @@ class Test : public QObject {
     //
     void delTicket();
     void putDepartmentEmployee();
+    void putDoorEmployee();
+    void putRfidEmployee();
 
 private:
 
@@ -93,6 +95,8 @@ private:
     QString         m_category;
     QString         m_department;
     QString         m_employee;
+    QString         m_door;
+    QString         m_rfid;
     QDateTime       m_now;
     QByteArray      m_fileDataPng;
     QByteArray      m_fileDataJpeg;

@@ -556,6 +556,7 @@ struct DepartmentHasManager {
     int         user;
 
     DepartmentHasManager() { department = 0; user = 0; }
+    DepartmentHasManager(int d, int u) { department = d; user = u; }
     static DepartmentHasManager fromMap(const QVariantMap&);
     QVariantMap toMap() const;
 };
@@ -565,6 +566,7 @@ struct DepartmentHasMember {
     int         employee;
 
     DepartmentHasMember() { department = 0; employee = 0; }
+    DepartmentHasMember(int d, int e) { department = d; employee = e; }
     static DepartmentHasMember fromMap(const QVariantMap&);
     QVariantMap toMap() const;
 };
@@ -574,6 +576,7 @@ struct EmployeeCanOpenDoor {
     int         door;
 
     EmployeeCanOpenDoor() { employee = 0; door = 0; }
+    EmployeeCanOpenDoor(int e, int d) { employee = e; door = d; }
     static EmployeeCanOpenDoor fromMap(const QVariantMap&);
     QVariantMap toMap() const;
 };
@@ -583,6 +586,7 @@ struct EmployeeHasRfid {
     int         rfid;
 
     EmployeeHasRfid() { employee = 0; rfid = 0; }
+    EmployeeHasRfid(int e, int r) { employee = e; rfid = r; }
     static EmployeeHasRfid fromMap(const QVariantMap&);
     QVariantMap toMap() const;
 };
