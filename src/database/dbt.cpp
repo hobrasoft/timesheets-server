@@ -688,6 +688,9 @@ QVariantMap Rfids::toMap() const {
     data["rfid_id"] = rfid_id;
     data["valid"] = valid;
     data["note"] = note;
+    data["employee"] = employee;
+    data["name"] = name;
+    data["surname"] = surname;
     return data;
 }
 

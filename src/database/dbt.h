@@ -474,10 +474,13 @@ struct Rfids {
     QString     rfid_id;
     bool        valid;
     QString     note;
+    int         employee;
+    QString     name;
+    QString     surname;
 
     static Rfids fromMap(const QVariantMap&);
-    Rfids() { rfid = 0; valid = false; }
-    Rfids(int id) { rfid = id; valid = false; }
+    Rfids() { rfid = 0; valid = false; employee = 0; }
+    Rfids(int id) { rfid = id; valid = false; employee = 0; }
     QVariantMap toMap() const;
 };
 

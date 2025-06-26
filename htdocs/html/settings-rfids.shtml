@@ -55,11 +55,12 @@ $(document).ready(function(){
             $(id_rfid_valid).html(result[t].valid);
             $(id_rfid_note).html(result[t].note);
 
-            var apiEmp = new Api();
-            apiEmp.onFinished = function(r){
-                if (r.length > 0) { $(id_rfid_emp).html(r[0].employee); }
-            };
-            apiEmp.rfidEmployees(result[t].rfid);
+            var emp = result[t].employee;
+            if (emp > 0) {
+                $(id_rfid_emp).html(emp + ' ' + result[t].name + ' ' + result[t].surname);
+            } else {
+                $(id_rfid_emp).html('');
+            }
 
             var href="settings-rfid.shtml?rfid="+result[t].rfid;
             $(id_rfid_edit).attr("href", href);

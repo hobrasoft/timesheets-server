@@ -2693,7 +2693,16 @@ QList<Dbt::EmployeeHasRfid> DatabasePluginPostgres::employeeHasRfid(const Dbt::E
 QList<Dbt::Rfids> DatabasePluginPostgres::rfids(int rfid) {
     MSqlQuery q(m_db);
     QList<Dbt::Rfids> list;
-    q.prepare(R"'(select rfid, rfid_id, valid, note from attendance.rfids where rfid = :key1 or :key2 <= 0;)'");
+    q.prepare(R"'(
+        select r.rfid, r.rfid_id, r.valid, r.note,
+               coalesce(ehr.employee, 0) as employee,
+               coalesce(e.firstname, '') as firstname,
+               coalesce(e.surname, '') as surname
+          from attendance.rfids r
+          left join attendance.employee_has_rfid ehr using (rfid)
+          left join attendance.employees e on (e.employee = ehr.employee)
+         where r.rfid = :key1 or :key2 <= 0;
+        )'");
     q.bindValue(":key1", rfid);
     q.bindValue(":key2", rfid);
     q.exec();
@@ -2704,6 +2713,9 @@ QList<Dbt::Rfids> DatabasePluginPostgres::rfids(int rfid) {
         x.rfid_id = q.value(i++).toString();
         x.valid   = q.value(i++).toBool();
         x.note    = q.value(i++).toString();
+        x.employee = q.value(i++).toInt();
+        x.name     = q.value(i++).toString();
+        x.surname  = q.value(i++).toString();
         list << x;
         }
     return list;

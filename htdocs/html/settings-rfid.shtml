@@ -78,15 +78,10 @@ $(document).ready(function(){
             $("#rfid_id").val(result.rfid_id);
             $("#valid").attr("checked", result.valid);
             $("#note").val(result.note);
-        };
-        api.rfids(rfid);
-
-        var apiMap = new Api();
-        apiMap.onFinished = function(result) {
-            if (result.length > 0) { selectedEmployee = result[0].employee; }
+            selectedEmployee = result.employee;
             $("#employee").val(selectedEmployee);
         };
-        apiMap.rfidEmployees(rfid);
+        api.rfids(rfid);
     }
 
     var apiEmp = new Api();
