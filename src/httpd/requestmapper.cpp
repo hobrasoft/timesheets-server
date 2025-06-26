@@ -15,6 +15,7 @@
 #include "pluginstore.h"
 #include "plugininterface.h"
 #include "requestauthorizer.h"
+#include <QRegularExpression>
 
 // nové API
 #include "controllerserver.h"
@@ -78,13 +79,14 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
     m_path = request->path();
     PDEBUG << request->method() << request->fullPath();
 
-    #define ROUTER(adresa, trida) \
-        if (m_path.startsWith(adresa)) { \
-            AbstractController *controller = new trida (connection()); \
-            controller->setAuthorizer(m_authorizer); \
-            controller->service(request, response); \
-            return; \
-            }
+    #define ROUTER(adresa, trida) {                                     \
+        if (m_path.contains(QRegularExpression(adresa))) {              \
+            AbstractController *controller = new trida (connection());  \
+            controller->setAuthorizer(m_authorizer);                    \
+            controller->service(request, response);                     \
+            return;                                                     \
+            }                                                           \
+        }
 
     if (m_path.contains(QRegExp("^/public/.*\\.shtml"))) {
         serviceShtmlFile(request, response);
@@ -106,8 +108,8 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
 
 
     // Možné bez přihlášení
-    ROUTER("/api/v1/overview/0x",       ControllerOverviewPublic);
-    ROUTER("/api/v1/server/about",      ControllerServer);
+    ROUTER("^/api/v1/overview/0x",       ControllerOverviewPublic);
+    ROUTER("^/api/v1/server/about",      ControllerServer);
 
     // Kontrola přihlášení
     if (!m_authorizer->isLoggedIn(request, response)) {
@@ -117,50 +119,35 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
     /**
      * Po přihlášení zpracovává ostatní speciální požadavky (event streamy).
      */
-    ROUTER("/api/v1/categoriessiblings",               ControllerCategoriesSiblings);
-    ROUTER("/api/v1/tickettimesheets",                 ControllerTicketTimesheets);
-    ROUTER("/api/v1/categoriestoroot",                 ControllerCategoriesToRoot);
-    ROUTER("/api/v1/statustemplates",                  ControllerStatusTemplates);
-    ROUTER("/api/v1/userscategories",                  ControllerUsersCategories);
-    ROUTER("/api/v1/categoriestree",                   ControllerCategoriesTree);
-    ROUTER("/api/v1/ticketvalues",                     ControllerTicketValues);
-    ROUTER("/api/v1/ticketstatus",                     ControllerTicketStatus);
-    ROUTER("/api/v1/ticketfiles",                      ControllerTicketFiles);
-    ROUTER("/api/v1/departments",                      ControllerDepartments);
-    ROUTER("/api/v1/statusorder",                      ControllerStatusOrder);
-    ROUTER("/api/v1/categories",                       ControllerCategories);
-    ROUTER("/api/v1/eventtypes",                       ControllerEventTypes);
-    ROUTER("/api/v1/ticketsvw",                        ControllerTicketsVw);
-    ROUTER("/api/v1/timesheet",                        ControllerTimesheet);
-    ROUTER("/api/v1/employees",                        ControllerEmployees);
-    ROUTER("/api/v1/overview",                         ControllerOverview);
-    ROUTER("/api/v1/statuses",                         ControllerStatuses);
-    ROUTER("/api/v1/tickets",                          ControllerTickets);
-    ROUTER("/api/v1/server",                           ControllerServer);
-    ROUTER("/api/v1/events",                           ControllerEvents);
-    ROUTER("/api/v1/users",                            ControllerUsers);
-    if (m_path.startsWith("/api/v1/doors/") && m_path.contains("/employees")) {
-        AbstractController *controller = new ControllerDoorEmployees(connection());
-        controller->setAuthorizer(m_authorizer);
-        controller->service(request, response);
-        return;
-        }
-    if (m_path.startsWith("/api/v1/departments/") && m_path.contains("/employees")) {
-        AbstractController *controller = new ControllerDepartmentEmployees(connection());
-        controller->setAuthorizer(m_authorizer);
-        controller->service(request, response);
-        return;
-        }
-    if (m_path.startsWith("/api/v1/rfids/") && m_path.contains("/employees")) {
-        AbstractController *controller = new ControllerRfidEmployees(connection());
-        controller->setAuthorizer(m_authorizer);
-        controller->service(request, response);
-        return;
-        }
-    ROUTER("/api/v1/doors",                            ControllerDoors);
-    ROUTER("/api/v1/rfids",                            ControllerRfids);
+    ROUTER("^/api/v1/doors/(\\d+)/employees(?:/(\\d+))?/?", ControllerDoorEmployees);
+    ROUTER("^/api/v1/departments/(\\d+)/employees(?:/(\\d+))?/?", ControllerDepartmentEmployees);
+    ROUTER("^/api/v1/rfids/(\\d+)/employees(?:/(\\d+))?/?", ControllerRfidEmployees);
+    ROUTER("^/api/v1/categoriessiblings",               ControllerCategoriesSiblings);
+    ROUTER("^/api/v1/tickettimesheets",                 ControllerTicketTimesheets);
+    ROUTER("^/api/v1/categoriestoroot",                 ControllerCategoriesToRoot);
+    ROUTER("^/api/v1/statustemplates",                  ControllerStatusTemplates);
+    ROUTER("^/api/v1/userscategories",                  ControllerUsersCategories);
+    ROUTER("^/api/v1/categoriestree",                   ControllerCategoriesTree);
+    ROUTER("^/api/v1/ticketvalues",                     ControllerTicketValues);
+    ROUTER("^/api/v1/ticketstatus",                     ControllerTicketStatus);
+    ROUTER("^/api/v1/ticketfiles",                      ControllerTicketFiles);
+    ROUTER("^/api/v1/departments",                      ControllerDepartments);
+    ROUTER("^/api/v1/statusorder",                      ControllerStatusOrder);
+    ROUTER("^/api/v1/categories",                       ControllerCategories);
+    ROUTER("^/api/v1/eventtypes",                       ControllerEventTypes);
+    ROUTER("^/api/v1/ticketsvw",                        ControllerTicketsVw);
+    ROUTER("^/api/v1/timesheet",                        ControllerTimesheet);
+    ROUTER("^/api/v1/employees",                        ControllerEmployees);
+    ROUTER("^/api/v1/overview",                         ControllerOverview);
+    ROUTER("^/api/v1/statuses",                         ControllerStatuses);
+    ROUTER("^/api/v1/tickets",                          ControllerTickets);
+    ROUTER("^/api/v1/server",                           ControllerServer);
+    ROUTER("^/api/v1/events",                           ControllerEvents);
+    ROUTER("^/api/v1/users",                            ControllerUsers);
+    ROUTER("^/api/v1/doors",                            ControllerDoors);
+    ROUTER("^/api/v1/rfids",                            ControllerRfids);
 
-    if (m_path.contains(QRegExp(".*\\.shtml"))) {
+    if (m_path.contains(QRegularExpression(".*\\.shtml"))) {
         serviceShtmlFile(request, response);
         response->flush();
         return;
