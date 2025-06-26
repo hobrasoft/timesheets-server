@@ -700,6 +700,7 @@ Rfids Rfids::fromMap(const QVariantMap& data) {
     x.rfid_id = data["rfid_id"].toString();
     x.valid = data["valid"].toBool();
     x.note = data["note"].toString();
+    x.employee = data["employee"].toInt();
     return x;
 }
 
