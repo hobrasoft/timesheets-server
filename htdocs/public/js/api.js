@@ -141,6 +141,9 @@ class Api {
         this.doors = function (door) { if (typeof door !== 'undefined') { this.get("doors/" + door); } else { this.get("doors"); } }
         this.saveDoor = function (d) { this.put("doors/", JSON.stringify(d)); }
         this.removeDoor = function(d) { this.delete("doors/" + d); }
+        this.doorEmployees = function (door) { this.get("doors/" + door + "/employees"); }
+        this.saveDoorEmployee = function (x) { this.put("doors/" + x.door + "/employees", JSON.stringify(x)); }
+        this.removeDoorEmployee = function (door, employee) { this.delete("doors/" + door + "/employees/" + employee); }
         this.departments = function (department) { if (typeof department !== 'undefined') { this.get("departments/" + department); } else { this.get("departments"); } }
         this.saveDepartment = function (d) { this.put("departments/", JSON.stringify(d)); }
         this.removeDepartment = function(d) { this.delete("departments/" + d); }

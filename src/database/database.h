@@ -94,6 +94,8 @@ class Database : public QObject {
     QList<Dbt::EventTypes>                  eventTypes(const QString& eventType = QString());
     QList<Dbt::Events>                      events(int event = -1);
     QList<Dbt::Rfids>                       rfids(int rfid = -1);
+    QList<Dbt::EmployeeCanOpenDoor>         employeeCanOpenDoor(const Dbt::EmployeeCanOpenDoor&);
+    QVariant                                save(const Dbt::EmployeeCanOpenDoor&);
 
 
 

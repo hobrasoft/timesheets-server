@@ -374,6 +374,18 @@ QVariant DatabasePluginPostgres::save(const Dbt::ServerInfo& data) {
     return QVariant();
 }
 
+QVariant DatabasePluginPostgres::save(const Dbt::EmployeeCanOpenDoor& data) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(
+        insert into attendance.employee_can_open_door (employee, door)
+            values (:employee, :door)
+        )'");
+    q.bindValue(":employee", data.employee);
+    q.bindValue(":door", data.door);
+    q.exec();
+    return QVariant();
+}
+
 
 QVariantList pgArrayToVariantList(const QVariant& input) {
     QStringList x = input.toString().replace("{", "").replace("}", "").split(",");

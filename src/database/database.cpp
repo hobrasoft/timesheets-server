@@ -347,3 +347,11 @@ QList<Dbt::Rfids> Database::rfids(int r) {
     return m_dbplugin->rfids(r);
 }
 
+QList<Dbt::EmployeeCanOpenDoor> Database::employeeCanOpenDoor(const Dbt::EmployeeCanOpenDoor& p) {
+    return m_dbplugin->employeeCanOpenDoor(p);
+}
+
+QVariant Database::save(const Dbt::EmployeeCanOpenDoor& data) {
+    return m_dbplugin->save(data);
+}
+
