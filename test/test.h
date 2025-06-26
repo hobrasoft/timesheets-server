@@ -73,6 +73,7 @@ class Test : public QObject {
     void delTicketFile();               // Delete the file
     //
     void delTicket();
+    void putDepartmentEmployee();
 
 private:
 
@@ -90,6 +91,8 @@ private:
     QString         m_ticketFile;
     int             m_user;
     QString         m_category;
+    QString         m_department;
+    QString         m_employee;
     QDateTime       m_now;
     QByteArray      m_fileDataPng;
     QByteArray      m_fileDataJpeg;

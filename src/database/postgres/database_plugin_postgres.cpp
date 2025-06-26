@@ -386,6 +386,18 @@ QVariant DatabasePluginPostgres::save(const Dbt::EmployeeCanOpenDoor& data) {
     return QVariant();
 }
 
+QVariant DatabasePluginPostgres::save(const Dbt::DepartmentHasMember& data) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(
+        insert into attendance.department_has_member (department, employee)
+            values (:department, :employee)
+        )'");
+    q.bindValue(":department", data.department);
+    q.bindValue(":employee", data.employee);
+    q.exec();
+    return QVariant();
+}
+
 QVariant DatabasePluginPostgres::save(const Dbt::EmployeeHasRfid& data) {
     MSqlQuery q(m_db);
     q.prepare(R"'(

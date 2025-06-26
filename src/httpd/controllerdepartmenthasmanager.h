@@ -43,10 +43,10 @@ Struktura jednoho záznamu:
 
 
 */
-class ControllerDepartmentHasMenager : public AbstractController {
+class ControllerDepartmentHasManager : public AbstractController {
     Q_OBJECT
   public:
-    ControllerDepartments(HobrasoftHttpd::HttpConnection *parent);
+    ControllerDepartmentHasManager(HobrasoftHttpd::HttpConnection *parent);
 
   protected:
 

@@ -355,3 +355,7 @@ QList<Dbt::EmployeeHasRfid> Database::employeeHasRfid(const Dbt::EmployeeHasRfid
     return m_dbplugin->employeeHasRfid(p);
 }
 
+QList<Dbt::DepartmentHasMember> Database::departmentHasMember(const Dbt::DepartmentHasMember& p) {
+    return m_dbplugin->departmentHasMember(p);
+}
+

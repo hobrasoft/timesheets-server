@@ -147,6 +147,9 @@ class Api {
         this.departments = function (department) { if (typeof department !== 'undefined') { this.get("departments/" + department); } else { this.get("departments"); } }
         this.saveDepartment = function (d) { this.put("departments/", JSON.stringify(d)); }
         this.removeDepartment = function(d) { this.delete("departments/" + d); }
+        this.departmentEmployees = function (department) { this.get("departments/" + department + "/employees"); }
+        this.saveDepartmentEmployee = function (x) { this.put("departments/" + x.department + "/employees", JSON.stringify(x)); }
+        this.removeDepartmentEmployee = function (department, employee) { this.delete("departments/" + department + "/employees/" + employee); }
         this.rfids = function (rfid) { if (typeof rfid !== 'undefined') { this.get("rfids/" + rfid); } else { this.get("rfids"); } }
         this.saveRfid = function (r) { this.put("rfids/", JSON.stringify(r)); }
         this.removeRfid = function(r) { this.delete("rfids/" + r); }

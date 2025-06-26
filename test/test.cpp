@@ -896,5 +896,39 @@ void Test::delTicket() {
     QVERIFY(api()->error() == QNetworkReply::ContentNotFoundError);
 }
 
+void Test::putDepartmentEmployee() {
+    QVariantMap data;
+    data["abbr"] = "TE";
+    data["description"] = "Test dept";
+    APIPUT("/departments/x", data);
+    m_department = api()->variant().toMap()["key"].toString();
+
+    data.clear();
+    data["firstname"] = "John";
+    data["surname"] = "Doe";
+    data["active"] = true;
+    APIPUT("/employees/x", data);
+    m_employee = api()->variant().toMap()["key"].toString();
+
+    data.clear();
+    data["employee"] = m_employee.toInt();
+    APIPUT("/departments/"+m_department+"/employees", data);
+    QVERIFY(api()->variant().toMap().contains("ok"));
+
+    APIGET("/departments/"+m_department+"/employees");
+    QVariantList list = api()->variant().toList();
+    bool found = false;
+    for (const QVariant &v : list) {
+        QVariantMap m = v.toMap();
+        if (m["employee"].toString() == m_employee)
+            found = true;
+    }
+    QVERIFY(found);
+
+    APIDEL("/departments/"+m_department+"/employees/"+m_employee);
+    APIDEL("/employees/"+m_employee);
+    APIDEL("/departments/"+m_department);
+}
+
 
 
