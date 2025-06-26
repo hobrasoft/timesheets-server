@@ -62,12 +62,14 @@ create table department_has_manager (
 
 create table department_has_member (
     department      integer not null references departments(department) on update cascade on delete cascade,
-    employee        integer not null references employees(employee) on update cascade on delete cascade
+    employee        integer not null references employees(employee) on update cascade on delete cascade,
+    primary key (department, employee)
 );
 
 create table employee_can_open_door (
     employee        integer not null references employees(employee) on update cascade on delete cascade,
-    door            integer not null references doors(door) on update cascade on delete cascade
+    door            integer not null references doors(door) on update cascade on delete cascade,
+    primary key (employee, door)
 );
 
 create table employee_has_rfid (

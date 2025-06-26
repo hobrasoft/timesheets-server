@@ -90,7 +90,7 @@ class Database : public QObject {
 
     QList<Dbt::Departments>                 departments(int department = -1);
     QList<Dbt::Employees>                   employees(int employees = -1);
-    QList<Dbt::Doors>                       doors(int employee = -1);
+    QList<Dbt::Doors>                       doors(int door = -1);
     QList<Dbt::EventTypes>                  eventTypes(const QString& eventType = QString());
     QList<Dbt::Events>                      events(int event = -1);
     QList<Dbt::Rfids>                       rfids(int rfid = -1);
