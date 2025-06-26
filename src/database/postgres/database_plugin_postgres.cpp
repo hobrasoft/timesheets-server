@@ -3027,6 +3027,9 @@ QVariant DatabasePluginPostgres::save(const Dbt::Events& data) {
 
 QVariant DatabasePluginPostgres::save(const Dbt::Rfids& data) {
     MSqlQuery q(m_db);
+    QVariant key;
+
+    q.begin();
 
     q.prepare(R"'(select 1 from attendance.rfids where rfid = :key)'");
     q.bindValue(":key", data.rfid);
@@ -3044,7 +3047,7 @@ QVariant DatabasePluginPostgres::save(const Dbt::Rfids& data) {
         q.bindValue(":note",    data.note);
         q.bindValue(":rfid",    data.rfid);
         q.exec();
-        return QVariant(data.rfid);
+        key = data.rfid;
 
       } else {
 
@@ -3056,10 +3059,27 @@ QVariant DatabasePluginPostgres::save(const Dbt::Rfids& data) {
         q.bindValue(":valid",   data.valid);
         q.bindValue(":note",    data.note);
         q.exec();
-        return currval("attendance.rfids_rfid_seq");
+        key = currval("attendance.rfids_rfid_seq");
         }
 
-    return QVariant();
+    q.prepare(R"'(delete from attendance.employee_has_rfid where rfid = :rfid;)'");
+    q.bindValue(":rfid", key);
+    q.exec();
+
+    if (data.employee > 0) {
+        q.prepare(R"'(
+            insert into attendance.employee_has_rfid (rfid, employee)
+                values (:rfid, :employee)
+                on conflict (rfid) do update set employee = excluded.employee
+            )'");
+        q.bindValue(":rfid", key);
+        q.bindValue(":employee", data.employee);
+        q.exec();
+        }
+
+    q.commit();
+
+    return key;
 
 }
 

@@ -72,6 +72,28 @@ v databázi nezmění.
 @subsubsection apiatt-departments-put PUT /departments[/<department-id>]
 
 Bez parametru department-id vytváří nový záznam, s parametrem department-id prepíše existující záznam.
+@subsection apiatt-rfids /rfids
+
+@subsubsection apiatt-rfids-get GET /rfids[/<rfid>]
+
+Bez parametru rfid vrácí všechny RFID karty v poli, s parametrem rfid vrácí jeden záznam.
+
+@code
+{
+    "rfid":      12,
+    "rfid_id":   "ABCD1234",
+    "valid":     true,
+    "note":      "Poznámka",
+    "employee":  34,
+    "firstname": "Petr",
+    "surname":   "Hobrasoft"
+}
+@endcode
+Pole `employee`, `firstname` a `surname` mohou být prázdná, pokud není RFID ke žádnému zaměstnanci přiřazené.
+
+@subsubsection apiatt-rfids-put PUT /rfids[/<rfid>]
+
+Bez parametru rfid vytváří nový záznam, s parametrem rfid přepíše existující záznam.
 
 @subsection apiatt-rfid-employees /rfids/<rfid>/employees
 
