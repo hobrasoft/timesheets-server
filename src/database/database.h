@@ -95,11 +95,7 @@ class Database : public QObject {
     QList<Dbt::Events>                      events(int event = -1);
     QList<Dbt::Rfids>                       rfids(int rfid = -1);
     QList<Dbt::EmployeeCanOpenDoor>         employeeCanOpenDoor(const Dbt::EmployeeCanOpenDoor&);
-    QVariant                                save(const Dbt::EmployeeCanOpenDoor&);
     QList<Dbt::EmployeeHasRfid>             employeeHasRfid(const Dbt::EmployeeHasRfid&);
-    QVariant                                save(const Dbt::EmployeeHasRfid&);
-
-
 
     template<typename T> QVariant save(const T& id) { return m_dbplugin->save(id); }
     template<typename T> void remove(const T& id) { m_dbplugin->remove(id); }

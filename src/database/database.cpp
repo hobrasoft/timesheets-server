@@ -351,15 +351,7 @@ QList<Dbt::EmployeeCanOpenDoor> Database::employeeCanOpenDoor(const Dbt::Employe
     return m_dbplugin->employeeCanOpenDoor(p);
 }
 
-QVariant Database::save(const Dbt::EmployeeCanOpenDoor& data) {
-    return m_dbplugin->save(data);
-}
-
 QList<Dbt::EmployeeHasRfid> Database::employeeHasRfid(const Dbt::EmployeeHasRfid& p) {
     return m_dbplugin->employeeHasRfid(p);
-}
-
-QVariant Database::save(const Dbt::EmployeeHasRfid& data) {
-    return m_dbplugin->save(data);
 }
 
