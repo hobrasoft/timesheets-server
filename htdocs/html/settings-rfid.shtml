@@ -100,15 +100,15 @@ $(document).ready(function(){
 
     $("#btn-save").click(function(event){
         if (!userAdmin())  { return; }
-        var data = { rfid: $("#rfid").val(), rfid_id: $("#rfid_id").val(), valid: $("#valid").prop("checked"), note: $("#note").val() };
-        var api = new Api();
-        api.onFinished = function(result) {
-            var rid = data.rfid;
-            if (rid == 0 || rid === "" || isNaN(rid)) { rid = result.key; $("#rfid").val(rid); }
-            var api2 = new Api();
-            api2.onFinished = function() { goBack(); };
-            api2.saveRfidEmployee({ rfid: rid, employee: parseInt($("#employee").val()) });
+        var data = {
+            rfid:      $("#rfid").val(),
+            rfid_id:   $("#rfid_id").val(),
+            valid:     $("#valid").prop("checked"),
+            note:      $("#note").val(),
+            employee:  parseInt($("#employee").val())
         };
+        var api = new Api();
+        api.onFinished = function() { goBack(); }
         api.saveRfid(data);
     });
 

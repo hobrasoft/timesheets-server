@@ -3029,6 +3029,8 @@ QVariant DatabasePluginPostgres::save(const Dbt::Rfids& data) {
     MSqlQuery q(m_db);
     QVariant key;
 
+    PDEBUG << data.rfid << data.employee;
+
     q.begin();
 
     q.prepare(R"'(select 1 from attendance.rfids where rfid = :key)'");
@@ -3062,9 +3064,11 @@ QVariant DatabasePluginPostgres::save(const Dbt::Rfids& data) {
         key = currval("attendance.rfids_rfid_seq");
         }
 
-    q.prepare(R"'(delete from attendance.employee_has_rfid where rfid = :rfid;)'");
-    q.bindValue(":rfid", key);
-    q.exec();
+    if (data.employee <= 0) {
+        q.prepare(R"'(delete from attendance.employee_has_rfid where rfid = :rfid;)'");
+        q.bindValue(":rfid", key);
+        q.exec();
+        }
 
     if (data.employee > 0) {
         q.prepare(R"'(
