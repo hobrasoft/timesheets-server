@@ -86,11 +86,13 @@ $(document).ready(function(){
 
     var apiEmp = new Api();
     apiEmp.onFinished = function(result) {
+        var optNone = $('<option></option>').attr('value', 0).text('No employee');
+        $("#employee").append(optNone);
         for (var i=0; i<result.length; i++) {
             var opt = $('<option></option>').attr('value', result[i].employee).text(result[i].firstname + ' ' + result[i].surname);
             $("#employee").append(opt);
         }
-        if (selectedEmployee > 0) { $("#employee").val(selectedEmployee); }
+        $("#employee").val(selectedEmployee);
     };
     apiEmp.employees();
 
