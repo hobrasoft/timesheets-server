@@ -15,6 +15,18 @@
         <label for="description">Description</label>
     </div>
 
+    <div class="row mb-3" id="emp-lists" style="display:none;">
+        <div class="col">
+            <h5>In department</h5>
+            <ul class="list-group" id="list-in"></ul>
+        </div>
+        <div class="col">
+            <h5>Not in department</h5>
+            <ul class="list-group" id="list-out"></ul>
+        </div>
+    </div>
+    <p id="list-help" class="text-muted" style="display:none;">Click employee to move between lists</p>
+
     <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
     <button type="button" class="btn btn-primary" id="btn-save">Save</button>
     <button type="button" class="btn btn-danger" id="btn-del" data-bs-toggle="modal" data-bs-target="#confirm-delete">Delete</button>
@@ -49,11 +61,35 @@ $(document).ready(function(){
         $("#btn-del").hide();
         $("#abbr").prop('disabled', true);
         $("#description").prop('disabled', true);
+    } else {
+        $("#emp-lists").show();
+        $("#list-help").show();
     }
     var department = parseInt($.urlParam("department"));
 
     if (department == 0 || isNaN(department)) {
         $("#btn-del").hide();
+    }
+
+    var employees = [];
+    var deptEmployees = [];
+    var loadedEmployees = false;
+    var loadedDeptEmployees = (department <= 0);
+
+    function fillLists() {
+        if (!(loadedEmployees && loadedDeptEmployees)) { return; }
+        $("#list-in").empty();
+        $("#list-out").empty();
+        for (var i=0; i<employees.length; i++) {
+            var li = $('<li class="list-group-item"></li>');
+            li.attr('data-employee', employees[i].employee);
+            li.text(employees[i].firstname + ' ' + employees[i].surname);
+            if (deptEmployees.indexOf(employees[i].employee) >= 0) {
+                $("#list-in").append(li);
+            } else {
+                $("#list-out").append(li);
+            }
+        }
     }
 
     if (department > 0) {
@@ -64,6 +100,67 @@ $(document).ready(function(){
             $("#description").val(result.description);
         };
         api.departments(department);
+
+        var api3 = new Api();
+        api3.onFinished = function(result) {
+            for (var i=0; i<result.length; i++) {
+                deptEmployees.push(result[i].employee);
+            }
+            loadedDeptEmployees = true;
+            fillLists();
+        };
+        api3.departmentEmployees(department);
+    } else {
+        loadedDeptEmployees = true;
+    }
+
+    var api2 = new Api();
+    api2.onFinished = function(result) {
+        employees = result;
+        loadedEmployees = true;
+        fillLists();
+    };
+    api2.employees();
+
+    $("#list-in").on('click', 'li', function(){
+        $("#list-out").append(this);
+    });
+    $("#list-out").on('click', 'li', function(){
+        $("#list-in").append(this);
+    });
+
+    function collectList(selector) {
+        var list = [];
+        $(selector + ' li').each(function(){
+            list.push(parseInt($(this).attr('data-employee')));
+        });
+        return list;
+    }
+
+    function saveMappings(depId) {
+        var newSet = collectList('#list-in');
+        var toAdd = [];
+        var toDel = [];
+        for (var i=0; i<newSet.length; i++) {
+            if (deptEmployees.indexOf(newSet[i]) === -1) { toAdd.push(newSet[i]); }
+        }
+        for (var i=0; i<deptEmployees.length; i++) {
+            if (newSet.indexOf(deptEmployees[i]) === -1) { toDel.push(deptEmployees[i]); }
+        }
+
+        var pending = toAdd.length + toDel.length;
+        if (pending === 0) { goBack(); return; }
+        function done() { if (--pending === 0) { goBack(); } }
+        toAdd.forEach(function(emp){
+            var api = new Api();
+            api.onFinished = done;
+            api.saveDepartmentEmployee({department: depId, employee: emp});
+        });
+        toDel.forEach(function(emp){
+            var api = new Api();
+            api.onFinished = done;
+            api.removeDepartmentEmployee(depId, emp);
+        });
     }
 
     $("#btn-cancel").click(function(event){
@@ -74,7 +171,14 @@ $(document).ready(function(){
         if (!userAdmin())  { return; }
         var data = { department: $("#department").val(), abbr: $("#abbr").val(), description: $("#description").val() };
         var api = new Api();
-        api.onFinished = function() { goBack(); }
+        api.onFinished = function(result) {
+            var depId = data.department;
+            if (depId == 0 || depId === "" || isNaN(depId)) {
+                depId = result.key;
+                $("#department").val(depId);
+            }
+            saveMappings(depId);
+        }
         api.saveDepartment(data);
     });
 
