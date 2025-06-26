@@ -30,6 +30,7 @@ $$PWD/controllerdepartments.cpp \
 $$PWD/controlleremployees.cpp \
 $$PWD/controllerdoors.cpp \
 $$PWD/controllerdooremployees.cpp \
+$$PWD/controllerrfidemployees.cpp \
 $$PWD/controllerrfids.cpp \
 $$PWD/controllerevents.cpp \
 $$PWD/controllereventtypes.cpp \
@@ -58,6 +59,7 @@ $$PWD/controllerdepartments.h \
 $$PWD/controlleremployees.h \
 $$PWD/controllerdoors.h \
 $$PWD/controllerdooremployees.h \
+$$PWD/controllerrfidemployees.h \
 $$PWD/controllerrfids.h \
 $$PWD/controllerevents.h \
 $$PWD/controllereventtypes.h \

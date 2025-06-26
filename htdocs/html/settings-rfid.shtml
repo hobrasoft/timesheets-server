@@ -22,6 +22,11 @@
         <label for="note">Note</label>
     </div>
 
+    <div class="form-floating mb-3">
+        <select class="form-select" id="employee"></select>
+        <label for="employee">Employee</label>
+    </div>
+
     <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
     <button type="button" class="btn btn-primary" id="btn-save">Save</button>
     <button type="button" class="btn btn-danger" id="btn-del" data-bs-toggle="modal" data-bs-target="#confirm-delete">Delete</button>
@@ -57,6 +62,7 @@ $(document).ready(function(){
         $("#rfid_id").prop('disabled', true);
         $("#valid").prop('disabled', true);
         $("#note").prop('disabled', true);
+        $("#employee").prop('disabled', true);
     }
     var rfid = parseInt($.urlParam("rfid"));
 
@@ -64,6 +70,7 @@ $(document).ready(function(){
         $("#btn-del").hide();
     }
 
+    var selectedEmployee = 0;
     if (rfid > 0) {
         var api = new Api();
         api.onFinished = function(result) {
@@ -73,7 +80,24 @@ $(document).ready(function(){
             $("#note").val(result.note);
         };
         api.rfids(rfid);
+
+        var apiMap = new Api();
+        apiMap.onFinished = function(result) {
+            if (result.length > 0) { selectedEmployee = result[0].employee; }
+            $("#employee").val(selectedEmployee);
+        };
+        apiMap.rfidEmployees(rfid);
     }
+
+    var apiEmp = new Api();
+    apiEmp.onFinished = function(result) {
+        for (var i=0; i<result.length; i++) {
+            var opt = $('<option></option>').attr('value', result[i].employee).text(result[i].firstname + ' ' + result[i].surname);
+            $("#employee").append(opt);
+        }
+        if (selectedEmployee > 0) { $("#employee").val(selectedEmployee); }
+    };
+    apiEmp.employees();
 
     $("#btn-cancel").click(function(event){
         goBack();
@@ -83,7 +107,13 @@ $(document).ready(function(){
         if (!userAdmin())  { return; }
         var data = { rfid: $("#rfid").val(), rfid_id: $("#rfid_id").val(), valid: $("#valid").prop("checked"), note: $("#note").val() };
         var api = new Api();
-        api.onFinished = function() { goBack(); }
+        api.onFinished = function(result) {
+            var rid = data.rfid;
+            if (rid == 0 || rid === "" || isNaN(rid)) { rid = result.key; $("#rfid").val(rid); }
+            var api2 = new Api();
+            api2.onFinished = function() { goBack(); };
+            api2.saveRfidEmployee({ rfid: rid, employee: parseInt($("#employee").val()) });
+        };
         api.saveRfid(data);
     });
 

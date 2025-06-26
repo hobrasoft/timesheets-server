@@ -73,4 +73,25 @@ v databázi nezmění.
 
 Bez parametru department-id vytváří nový záznam, s parametrem department-id prepíše existující záznam.
 
+@subsection apiatt-rfid-employees /rfids/<rfid>/employees
+
+@subsubsection apiatt-rfid-employees-get GET /rfids/<rfid>/employees
+
+Vrací přiřazeného zaměstnance k RFID kartě.
+
+@subsubsection apiatt-rfid-employees-put PUT /rfids/<rfid>/employees
+
+Přiřadí RFID ke zvolenému zaměstnanci. Tělo požadavku obsahuje:
+
+@code
+{
+    "rfid":      12,
+    "employee":  34
+}
+@endcode
+
+@subsubsection apiatt-rfid-employees-delete DELETE /rfids/<rfid>/employees/<employee-id>
+
+Zruší přiřazení zaměstnance k RFID kartě.
+
 */

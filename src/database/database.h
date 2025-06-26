@@ -96,6 +96,8 @@ class Database : public QObject {
     QList<Dbt::Rfids>                       rfids(int rfid = -1);
     QList<Dbt::EmployeeCanOpenDoor>         employeeCanOpenDoor(const Dbt::EmployeeCanOpenDoor&);
     QVariant                                save(const Dbt::EmployeeCanOpenDoor&);
+    QList<Dbt::EmployeeHasRfid>             employeeHasRfid(const Dbt::EmployeeHasRfid&);
+    QVariant                                save(const Dbt::EmployeeHasRfid&);
 
 
 

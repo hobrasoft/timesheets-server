@@ -386,6 +386,19 @@ QVariant DatabasePluginPostgres::save(const Dbt::EmployeeCanOpenDoor& data) {
     return QVariant();
 }
 
+QVariant DatabasePluginPostgres::save(const Dbt::EmployeeHasRfid& data) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(
+        insert into attendance.employee_has_rfid (rfid, employee)
+            values (:rfid, :employee)
+            on conflict (rfid) do update set employee = excluded.employee
+        )'");
+    q.bindValue(":rfid", data.rfid);
+    q.bindValue(":employee", data.employee);
+    q.exec();
+    return QVariant();
+}
+
 
 QVariantList pgArrayToVariantList(const QVariant& input) {
     QStringList x = input.toString().replace("{", "").replace("}", "").split(",");

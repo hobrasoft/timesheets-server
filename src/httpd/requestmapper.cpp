@@ -42,6 +42,7 @@
 #include "controlleremployees.h"
 #include "controllerdoors.h"
 #include "controllerdooremployees.h"
+#include "controllerrfidemployees.h"
 #include "controllerrfids.h"
 #include "controllereventtypes.h"
 #include "controllerevents.h"
@@ -139,6 +140,12 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
     ROUTER("/api/v1/users",                            ControllerUsers);
     if (m_path.startsWith("/api/v1/doors/") && m_path.contains("/employees")) {
         AbstractController *controller = new ControllerDoorEmployees(connection());
+        controller->setAuthorizer(m_authorizer);
+        controller->service(request, response);
+        return;
+        }
+    if (m_path.startsWith("/api/v1/rfids/") && m_path.contains("/employees")) {
+        AbstractController *controller = new ControllerRfidEmployees(connection());
         controller->setAuthorizer(m_authorizer);
         controller->service(request, response);
         return;

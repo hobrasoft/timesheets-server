@@ -14,6 +14,7 @@
         <th>RFID</th>
         <th>Valid</th>
         <th>Note</th>
+        <th>Employee</th>
     </tr>
     </thead>
     <tbody id="tbody">
@@ -23,6 +24,7 @@
         <td><span class="rfid-value"></span></td>
         <td><span class="rfid-valid"></span></td>
         <td><span class="rfid-note"></span></td>
+        <td><span class="rfid-employee"></span></td>
     </tr>
     </tbody>
     </table>
@@ -41,6 +43,7 @@ $(document).ready(function(){
             var id_rfid_value = x.find('.rfid-value');
             var id_rfid_valid = x.find('.rfid-valid');
             var id_rfid_note  = x.find('.rfid-note');
+            var id_rfid_emp   = x.find('.rfid-employee');
             var id_rfid_edit  = x.find('.rfid-edit');
 
             if (userAdmin()) {
@@ -51,6 +54,12 @@ $(document).ready(function(){
             $(id_rfid_value).html(result[t].rfid_id);
             $(id_rfid_valid).html(result[t].valid);
             $(id_rfid_note).html(result[t].note);
+
+            var apiEmp = new Api();
+            apiEmp.onFinished = function(r){
+                if (r.length > 0) { $(id_rfid_emp).html(r[0].employee); }
+            };
+            apiEmp.rfidEmployees(result[t].rfid);
 
             var href="settings-rfid.shtml?rfid="+result[t].rfid;
             $(id_rfid_edit).attr("href", href);
