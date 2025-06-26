@@ -75,7 +75,8 @@ create table employee_can_open_door (
 create table employee_has_rfid (
     rfid            integer not null references rfids(rfid) on update cascade on delete cascade,
     employee        integer not null references employees(employee) on update cascade on delete cascade,
-    primary key (rfid, employee)
+    primary key (rfid),
+    unique (rfid, employee)
 );
 
 
