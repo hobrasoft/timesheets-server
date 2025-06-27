@@ -22,10 +22,13 @@ Httpd::Httpd::Httpd(const HobrasoftHttpd::HttpSettings *settings, QObject *paren
      * Vytvoří SessionStore pro ukládání session pro přihlašování
      */
     SessionStore::sessionStore(settings, this);
+    SessionStore::sessionStore()->setSessionCookieName("session_timesheets");
+/*
     SessionStore::sessionStore()->setSessionCookieName(
         QString("session_")
           + QUuid::createUuid().toString().replace("{","N").replace("}","").replace("-","_")
         );
+*/
     PluginStore::pluginStore(this);
 }
 
