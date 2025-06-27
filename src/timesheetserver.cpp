@@ -13,6 +13,7 @@
 #include "httpd/httpd.h"
 #include "security/security.h"
 #include "security/guard.h"
+#include "httpd/sessionstore.h"
 #include <QFile>
 #include <QTimer>
 #include <QCoreApplication>
@@ -64,6 +65,7 @@ void TimesheetServer::restart() {
 
 void TimesheetServer::quit() {
     PDEBUG;
+    Httpd::SessionStore::sessionStore()->save();
     QCoreApplication::quit();
 }
 

@@ -24,6 +24,12 @@ SessionStore::SessionStore(const HobrasoftHttpd::HttpSettings *settings, QObject
         HobrasoftHttpd::HttpSessionStore(settings, parent) {
     m_sessionStore = this;
     load();
+
+    QTimer *timer = new QTimer(this);
+    timer->setInterval(60000);
+    timer->start();
+    connect(timer, &QTimer::timeout, this, &SessionStore::save);
+
 }
 
 SessionStore::~SessionStore() {
