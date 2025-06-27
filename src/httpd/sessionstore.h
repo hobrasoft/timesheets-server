@@ -25,6 +25,18 @@ class SessionStore : public HobrasoftHttpd::HttpSessionStore {
      */
     static SessionStore *sessionStore(const HobrasoftHttpd::HttpSettings *settings = NULL, QObject *parent = NULL);
 
+    /**
+     * @brief Loads sessions from /tmp/timesheets-session.json
+     */
+    void load();
+
+    /**
+     * @brief Saves sessions to /tmp/timesheets-session.json
+     */
+    void save();
+
+    ~SessionStore();
+
   private:
     #ifndef DOXYGEN_SHOULD_SKIP_THIS
     SessionStore(const HobrasoftHttpd::HttpSettings *settings, QObject *parent);
