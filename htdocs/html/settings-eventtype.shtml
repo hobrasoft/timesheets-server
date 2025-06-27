@@ -1,0 +1,161 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<div class="container">
+    <form>
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="event_type"></input>
+        <label for="event_type">Event type</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="description"></input>
+        <label for="description">Description</label>
+    </div>
+
+    <div class="form-check form-switch mb-3">
+        <input type="checkbox" id="passage" class="form-check-input"></input>
+        <label for="passage" class="form-check-label">Passage</label>
+    </div>
+    <div class="form-check form-switch mb-3">
+        <input type="checkbox" id="end_state" class="form-check-input"></input>
+        <label for="end_state" class="form-check-label">Ends previous state</label>
+    </div>
+    <div class="form-check form-switch mb-3">
+        <input type="checkbox" id="arrival" class="form-check-input"></input>
+        <label for="arrival" class="form-check-label">Arrival</label>
+    </div>
+    <div class="form-check form-switch mb-3">
+        <input type="checkbox" id="vacation" class="form-check-input"></input>
+        <label for="vacation" class="form-check-label">Vacation</label>
+    </div>
+    <div class="form-check form-switch mb-3">
+        <input type="checkbox" id="sick_leave" class="form-check-input"></input>
+        <label for="sick_leave" class="form-check-label">Sick leave</label>
+    </div>
+    <div class="form-check form-switch mb-3">
+        <input type="checkbox" id="compensatory_leave" class="form-check-input"></input>
+        <label for="compensatory_leave" class="form-check-label">Compensatory leave</label>
+    </div>
+    <div class="form-check form-switch mb-3">
+        <input type="checkbox" id="business_trip" class="form-check-input"></input>
+        <label for="business_trip" class="form-check-label">Business trip</label>
+    </div>
+    <div class="form-check form-switch mb-3">
+        <input type="checkbox" id="break_time" class="form-check-input"></input>
+        <label for="break_time" class="form-check-label">Break time</label>
+    </div>
+    <div class="form-check form-switch mb-3">
+        <input type="checkbox" id="unpaid_leave" class="form-check-input"></input>
+        <label for="unpaid_leave" class="form-check-label">Unpaid leave</label>
+    </div>
+    <div class="form-check form-switch mb-3">
+        <input type="checkbox" id="sick_care" class="form-check-input"></input>
+        <label for="sick_care" class="form-check-label">Sick care</label>
+    </div>
+
+    <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
+    <button type="button" class="btn btn-primary" id="btn-save">Save</button>
+    <button type="button" class="btn btn-danger" id="btn-del" data-bs-toggle="modal" data-bs-target="#confirm-delete">Delete</button>
+    </form>
+</div>
+
+<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>This will delete the event type.</h3>
+            </div>
+            <div class="modal-body">
+                <p>Do you really want to delete the event type?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="btn-delete" class="btn btn-danger btn-ok">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function goBack() {
+    window.location.replace('settings-eventtypes.shtml');
+}
+
+$(document).ready(function(){
+    if (!userAdmin()) {
+        $("#btn-save").hide();
+        $("#btn-del").hide();
+        $("#event_type").prop('disabled', true);
+        $("#description").prop('disabled', true);
+        $("#passage").prop('disabled', true);
+        $("#end_state").prop('disabled', true);
+        $("#arrival").prop('disabled', true);
+        $("#vacation").prop('disabled', true);
+        $("#sick_leave").prop('disabled', true);
+        $("#compensatory_leave").prop('disabled', true);
+        $("#business_trip").prop('disabled', true);
+        $("#break_time").prop('disabled', true);
+        $("#unpaid_leave").prop('disabled', true);
+        $("#sick_care").prop('disabled', true);
+    }
+    var eventType = $.urlParam('event_type');
+    if (eventType === '') {
+        $("#btn-del").hide();
+    }
+    if (eventType !== '') {
+        var api = new Api();
+        api.onFinished = function(result) {
+            $("#event_type").prop('disabled', true);
+            $("#event_type").val(result.event_type);
+            $("#description").val(result.description);
+            $("#passage").attr('checked', result.passage);
+            $("#end_state").attr('checked', result.end_state);
+            $("#arrival").attr('checked', result.arrival);
+            $("#vacation").attr('checked', result.vacation);
+            $("#sick_leave").attr('checked', result.sick_leave);
+            $("#compensatory_leave").attr('checked', result.compensatory_leave);
+            $("#business_trip").attr('checked', result.business_trip);
+            $("#break_time").attr('checked', result.break_time);
+            $("#unpaid_leave").attr('checked', result.unpaid_leave);
+            $("#sick_care").attr('checked', result.sick_care);
+        };
+        api.eventtypes(eventType);
+    }
+
+    $("#btn-cancel").click(function(){
+        goBack();
+    });
+
+    $("#btn-save").click(function(){
+        if (!userAdmin()) return;
+        var data = {
+            event_type: $("#event_type").val(),
+            description: $("#description").val(),
+            passage: $("#passage").prop('checked'),
+            end_state: $("#end_state").prop('checked'),
+            arrival: $("#arrival").prop('checked'),
+            vacation: $("#vacation").prop('checked'),
+            sick_leave: $("#sick_leave").prop('checked'),
+            compensatory_leave: $("#compensatory_leave").prop('checked'),
+            business_trip: $("#business_trip").prop('checked'),
+            break_time: $("#break_time").prop('checked'),
+            unpaid_leave: $("#unpaid_leave").prop('checked'),
+            sick_care: $("#sick_care").prop('checked')
+        };
+        var api = new Api();
+        api.onFinished = function(){ goBack(); };
+        api.saveEventType(data);
+    });
+
+    $("#btn-delete").click(function(){
+        if (!userAdmin()) return;
+        var event_type = $("#event_type").val();
+        var api = new Api();
+        api.onFinished = function(){ goBack(); };
+        api.removeEventType(event_type);
+    });
+});
+</script>
+
+<!-- #include '/inc/footer.html' -->

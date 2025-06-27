@@ -2561,13 +2561,11 @@ QList<Dbt::Employees> DatabasePluginPostgres::employees(int employee) {
 QList<Dbt::EventTypes> DatabasePluginPostgres::eventTypes(const QString& eventType) { 
     MSqlQuery q(m_db);
     QList<Dbt::EventTypes> list; 
-    q.prepare(R"'(select event_type, description,
-            end_state, passage, arrival, vacation, sick_leave, compensatory_leave, business_trip, break_time, unpaid_leave, sick_care
-            from attendance.event_types
-        where event_type = :key1 or "" = :key2;
-        )'");
-    q.bindValue(":key1", eventType);
-    q.bindValue(":key2", eventType);
+    q.prepare(R"X(select event_type, description, end_state, passage, arrival, vacation, sick_leave, compensatory_leave, business_trip, break_time, unpaid_leave, sick_care
+        from attendance.event_types
+        where event_type = :key1 or :key2 = '')X");
+    q.bindValue(":key1", ((eventType.isNull()) ? QString("") : eventType));
+    q.bindValue(":key2", ((eventType.isNull()) ? QString("") : eventType));
     q.exec();
     while (q.next()) {
         Dbt::EventTypes x;

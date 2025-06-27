@@ -159,6 +159,9 @@ class Api {
         this.saveTicket = function(t) { this.put("ticketsvw/", JSON.stringify(t)); }
         this.startTimesheet = function(t) { this.get("timesheet/start/" + t); }
         this.stopTimesheet = function(t) { this.get("timesheet/stop/" + t); }
+        this.eventtypes = function (et) { if (typeof et !== "undefined") { this.get("eventtypes/" + et); } else { this.get("eventtypes"); } }
+        this.saveEventType = function (e) { this.put("eventtypes/", JSON.stringify(e)); }
+        this.removeEventType = function (e) { this.delete("eventtypes/" + e); }
         this.removeTicket = function(t) { this.delete("tickets/" + t); }
         this.removeCategory = function(c) { this.delete("categories/" + c); }
         this.unauthenticate = function(user, password) { this.get("unauthenticate"); }

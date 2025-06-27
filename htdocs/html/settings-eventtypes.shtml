@@ -1,0 +1,97 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<div id="spinner" class="spinner-border screen-spinner" style="width: 3em; height: 3em;" role="status"></div>
+
+<div class="container">
+    <h2 id="current-description">Event types</h2>
+
+    <table class="table table-bordered table-hover">
+    <thead>
+    <tr class="table-info">
+        <th></th>
+        <th>Event type</th>
+        <th>Description</th>
+        <th>Passage</th>
+        <th>End state</th>
+        <th>Arrival</th>
+        <th>Vacation</th>
+        <th>Sick leave</th>
+        <th>Comp. leave</th>
+        <th>Business trip</th>
+        <th>Break time</th>
+        <th>Unpaid leave</th>
+        <th>Sick care</th>
+    </tr>
+    </thead>
+    <tbody id="tbody">
+    <tr id="template-eventtype" style="display: none;">
+        <td><a class="eventtype-edit" href="" style="display:none;"><i class="bi bi-pencil"></i></a></td>
+        <td><span class="eventtype-id"></span></td>
+        <td><span class="eventtype-description"></span></td>
+        <td><span class="eventtype-passage"></span></td>
+        <td><span class="eventtype-end_state"></span></td>
+        <td><span class="eventtype-arrival"></span></td>
+        <td><span class="eventtype-vacation"></span></td>
+        <td><span class="eventtype-sick_leave"></span></td>
+        <td><span class="eventtype-compensatory_leave"></span></td>
+        <td><span class="eventtype-business_trip"></span></td>
+        <td><span class="eventtype-break_time"></span></td>
+        <td><span class="eventtype-unpaid_leave"></span></td>
+        <td><span class="eventtype-sick_care"></span></td>
+    </tr>
+    </tbody>
+    </table>
+</div>
+
+<script>
+$(document).ready(function(){
+    if (userAdmin()) {
+        $("#navbar-add-eventtype").show();
+    }
+    var api = new Api();
+    api.onFinished = function(result) {
+        for (var t=0; t<result.length; t++) {
+            var x = $('#template-eventtype').clone();
+            var id_ev_id      = x.find('.eventtype-id');
+            var id_ev_desc    = x.find('.eventtype-description');
+            var id_ev_passage = x.find('.eventtype-passage');
+            var id_ev_end     = x.find('.eventtype-end_state');
+            var id_ev_arrival = x.find('.eventtype-arrival');
+            var id_ev_vac     = x.find('.eventtype-vacation');
+            var id_ev_sick    = x.find('.eventtype-sick_leave');
+            var id_ev_comp    = x.find('.eventtype-compensatory_leave');
+            var id_ev_trip    = x.find('.eventtype-business_trip');
+            var id_ev_break   = x.find('.eventtype-break_time');
+            var id_ev_unpaid  = x.find('.eventtype-unpaid_leave');
+            var id_ev_care    = x.find('.eventtype-sick_care');
+            var id_ev_edit    = x.find('.eventtype-edit');
+
+            if (userAdmin()) { $(id_ev_edit).show(); }
+
+            $(id_ev_id).html(result[t].event_type);
+            $(id_ev_desc).html(result[t].description);
+            $(id_ev_passage).html(result[t].passage);
+            $(id_ev_end).html(result[t].end_state);
+            $(id_ev_arrival).html(result[t].arrival);
+            $(id_ev_vac).html(result[t].vacation);
+            $(id_ev_sick).html(result[t].sick_leave);
+            $(id_ev_comp).html(result[t].compensatory_leave);
+            $(id_ev_trip).html(result[t].business_trip);
+            $(id_ev_break).html(result[t].break_time);
+            $(id_ev_unpaid).html(result[t].unpaid_leave);
+            $(id_ev_care).html(result[t].sick_care);
+
+            var href="settings-eventtype.shtml?event_type="+encodeURIComponent(result[t].event_type);
+            $(id_ev_edit).attr("href", href);
+
+            $('tbody').append(x);
+            $(x).show();
+        }
+        $('#spinner').hide();
+    };
+    api.eventtypes();
+});
+</script>
+
+<!-- #include '/inc/footer.html' -->
