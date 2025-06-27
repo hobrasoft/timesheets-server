@@ -44,7 +44,7 @@ RequestAuthorizer::RequestAuthorizer(HobrasoftHttpd::HttpConnection *parent) : H
 bool RequestAuthorizer::isLoggedIn(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
     HttpSession session = SessionStore::sessionStore()->session(request, response);
 
-    if (request->path() == "/unatuhenticate") {
+    if (request->path() == "/unauthenticate") {
         SessionStore::sessionStore()->remove(session);
         response->setStatus(204, "OK");
         response->flush();
