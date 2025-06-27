@@ -26,12 +26,12 @@ class SessionStore : public HobrasoftHttpd::HttpSessionStore {
     static SessionStore *sessionStore(const HobrasoftHttpd::HttpSettings *settings = NULL, QObject *parent = NULL);
 
     /**
-     * @brief Loads sessions from /tmp/timesheets-session.json
+     * @brief Loads sessions from the file configured in httpd/sessions-file
      */
     void load();
 
     /**
-     * @brief Saves sessions to /tmp/timesheets-session.json
+     * @brief Saves sessions to the file configured in httpd/sessions-file
      */
     void save();
 

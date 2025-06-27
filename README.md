@@ -109,6 +109,7 @@ Check the configuration file:
     maxRequestSize = 99999999
     address = [2001:db8::99]:8039
     root = /usr/lib/share/timesheets-server/htdocs
+    sessions-file = /tmp/timesheets-sessions.json
 
     [log]
     all = true

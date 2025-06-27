@@ -6,6 +6,7 @@
 
 #include "sessionstore.h"
 #include "httpsessionstore.h"
+#include "msettings.h"
 #include "json.h"
 #include <QFile>
 #include <QDateTime>
@@ -38,7 +39,7 @@ SessionStore *SessionStore::sessionStore(const HobrasoftHttpd::HttpSettings *set
 }
 
 void SessionStore::load() {
-    QFile file("/tmp/timesheets-session.json");
+    QFile file(MSETTINGS->httpdSessionsFile());
     if (!file.open(QIODevice::ReadOnly)) { return; }
     QByteArray json = file.readAll();
     file.close();
@@ -75,7 +76,7 @@ void SessionStore::save() {
         map["values"] = values;
         list << map;
         }
-    QFile file("/tmp/timesheets-session.json");
+    QFile file(MSETTINGS->httpdSessionsFile());
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) { return; }
     file.write(JSON::json(list));
     file.close();

@@ -106,4 +106,8 @@ MSettings *MSettings::instance(QObject *parent) {
     return m_mSettings;
 }
 
+QString MSettings::httpdSessionsFile() const {
+    return value(HttpdSessionsFile, "/tmp/timesheets-sessions.json").toString();
+}
+
 

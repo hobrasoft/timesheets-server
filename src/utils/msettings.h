@@ -137,6 +137,7 @@ class MSettings : public QSettings {
     static constexpr const char *HttpdUser              = "httpd/user";
     static constexpr const char *HttpdPassword          = "httpd/password";
     static constexpr const char *HttpdAuthorize         = "httpd/authorize";
+    static constexpr const char *HttpdSessionsFile      = "httpd/sessions-file";
     static constexpr const char *ServerName             = "server/name";
     static constexpr const char *ServerDescription      = "server/description";
     static constexpr const char *ServerEnableRemoteRestart = "server/enable-remote-restart";
@@ -166,6 +167,7 @@ class MSettings : public QSettings {
     QString httpdUser() const { return value(HttpdUser).toString(); }
     QString httpdPassword() const { return value(HttpdPassword).toString(); }
     bool    httpdAuthorize() const { return value(HttpdAuthorize).toBool(); }
+    QString httpdSessionsFile() const;
 
     // Httpd
     QString serverName() const { return value(ServerName).toString(); }
