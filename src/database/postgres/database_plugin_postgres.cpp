@@ -63,14 +63,11 @@ void DatabasePluginPostgres::upgrade() {
     PDEBUG;
     m_upgraded = true;
     MSqlQuery q(m_db);
-    q.exec("select version from version;");
-    int version = (q.next()) ? q.value(0).toInt() : -1;
-    for (;;) {
-        version++;
+    for (int version=0; version < 1000; version++) {
         QString patchname = QString(":/postgres/patch.%1.sql").arg(version, 3, 10, QChar('0'));
         QFile file(patchname);
         if (!file.open(QIODevice::ReadOnly)) {
-            return;
+            continue;
             }
         PDEBUG << "aplying db patch " << patchname;
 
@@ -95,7 +92,6 @@ void DatabasePluginPostgres::upgrade() {
                 }
             }
 
-        q.exec(QString("update version set version = %1;").arg(version));
         }
 
     return;
