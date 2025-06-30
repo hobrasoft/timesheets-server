@@ -15,17 +15,44 @@
         <label for="description">Description</label>
     </div>
 
-    <div class="row mb-3" id="emp-lists" style="display:none;">
-        <div class="col">
-            <h5>In department</h5>
-            <ul class="list-group" id="list-in"></ul>
+    <ul class="nav nav-tabs" id="dept-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-members-tab" data-bs-toggle="tab" data-bs-target="#tab-members" type="button" role="tab">Members</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-managers-tab" data-bs-toggle="tab" data-bs-target="#tab-managers" type="button" role="tab">Managers</button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="tab-members" role="tabpanel">
+            <div class="row mb-3" id="emp-lists" style="display:none;">
+                <div class="col">
+                    <h5>In department</h5>
+                    <ul class="list-group" id="list-in"></ul>
+                </div>
+                <div class="col">
+                    <h5>Not in department</h5>
+                    <ul class="list-group" id="list-out"></ul>
+                </div>
+            </div>
+            <p id="list-help" class="text-muted" style="display:none;">Click employee to move between lists</p>
         </div>
-        <div class="col">
-            <h5>Not in department</h5>
-            <ul class="list-group" id="list-out"></ul>
+
+        <div class="tab-pane fade" id="tab-managers" role="tabpanel">
+            <div class="row mb-3" id="mgr-lists" style="display:none;">
+                <div class="col">
+                    <h5>Is manager</h5>
+                    <ul class="list-group" id="list-manager"></ul>
+                </div>
+                <div class="col">
+                    <h5>Is not manager</h5>
+                    <ul class="list-group" id="list-notmanager"></ul>
+                </div>
+            </div>
+            <p id="mgr-help" class="text-muted" style="display:none;">Click user to move between lists</p>
         </div>
     </div>
-    <p id="list-help" class="text-muted" style="display:none;">Click employee to move between lists</p>
 
     <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
     <button type="button" class="btn btn-primary" id="btn-save">Save</button>
@@ -64,6 +91,8 @@ $(document).ready(function(){
     } else {
         $("#emp-lists").show();
         $("#list-help").show();
+        $("#mgr-lists").show();
+        $("#mgr-help").show();
     }
     var department = parseInt($.urlParam("department"));
 
@@ -75,6 +104,11 @@ $(document).ready(function(){
     var deptEmployees = [];
     var loadedEmployees = false;
     var loadedDeptEmployees = (department <= 0);
+
+    var users = [];
+    var deptManagers = [];
+    var loadedUsers = false;
+    var loadedDeptManagers = (department <= 0);
 
     function fillLists() {
         if (!(loadedEmployees && loadedDeptEmployees)) { return; }
@@ -88,6 +122,22 @@ $(document).ready(function(){
                 $("#list-in").append(li);
             } else {
                 $("#list-out").append(li);
+            }
+        }
+    }
+
+    function fillManagerLists() {
+        if (!(loadedUsers && loadedDeptManagers)) { return; }
+        $("#list-manager").empty();
+        $("#list-notmanager").empty();
+        for (var i=0; i<users.length; i++) {
+            var li = $('<li class="list-group-item"></li>');
+            li.attr('data-user', users[i].user);
+            li.text(users[i].name);
+            if (deptManagers.indexOf(users[i].user) >= 0) {
+                $("#list-manager").append(li);
+            } else {
+                $("#list-notmanager").append(li);
             }
         }
     }
@@ -110,8 +160,19 @@ $(document).ready(function(){
             fillLists();
         };
         api3.departmentEmployees(department);
+
+        var api4 = new Api();
+        api4.onFinished = function(result) {
+            for (var i=0; i<result.length; i++) {
+                deptManagers.push(result[i].user);
+            }
+            loadedDeptManagers = true;
+            fillManagerLists();
+        };
+        api4.departmentManagers(department);
     } else {
         loadedDeptEmployees = true;
+        loadedDeptManagers = true;
     }
 
     var api2 = new Api();
@@ -122,6 +183,14 @@ $(document).ready(function(){
     };
     api2.employees();
 
+    var apiUsers = new Api();
+    apiUsers.onFinished = function(result) {
+        users = result;
+        loadedUsers = true;
+        fillManagerLists();
+    };
+    apiUsers.users();
+
     $("#list-in").on('click', 'li', function(){
         $("#list-out").append(this);
     });
@@ -129,16 +198,23 @@ $(document).ready(function(){
         $("#list-in").append(this);
     });
 
-    function collectList(selector) {
+    $("#list-manager").on('click', 'li', function(){
+        $("#list-notmanager").append(this);
+    });
+    $("#list-notmanager").on('click', 'li', function(){
+        $("#list-manager").append(this);
+    });
+
+    function collectList(selector, attr) {
         var list = [];
         $(selector + ' li').each(function(){
-            list.push(parseInt($(this).attr('data-employee')));
+            list.push(parseInt($(this).attr(attr)));
         });
         return list;
     }
 
-    function saveMappings(depId) {
-        var newSet = collectList('#list-in');
+    function saveEmployeeMappings(depId, cb) {
+        var newSet = collectList('#list-in', 'data-employee');
         var toAdd = [];
         var toDel = [];
         for (var i=0; i<newSet.length; i++) {
@@ -149,8 +225,8 @@ $(document).ready(function(){
         }
 
         var pending = toAdd.length + toDel.length;
-        if (pending === 0) { goBack(); return; }
-        function done() { if (--pending === 0) { goBack(); } }
+        if (pending === 0) { cb(); return; }
+        function done() { if (--pending === 0) { cb(); } }
         toAdd.forEach(function(emp){
             var api = new Api();
             api.onFinished = done;
@@ -160,6 +236,32 @@ $(document).ready(function(){
             var api = new Api();
             api.onFinished = done;
             api.removeDepartmentEmployee(depId, emp);
+        });
+    }
+
+    function saveManagerMappings(depId, cb) {
+        var newSet = collectList('#list-manager', 'data-user');
+        var toAdd = [];
+        var toDel = [];
+        for (var i=0; i<newSet.length; i++) {
+            if (deptManagers.indexOf(newSet[i]) === -1) { toAdd.push(newSet[i]); }
+        }
+        for (var i=0; i<deptManagers.length; i++) {
+            if (newSet.indexOf(deptManagers[i]) === -1) { toDel.push(deptManagers[i]); }
+        }
+
+        var pending = toAdd.length + toDel.length;
+        if (pending === 0) { cb(); return; }
+        function done() { if (--pending === 0) { cb(); } }
+        toAdd.forEach(function(u){
+            var api = new Api();
+            api.onFinished = done;
+            api.saveDepartmentManager({department: depId, user: u});
+        });
+        toDel.forEach(function(u){
+            var api = new Api();
+            api.onFinished = done;
+            api.removeDepartmentManager(depId, u);
         });
     }
 
@@ -177,7 +279,9 @@ $(document).ready(function(){
                 depId = result.key;
                 $("#department").val(depId);
             }
-            saveMappings(depId);
+            saveEmployeeMappings(depId, function(){
+                saveManagerMappings(depId, goBack);
+            });
         }
         api.saveDepartment(data);
     });
