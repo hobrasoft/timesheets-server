@@ -116,4 +116,29 @@ Přiřadí RFID ke zvolenému zaměstnanci. Tělo požadavku obsahuje:
 
 Zruší přiřazení zaměstnance k RFID kartě.
 
+@subsection apiatt-events /events
+
+@subsubsection apiatt-events-get GET /events
+
+Vrací seznam událostí docházky. Seznam lze omezit parametry
+`employee` (osobní číslo), `month` ve tvaru `YYYY-MM`
+a volitelně i `offset` a `limit` pro stránkování.
+
+@code
+/api/v1/events?employee=12&month=2023-07&limit=100
+@endcode
+
+Formát záznamu:
+
+@code
+{
+    "event"      : 123,
+    "date"       : "2023-07-28T12:34:56",
+    "event_type" : "P",
+    "employee"   : 12,
+    "valid"      : true,
+    "user_edited": 5
+}
+@endcode
+
 */

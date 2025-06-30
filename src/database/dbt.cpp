@@ -577,11 +577,16 @@ EventTypes EventTypes::fromMap(const QVariantMap& data) {
 QVariantMap Events::toMap() const {
     QVariantMap data;
     data["event"] = event;
+    data["error"] = error;
     data["date"] = date;
     data["event_type"] = event_type;
+    data["event_description"] = event_description;
     data["employee"] = employee;
+    data["firstname"] = firstname;
+    data["surname"] = surname;
     data["valid"] = valid;
     data["user_edited"] = user_edited;
+    data["user_edited_name"] = user_edited_name;
     return data;
 }
 

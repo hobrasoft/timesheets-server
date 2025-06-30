@@ -6,6 +6,8 @@
     <file>patch.003.sql</file>
     <file>patch.004.sql</file>
     <file>patch.005.sql</file>
+    <file>patch.006.sql</file>
+    <file>patch.007.sql</file>
 </qresource>
 </RCC>
 

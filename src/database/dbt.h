@@ -542,11 +542,16 @@ struct EventTypes {
 
 struct Events {
     int         event;
+    QString     error;
     QDateTime   date;
     QString     event_type;
+    QString     event_description;
     int         employee;
+    QString     firstname;
+    QString     surname;
     bool        valid;
     QVariant    user_edited;
+    QString     user_edited_name;
 
     Events(int id) { event = id; employee = 0; valid = false; }
     Events() { event = 0; employee = 0; valid = false; }

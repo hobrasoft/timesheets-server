@@ -9,6 +9,7 @@
 #include <QSqlDatabase>
 #include <QObject>
 #include <QStringList>
+#include <QDate>
 #include "dbt.h"
 #include "authenticateduser.h"
 
@@ -91,7 +92,12 @@ class DatabasePlugin : public QObject {
     virtual QList<Dbt::Doors>                       doors(int door) { Q_UNUSED(door); return QList<Dbt::Doors>(); }
     virtual QList<Dbt::Employees>                   employees(int employee) { Q_UNUSED(employee); return QList<Dbt::Employees>(); }
     virtual QList<Dbt::EventTypes>                  eventTypes(const QString& eventType) { Q_UNUSED(eventType); return QList<Dbt::EventTypes>(); }
-    virtual QList<Dbt::Events>                      events(int event) { Q_UNUSED(event); return QList<Dbt::Events>(); }
+    virtual QList<Dbt::Events>                      events(int event,
+                                                         int employee = -1,
+                                                         const QDate& month = QDate(),
+                                                         int limit = -1,
+                                                         int offset = -1)
+        { Q_UNUSED(event); Q_UNUSED(employee); Q_UNUSED(month); Q_UNUSED(limit); Q_UNUSED(offset); return QList<Dbt::Events>(); }
     virtual QList<Dbt::DepartmentHasManager>        departmentHasManager(const Dbt::DepartmentHasManager&) { return QList<Dbt::DepartmentHasManager>(); }
     virtual QList<Dbt::DepartmentHasMember>         departmentHasMember(const Dbt::DepartmentHasMember&) { return QList<Dbt::DepartmentHasMember>(); }
     virtual QList<Dbt::EmployeeCanOpenDoor>         employeeCanOpenDoor(const Dbt::EmployeeCanOpenDoor&) { return QList<Dbt::EmployeeCanOpenDoor>(); }

@@ -9,6 +9,7 @@
 #include <QObject>
 #include <QVariant>
 #include <QStringList>
+#include <QDate>
 #include "authenticateduser.h"
 #include "dbt.h"
 #include "database_plugin.h"
@@ -92,7 +93,11 @@ class Database : public QObject {
     QList<Dbt::Employees>                   employees(int employees = -1);
     QList<Dbt::Doors>                       doors(int door = -1);
     QList<Dbt::EventTypes>                  eventTypes(const QString& eventType = QString());
-    QList<Dbt::Events>                      events(int event = -1);
+    QList<Dbt::Events>                      events(int event = -1,
+                                                  int employee = -1,
+                                                  const QDate& month = QDate(),
+                                                  int limit = -1,
+                                                  int offset = -1);
     QList<Dbt::Rfids>                       rfids(int rfid = -1);
     QList<Dbt::EmployeeCanOpenDoor>         employeeCanOpenDoor(const Dbt::EmployeeCanOpenDoor&);
     QList<Dbt::EmployeeHasRfid>             employeeHasRfid(const Dbt::EmployeeHasRfid&);

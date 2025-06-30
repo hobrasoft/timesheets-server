@@ -339,8 +339,8 @@ QList<Dbt::EventTypes> Database::eventTypes(const QString& t) {
     return m_dbplugin->eventTypes(t);
 }
 
-QList<Dbt::Events> Database::events(int t) {
-    return m_dbplugin->events(t);
+QList<Dbt::Events> Database::events(int t, int employee, const QDate& month, int limit, int offset) {
+    return m_dbplugin->events(t, employee, month, limit, offset);
 }
 
 QList<Dbt::Rfids> Database::rfids(int r) {

@@ -1,0 +1,59 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<div id="spinner" class="spinner-border screen-spinner" style="width: 3em; height: 3em;" role="status"></div>
+
+<div class="container">
+    <h2 id="current-description">Events</h2>
+
+    <table class="table table-bordered table-hover">
+    <thead>
+    <tr class="table-info">
+        <th>ID</th>
+        <th>Date</th>
+        <th>Type</th>
+        <th>Employee</th>
+        <th>Edited by</th>
+        <th>Valid</th>
+    </tr>
+    </thead>
+    <tbody id="tbody">
+    <tr id="template-event" style="display: none;">
+        <td><span class="event-id"></span></td>
+        <td><span class="event-date"></span></td>
+        <td><span class="event-type"></span></td>
+        <td><span class="event-employee"></span></td>
+        <td><span class="event-user"></span></td>
+        <td><span class="event-valid"></span></td>
+    </tr>
+    </tbody>
+    </table>
+</div>
+
+<script>
+$(document).ready(function(){
+    var api = new Api();
+    api.onFinished = function(result){
+        for(var i=0;i<result.length;i++){
+            var x = $('#template-event').clone();
+            x.find('.event-id').html(result[i].event);
+            x.find('.event-date').html(result[i].date);
+            x.find('.event-type').html(result[i].event_description);
+            x.find('.event-employee').html(result[i].firstname + ' ' + result[i].surname);
+            x.find('.event-user').html(result[i].user_edited_name);
+            x.find('.event-valid').html(result[i].valid);
+            $('tbody').append(x);
+            x.show();
+        }
+        $('#spinner').hide();
+    };
+    var params = '';
+    var emp = $.urlParam('employee');
+    var month = $.urlParam('month');
+    if(emp){ params += (params?'&':'') + 'employee=' + emp; }
+    if(month){ params += (params?'&':'') + 'month=' + month; }
+    api.events(params);
+});
+</script>
+
+<!-- #include '/inc/footer.html' -->

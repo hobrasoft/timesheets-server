@@ -8,6 +8,7 @@
 #include "httprequest.h"
 #include "db.h"
 #include "pdebug.h"
+#include <QDate>
 
 using namespace Httpd;
 
@@ -17,7 +18,15 @@ ControllerEvents::ControllerEvents(HobrasoftHttpd::HttpConnection *parent) : Abs
 
 void ControllerEvents::serviceList (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
     PDEBUG;
-    serviceOK(request, response, toList(db()->events()));
+    int offset   = request->parameter("offset").toInt();
+    int limit    = request->parameter("limit").toInt();
+    int employee = request->parameter("employee").toInt();
+    QString smonth = request->parameter("month");
+    QDate month;
+    if (!smonth.isEmpty()) {
+        month = QDate::fromString(smonth + "-01", "yyyy-MM-dd");
+    }
+    serviceOK(request, response, toList(db()->events(-1, employee, month, limit, offset)));
 }
 
 void ControllerEvents::serviceIdGet (HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QString& id) {

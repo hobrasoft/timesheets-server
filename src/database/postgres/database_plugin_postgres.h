@@ -112,7 +112,11 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     QList<Dbt::Doors>                       doors(int door) Q_DECL_OVERRIDE;
     QList<Dbt::Employees>                   employees(int employee) Q_DECL_OVERRIDE;
     QList<Dbt::EventTypes>                  eventTypes(const QString& eventType) Q_DECL_OVERRIDE;
-    QList<Dbt::Events>                      events(int event) Q_DECL_OVERRIDE;
+    QList<Dbt::Events>                      events(int event,
+                                                  int employee = -1,
+                                                  const QDate& month = QDate(),
+                                                  int limit = -1,
+                                                  int offset = -1) Q_DECL_OVERRIDE;
     QList<Dbt::DepartmentHasManager>        departmentHasManager(const Dbt::DepartmentHasManager&) Q_DECL_OVERRIDE;
     QList<Dbt::DepartmentHasMember>         departmentHasMember(const Dbt::DepartmentHasMember&) Q_DECL_OVERRIDE;
     QList<Dbt::EmployeeCanOpenDoor>         employeeCanOpenDoor(const Dbt::EmployeeCanOpenDoor&) Q_DECL_OVERRIDE;

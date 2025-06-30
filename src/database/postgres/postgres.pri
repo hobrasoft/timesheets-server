@@ -17,4 +17,6 @@ FILES += \
  $$PWD/patch.003.sql \
  $$PWD/patch.004.sql \
  $$PWD/patch.005.sql \
+ $$PWD/patch.006.sql \
+ $$PWD/patch.007.sql \
 

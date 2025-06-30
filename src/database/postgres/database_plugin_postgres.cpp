@@ -13,6 +13,7 @@
 #include <QCryptographicHash>
 #include <QFile>
 #include <QRandomGenerator>
+#include <QDateTime>
 
 using namespace Db::Plugins;
 
@@ -64,11 +65,20 @@ void DatabasePluginPostgres::upgrade() {
     m_upgraded = true;
     MSqlQuery q(m_db);
     for (int version=0; version < 1000; version++) {
+        MSqlQuery qx(m_db);
+        qx.prepare("select * from version where version = :version");
+        qx.bindValue(":version", version);
+        qx.exec();
+        if (qx.next()) {
+            continue;
+            }
+
         QString patchname = QString(":/postgres/patch.%1.sql").arg(version, 3, 10, QChar('0'));
         QFile file(patchname);
         if (!file.open(QIODevice::ReadOnly)) {
             continue;
             }
+
         PDEBUG << "aplying db patch " << patchname;
 
         while (!file.atEnd()) {
@@ -2602,22 +2612,57 @@ QList<Dbt::EventTypes> DatabasePluginPostgres::eventTypes(const QString& eventTy
     return list;
 }
 
-QList<Dbt::Events> DatabasePluginPostgres::events(int event) { 
+QList<Dbt::Events> DatabasePluginPostgres::events(int event, int employee, const QDate& month, int limit, int offset) {
     MSqlQuery q(m_db);
-    QList<Dbt::Events> list; 
-    q.prepare(R"'(select event, date, event_type, employee, valid, user_edited from attendance.events where event = :key1 or :key2 <= 0;)'");
+    QList<Dbt::Events> list;
+    QString sql = QStringLiteral(R"X(select
+                event,
+                date,
+                event_type,
+                event_description,
+                employee,
+                firstname,
+                surname,
+                valid,
+                user_edited,
+                user_edited_name
+            from attendance.events_view
+            where (event = :key1 or :key2 <= 0) 
+            and (:employee <= 0 or employee = :employee))X");
+    if (month.isValid()) {
+        sql += QStringLiteral(" and date >= :date_from and date < :date_to");
+    }
+    sql += QStringLiteral(" order by date");
+    if (limit > 0) { sql += QStringLiteral(" limit :limit"); }
+    if (offset > 0) { sql += QStringLiteral(" offset :offset"); }
+    sql += QStringLiteral(";");
+
+    q.prepare(sql);
     q.bindValue(":key1", event);
     q.bindValue(":key2", event);
+    q.bindValue(":employee", employee);
+    if (month.isValid()) {
+        QDateTime from(QDate(month.year(), month.month(), 1), QTime(0,0,0));
+        QDateTime to = from.addMonths(1);
+        q.bindValue(":date_from", from);
+        q.bindValue(":date_to", to);
+    }
+    if (limit > 0) q.bindValue(":limit", limit);
+    if (offset > 0) q.bindValue(":offset", offset);
     q.exec();
     while (q.next()) {
         Dbt::Events x;
         int i=0;
-        x.event         = q.value(i++).toInt();
-        x.date          = q.value(i++).toDateTime();
-        x.event_type    = q.value(i++).toString();
-        x.employee      = q.value(i++).toInt();
-        x.valid         = q.value(i++).toBool();
-        x.user_edited   = q.value(i++).toInt();
+        x.event             = q.value(i++).toInt();
+        x.date              = q.value(i++).toDateTime();
+        x.event_type        = q.value(i++).toString();
+        x.event_description = q.value(i++).toString();
+        x.employee          = q.value(i++).toInt();
+        x.firstname         = q.value(i++).toString();
+        x.surname           = q.value(i++).toString();
+        x.valid             = q.value(i++).toBool();
+        x.user_edited       = q.value(i++).toInt();
+        x.user_edited_name  = q.value(i++).toString();
         list << x;
         }
     return list;
