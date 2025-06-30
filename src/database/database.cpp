@@ -359,3 +359,7 @@ QList<Dbt::DepartmentHasMember> Database::departmentHasMember(const Dbt::Departm
     return m_dbplugin->departmentHasMember(p);
 }
 
+QList<Dbt::DepartmentHasManager> Database::departmentHasManager(const Dbt::DepartmentHasManager& p) {
+    return m_dbplugin->departmentHasManager(p);
+}
+

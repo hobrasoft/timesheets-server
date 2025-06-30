@@ -44,6 +44,7 @@
 #include "controllerdoors.h"
 #include "controllerdooremployees.h"
 #include "controllerdepartmentemployees.h"
+#include "controllerdepartmenthasmanager.h"
 #include "controllerrfidemployees.h"
 #include "controllerrfids.h"
 #include "controllereventtypes.h"
@@ -121,6 +122,7 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
      */
     ROUTER("^/api/v1/doors/(\\d+)/employees(?:/(\\d+))?/?", ControllerDoorEmployees);
     ROUTER("^/api/v1/departments/(\\d+)/employees(?:/(\\d+))?/?", ControllerDepartmentEmployees);
+    ROUTER("^/api/v1/departments/(\\d+)/managers(?:/(\\d+))?/?", ControllerDepartmentHasManager);
     ROUTER("^/api/v1/rfids/(\\d+)/employees(?:/(\\d+))?/?", ControllerRfidEmployees);
     ROUTER("^/api/v1/categoriessiblings",               ControllerCategoriesSiblings);
     ROUTER("^/api/v1/tickettimesheets",                 ControllerTicketTimesheets);
