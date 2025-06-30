@@ -54,7 +54,7 @@ create table events (
     event_type  text not null references event_types(event_type) on update cascade on delete no action,
     employee    integer not null references employees(employee) on update cascade on delete cascade,
     valid       boolean,
-    user_edited integer not null references public.users("user") on update cascade on delete no action
+    user_edited integer references public.users("user") on update cascade on delete no action
 );
 
 create table department_has_manager (
