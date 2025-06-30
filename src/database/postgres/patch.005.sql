@@ -43,7 +43,9 @@ create table event_types (
     business_trip       boolean,    -- start of business trip
     break_time          boolean,    -- start of break
     unpaid_leave        boolean,    -- start of unpaid leave
-    sick_care           boolean     -- start of OČR (childcare leave)
+    sick_care           boolean,    -- start of OČR (childcare leave)
+    paid_obstacle       boolean,    -- start of paid obstacle
+    doctor              boolean     -- start of doctor visit
 );
 
 create table events (

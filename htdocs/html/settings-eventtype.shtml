@@ -53,6 +53,14 @@
         <input type="checkbox" id="sick_care" class="form-check-input"></input>
         <label for="sick_care" class="form-check-label">Sick care</label>
     </div>
+    <div class="form-check form-switch mb-3">
+        <input type="checkbox" id="doctor" class="form-check-input"></input>
+        <label for="doctor" class="form-check-label">Doctor visit</label>
+    </div>
+    <div class="form-check form-switch mb-3">
+        <input type="checkbox" id="paid_obstacle" class="form-check-input"></input>
+        <label for="paid_obstacle" class="form-check-label">Paid obstacle</label>
+    </div>
 
     <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
     <button type="button" class="btn btn-primary" id="btn-save">Save</button>
@@ -98,6 +106,8 @@ $(document).ready(function(){
         $("#break_time").prop('disabled', true);
         $("#unpaid_leave").prop('disabled', true);
         $("#sick_care").prop('disabled', true);
+        $("#doctor").prop('disabled', true);
+        $("#paid_obstacle").prop('disabled', true);
     }
     var eventType = $.urlParam('event_type');
     if (eventType === '') {
@@ -119,6 +129,8 @@ $(document).ready(function(){
             $("#break_time").attr('checked', result.break_time);
             $("#unpaid_leave").attr('checked', result.unpaid_leave);
             $("#sick_care").attr('checked', result.sick_care);
+            $("#doctor").attr('checked', result.doctor);
+            $("#paid_obstacle").attr('checked', result.paid_obstacle);
         };
         api.eventtypes(eventType);
     }
@@ -141,7 +153,9 @@ $(document).ready(function(){
             business_trip: $("#business_trip").prop('checked'),
             break_time: $("#break_time").prop('checked'),
             unpaid_leave: $("#unpaid_leave").prop('checked'),
-            sick_care: $("#sick_care").prop('checked')
+            sick_care: $("#sick_care").prop('checked'),
+            doctor: $("#doctor").prop('checked'),
+            paid_obstacle: $("#paid_obstacle").prop('checked')
         };
         var api = new Api();
         api.onFinished = function(){ goBack(); };

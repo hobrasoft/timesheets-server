@@ -2561,7 +2561,8 @@ QList<Dbt::Employees> DatabasePluginPostgres::employees(int employee) {
 QList<Dbt::EventTypes> DatabasePluginPostgres::eventTypes(const QString& eventType) { 
     MSqlQuery q(m_db);
     QList<Dbt::EventTypes> list; 
-    q.prepare(R"X(select event_type, description, end_state, passage, arrival, vacation, sick_leave, compensatory_leave, business_trip, break_time, unpaid_leave, sick_care
+    q.prepare(R"X(select event_type, description, end_state, passage, arrival, vacation, sick_leave, 
+                         compensatory_leave, business_trip, break_time, unpaid_leave, sick_care, doctor, paid_obstacle
         from attendance.event_types
         where event_type = :key1 or :key2 = '')X");
     q.bindValue(":key1", ((eventType.isNull()) ? QString("") : eventType));
@@ -2582,6 +2583,8 @@ QList<Dbt::EventTypes> DatabasePluginPostgres::eventTypes(const QString& eventTy
         x.break_time            = q.value(i++).toBool();
         x.unpaid_leave          = q.value(i++).toBool();
         x.sick_care             = q.value(i++).toBool();
+        x.doctor                = q.value(i++).toBool();
+        x.paid_obstacle         = q.value(i++).toBool();
         list << x;
         }
     return list;
@@ -2930,7 +2933,9 @@ QVariant DatabasePluginPostgres::save(const Dbt::EventTypes& data) {
                     business_trip = :business_trip,
                     break_time = :break_time,
                     unpaid_leave = :unpaid_leave,
-                    sick_care = :sick_care
+                    sick_care = :sick_care,
+                    doctor = :doctor,
+                    paid_obstacle = :paid_obstacle
                 where event_type = :event_type
             )'"); 
 
@@ -2946,6 +2951,8 @@ QVariant DatabasePluginPostgres::save(const Dbt::EventTypes& data) {
         q.bindValue(":unpaid_leave", data.unpaid_leave);
         q.bindValue(":sick_care", data.sick_care);
         q.bindValue(":event_type",  data.event_type);
+        q.bindValue(":doctor",  data.doctor);
+        q.bindValue(":paid_obstacle",  data.paid_obstacle);
         q.exec();
         return QVariant(data.event_type);
         
@@ -2955,11 +2962,11 @@ QVariant DatabasePluginPostgres::save(const Dbt::EventTypes& data) {
             insert into attendance.event_types (
                     event_type, description, 
                     passage, end_state, arrival, vacation, sick_leave, compensatory_leave,
-                    business_trip, break_time, unpaid_leave, sick_care)
+                    business_trip, break_time, unpaid_leave, sick_care, doctor, paid_obstacle)
                 values (
                     :event_type, :description, 
                     :passage, :end_state, :arrival, :vacation, :sick_leave, :compensatory_leave,
-                    :business_trip, :break_time, :unpaid_leave, :sick_care
+                    :business_trip, :break_time, :unpaid_leave, :sick_care, :doctor, :paid_obstacle
                     );
             )'");
         q.bindValue(":event_type", data.event_type);
@@ -2974,6 +2981,8 @@ QVariant DatabasePluginPostgres::save(const Dbt::EventTypes& data) {
         q.bindValue(":break_time", data.break_time);
         q.bindValue(":unpaid_leave", data.unpaid_leave);
         q.bindValue(":sick_care", data.sick_care);
+        q.bindValue(":doctor", data.doctor);
+        q.bindValue(":paid_obstacle", data.paid_obstacle);
         q.exec();
         return data.event_type;
         }

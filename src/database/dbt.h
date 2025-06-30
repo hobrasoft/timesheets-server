@@ -509,6 +509,9 @@ struct EventTypes {
     bool        break_time;             // Přestávka
     bool        unpaid_leave;           // Neplacené volno
     bool        sick_care;              // Ošetřování člena rodiny
+    bool        doctor;                 // Návštěva lékaře
+    bool        paid_obstacle;          // Překázka v práci na straně zaměstnavatele
+
 
     EventTypes(const QString& id) {
         clear();

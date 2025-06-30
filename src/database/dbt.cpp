@@ -550,6 +550,8 @@ QVariantMap EventTypes::toMap() const {
     data["break_time"] = break_time;
     data["unpaid_leave"] = unpaid_leave;
     data["sick_care"] = sick_care;
+    data["doctor"] = doctor;
+    data["paid_obstacle"] = paid_obstacle;
     return data;
 }
 
@@ -567,6 +569,8 @@ EventTypes EventTypes::fromMap(const QVariantMap& data) {
     x.break_time = data["break_time"].toBool();
     x.unpaid_leave = data["unpaid_leave"].toBool();
     x.sick_care = data["sick_care"].toBool();
+    x.doctor = data["doctor"].toBool();
+    x.paid_obstacle = data["paid_obstacle"].toBool();
     return x;
 }
 
