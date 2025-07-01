@@ -3062,14 +3062,14 @@ QVariant DatabasePluginPostgres::save(const Dbt::Events& data) {
         q.prepare(R"'(
             update attendance.events set
                     date = :date,
-                    event_type = :event_type,
+                    event_type = :etype,
                     employee = :employee,
                     valid = :valid,
                     user_edited = :user_edited
                 where event = :event
             )'"); 
         q.bindValue(":date",  data.date);
-        q.bindValue(":event_type",  data.event_type);
+        q.bindValue(":etype",  data.event_type);
         q.bindValue(":employee",  data.employee);
         q.bindValue(":valid",  data.valid);
         q.bindValue(":user_edited",  data.user_edited);

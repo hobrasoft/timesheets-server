@@ -27,25 +27,7 @@
 
     <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
     <button type="button" class="btn btn-primary" id="btn-save">Save</button>
-    <button type="button" class="btn btn-danger" id="btn-del" data-bs-toggle="modal" data-bs-target="#confirm-delete">Delete</button>
     </form>
-</div>
-
-<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>This will delete the event.</h3>
-            </div>
-            <div class="modal-body">
-                <p>Do you really want to delete the event?</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button id="btn-delete" class="btn btn-danger btn-ok">Delete</button>
-            </div>
-        </div>
-    </div>
 </div>
 
 <script>
@@ -121,13 +103,6 @@ $(document).ready(function(){
         api.saveEvent(data);
     });
 
-    $('#btn-delete').click(function(){
-        if (!userAdmin()) return;
-        var ev = $('#event').val();
-        var api = new Api();
-        api.onFinished = function(){ goBack(); };
-        api.removeEvent(ev);
-    });
 });
 </script>
 
