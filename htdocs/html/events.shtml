@@ -9,22 +9,24 @@
     <table class="table table-bordered table-hover">
     <thead>
     <tr class="table-info">
+        <th></th>
         <th>ID</th>
         <th>Date</th>
         <th>Type</th>
         <th>Employee</th>
         <th>Edited by</th>
-        <th>Valid</th>
+        <th>Error</th>
     </tr>
     </thead>
     <tbody id="tbody">
     <tr id="template-event" style="display: none;">
+        <td><a class="event-edit" href="" style="display:none;"><i class="bi bi-pencil"></i></a></td>
         <td><span class="event-id"></span></td>
         <td><span class="event-date"></span></td>
         <td><span class="event-type"></span></td>
         <td><span class="event-employee"></span></td>
         <td><span class="event-user"></span></td>
-        <td><span class="event-valid"></span></td>
+        <td><span class="event-error"></span></td>
     </tr>
     </tbody>
     </table>
@@ -32,16 +34,34 @@
 
 <script>
 $(document).ready(function(){
+    if (userAdmin()) {
+        $('#navbar-add-event').show();
+    }
     var api = new Api();
     api.onFinished = function(result){
         for(var i=0;i<result.length;i++){
             var x = $('#template-event').clone();
+            var row = $(x);
             x.find('.event-id').html(result[i].event);
             x.find('.event-date').html(result[i].date);
             x.find('.event-type').html(result[i].event_description);
             x.find('.event-employee').html(result[i].firstname + ' ' + result[i].surname);
             x.find('.event-user').html(result[i].user_edited_name);
-            x.find('.event-valid').html(result[i].valid);
+            x.find('.event-error').html(result[i].error);
+            if (result[i].error) { row.addClass('table-danger'); }
+            if (!result[i].valid) {
+                var cl = 'text-muted text-decoration-line-through'; 
+                x.find('.event-id').addClass(cl);
+                x.find('.event-date').addClass(cl);
+                x.find('.event-type').addClass(cl);
+                x.find('.event-employee').addClass(cl);
+                x.find('.event-user').addClass(cl);
+                x.find('.event-error').addClass(cl);
+                }
+            if (userAdmin()) {
+                var href = 'event.shtml?event=' + result[i].event;
+                x.find('.event-edit').attr('href', href).show();
+            }
             $('tbody').append(x);
             x.show();
         }

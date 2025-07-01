@@ -2625,7 +2625,8 @@ QList<Dbt::Events> DatabasePluginPostgres::events(int event, int employee, const
                 surname,
                 valid,
                 user_edited,
-                user_edited_name
+                user_edited_name,
+                error
             from attendance.events_view
             where (event = :key1 or :key2 <= 0) 
             and (:employee <= 0 or employee = :employee))X");
@@ -2663,6 +2664,7 @@ QList<Dbt::Events> DatabasePluginPostgres::events(int event, int employee, const
         x.valid             = q.value(i++).toBool();
         x.user_edited       = q.value(i++).toInt();
         x.user_edited_name  = q.value(i++).toString();
+        x.error             = q.value(i++).toString();
         list << x;
         }
     return list;

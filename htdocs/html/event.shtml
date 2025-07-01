@@ -1,0 +1,134 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<div class="container">
+    <form>
+    <input type="hidden" id="event"></input>
+
+    <div class="form-floating mb-3">
+        <input type="datetime-local" class="form-control" id="date"></input>
+        <label for="date">Date</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <select class="form-select" id="event_type"></select>
+        <label for="event_type">Event type</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <select class="form-select" id="employee"></select>
+        <label for="employee">Employee</label>
+    </div>
+
+    <div class="form-check form-switch mb-3">
+        <input type="checkbox" id="valid" class="form-check-input" checked="checked"></input>
+        <label for="valid" class="form-check-label">Valid</label>
+    </div>
+
+    <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
+    <button type="button" class="btn btn-primary" id="btn-save">Save</button>
+    <button type="button" class="btn btn-danger" id="btn-del" data-bs-toggle="modal" data-bs-target="#confirm-delete">Delete</button>
+    </form>
+</div>
+
+<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>This will delete the event.</h3>
+            </div>
+            <div class="modal-body">
+                <p>Do you really want to delete the event?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="btn-delete" class="btn btn-danger btn-ok">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function goBack() {
+    window.location.replace('events.shtml');
+}
+
+$(document).ready(function(){
+    if (!userAdmin()) {
+        $('#btn-save').hide();
+        $('#btn-del').hide();
+        $('#date').prop('disabled', true);
+        $('#event_type').prop('disabled', true);
+        $('#employee').prop('disabled', true);
+        $('#valid').prop('disabled', true);
+    }
+    var eventId = parseInt($.urlParam('event'));
+    if (!eventId) {
+        $('#btn-del').hide();
+    }
+
+    var selectedEventType = '';
+    var selectedEmployee = 0;
+
+    if (eventId > 0) {
+        var api = new Api();
+        api.onFinished = function(result){
+            $('#event').val(result.event);
+            $('#date').val(result.date);
+            selectedEventType = result.event_type;
+            selectedEmployee = result.employee;
+            $('#valid').prop('checked', result.valid);
+        };
+        api.event(eventId);
+    }
+
+    var apiEt = new Api();
+    apiEt.onFinished = function(result){
+        for (var i=0;i<result.length;i++) {
+            var opt = $('<option></option>').attr('value', result[i].event_type).text(result[i].description);
+            $('#event_type').append(opt);
+        }
+        $('#event_type').val(selectedEventType);
+    };
+    apiEt.eventtypes();
+
+    var apiEmp = new Api();
+    apiEmp.onFinished = function(result){
+        for (var i=0;i<result.length;i++) {
+            var opt = $('<option></option>').attr('value', result[i].employee).text(result[i].firstname + ' ' + result[i].surname);
+            $('#employee').append(opt);
+        }
+        $('#employee').val(selectedEmployee);
+    };
+    apiEmp.employees();
+
+    $('#btn-cancel').click(function(){
+        goBack();
+    });
+
+    $('#btn-save').click(function(){
+        if (!userAdmin()) return;
+        var data = {
+            event: $('#event').val(),
+            date: $('#date').val(),
+            event_type: $('#event_type').val(),
+            employee: parseInt($('#employee').val()),
+            valid: $('#valid').prop('checked'),
+            user_edited: userId()
+        };
+        var api = new Api();
+        api.onFinished = function(){ goBack(); };
+        api.saveEvent(data);
+    });
+
+    $('#btn-delete').click(function(){
+        if (!userAdmin()) return;
+        var ev = $('#event').val();
+        var api = new Api();
+        api.onFinished = function(){ goBack(); };
+        api.removeEvent(ev);
+    });
+});
+</script>
+
+<!-- #include '/inc/footer.html' -->

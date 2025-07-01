@@ -160,6 +160,9 @@ class Api {
         this.saveRfidEmployee = function (x) { this.put("rfids/" + x.rfid + "/employees", JSON.stringify(x)); }
         this.removeRfidEmployee = function (rfid, employee) { this.delete("rfids/" + rfid + "/employees/" + employee); }
         this.events = function(params) { if (typeof params === 'undefined') { this.get("events"); } else { this.get("events", params); } }
+        this.event = function(e) { this.get("events/" + e); }
+        this.saveEvent = function(e) { this.put("events/", JSON.stringify(e)); }
+        this.removeEvent = function(e) { this.delete("events/" + e); }
         this.saveTicket = function(t) { this.put("ticketsvw/", JSON.stringify(t)); }
         this.startTimesheet = function(t) { this.get("timesheet/start/" + t); }
         this.stopTimesheet = function(t) { this.get("timesheet/stop/" + t); }
