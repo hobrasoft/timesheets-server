@@ -15,9 +15,10 @@
         <label for="event_type">Event type</label>
     </div>
 
+    <input type="hidden" id="employee"></input>
     <div class="form-floating mb-3">
-        <select class="form-select" id="employee"></select>
-        <label for="employee">Employee</label>
+        <input type="text" class="form-control" id="employee_name" disabled></input>
+        <label for="employee_name">Employee</label>
     </div>
 
     <div class="form-check form-switch mb-3">
@@ -41,7 +42,7 @@ $(document).ready(function(){
         $('#btn-del').hide();
         $('#date').prop('disabled', true);
         $('#event_type').prop('disabled', true);
-        $('#employee').prop('disabled', true);
+        $('#employee_name').prop('disabled', true);
         $('#valid').prop('disabled', true);
     }
     var eventId = parseInt($.urlParam('event'));
@@ -50,39 +51,42 @@ $(document).ready(function(){
     }
 
     var selectedEventType = '';
-    var selectedEmployee = 0;
+
+    function fillEventTypes(selected) {
+        var apiEt = new Api();
+        apiEt.onFinished = function(result){
+            for (var i=0;i<result.length;i++) {
+                var opt = $('<option></option>').attr('value', result[i].event_type).text(result[i].description);
+                $('#event_type').append(opt);
+            }
+            $('#event_type').val(selected);
+        };
+        apiEt.eventtypes();
+    }
 
     if (eventId > 0) {
         var api = new Api();
         api.onFinished = function(result){
             $('#event').val(result.event);
             $('#date').val(result.date);
-            selectedEventType = result.event_type;
-            selectedEmployee = result.employee;
+            $('#employee').val(result.employee);
+            $('#employee_name').val(result.firstname + ' ' + result.surname);
             $('#valid').prop('checked', result.valid);
+            fillEventTypes(result.event_type);
         };
         api.event(eventId);
+    } else {
+        fillEventTypes('');
+        var emp = parseInt($.urlParam('employee'));
+        if (emp > 0) {
+            var apiEmp = new Api();
+            apiEmp.onFinished = function(result){
+                $('#employee').val(result.employee);
+                $('#employee_name').val(result.firstname + ' ' + result.surname);
+            };
+            apiEmp.employees(emp);
+        }
     }
-
-    var apiEt = new Api();
-    apiEt.onFinished = function(result){
-        for (var i=0;i<result.length;i++) {
-            var opt = $('<option></option>').attr('value', result[i].event_type).text(result[i].description);
-            $('#event_type').append(opt);
-        }
-        $('#event_type').val(selectedEventType);
-    };
-    apiEt.eventtypes();
-
-    var apiEmp = new Api();
-    apiEmp.onFinished = function(result){
-        for (var i=0;i<result.length;i++) {
-            var opt = $('<option></option>').attr('value', result[i].employee).text(result[i].firstname + ' ' + result[i].surname);
-            $('#employee').append(opt);
-        }
-        $('#employee').val(selectedEmployee);
-    };
-    apiEmp.employees();
 
     $('#btn-cancel').click(function(){
         goBack();
