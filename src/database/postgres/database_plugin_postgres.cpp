@@ -2815,17 +2815,20 @@ QList<Dbt::WorkCalendar> DatabasePluginPostgres::workCalendar(const QDate& perio
     MSqlQuery q(m_db);
     QList<Dbt::WorkCalendar> list;
     if (period.isValid()) {
-        q.prepare(R"'(select period, hours8 from attendance.work_calendar where period = :p order by period)'");
+        q.prepare(R"'(select period, working_days, holidays, hours8, hours85 from attendance.work_calendar where period = :p order by period)'");
         q.bindValue(":p", period);
     } else {
-        q.prepare(R"'(select period, hours8 from attendance.work_calendar order by period)'");
+        q.prepare(R"'(select period, working_days, holidays, hours8, hours85 from attendance.work_calendar order by period)'");
     }
     q.exec();
     while (q.next()) {
         Dbt::WorkCalendar x;
         int i=0;
         x.period = q.value(i++).toDate();
+        x.working_days = q.value(i++).toInt();
+        x.holidays = q.value(i++).toInt();
         x.hours8 = q.value(i++).toString();
+        x.hours85 = q.value(i++).toString();
         list << x;
     }
     return list;
@@ -3260,12 +3263,15 @@ QVariant DatabasePluginPostgres::save(const Dbt::WorkCalendar& data) {
     q.bindValue(":key", data.period);
     q.exec();
     if (q.next()) {
-        q.prepare(R"'(update attendance.work_calendar set hours8 = :hours8 where period = :period)'");
+        q.prepare(R"'(update attendance.work_calendar set working_days = :working_days, holidays = :holidays, hours8 = :hours8, hours85 = :hours85 where period = :period)'");
     } else {
-        q.prepare(R"'(insert into attendance.work_calendar (period, hours8) values (:period, :hours8))'");
+        q.prepare(R"'(insert into attendance.work_calendar (period, working_days, holidays, hours8, hours85) values (:period, :working_days, :holidays, :hours8, :hours85))'");
     }
     q.bindValue(":period", data.period);
+    q.bindValue(":working_days", data.working_days);
+    q.bindValue(":holidays", data.holidays);
     q.bindValue(":hours8", data.hours8);
+    q.bindValue(":hours85", data.hours85);
     q.exec();
     return data.period;
 }

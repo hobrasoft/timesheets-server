@@ -732,14 +732,20 @@ Holidays Holidays::fromMap(const QVariantMap& data) {
 QVariantMap WorkCalendar::toMap() const {
     QVariantMap data;
     data["period"] = period;
+    data["working_days"] = working_days;
+    data["holidays"] = holidays;
     data["hours8"] = hours8;
+    data["hours85"] = hours85;
     return data;
 }
 
 WorkCalendar WorkCalendar::fromMap(const QVariantMap& data) {
     WorkCalendar x;
     x.period = data["period"].toDate();
+    x.working_days = data["working_days"].toInt();
+    x.holidays = data["holidays"].toInt();
     x.hours8 = data["hours8"].toString();
+    x.hours85 = data["hours85"].toString();
     return x;
 }
 

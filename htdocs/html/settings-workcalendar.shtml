@@ -7,8 +7,20 @@
       <label for="period">Period (1st of month)</label>
     </div>
     <div class="form-floating mb-3">
+      <input type="number" class="form-control" id="working_days">
+      <label for="working_days">Working days</label>
+    </div>
+    <div class="form-floating mb-3">
+      <input type="number" class="form-control" id="holidays">
+      <label for="holidays">Holidays</label>
+    </div>
+    <div class="form-floating mb-3">
       <input type="text" class="form-control" id="hours8">
       <label for="hours8">Hours8</label>
+    </div>
+    <div class="form-floating mb-3">
+      <input type="text" class="form-control" id="hours85">
+      <label for="hours85">Hours8.5</label>
     </div>
     <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
     <button type="button" class="btn btn-primary" id="btn-save">Save</button>
@@ -30,15 +42,42 @@
 <script>
 function goBack(){ window.location.replace('settings-workcalendars.shtml'); }
 $(document).ready(function(){
-    if (!userAdmin()) { $('#btn-save').hide(); $('#btn-del').hide(); $('#period').prop('disabled',true); $('#hours8').prop('disabled',true); }
+    if (!userAdmin()) {
+        $('#btn-save').hide();
+        $('#btn-del').hide();
+        $('#period').prop('disabled',true);
+        $('#working_days').prop('disabled',true);
+        $('#holidays').prop('disabled',true);
+        $('#hours8').prop('disabled',true);
+        $('#hours85').prop('disabled',true);
+    }
     var period = $.urlParam('period');
     if (period === '') { $('#btn-del').hide(); } else {
         var api = new Api();
-        api.onFinished=function(r){ $('#period').val(r.period); $('#hours8').val(r.hours8); $('#period').prop('disabled',true); };
+        api.onFinished=function(r){
+            $('#period').val(r.period);
+            $('#working_days').val(r.working_days);
+            $('#holidays').val(r.holidays);
+            $('#hours8').val(r.hours8);
+            $('#hours85').val(r.hours85);
+            $('#period').prop('disabled',true);
+        };
         api.workCalendar(period);
     }
     $('#btn-cancel').click(function(){ goBack(); });
-    $('#btn-save').click(function(){ if (!userAdmin()) return; var data={ period: $('#period').val(), hours8: $('#hours8').val() }; var api=new Api(); api.onFinished=function(){ goBack(); }; api.saveWorkCalendar(data); });
+    $('#btn-save').click(function(){
+        if (!userAdmin()) return;
+        var data={
+            period: $('#period').val(),
+            working_days: parseInt($('#working_days').val()),
+            holidays: parseInt($('#holidays').val()),
+            hours8: $('#hours8').val(),
+            hours85: $('#hours85').val()
+        };
+        var api=new Api();
+        api.onFinished=function(){ goBack(); };
+        api.saveWorkCalendar(data);
+    });
     $('#btn-delete').click(function(){ if (!userAdmin()) return; var api=new Api(); api.onFinished=function(){ goBack(); }; api.removeWorkCalendar($('#period').val()); });
 });
 </script>

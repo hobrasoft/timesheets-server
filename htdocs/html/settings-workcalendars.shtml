@@ -8,14 +8,20 @@
       <tr class="table-info">
         <th></th>
         <th>Period</th>
+        <th>Working days</th>
+        <th>Holidays</th>
         <th>Hours8</th>
+        <th>Hours8.5</th>
       </tr>
     </thead>
     <tbody id="tbody">
       <tr id="template-wc" style="display:none;">
         <td><a class="wc-edit" href="" style="display:none;"><i class="bi bi-pencil"></i></a></td>
         <td><span class="wc-period"></span></td>
-        <td><span class="wc-hours"></span></td>
+        <td><span class="wc-working"></span></td>
+        <td><span class="wc-holidays"></span></td>
+        <td><span class="wc-hours8"></span></td>
+        <td><span class="wc-hours85"></span></td>
       </tr>
     </tbody>
   </table>
@@ -28,7 +34,10 @@ $(document).ready(function(){
         for (var t=0;t<result.length;t++){
             var x = $('#template-wc').clone();
             x.find('.wc-period').html(result[t].period);
-            x.find('.wc-hours').html(result[t].hours8);
+            x.find('.wc-working').html(result[t].working_days);
+            x.find('.wc-holidays').html(result[t].holidays);
+            x.find('.wc-hours8').html(result[t].hours8);
+            x.find('.wc-hours85').html(result[t].hours85);
             if (userAdmin()) x.find('.wc-edit').show().attr('href','settings-workcalendar.shtml?period='+result[t].period);
             $('#tbody').append(x); x.show();
         }

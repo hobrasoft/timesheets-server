@@ -613,10 +613,13 @@ struct Holidays {
 
 struct WorkCalendar {
     QDate       period;
+    int         working_days;
+    int         holidays;
     QString     hours8;
+    QString     hours85;
 
-    WorkCalendar() { }
-    WorkCalendar(const QDate& d) { period = d; }
+    WorkCalendar() { working_days = 0; holidays = 0; }
+    WorkCalendar(const QDate& d) { period = d; working_days = 0; holidays = 0; }
     static WorkCalendar fromMap(const QVariantMap&);
     QVariantMap toMap() const;
 };
