@@ -552,6 +552,7 @@ struct Events {
     bool        valid;
     QVariant    user_edited;
     QString     user_edited_name;
+    QString     note;
 
     Events(int id) { event = id; employee = 0; valid = false; }
     Events() { event = 0; employee = 0; valid = false; }

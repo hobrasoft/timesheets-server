@@ -16,6 +16,7 @@
         <th>Employee</th>
         <th>Edited by</th>
         <th>Error</th>
+        <th>Note</th>
     </tr>
     </thead>
     <tbody id="tbody">
@@ -27,6 +28,7 @@
         <td><span class="event-employee"></span></td>
         <td><span class="event-user"></span></td>
         <td><span class="event-error"></span></td>
+        <td><span class="event-note"></span></td>
     </tr>
     </tbody>
     </table>
@@ -48,6 +50,7 @@ $(document).ready(function(){
             x.find('.event-employee').html(result[i].firstname + ' ' + result[i].surname);
             x.find('.event-user').html(result[i].user_edited_name);
             x.find('.event-error').html(result[i].error);
+            x.find('.event-note').html(result[i].note);
             if (result[i].error) { row.addClass('table-danger'); }
             if (!result[i].valid) {
                 var cl = 'text-muted text-decoration-line-through'; 
@@ -57,6 +60,7 @@ $(document).ready(function(){
                 x.find('.event-employee').addClass(cl);
                 x.find('.event-user').addClass(cl);
                 x.find('.event-error').addClass(cl);
+                x.find('.event-note').addClass(cl);
                 }
             if (userAdmin()) {
                 var href = 'event.shtml?event=' + result[i].event;

@@ -1,6 +1,13 @@
 begin;
 
-insert into version (version) values (7);
+insert into version (version) values (8);
+
+create table attendance.event_notes (
+    event_note serial primary key,
+    event integer not null references attendance.events(event) on update cascade on delete cascade,
+    note text not null
+);
+
 
 drop view if exists attendance.events_view;
 
@@ -20,12 +27,14 @@ select
         case when e.valid and     t.end_state and     prev.end_state then 'Unexpected END'  else 
         case when e.valid and not t.end_state and not next.end_state then 'Missing END'     else 
             null
-            end end as error
+            end end as error,
+        n.note
 
     from attendance.events e
     left join attendance.employees   p using (employee)
     left join users                  u on (e.user_edited = u."user")
     left join attendance.event_types t using (event_type)
+    left join attendance.event_notes n using (event)
 
     left join lateral (select * 
             from attendance.events ep

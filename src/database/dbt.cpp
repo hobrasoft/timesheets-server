@@ -587,6 +587,7 @@ QVariantMap Events::toMap() const {
     data["valid"] = valid;
     data["user_edited"] = user_edited;
     data["user_edited_name"] = user_edited_name;
+    data["note"] = note;
     return data;
 }
 
@@ -598,6 +599,7 @@ Events Events::fromMap(const QVariantMap& data) {
     x.employee = data["employee"].toInt(); 
     x.valid = data["valid"].toBool(); 
     x.user_edited = data["user_edited"].toInt();
+    x.note = data["note"].toString();
     return x;
 }
 

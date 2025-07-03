@@ -2626,7 +2626,8 @@ QList<Dbt::Events> DatabasePluginPostgres::events(int event, int employee, const
                 valid,
                 user_edited,
                 user_edited_name,
-                error
+                error,
+                note
             from attendance.events_view
             where (event = :key1 or :key2 <= 0) 
             and (:employee <= 0 or employee = :employee))X");
@@ -2665,6 +2666,7 @@ QList<Dbt::Events> DatabasePluginPostgres::events(int event, int employee, const
         x.user_edited       = q.value(i++).toInt();
         x.user_edited_name  = q.value(i++).toString();
         x.error             = q.value(i++).toString();
+        x.note              = q.value(i++).toString();
         list << x;
         }
     return list;
@@ -3054,7 +3056,9 @@ QVariant DatabasePluginPostgres::save(const Dbt::EventTypes& data) {
 
 QVariant DatabasePluginPostgres::save(const Dbt::Events& data) {
     MSqlQuery q(m_db);
-        
+    int event = data.event;
+
+    q.begin();
     q.prepare(R"'(select 1 from attendance.events where event = :key)'");
     q.bindValue(":key", data.event);
     q.exec();
@@ -3075,7 +3079,6 @@ QVariant DatabasePluginPostgres::save(const Dbt::Events& data) {
         q.bindValue(":user_edited",  data.user_edited);
         q.bindValue(":event",  data.event);
         q.exec();
-        return QVariant(data.event);
         
       } else {
         
@@ -3092,10 +3095,24 @@ QVariant DatabasePluginPostgres::save(const Dbt::Events& data) {
         q.bindValue(":valid",  data.valid);
         q.bindValue(":user_edited",  data.user_edited);
         q.exec();
-        return currval("attendance.events_event_seq");
+        event = currval("attendance.events_event_seq").toInt();
         }
+
+    q.prepare(R"'(delete from attendance.event_notes where event = :key)'");
+    q.bindValue(":key", event);
+    q.exec();
+
+    if (!data.note.isNull() && data.note != "") {
+        q.prepare(R"'(insert into attendance.event_notes (event, note) values (:key, :note);)'");
+        q.bindValue(":key", event);
+        q.bindValue(":note", data.note);
+        q.exec();
+        }
+
+
+    q.commit();
     
-    return QVariant();
+    return QVariant(event);
 
 }
 

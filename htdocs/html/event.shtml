@@ -21,6 +21,11 @@
         <label for="employee_name">Employee</label>
     </div>
 
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="note"></input>
+        <label for="note">Note</label>
+    </div>
+
     <div class="form-check form-switch mb-3">
         <input type="checkbox" id="valid" class="form-check-input" checked="checked"></input>
         <label for="valid" class="form-check-label">Valid</label>
@@ -71,6 +76,7 @@ $(document).ready(function(){
             $('#date').val(result.date);
             $('#employee').val(result.employee);
             $('#employee_name').val(result.firstname + ' ' + result.surname);
+            $('#note').val(result.note);
             $('#valid').prop('checked', result.valid);
             fillEventTypes(result.event_type);
         };
@@ -100,7 +106,8 @@ $(document).ready(function(){
             event_type: $('#event_type').val(),
             employee: parseInt($('#employee').val()),
             valid: $('#valid').prop('checked'),
-            user_edited: userId()
+            user_edited: userId(),
+            note: $('#note').val()
         };
         var api = new Api();
         api.onFinished = function(){ goBack(); };
