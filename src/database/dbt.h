@@ -8,6 +8,7 @@
 
 #include <QString>
 #include <QDateTime>
+#include <QDate>
 #include <QCoreApplication>
 #include <QVariantList>
 #include <QVariant>
@@ -597,6 +598,26 @@ struct EmployeeHasRfid {
     EmployeeHasRfid() { employee = 0; rfid = 0; }
     EmployeeHasRfid(int e, int r) { employee = e; rfid = r; }
     static EmployeeHasRfid fromMap(const QVariantMap&);
+    QVariantMap toMap() const;
+};
+
+struct Holidays {
+    QDate       date;
+    QString     description;
+
+    Holidays() { }
+    Holidays(const QDate& d) { date = d; }
+    static Holidays fromMap(const QVariantMap&);
+    QVariantMap toMap() const;
+};
+
+struct WorkCalendar {
+    QDate       period;
+    QString     hours8;
+
+    WorkCalendar() { }
+    WorkCalendar(const QDate& d) { period = d; }
+    static WorkCalendar fromMap(const QVariantMap&);
     QVariantMap toMap() const;
 };
 

@@ -159,6 +159,12 @@ class Api {
         this.rfidEmployees = function (rfid) { this.get("rfids/" + rfid + "/employees"); }
         this.saveRfidEmployee = function (x) { this.put("rfids/" + x.rfid + "/employees", JSON.stringify(x)); }
         this.removeRfidEmployee = function (rfid, employee) { this.delete("rfids/" + rfid + "/employees/" + employee); }
+        this.holidays = function(date) { if (typeof date !== 'undefined') { this.get("holidays/" + date); } else { this.get("holidays"); } }
+        this.saveHoliday = function(h) { this.put("holidays/", JSON.stringify(h)); }
+        this.removeHoliday = function(d) { this.delete("holidays/" + d); }
+        this.workCalendar = function(period) { if (typeof period !== 'undefined') { this.get("workcalendar/" + period); } else { this.get("workcalendar"); } }
+        this.saveWorkCalendar = function(w) { this.put("workcalendar/", JSON.stringify(w)); }
+        this.removeWorkCalendar = function(p) { this.delete("workcalendar/" + p); }
         this.events = function(params) { if (typeof params === 'undefined') { this.get("events"); } else { this.get("events", params); } }
         this.event = function(e) { this.get("events/" + e); }
         this.saveEvent = function(e) { this.put("events/", JSON.stringify(e)); }

@@ -1,0 +1,45 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+<div class="container">
+  <form>
+    <div class="form-floating mb-3">
+      <input type="date" class="form-control" id="period">
+      <label for="period">Period (1st of month)</label>
+    </div>
+    <div class="form-floating mb-3">
+      <input type="text" class="form-control" id="hours8">
+      <label for="hours8">Hours8</label>
+    </div>
+    <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
+    <button type="button" class="btn btn-primary" id="btn-save">Save</button>
+    <button type="button" class="btn btn-danger" id="btn-del" data-bs-toggle="modal" data-bs-target="#confirm-delete">Delete</button>
+  </form>
+</div>
+<div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h3>Delete entry</h3></div>
+      <div class="modal-body"><p>Do you really want to delete this period?</p></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button id="btn-delete" class="btn btn-danger btn-ok">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function goBack(){ window.location.replace('settings-workcalendars.shtml'); }
+$(document).ready(function(){
+    if (!userAdmin()) { $('#btn-save').hide(); $('#btn-del').hide(); $('#period').prop('disabled',true); $('#hours8').prop('disabled',true); }
+    var period = $.urlParam('period');
+    if (period === '') { $('#btn-del').hide(); } else {
+        var api = new Api();
+        api.onFinished=function(r){ $('#period').val(r.period); $('#hours8').val(r.hours8); $('#period').prop('disabled',true); };
+        api.workCalendar(period);
+    }
+    $('#btn-cancel').click(function(){ goBack(); });
+    $('#btn-save').click(function(){ if (!userAdmin()) return; var data={ period: $('#period').val(), hours8: $('#hours8').val() }; var api=new Api(); api.onFinished=function(){ goBack(); }; api.saveWorkCalendar(data); });
+    $('#btn-delete').click(function(){ if (!userAdmin()) return; var api=new Api(); api.onFinished=function(){ goBack(); }; api.removeWorkCalendar($('#period').val()); });
+});
+</script>
+<!-- #include '/inc/footer.html' -->

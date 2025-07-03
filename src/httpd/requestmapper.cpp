@@ -49,6 +49,8 @@
 #include "controllerrfids.h"
 #include "controllereventtypes.h"
 #include "controllerevents.h"
+#include "controllerholidays.h"
+#include "controllerworkcalendar.h"
 
 using namespace HobrasoftHttpd;
 using namespace Httpd;
@@ -148,6 +150,8 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
     ROUTER("^/api/v1/users",                            ControllerUsers);
     ROUTER("^/api/v1/doors",                            ControllerDoors);
     ROUTER("^/api/v1/rfids",                            ControllerRfids);
+    ROUTER("^/api/v1/holidays",                         ControllerHolidays);
+    ROUTER("^/api/v1/workcalendar",                     ControllerWorkCalendar);
 
     if (m_path.contains(QRegularExpression(".*\\.shtml"))) {
         serviceShtmlFile(request, response);

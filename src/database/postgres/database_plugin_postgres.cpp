@@ -2791,6 +2791,46 @@ QList<Dbt::Rfids> DatabasePluginPostgres::rfids(int rfid) {
     return list;
 }
 
+QList<Dbt::Holidays> DatabasePluginPostgres::holidays(const QDate& date) {
+    MSqlQuery q(m_db);
+    QList<Dbt::Holidays> list;
+    if (date.isValid()) {
+        q.prepare(R"'(select date, description from attendance.holidays where date = :d order by date)'");
+        q.bindValue(":d", date);
+    } else {
+        q.prepare(R"'(select date, description from attendance.holidays order by date)'");
+    }
+    q.exec();
+    while (q.next()) {
+        Dbt::Holidays x;
+        int i=0;
+        x.date = q.value(i++).toDate();
+        x.description = q.value(i++).toString();
+        list << x;
+    }
+    return list;
+}
+
+QList<Dbt::WorkCalendar> DatabasePluginPostgres::workCalendar(const QDate& period) {
+    MSqlQuery q(m_db);
+    QList<Dbt::WorkCalendar> list;
+    if (period.isValid()) {
+        q.prepare(R"'(select period, hours8 from attendance.work_calendar where period = :p order by period)'");
+        q.bindValue(":p", period);
+    } else {
+        q.prepare(R"'(select period, hours8 from attendance.work_calendar order by period)'");
+    }
+    q.exec();
+    while (q.next()) {
+        Dbt::WorkCalendar x;
+        int i=0;
+        x.period = q.value(i++).toDate();
+        x.hours8 = q.value(i++).toString();
+        list << x;
+    }
+    return list;
+}
+
 void DatabasePluginPostgres::remove(const Dbt::Departments& data) {
     PDEBUG << data.department;
     MSqlQuery q(m_db);
@@ -2863,6 +2903,20 @@ void DatabasePluginPostgres::remove(const Dbt::Rfids& data) {
     MSqlQuery q(m_db);
     q.prepare(R"'(delete from attendance.rfids where rfid = :key;)'");
     q.bindValue(":key", data.rfid);
+    q.exec();
+}
+
+void DatabasePluginPostgres::remove(const Dbt::Holidays& data) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from attendance.holidays where date = :key;)'");
+    q.bindValue(":key", data.date);
+    q.exec();
+}
+
+void DatabasePluginPostgres::remove(const Dbt::WorkCalendar& data) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from attendance.work_calendar where period = :key;)'");
+    q.bindValue(":key", data.period);
     q.exec();
 }
 
@@ -3184,3 +3238,34 @@ QVariant DatabasePluginPostgres::save(const Dbt::Rfids& data) {
 
 
 
+QVariant DatabasePluginPostgres::save(const Dbt::Holidays& data) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(select 1 from attendance.holidays where date = :key)'");
+    q.bindValue(":key", data.date);
+    q.exec();
+    if (q.next()) {
+        q.prepare(R"'(update attendance.holidays set description = :description where date = :date)'");
+    } else {
+        q.prepare(R"'(insert into attendance.holidays (date, description) values (:date, :description))'");
+    }
+    q.bindValue(":date", data.date);
+    q.bindValue(":description", data.description);
+    q.exec();
+    return data.date;
+}
+
+QVariant DatabasePluginPostgres::save(const Dbt::WorkCalendar& data) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(select 1 from attendance.work_calendar where period = :key)'");
+    q.bindValue(":key", data.period);
+    q.exec();
+    if (q.next()) {
+        q.prepare(R"'(update attendance.work_calendar set hours8 = :hours8 where period = :period)'");
+    } else {
+        q.prepare(R"'(insert into attendance.work_calendar (period, hours8) values (:period, :hours8))'");
+    }
+    q.bindValue(":period", data.period);
+    q.bindValue(":hours8", data.hours8);
+    q.exec();
+    return data.period;
+}

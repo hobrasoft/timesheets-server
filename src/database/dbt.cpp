@@ -715,4 +715,32 @@ Rfids Rfids::fromMap(const QVariantMap& data) {
     return x;
 }
 
+QVariantMap Holidays::toMap() const {
+    QVariantMap data;
+    data["date"] = date;
+    data["description"] = description;
+    return data;
+}
+
+Holidays Holidays::fromMap(const QVariantMap& data) {
+    Holidays x;
+    x.date = data["date"].toDate();
+    x.description = data["description"].toString();
+    return x;
+}
+
+QVariantMap WorkCalendar::toMap() const {
+    QVariantMap data;
+    data["period"] = period;
+    data["hours8"] = hours8;
+    return data;
+}
+
+WorkCalendar WorkCalendar::fromMap(const QVariantMap& data) {
+    WorkCalendar x;
+    x.period = data["period"].toDate();
+    x.hours8 = data["hours8"].toString();
+    return x;
+}
+
 

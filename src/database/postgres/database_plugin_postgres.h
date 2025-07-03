@@ -122,6 +122,8 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     QList<Dbt::EmployeeCanOpenDoor>         employeeCanOpenDoor(const Dbt::EmployeeCanOpenDoor&) Q_DECL_OVERRIDE;
     QList<Dbt::EmployeeHasRfid>             employeeHasRfid(const Dbt::EmployeeHasRfid&) Q_DECL_OVERRIDE;
     QList<Dbt::Rfids>                       rfids(int rfid) Q_DECL_OVERRIDE;
+    QList<Dbt::Holidays>                    holidays(const QDate& date) Q_DECL_OVERRIDE;
+    QList<Dbt::WorkCalendar>                workCalendar(const QDate& period) Q_DECL_OVERRIDE;
 
     virtual void remove(const Dbt::Departments& data) Q_DECL_OVERRIDE;
     virtual void remove(const Dbt::Doors& data) Q_DECL_OVERRIDE;
@@ -133,6 +135,8 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     virtual void remove(const Dbt::EmployeeCanOpenDoor& data) Q_DECL_OVERRIDE;
     virtual void remove(const Dbt::EmployeeHasRfid& data) Q_DECL_OVERRIDE;
     virtual void remove(const Dbt::Rfids& data) Q_DECL_OVERRIDE;
+    virtual void remove(const Dbt::Holidays& data) Q_DECL_OVERRIDE;
+    virtual void remove(const Dbt::WorkCalendar& data) Q_DECL_OVERRIDE;
 
     QVariant save(const Dbt::Departments& data) Q_DECL_OVERRIDE;
     QVariant save(const Dbt::Employees& data) Q_DECL_OVERRIDE;
@@ -140,6 +144,8 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     QVariant save(const Dbt::EventTypes& data) Q_DECL_OVERRIDE;
     QVariant save(const Dbt::Events& data) Q_DECL_OVERRIDE;
     QVariant save(const Dbt::Rfids& data) Q_DECL_OVERRIDE;
+    QVariant save(const Dbt::Holidays& data) Q_DECL_OVERRIDE;
+    QVariant save(const Dbt::WorkCalendar& data) Q_DECL_OVERRIDE;
     QVariant save(const Dbt::DepartmentHasManager& data) Q_DECL_OVERRIDE;
     QVariant save(const Dbt::EmployeeCanOpenDoor& data) Q_DECL_OVERRIDE;
     QVariant save(const Dbt::DepartmentHasMember& data) Q_DECL_OVERRIDE;

@@ -99,6 +99,8 @@ class Database : public QObject {
                                                   int limit = -1,
                                                   int offset = -1);
     QList<Dbt::Rfids>                       rfids(int rfid = -1);
+    QList<Dbt::Holidays>                    holidays(const QDate& date = QDate());
+    QList<Dbt::WorkCalendar>                workCalendar(const QDate& period = QDate());
     QList<Dbt::EmployeeCanOpenDoor>         employeeCanOpenDoor(const Dbt::EmployeeCanOpenDoor&);
     QList<Dbt::EmployeeHasRfid>             employeeHasRfid(const Dbt::EmployeeHasRfid&);
     QList<Dbt::DepartmentHasMember>         departmentHasMember(const Dbt::DepartmentHasMember&);

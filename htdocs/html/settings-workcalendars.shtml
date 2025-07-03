@@ -1,0 +1,40 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+<div id="spinner" class="spinner-border screen-spinner" style="width: 3em; height: 3em;" role="status"></div>
+<div class="container">
+  <h2>Work calendar</h2>
+  <table class="table table-bordered table-hover">
+    <thead>
+      <tr class="table-info">
+        <th></th>
+        <th>Period</th>
+        <th>Hours8</th>
+      </tr>
+    </thead>
+    <tbody id="tbody">
+      <tr id="template-wc" style="display:none;">
+        <td><a class="wc-edit" href="" style="display:none;"><i class="bi bi-pencil"></i></a></td>
+        <td><span class="wc-period"></span></td>
+        <td><span class="wc-hours"></span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<script>
+$(document).ready(function(){
+    if (userAdmin()) { $("#navbar-add-workcalendar").show(); }
+    var api = new Api();
+    api.onFinished = function(result){
+        for (var t=0;t<result.length;t++){
+            var x = $('#template-wc').clone();
+            x.find('.wc-period').html(result[t].period);
+            x.find('.wc-hours').html(result[t].hours8);
+            if (userAdmin()) x.find('.wc-edit').show().attr('href','settings-workcalendar.shtml?period='+result[t].period);
+            $('#tbody').append(x); x.show();
+        }
+        $('#spinner').hide();
+    };
+    api.workCalendar();
+});
+</script>
+<!-- #include '/inc/footer.html' -->

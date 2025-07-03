@@ -1,0 +1,40 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+<div id="spinner" class="spinner-border screen-spinner" style="width: 3em; height: 3em;" role="status"></div>
+<div class="container">
+  <h2>Holidays</h2>
+  <table class="table table-bordered table-hover">
+    <thead>
+      <tr class="table-info">
+        <th></th>
+        <th>Date</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody id="tbody">
+      <tr id="template-holiday" style="display:none;">
+        <td><a class="holiday-edit" href="" style="display:none;"><i class="bi bi-pencil"></i></a></td>
+        <td><span class="holiday-date"></span></td>
+        <td><span class="holiday-desc"></span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<script>
+$(document).ready(function(){
+    if (userAdmin()) { $("#navbar-add-holiday").show(); }
+    var api = new Api();
+    api.onFinished = function(result){
+        for (var t=0;t<result.length;t++){
+            var x = $('#template-holiday').clone();
+            x.find('.holiday-date').html(result[t].date);
+            x.find('.holiday-desc').html(result[t].description);
+            if (userAdmin()) x.find('.holiday-edit').show().attr('href','settings-holiday.shtml?date='+result[t].date);
+            $('#tbody').append(x); x.show();
+        }
+        $('#spinner').hide();
+    };
+    api.holidays();
+});
+</script>
+<!-- #include '/inc/footer.html' -->

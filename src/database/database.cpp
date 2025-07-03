@@ -347,6 +347,14 @@ QList<Dbt::Rfids> Database::rfids(int r) {
     return m_dbplugin->rfids(r);
 }
 
+QList<Dbt::Holidays> Database::holidays(const QDate& d) {
+    return m_dbplugin->holidays(d);
+}
+
+QList<Dbt::WorkCalendar> Database::workCalendar(const QDate& p) {
+    return m_dbplugin->workCalendar(p);
+}
+
 QList<Dbt::EmployeeCanOpenDoor> Database::employeeCanOpenDoor(const Dbt::EmployeeCanOpenDoor& p) {
     return m_dbplugin->employeeCanOpenDoor(p);
 }

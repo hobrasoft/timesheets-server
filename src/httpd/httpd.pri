@@ -36,6 +36,8 @@ $$PWD/controllerdoors.cpp \
 $$PWD/controllerrfids.cpp \
 $$PWD/controllerevents.cpp \
 $$PWD/controllereventtypes.cpp \
+$$PWD/controllerholidays.cpp \
+$$PWD/controllerworkcalendar.cpp \
 
 HEADERS += \
  $$PWD/controllerserver.h \
@@ -67,6 +69,8 @@ $$PWD/controllerdoors.h \
 $$PWD/controllerrfids.h \
 $$PWD/controllerevents.h \
 $$PWD/controllereventtypes.h \
+$$PWD/controllerholidays.h \
+$$PWD/controllerworkcalendar.h \
 
 HEADERS += \
  $$PWD/httpd.h \
