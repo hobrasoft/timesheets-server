@@ -2834,6 +2834,13 @@ QList<Dbt::WorkCalendar> DatabasePluginPostgres::workCalendar(const QDate& perio
     return list;
 }
 
+void DatabasePluginPostgres::generateWorkCalendar(int year) {
+    MSqlQuery q(m_db);
+    q.prepare("select attendance.generate_work_calendar(:y);");
+    q.bindValue(":y", year);
+    q.exec();
+}
+
 void DatabasePluginPostgres::remove(const Dbt::Departments& data) {
     PDEBUG << data.department;
     MSqlQuery q(m_db);

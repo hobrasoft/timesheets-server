@@ -355,6 +355,10 @@ QList<Dbt::WorkCalendar> Database::workCalendar(const QDate& p) {
     return m_dbplugin->workCalendar(p);
 }
 
+void Database::generateWorkCalendar(int year) {
+    m_dbplugin->generateWorkCalendar(year);
+}
+
 QList<Dbt::EmployeeCanOpenDoor> Database::employeeCanOpenDoor(const Dbt::EmployeeCanOpenDoor& p) {
     return m_dbplugin->employeeCanOpenDoor(p);
 }

@@ -105,6 +105,7 @@ class DatabasePlugin : public QObject {
     virtual QList<Dbt::Rfids>                       rfids(int rfid) = 0;
     virtual QList<Dbt::Holidays>                    holidays(const QDate& date) { Q_UNUSED(date); return QList<Dbt::Holidays>(); }
     virtual QList<Dbt::WorkCalendar>                workCalendar(const QDate& period) { Q_UNUSED(period); return QList<Dbt::WorkCalendar>(); }
+    virtual void                                    generateWorkCalendar(int year) { Q_UNUSED(year); }
 
     virtual void remove(const Dbt::Users& data) { Q_UNUSED(data); }
     virtual void remove(const Dbt::UsersCategories& data) { Q_UNUSED(data); }
