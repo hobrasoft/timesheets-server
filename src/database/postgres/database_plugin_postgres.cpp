@@ -2795,10 +2795,10 @@ QList<Dbt::Holidays> DatabasePluginPostgres::holidays(const QDate& date) {
     MSqlQuery q(m_db);
     QList<Dbt::Holidays> list;
     if (date.isValid()) {
-        q.prepare(R"'(select date, description from attendance.holidays where date = :d order by date)'");
+        q.prepare(R"'(select date, description from attendance.holidays where date = :d;)'");
         q.bindValue(":d", date);
     } else {
-        q.prepare(R"'(select date, description from attendance.holidays order by date)'");
+        q.prepare(R"'(select date, description from attendance.holidays order by date desc;)'");
     }
     q.exec();
     while (q.next()) {
@@ -2815,10 +2815,10 @@ QList<Dbt::WorkCalendar> DatabasePluginPostgres::workCalendar(const QDate& perio
     MSqlQuery q(m_db);
     QList<Dbt::WorkCalendar> list;
     if (period.isValid()) {
-        q.prepare(R"'(select period, working_days, holidays, hours8, hours85 from attendance.work_calendar where period = :p order by period)'");
+        q.prepare(R"'(select period, working_days, holidays, hours8, hours85 from attendance.work_calendar where period = :p order by period;)'");
         q.bindValue(":p", period);
     } else {
-        q.prepare(R"'(select period, working_days, holidays, hours8, hours85 from attendance.work_calendar order by period)'");
+        q.prepare(R"'(select period, working_days, holidays, hours8, hours85 from attendance.work_calendar order by period;)'");
     }
     q.exec();
     while (q.next()) {
