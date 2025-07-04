@@ -102,6 +102,7 @@ class Database : public QObject {
     QList<Dbt::Holidays>                    holidays(const QDate& date = QDate());
     QList<Dbt::WorkCalendar>                workCalendar(const QDate& period = QDate());
     void                                    generateWorkCalendar(int year);
+    void                                    copyHolidays(int fromYear, int toYear);
     QList<Dbt::EmployeeCanOpenDoor>         employeeCanOpenDoor(const Dbt::EmployeeCanOpenDoor&);
     QList<Dbt::EmployeeHasRfid>             employeeHasRfid(const Dbt::EmployeeHasRfid&);
     QList<Dbt::DepartmentHasMember>         departmentHasMember(const Dbt::DepartmentHasMember&);

@@ -2841,6 +2841,14 @@ void DatabasePluginPostgres::generateWorkCalendar(int year) {
     q.exec();
 }
 
+void DatabasePluginPostgres::copyHolidays(int fromYear, int toYear) {
+    MSqlQuery q(m_db);
+    q.prepare("select attendance.copy_holidays(:fy, :ty);");
+    q.bindValue(":fy", fromYear);
+    q.bindValue(":ty", toYear);
+    q.exec();
+}
+
 void DatabasePluginPostgres::remove(const Dbt::Departments& data) {
     PDEBUG << data.department;
     MSqlQuery q(m_db);

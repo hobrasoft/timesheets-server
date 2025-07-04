@@ -359,6 +359,10 @@ void Database::generateWorkCalendar(int year) {
     m_dbplugin->generateWorkCalendar(year);
 }
 
+void Database::copyHolidays(int fromYear, int toYear) {
+    m_dbplugin->copyHolidays(fromYear, toYear);
+}
+
 QList<Dbt::EmployeeCanOpenDoor> Database::employeeCanOpenDoor(const Dbt::EmployeeCanOpenDoor& p) {
     return m_dbplugin->employeeCanOpenDoor(p);
 }

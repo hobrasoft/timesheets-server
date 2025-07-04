@@ -1,0 +1,32 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+<div class="container">
+  <form>
+    <div class="form-floating mb-3">
+      <input type="number" class="form-control" id="from_year">
+      <label for="from_year">From year</label>
+    </div>
+    <div class="form-floating mb-3">
+      <input type="number" class="form-control" id="to_year">
+      <label for="to_year">To year</label>
+    </div>
+    <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
+    <button type="button" class="btn btn-primary" id="btn-copy">Copy</button>
+  </form>
+</div>
+<script>
+function goBack(){ window.location.replace('settings-holidays.shtml'); }
+$(document).ready(function(){
+    if (!userAdmin()) { $('#btn-copy').hide(); $('#from_year').prop('disabled',true); $('#to_year').prop('disabled',true); }
+    $('#btn-cancel').click(function(){ goBack(); });
+    $('#btn-copy').click(function(){
+        if (!userAdmin()) return;
+        var fy = parseInt($('#from_year').val());
+        var ty = parseInt($('#to_year').val());
+        var api = new Api();
+        api.onFinished = function(){ goBack(); };
+        api.copyHolidays(fy, ty);
+    });
+});
+</script>
+<!-- #include '/inc/footer.html' -->
