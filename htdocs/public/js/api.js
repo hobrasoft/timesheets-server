@@ -166,6 +166,7 @@ class Api {
         this.workCalendar = function(period) { if (typeof period !== 'undefined') { this.get("workcalendar/" + period); } else { this.get("workcalendar"); } }
         this.saveWorkCalendar = function(w) { this.put("workcalendar/", JSON.stringify(w)); }
         this.removeWorkCalendar = function(p) { this.delete("workcalendar/" + p); }
+        this.generateWorkCalendar = function(y) { this.get("workcalendar/generate/" + y); }
         this.events = function(params) { if (typeof params === 'undefined') { this.get("events"); } else { this.get("events", params); } }
         this.event = function(e) { this.get("events/" + e); }
         this.saveEvent = function(e) { this.put("events/", JSON.stringify(e)); }
