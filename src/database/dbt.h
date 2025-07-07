@@ -490,9 +490,32 @@ struct Employees {
     QString     firstname;
     QString     surname;
     bool        active;
+    int         user;
+    QString     work_hours_mode;
+    QString     rounding_interval;
+    bool        saturdays_paid;
+    bool        sundays_paid;
+    bool        auto_breaks;
+    bool        overtime_paid;
 
-    Employees() { employee = 0; active = false; }
-    Employees(int x) { employee = x; active = false; }
+    Employees() {
+        employee = 0;
+        active = false;
+        user = 0;
+        saturdays_paid = false;
+        sundays_paid = false;
+        auto_breaks = false;
+        overtime_paid = false;
+    }
+    Employees(int x) {
+        employee = x;
+        active = false;
+        user = 0;
+        saturdays_paid = false;
+        sundays_paid = false;
+        auto_breaks = false;
+        overtime_paid = false;
+    }
     static Employees fromMap(const QVariantMap&);
     QVariantMap toMap() const;
 };

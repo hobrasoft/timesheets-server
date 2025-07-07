@@ -2561,10 +2561,13 @@ QList<Dbt::Doors> DatabasePluginPostgres::doors(int door) {
     return list;
 }
 
-QList<Dbt::Employees> DatabasePluginPostgres::employees(int employee) { 
+QList<Dbt::Employees> DatabasePluginPostgres::employees(int employee) {
     MSqlQuery q(m_db);
-    QList<Dbt::Employees> list; 
-    q.prepare(R"'(select employee, firstname, surname, active from attendance.employees where employee = :key1 or :key2 <= 0;)'");
+    QList<Dbt::Employees> list;
+    q.prepare(R"'(select employee, firstname, surname, active, "user", work_hours_mode, rounding_interval,
+                         saturdays_paid, sundays_paid, auto_breaks, overtime_paid
+                    from attendance.employees
+                   where employee = :key1 or :key2 <= 0;)'");
     q.bindValue(":key1", employee);
     q.bindValue(":key2", employee);
     q.exec();
@@ -2575,6 +2578,13 @@ QList<Dbt::Employees> DatabasePluginPostgres::employees(int employee) {
         x.firstname = q.value(i++).toString();
         x.surname   = q.value(i++).toString();
         x.active    = q.value(i++).toBool();
+        x.user              = q.value(i++).toInt();
+        x.work_hours_mode   = q.value(i++).toString();
+        x.rounding_interval = q.value(i++).toString();
+        x.saturdays_paid    = q.value(i++).toBool();
+        x.sundays_paid      = q.value(i++).toBool();
+        x.auto_breaks       = q.value(i++).toBool();
+        x.overtime_paid     = q.value(i++).toBool();
         list << x;
         }
     return list;
@@ -2986,25 +2996,50 @@ QVariant DatabasePluginPostgres::save(const Dbt::Employees& data) {
             update attendance.employees set
                     firstname = :firstname,
                     surname = :surname,
-                    active = :active
-                where employee = :employee 
-            )'"); 
-        q.bindValue(":firstname",  data.firstname);
-        q.bindValue(":surname",  data.surname);
-        q.bindValue(":active",  data.active);
-        q.bindValue(":employee",  data.employee);
-        q.exec();
-        return QVariant(data.employee);
-        
-      } else {
-        
-        q.prepare(R"'(
-            insert into attendance.employees (firstname, surname, active)
-                values (:firstname, :surname, :active)
+                    active = :active,
+                    "user" = :user,
+                    work_hours_mode = :work_hours_mode,
+                    rounding_interval = :rounding_interval,
+                    saturdays_paid = :saturdays_paid,
+                    sundays_paid = :sundays_paid,
+                    auto_breaks = :auto_breaks,
+                    overtime_paid = :overtime_paid
+                where employee = :employee
             )'");
         q.bindValue(":firstname",  data.firstname);
         q.bindValue(":surname",  data.surname);
         q.bindValue(":active",  data.active);
+        q.bindValue(":user",  data.user);
+        q.bindValue(":work_hours_mode",  data.work_hours_mode);
+        q.bindValue(":rounding_interval",  data.rounding_interval);
+        q.bindValue(":saturdays_paid",  data.saturdays_paid);
+        q.bindValue(":sundays_paid",  data.sundays_paid);
+        q.bindValue(":auto_breaks",  data.auto_breaks);
+        q.bindValue(":overtime_paid",  data.overtime_paid);
+        q.bindValue(":employee",  data.employee);
+        q.exec();
+        return QVariant(data.employee);
+
+      } else {
+
+        q.prepare(R"'(
+            insert into attendance.employees (firstname, surname, active, "user", work_hours_mode,
+                                             rounding_interval, saturdays_paid, sundays_paid,
+                                             auto_breaks, overtime_paid)
+                values (:firstname, :surname, :active, :user, :work_hours_mode,
+                        :rounding_interval, :saturdays_paid, :sundays_paid,
+                        :auto_breaks, :overtime_paid)
+            )'");
+        q.bindValue(":firstname",  data.firstname);
+        q.bindValue(":surname",  data.surname);
+        q.bindValue(":active",  data.active);
+        q.bindValue(":user",  data.user);
+        q.bindValue(":work_hours_mode",  data.work_hours_mode);
+        q.bindValue(":rounding_interval",  data.rounding_interval);
+        q.bindValue(":saturdays_paid",  data.saturdays_paid);
+        q.bindValue(":sundays_paid",  data.sundays_paid);
+        q.bindValue(":auto_breaks",  data.auto_breaks);
+        q.bindValue(":overtime_paid",  data.overtime_paid);
         q.exec();
         return currval("attendance.employees_employee_seq");
         }

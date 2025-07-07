@@ -665,6 +665,13 @@ QVariantMap Employees::toMap() const {
     data["firstname"] = firstname;
     data["surname"] = surname;
     data["active"] = active;
+    data["user"] = user;
+    data["work_hours_mode"] = work_hours_mode;
+    data["rounding_interval"] = rounding_interval;
+    data["saturdays_paid"] = saturdays_paid;
+    data["sundays_paid"] = sundays_paid;
+    data["auto_breaks"] = auto_breaks;
+    data["overtime_paid"] = overtime_paid;
     return data;
 }
 
@@ -674,6 +681,13 @@ Employees Employees::fromMap(const QVariantMap& data) {
     x.firstname = data["firstname"].toString();
     x.surname = data["surname"].toString();
     x.active = data["active"].toBool();
+    x.user = data["user"].toInt();
+    x.work_hours_mode = data["work_hours_mode"].toString();
+    x.rounding_interval = data["rounding_interval"].toString();
+    x.saturdays_paid = data["saturdays_paid"].toBool();
+    x.sundays_paid = data["sundays_paid"].toBool();
+    x.auto_breaks = data["auto_breaks"].toBool();
+    x.overtime_paid = data["overtime_paid"].toBool();
     return x;
 }
 
