@@ -31,13 +31,34 @@ Implementované metody:
 - put, post
 - delete
 
-Struktura jednoho záznamu: 
+Struktura jednoho záznamu:
 
 @code
 {
-"department": 23,
-"abbr": "VY",
-"description": "Výroba"
+    "employee":         1234,
+    "firstname":        "Petr",
+    "surname":          "Hobrasoft",
+    "active":           true,
+    "user":             1,
+    "work_hours_mode":  "full",
+    "rounding_interval": "15m",
+    "saturdays_paid":   true,
+    "sundays_paid":     false,
+    "auto_breaks":      false,
+    "overtime_paid":    true,
+    // Připojeno z jiných tabulek
+    "departments":  [
+        {"department":23, "abbr":"VY", "description":"Výroba"}, ...
+        ],
+    "rfids": [
+        {"rfid":12, "rfid_id":"ABCD1234", "valid":true, "note":"Poznámka"}, ...
+        ],
+    "doors": [
+        {"door":1, "description":"Výrobní dílna"}, ...
+        ],
+    "manages_departments": [
+        {"department":23, "abbr":"VY", "description":"Výroba"}, ...
+        ]
 }
 @endcode
 

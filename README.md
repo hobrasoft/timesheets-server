@@ -26,6 +26,7 @@ timesheet server to any information system.
 
 - http://potkan.hobrasoft.cz/doc/timesheets-server/group__apiurl.html
 - `GET /api/v1/workcalendar/generate/<year>` - generate work calendar for the selected year
+- `/api/v1/employees` - seznam zaměstnanců, viz dokumentace v `doc/api-att.dox`
 
 
 

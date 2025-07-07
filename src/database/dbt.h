@@ -485,6 +485,24 @@ struct Rfids {
     QVariantMap toMap() const;
 };
 
+/**
+ * @brief Zaměstnanec používaný v REST API
+ *
+ * Struktura odpovídá JSON objektu vracenému z /api/v1/employees.
+ *
+ * Položky:
+ * - employee: ID zaměstnance
+ * - firstname: jméno
+ * - surname: příjmení
+ * - active: zda je zaměstnanec aktivní
+ * - user: uživatelský účet
+ * - work_hours_mode: režim pracovní doby
+ * - rounding_interval: zaokrouhlení docházky
+ * - saturdays_paid: placené soboty
+ * - sundays_paid: placené neděle
+ * - auto_breaks: automatické přestávky
+ * - overtime_paid: proplácené přesčasy
+ */
 struct Employees {
     int         employee;
     QString     firstname;
