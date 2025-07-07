@@ -15,6 +15,37 @@
         <input type="text" class="form-control" id="surname"></input>
         <label for="surname">Surname</label>
     </div>
+    <div class="form-floating mb-3">
+        <select id="user" class="form-select"></select>
+        <label for="user">User</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="work_hours_mode"></input>
+        <label for="work_hours_mode">Work hours mode</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="rounding_interval"></input>
+        <label for="rounding_interval">Rounding interval</label>
+    </div>
+
+    <div class="form-check form-switch mb-3">
+        <input type="checkbox" id="saturdays_paid" class="form-check-input"></input>
+        <label for="saturdays_paid" class="form-check-label">Saturdays paid</label>
+    </div>
+    <div class="form-check form-switch mb-3">
+        <input type="checkbox" id="sundays_paid" class="form-check-input"></input>
+        <label for="sundays_paid" class="form-check-label">Sundays paid</label>
+    </div>
+    <div class="form-check form-switch mb-3">
+        <input type="checkbox" id="auto_breaks" class="form-check-input"></input>
+        <label for="auto_breaks" class="form-check-label">Auto breaks</label>
+    </div>
+    <div class="form-check form-switch mb-3">
+        <input type="checkbox" id="overtime_paid" class="form-check-input"></input>
+        <label for="overtime_paid" class="form-check-label">Overtime paid</label>
+    </div>
 
     <div class="form-floating mb-3">
         <div class="form-check form-switch">
@@ -59,8 +90,16 @@ $(document).ready(function(){
         $("#firstname").prop('disabled', true);
         $("#surname").prop('disabled', true);
         $("#active").prop('disabled', true);
+        $("#user").prop('disabled', true);
+        $("#work_hours_mode").prop('disabled', true);
+        $("#rounding_interval").prop('disabled', true);
+        $("#saturdays_paid").prop('disabled', true);
+        $("#sundays_paid").prop('disabled', true);
+        $("#auto_breaks").prop('disabled', true);
+        $("#overtime_paid").prop('disabled', true);
         }
     var employee = parseInt($.urlParam("employee"));
+    var selectedUser = 0;
 
     if (employee == 0 || isNaN(employee)) {
         $("#btn-del").hide();
@@ -73,10 +112,29 @@ $(document).ready(function(){
             $("#firstname").val(result.firstname);
             $("#surname").val(result.surname);
             $("#active").attr("checked", result.active);
+            selectedUser = result.user;
+            $("#user").val(selectedUser);
+            $("#work_hours_mode").val(result.work_hours_mode);
+            $("#rounding_interval").val(result.rounding_interval);
+            $("#saturdays_paid").prop("checked", result.saturdays_paid);
+            $("#sundays_paid").prop("checked", result.sundays_paid);
+            $("#auto_breaks").prop("checked", result.auto_breaks);
+            $("#overtime_paid").prop("checked", result.overtime_paid);
             };
         api.employees(employee);
         }
 
+    var apiUsers = new Api();
+    apiUsers.onFinished = function(result) {
+        var optNone = $('<option></option>').attr('value', 0).text('No user');
+        $('#user').append(optNone);
+        for (var i=0; i<result.length; i++) {
+            var opt = $('<option></option>').attr('value', result[i].user).text(result[i].name);
+            $('#user').append(opt);
+        }
+        $('#user').val(selectedUser);
+    };
+    apiUsers.users();
     $("#btn-cancel").click(function(event){
         goBack();
         });
@@ -88,6 +146,13 @@ $(document).ready(function(){
         data.firstname = $("#firstname").val();
         data.surname = $("#surname").val();
         data.active = $("#active").prop("checked");
+        data.user = parseInt($("#user").val());
+        data.work_hours_mode = $("#work_hours_mode").val();
+        data.rounding_interval = $("#rounding_interval").val();
+        data.saturdays_paid = $("#saturdays_paid").prop("checked");
+        data.sundays_paid = $("#sundays_paid").prop("checked");
+        data.auto_breaks = $("#auto_breaks").prop("checked");
+        data.overtime_paid = $("#overtime_paid").prop("checked");
         var api = new Api();
         api.onFinished = function() { goBack(); }
         api.saveEmployee(data);
