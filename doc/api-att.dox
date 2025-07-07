@@ -17,6 +17,7 @@ Bez parametru employee-id vrací všechny zaměstnance v poli, bez parametru emp
     "surname":      "Hobrasoft",
     "active":       true,
     "user":         1,
+    "login":        "admin",
     "work_hours_mode":  "full",
     "rounding_interval": "15m",
     "saturdays_paid":   true,

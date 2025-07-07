@@ -2564,10 +2564,12 @@ QList<Dbt::Doors> DatabasePluginPostgres::doors(int door) {
 QList<Dbt::Employees> DatabasePluginPostgres::employees(int employee) {
     MSqlQuery q(m_db);
     QList<Dbt::Employees> list;
-    q.prepare(R"'(select employee, firstname, surname, active, "user", work_hours_mode, rounding_interval,
-                         saturdays_paid, sundays_paid, auto_breaks, overtime_paid
-                    from attendance.employees
-                   where employee = :key1 or :key2 <= 0;)'");
+    q.prepare(R"'(select e.employee, e.firstname, e.surname, e.active, e."user", coalesce(u.login, '') as login,
+                         e.work_hours_mode, e.rounding_interval,
+                         e.saturdays_paid, e.sundays_paid, e.auto_breaks, e.overtime_paid
+                    from attendance.employees e
+                    left join users u on (u."user" = e."user")
+                   where e.employee = :key1 or :key2 <= 0;)'");
     q.bindValue(":key1", employee);
     q.bindValue(":key2", employee);
     q.exec();
@@ -2579,6 +2581,7 @@ QList<Dbt::Employees> DatabasePluginPostgres::employees(int employee) {
         x.surname   = q.value(i++).toString();
         x.active    = q.value(i++).toBool();
         x.user              = q.value(i++).toInt();
+        x.login             = q.value(i++).toString();
         x.work_hours_mode   = q.value(i++).toString();
         x.rounding_interval = q.value(i++).toString();
         x.saturdays_paid    = q.value(i++).toBool();
@@ -3009,7 +3012,7 @@ QVariant DatabasePluginPostgres::save(const Dbt::Employees& data) {
         q.bindValue(":firstname",  data.firstname);
         q.bindValue(":surname",  data.surname);
         q.bindValue(":active",  data.active);
-        q.bindValue(":user",  data.user);
+        q.bindValue(":user",  (data.user == 0) ? QVariant() : data.user);
         q.bindValue(":work_hours_mode",  data.work_hours_mode);
         q.bindValue(":rounding_interval",  data.rounding_interval);
         q.bindValue(":saturdays_paid",  data.saturdays_paid);
@@ -3033,7 +3036,7 @@ QVariant DatabasePluginPostgres::save(const Dbt::Employees& data) {
         q.bindValue(":firstname",  data.firstname);
         q.bindValue(":surname",  data.surname);
         q.bindValue(":active",  data.active);
-        q.bindValue(":user",  data.user);
+        q.bindValue(":user",  (data.user == 0) ? QVariant() : data.user);
         q.bindValue(":work_hours_mode",  data.work_hours_mode);
         q.bindValue(":rounding_interval",  data.rounding_interval);
         q.bindValue(":saturdays_paid",  data.saturdays_paid);

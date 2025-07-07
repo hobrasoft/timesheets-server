@@ -13,6 +13,8 @@
         <th>#ID</th>
         <th>First name</th>
         <th>Surname</th>
+        <th>Login</th>
+        <th>Work hours mode</th>
         <th>Active</th>
     </tr>
     </thead>
@@ -22,6 +24,8 @@
         <td><span class="employee-id"></span></td>
         <td><span class="employee-firstname"></span></td>
         <td><span class="employee-surname"></span></td>
+        <td><span class="employee-login"></span></td>
+        <td><span class="employee-workmode"></span></td>
         <td><span class="employee-active"></span></td>
     </tr>
     </tbody>
@@ -40,6 +44,8 @@ $(document).ready(function(){
             var id_emp_id        = x.find('.employee-id');
             var id_emp_firstname = x.find('.employee-firstname');
             var id_emp_surname   = x.find('.employee-surname');
+            var id_emp_login     = x.find('.employee-login');
+            var id_emp_workmode  = x.find('.employee-workmode');
             var id_emp_active    = x.find('.employee-active');
             var id_emp_edit      = x.find('.employee-edit');
 
@@ -50,6 +56,8 @@ $(document).ready(function(){
             $(id_emp_id).html(result[t].employee);
             $(id_emp_firstname).html(result[t].firstname);
             $(id_emp_surname).html(result[t].surname);
+            $(id_emp_login).html(result[t].login);
+            $(id_emp_workmode).html(result[t].work_hours_mode);
             $(id_emp_active).html(result[t].active);
 
             var href="settings-employee.shtml?employee="+result[t].employee;

@@ -495,7 +495,8 @@ struct Rfids {
  * - firstname: jméno
  * - surname: příjmení
  * - active: zda je zaměstnanec aktivní
- * - user: uživatelský účet
+ * - user: uživatelský účet (ID)
+ * - login: přihlašovací jméno uživatele
  * - work_hours_mode: režim pracovní doby
  * - rounding_interval: zaokrouhlení docházky
  * - saturdays_paid: placené soboty
@@ -509,6 +510,7 @@ struct Employees {
     QString     surname;
     bool        active;
     int         user;
+    QString     login;
     QString     work_hours_mode;
     QString     rounding_interval;
     bool        saturdays_paid;
@@ -520,6 +522,7 @@ struct Employees {
         employee = 0;
         active = false;
         user = 0;
+        login = "";
         saturdays_paid = false;
         sundays_paid = false;
         auto_breaks = false;
@@ -529,6 +532,7 @@ struct Employees {
         employee = x;
         active = false;
         user = 0;
+        login = "";
         saturdays_paid = false;
         sundays_paid = false;
         auto_breaks = false;
