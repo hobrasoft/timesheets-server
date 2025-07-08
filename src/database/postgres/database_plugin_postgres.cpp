@@ -3289,11 +3289,6 @@ QVariant DatabasePluginPostgres::save(const Dbt::Rfids& data) {
 }
 
 
-
-
-
-
-
 QVariant DatabasePluginPostgres::save(const Dbt::Holidays& data) {
     MSqlQuery q(m_db);
     q.prepare(R"'(select 1 from attendance.holidays where date = :key)'");
@@ -3328,3 +3323,10 @@ QVariant DatabasePluginPostgres::save(const Dbt::WorkCalendar& data) {
     q.exec();
     return data.period;
 }
+
+QList<Dbt::AttendanceChecklist>  DatabasePluginPostgres::attendanceChecklist(int employee, const QDate& month) { 
+    return QList<Dbt::AttendanceChecklist>();
+}
+
+
+

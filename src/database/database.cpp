@@ -379,3 +379,7 @@ QList<Dbt::DepartmentHasManager> Database::departmentHasManager(const Dbt::Depar
     return m_dbplugin->departmentHasManager(p);
 }
 
+QList<Dbt::AttendanceChecklist> Database::attendanceChecklist(int employee, const QDate& month) {
+    return m_dbplugin->attendanceChecklist(employee, month);
+}
+

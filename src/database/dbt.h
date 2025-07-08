@@ -670,6 +670,72 @@ struct WorkCalendar {
 };
 
 
+struct AttendanceSummary {
+    // qint64 = interval (secs)
+    qint64      arrival;
+    qint64      vacation;
+    qint64      sick_leave;
+    qint64      compensatory_leave;
+    qint64      business_trip;
+    qint64      break_time;
+    qint64      unpaid_leave;
+    qint64      sick_care;
+    qint64      paid_obstacle;
+    qint64      doctor;
+    AttendanceSummary() {
+        arrival = 0;
+        vacation = 0;
+        sick_leave = 0;
+        compensatory_leave = 0;
+        business_trip = 0;
+        break_time = 0;
+        unpaid_leave = 0;
+        sick_care = 0;
+        paid_obstacle = 0;
+        doctor = 0;
+        }
+};
+
+
+struct AttendanceDays {
+    int         dow;                    // den v týdnu, odpovídá PgSql
+    bool        holiday;                // Je svátek?
+    QString     holiday_description;    // 
+    // Začátek
+    QVariant    start_event;
+    QDateTime   start_date;
+    QString     start_event_type;
+    QString     start_event_description;
+    QString     start_event_note;
+    QString     start_event_error;
+    QVariant    start_user_edited;
+    QString     start_user_edited_name;
+    // Konec
+    QVariant    end_event;
+    QDateTime   end_date;
+    QString     end_event_type;
+    QString     end_event_description;
+    QString     end_event_note;
+    QString     end_event_error;
+    QVariant    end_user_edited;
+    QString     end_user_edited_name;
+    bool        end_generated;
+    qint64      rounded_hours;      // interval (secs)
+    // 
+    AttendanceDays() {
+        end_generated = false;
+        rounded_hours = 0;
+        }
+};
+
+
+struct AttendanceChecklist {
+    QDate       month;
+    Dbt::Employees              employee;
+    QList<Dbt::AttendanceDays>  days;
+    Dbt::AttendanceSummary      summary;
+};
+
 
 }
 

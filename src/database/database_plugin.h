@@ -107,6 +107,7 @@ class DatabasePlugin : public QObject {
     virtual QList<Dbt::WorkCalendar>                workCalendar(const QDate& period) { Q_UNUSED(period); return QList<Dbt::WorkCalendar>(); }
     virtual void                                    generateWorkCalendar(int year) { Q_UNUSED(year); }
     virtual void                                    copyHolidays(int fromYear, int toYear) { Q_UNUSED(fromYear); Q_UNUSED(toYear); }
+    virtual QList<Dbt::AttendanceChecklist>         attendanceChecklist(int employee, const QDate& month) { Q_UNUSED(employee); Q_UNUSED(month); return QList<Dbt::AttendanceChecklist>(); }
 
     virtual void remove(const Dbt::Users& data) { Q_UNUSED(data); }
     virtual void remove(const Dbt::UsersCategories& data) { Q_UNUSED(data); }

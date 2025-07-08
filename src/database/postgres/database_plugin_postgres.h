@@ -126,6 +126,7 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     QList<Dbt::WorkCalendar>                workCalendar(const QDate& period) Q_DECL_OVERRIDE;
     void                                    generateWorkCalendar(int year) Q_DECL_OVERRIDE;
     void                                    copyHolidays(int fromYear, int toYear) Q_DECL_OVERRIDE;
+    QList<Dbt::AttendanceChecklist>         attendanceChecklist(int employee, const QDate& month) Q_DECL_OVERRIDE;
 
     virtual void remove(const Dbt::Departments& data) Q_DECL_OVERRIDE;
     virtual void remove(const Dbt::Doors& data) Q_DECL_OVERRIDE;
