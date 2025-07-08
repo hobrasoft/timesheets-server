@@ -694,6 +694,8 @@ struct AttendanceSummary {
         paid_obstacle = 0;
         doctor = 0;
         }
+    static AttendanceSummary fromMap(const QVariantMap&);
+    QVariantMap toMap() const;
 };
 
 
@@ -726,6 +728,9 @@ struct AttendanceDays {
         end_generated = false;
         rounded_hours = 0;
         }
+    static AttendanceDays fromMap(const QVariantMap&);
+    static QList<AttendanceDays> fromList(const QVariantList&);
+    QVariantMap toMap() const;
 };
 
 
@@ -734,6 +739,8 @@ struct AttendanceChecklist {
     Dbt::Employees              employee;
     QList<Dbt::AttendanceDays>  days;
     Dbt::AttendanceSummary      summary;
+    static AttendanceChecklist fromMap(const QVariantMap&);
+    QVariantMap toMap() const;
 };
 
 

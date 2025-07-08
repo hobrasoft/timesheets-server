@@ -765,4 +765,113 @@ WorkCalendar WorkCalendar::fromMap(const QVariantMap& data) {
     return x;
 }
 
+QVariantMap AttendanceSummary::toMap() const {
+    QVariantMap data;
+    data["arrival"] = arrival;
+    data["vacation"] = vacation;
+    data["sick_leave"] = sick_leave;
+    data["compensatory_leave"] = compensatory_leave;
+    data["business_trip"] = business_trip;
+    data["break_time"] = break_time;
+    data["unpaid_leave"] = unpaid_leave;
+    data["sick_care"] = sick_care;
+    data["paid_obstacle"] = paid_obstacle;
+    data["doctor"] = doctor;
+    return data;
+}
+
+AttendanceSummary AttendanceSummary::fromMap(const QVariantMap& data) {
+    AttendanceSummary x;
+    x.arrival = data["arrival"].toLongLong();
+    x.vacation = data["vacation"].toLongLong();
+    x.sick_leave = data["sick_leave"].toLongLong();
+    x.compensatory_leave = data["compensatory_leave"].toLongLong();
+    x.business_trip = data["business_trip"].toLongLong();
+    x.break_time = data["break_time"].toLongLong();
+    x.unpaid_leave = data["unpaid_leave"].toLongLong();
+    x.sick_care = data["sick_care"].toLongLong();
+    x.paid_obstacle = data["paid_obstacle"].toLongLong();
+    x.doctor = data["doctor"].toLongLong();
+    return x;
+}
+
+QVariantMap AttendanceDays::toMap() const {
+    QVariantMap data;
+    data["dow"] = dow;
+    data["holiday"] = holiday;
+    data["holiday_description"] = holiday_description;
+    data["start_event"] = null(start_event);
+    data["start_date"] = start_date;
+    data["start_event_type"] = start_event_type;
+    data["start_event_description"] = start_event_description;
+    data["start_event_note"] = start_event_note;
+    data["start_event_error"] = start_event_error;
+    data["start_user_edited"] = null(start_user_edited);
+    data["start_user_edited_name"] = start_user_edited_name;
+    data["end_event"] = null(end_event);
+    data["end_date"] = end_date;
+    data["end_event_type"] = end_event_type;
+    data["end_event_description"] = end_event_description;
+    data["end_event_note"] = end_event_note;
+    data["end_event_error"] = end_event_error;
+    data["end_user_edited"] = null(end_user_edited);
+    data["end_user_edited_name"] = end_user_edited_name;
+    data["end_generated"] = end_generated;
+    data["rounded_hours"] = rounded_hours;
+    return data;
+}
+
+AttendanceDays AttendanceDays::fromMap(const QVariantMap& data) {
+    AttendanceDays x;
+    x.dow = data["dow"].toInt();
+    x.holiday = data["holiday"].toBool();
+    x.holiday_description = data["holiday_description"].toString();
+    x.start_event = data["start_event"];
+    x.start_date = data["start_date"].toDateTime();
+    x.start_event_type = data["start_event_type"].toString();
+    x.start_event_description = data["start_event_description"].toString();
+    x.start_event_note = data["start_event_note"].toString();
+    x.start_event_error = data["start_event_error"].toString();
+    x.start_user_edited = data["start_user_edited"];
+    x.start_user_edited_name = data["start_user_edited_name"].toString();
+    x.end_event = data["end_event"];
+    x.end_date = data["end_date"].toDateTime();
+    x.end_event_type = data["end_event_type"].toString();
+    x.end_event_description = data["end_event_description"].toString();
+    x.end_event_note = data["end_event_note"].toString();
+    x.end_event_error = data["end_event_error"].toString();
+    x.end_user_edited = data["end_user_edited"];
+    x.end_user_edited_name = data["end_user_edited_name"].toString();
+    x.end_generated = data["end_generated"].toBool();
+    x.rounded_hours = data["rounded_hours"].toLongLong();
+    return x;
+}
+
+QList<AttendanceDays> AttendanceDays::fromList(const QVariantList& list) {
+    QList<AttendanceDays> x;
+    QListIterator<QVariant> iterator(list);
+    while (iterator.hasNext()) {
+        x << AttendanceDays::fromMap(iterator.next().toMap());
+    }
+    return x;
+}
+
+QVariantMap AttendanceChecklist::toMap() const {
+    QVariantMap data;
+    data["month"] = month;
+    data["employee"] = employee.toMap();
+    data["days"] = toList(days);
+    data["summary"] = summary.toMap();
+    return data;
+}
+
+AttendanceChecklist AttendanceChecklist::fromMap(const QVariantMap& data) {
+    AttendanceChecklist x;
+    x.month = data["month"].toDate();
+    x.employee = Employees::fromMap(data["employee"].toMap());
+    x.days = AttendanceDays::fromList(data["days"].toList());
+    x.summary = AttendanceSummary::fromMap(data["summary"].toMap());
+    return x;
+}
+
 
