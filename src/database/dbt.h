@@ -671,17 +671,17 @@ struct WorkCalendar {
 
 
 struct AttendanceSummary {
-    // qint64 = interval (secs)
-    qint64      arrival;
-    qint64      vacation;
-    qint64      sick_leave;
-    qint64      compensatory_leave;
-    qint64      business_trip;
-    qint64      break_time;
-    qint64      unpaid_leave;
-    qint64      sick_care;
-    qint64      paid_obstacle;
-    qint64      doctor;
+    // double = interval (hours)
+    double      arrival;
+    double      vacation;
+    double      sick_leave;
+    double      compensatory_leave;
+    double      business_trip;
+    double      break_time;
+    double      unpaid_leave;
+    double      sick_care;
+    double      paid_obstacle;
+    double      doctor;
     AttendanceSummary() {
         arrival = 0;
         vacation = 0;
@@ -722,8 +722,8 @@ struct AttendanceDays {
     QVariant    end_user_edited;
     QString     end_user_edited_name;
     bool        end_generated;
-    qint64      rounded_hours;      // interval (secs)
-    qint64      cumulative_hours;      // interval (secs)
+    double      rounded_hours;        // interval (hours)
+    double      cumulative_hours;     // interval (hours)
     // 
     AttendanceDays() {
         end_generated = false;

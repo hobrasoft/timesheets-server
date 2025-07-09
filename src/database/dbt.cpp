@@ -782,16 +782,16 @@ QVariantMap AttendanceSummary::toMap() const {
 
 AttendanceSummary AttendanceSummary::fromMap(const QVariantMap& data) {
     AttendanceSummary x;
-    x.arrival = data["arrival"].toLongLong();
-    x.vacation = data["vacation"].toLongLong();
-    x.sick_leave = data["sick_leave"].toLongLong();
-    x.compensatory_leave = data["compensatory_leave"].toLongLong();
-    x.business_trip = data["business_trip"].toLongLong();
-    x.break_time = data["break_time"].toLongLong();
-    x.unpaid_leave = data["unpaid_leave"].toLongLong();
-    x.sick_care = data["sick_care"].toLongLong();
-    x.paid_obstacle = data["paid_obstacle"].toLongLong();
-    x.doctor = data["doctor"].toLongLong();
+    x.arrival = data["arrival"].toDouble();
+    x.vacation = data["vacation"].toDouble();
+    x.sick_leave = data["sick_leave"].toDouble();
+    x.compensatory_leave = data["compensatory_leave"].toDouble();
+    x.business_trip = data["business_trip"].toDouble();
+    x.break_time = data["break_time"].toDouble();
+    x.unpaid_leave = data["unpaid_leave"].toDouble();
+    x.sick_care = data["sick_care"].toDouble();
+    x.paid_obstacle = data["paid_obstacle"].toDouble();
+    x.doctor = data["doctor"].toDouble();
     return x;
 }
 
@@ -844,8 +844,8 @@ AttendanceDays AttendanceDays::fromMap(const QVariantMap& data) {
     x.end_user_edited = data["end_user_edited"];
     x.end_user_edited_name = data["end_user_edited_name"].toString();
     x.end_generated = data["end_generated"].toBool();
-    x.rounded_hours = data["rounded_hours"].toLongLong();
-    x.cumulative_hours = data["cumulative_hours"].toLongLong();
+    x.rounded_hours = data["rounded_hours"].toDouble();
+    x.cumulative_hours = data["cumulative_hours"].toDouble();
     return x;
 }
 
