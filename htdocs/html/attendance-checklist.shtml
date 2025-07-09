@@ -44,8 +44,8 @@ $(document).ready(function(){
             x.find('.day-start-desc').html(day.start_event_description);
             x.find('.day-end-time').html(new Date(day.end_date).formatHHMM());
             x.find('.day-end-desc').html(day.end_event_description);
-            x.find('.day-rounded').html(day.rounded_hours);
-            x.find('.day-cumulative').html(day.cumulative_hours);
+            x.find('.day-rounded').html(Number(day.rounded_hours).formatHHMM());
+            x.find('.day-cumulative').html(Number(day.cumulative_hours).formatHHMM());
             $('#tbody').append(x);
             $(x).show();
         }
