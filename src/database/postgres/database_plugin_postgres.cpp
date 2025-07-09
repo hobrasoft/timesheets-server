@@ -3545,7 +3545,8 @@ QList<Dbt::AttendanceChecklist>  DatabasePluginPostgres::attendanceChecklist(int
         select extract('dow' from ac.start_date) as dow, h.date is not null as holiday, h.description as holiday_description,
                 ac.start_event, ac.start_date, ac.start_event_type, st.description as start_event_type_description, ac.start_note, ac.start_error, ac.start_user_edited, su.name as start_user_edited_name,
                   ac.end_event,   ac.end_date,   ac.end_event_type, et.description as   end_event_type_description,   ac.end_note,   ac.end_error,   ac.end_user_edited, eu.name as   end_user_edited_name,  ac.end_generated,
-                  ac.rounded_hours, ac.cumulative_hours
+                  extract(epoch from ac.rounded_hours) as rounded_hours, 
+                  extract(epoch from ac.cumulative_hours) as cumulative_hours
             from attendance_checklist ac
             left join users su on (su."user" = ac.start_user_edited)
             left join users eu on (eu."user" = ac.end_user_edited)

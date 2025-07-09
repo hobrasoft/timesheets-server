@@ -1,0 +1,58 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<div id="spinner" class="spinner-border screen-spinner" style="width: 3em; height: 3em;" role="status"></div>
+
+<div class="container">
+    <h2 id="page-title"></h2>
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr class="table-info">
+                <th>Date</th>
+                <th>Start</th>
+                <th>End</th>
+                <th style="text-align: right;">Hours</th>
+                <th style="text-align: right;">Cumulative</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <tr id="template-day" style="display: none;">
+                <td class="day-date"></td>
+                <td><span class="day-start-time"></span> <span class="day-start-desc"></span></td>
+                <td><span class="day-end-time"></span> <span class="day-end-desc"></span></td>
+                <td class="day-rounded" style="text-align: right;"></td>
+                <td class="day-cumulative" style="text-align: right;"></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+$(document).ready(function(){
+    var employee = $.urlParam('employee');
+    var month = $.urlParam('month');
+    if (employee === null || month === null) return;
+    var api = new Api();
+    api.onFinished = function(result){
+        var result0 = result[0];
+        $('#page-title').html(result0.employee.firstname + ' ' + result0.employee.surname + ' ' + result0.month);
+        for (var i=0; i<result0.days.length; i++) {
+            var day = result0.days[i];
+            var x = $('#template-day').clone();
+            x.find('.day-date').html(new Date(day.start_date).formatYYYYMMDDHHMM().substr(0,10));
+            x.find('.day-start-time').html(new Date(day.start_date).formatHHMM());
+            x.find('.day-start-desc').html(day.start_event_description);
+            x.find('.day-end-time').html(new Date(day.end_date).formatHHMM());
+            x.find('.day-end-desc').html(day.end_event_description);
+            x.find('.day-rounded').html(day.rounded_hours);
+            x.find('.day-cumulative').html(day.cumulative_hours);
+            $('#tbody').append(x);
+            $(x).show();
+        }
+        $('#spinner').hide();
+    };
+    api.attendanceChecklist(employee, month);
+});
+</script>
+
+<!-- #include '/inc/footer.html' -->
