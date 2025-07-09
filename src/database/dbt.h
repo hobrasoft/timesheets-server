@@ -723,10 +723,12 @@ struct AttendanceDays {
     QString     end_user_edited_name;
     bool        end_generated;
     qint64      rounded_hours;      // interval (secs)
+    qint64      cumulative_hours;      // interval (secs)
     // 
     AttendanceDays() {
         end_generated = false;
         rounded_hours = 0;
+        cumulative_hours = 0;
         }
     static AttendanceDays fromMap(const QVariantMap&);
     static QList<AttendanceDays> fromList(const QVariantList&);

@@ -3325,7 +3325,275 @@ QVariant DatabasePluginPostgres::save(const Dbt::WorkCalendar& data) {
 }
 
 QList<Dbt::AttendanceChecklist>  DatabasePluginPostgres::attendanceChecklist(int employee, const QDate& month) { 
-    return QList<Dbt::AttendanceChecklist>();
+    QList<Dbt::AttendanceChecklist> list;
+    MSqlQuery q(m_db);
+    q.prepare(R"'(
+        with 
+
+        params as (
+            select  
+                :employee::integer as employee,
+                :month::timestamp with time zone as month
+        ),
+
+        /* Vybere záznamy z tabulky attendance.events a označí všechny chyby */
+        events_errors as (
+            select
+                    e.event,
+                    e.date,
+                    e.event_type,
+                    t.description as event_description,
+                    e.employee,
+                    e.valid,
+                    e.user_edited,
+                    case when e.valid and     t.end_state and     prev.end_state         then 'U' else -- unexpected end
+                    case when e.valid and not t.end_state and not next.end_state         then 'M' else -- missing end
+                    case when e.valid and not t.end_state and     next.end_state is null then 'M' else -- missing end, last record
+                        null::text
+                        end end end as error
+
+                from attendance.events e
+                left join attendance.event_types t using (event_type)
+                join params p on true
+
+                /* Předchozí záznam */
+                left join lateral (select *
+                        from attendance.events ep
+                        left join attendance.event_types tp using (event_type)
+                        where e.valid
+                          and ep.valid
+                          and ep.date < e.date
+                          and ep.employee = e.employee
+                          and not tp.passage
+                        order by date desc
+                        limit 1
+                        ) prev on true
+
+                /* Následující záznam */
+                left join lateral (select *
+                        from attendance.events en
+                        left join attendance.event_types tn using (event_type)
+                        where e.valid
+                          and en.valid
+                          and en.date > e.date
+                          and en.employee = e.employee
+                          and not tn.passage
+                        order by date
+                        limit 1
+                        ) next on true
+
+                where p.employee = e.employee
+                  and e.date > p.month          -- Omezení na aktuální měsíc a kousekzení na aktuální měsíc a kousekzení na aktuální měsíc a kousekzení na aktuální měsíc a kousek
+                  and e.date < p.month + '1 month'::interval + '2 days'::interval
+                  and not t.passage             -- Omezení na datové typy, které se týkají docházky, tj. typu "Záčátek" a "Konec"
+        ),
+
+        /* Vyhodí záznamy s chybami "nadbytečný odchod" */
+        events_fixed1 as (
+            select event, date, event_type, false as generated, employee, valid, user_edited, error, n.note as note
+                from events_errors
+                left join attendance.event_notes n using (event)
+                where valid
+                  and (error is null or error != 'U')
+        ),
+
+
+        /* Vybere záznamy s chybou "chybějící odchod", upraví je tak, aby se tvářily jako chybějící záznam */
+        events_generated_ends as (
+            select null::integer as event,
+                    case when next.date is null then ef1.date + '8 hours'::interval else next.date - '1 second'::interval end as date,
+                    et.event_type,
+                    true as generated,
+                    ef1.employee,
+                    true as valid,
+                    u."user" as user_edited,
+                    null::text as error,
+                    null::text as note
+                    
+                from events_fixed1 ef1
+                join (select * from attendance.event_types where end_state limit 1) et on true
+                join (select * from users where admin order by "user" limit 1) u on true
+            
+                /* Následující záznam */
+                left join lateral (select *
+                        from attendance.events ep
+                        left join attendance.event_types tn using (event_type)
+                        where ep.valid
+                          and ep.date > ef1.date
+                          and ep.employee = ef1.employee
+                          and not tn.passage
+                        order by date
+                        limit 1
+                        ) next on true
+
+                where error = 'M'
+
+        ),
+
+        /* 
+            Vytvoří opravený seznam, výstupem jsou vždy perfektně seřazené dvojice BEGIN - END za sebou.
+        */
+        events_fixed as (
+            select * from (
+                -- vybere všechny bezchybné záznamy
+                select * from events_fixed1
+                union all
+                -- vybere všechny vygenerované ukončovací záznamy
+                -- a připojí je k těm bezchybnatým
+                select * from events_generated_ends
+                ) x
+            order by x.date
+        ),
+
+        /*
+            Spojí související dvojice BEGIN - END do jednoho širokého záznamu
+        */
+        events_paired as (
+            select x.*
+            from (
+                select
+                    e.employee,
+                    e.event                     as start_event,
+                    e.date                      as start_date,
+                    e.event_type                as start_event_type,
+                    e.note                      as start_note,
+                    e.error                     as start_error,
+                    e.user_edited               as start_user_edited,
+                    lead(e.event)       over w  as end_event,
+                    lead(e.date)        over w  as end_date,
+                    lead(e.event_type)  over w  as end_event_type,
+                    lead(e.note)        over w  as end_note,
+                    lead(e.error)       over w  as end_error,
+                    lead(e.user_edited) over w  as end_user_edited,
+                    lead(e.generated)   over w  as end_generated
+                    from events_fixed e
+                    where e.valid 
+                    window w as (partition by employee order by e.date)
+                    order by e.date
+                ) x, params p
+            where x.start_event_type != 'END'
+              and x.start_date < p.month + '1 month'::interval
+            order by start_date
+        ),
+
+        /*
+            Doplní k záznamům zaokrouhlení dolů, výsledek dá do soupce "hours"
+        */
+        events_rounded as (
+            select ep.*,
+                make_interval(secs =>
+                    floor (
+                        extract(epoch from (end_date - start_date)) / 
+                        nullif(extract(epoch from emp.rounding_interval), 0)
+                    ) * extract(epoch from emp.rounding_interval)
+                ) as rounded_hours
+            from events_paired ep
+            join attendance.employees emp using (employee)
+        ),
+
+
+        /*
+            Denní součty
+        */
+        events_daily as (
+            select 
+                p.employee, 
+                null::integer as start_event,
+                d.day as start_date,
+                null::text as start_event_type,
+                null::text as start_note,
+                null::text as start_error,
+                null::integer as start_user_edited,
+                null::integer as end_event,
+                null::timestamp with time zone as end_date,
+                null::text as end_event_type,
+                null::text as end_note,
+                null::text as end_error,
+                null::integer as end_user_edited,
+                false as end_generated,
+                sum(er.rounded_hours) as rounded_hours,
+                sum(sum(er.rounded_hours)) over (partition by p.employee order by d.day) as cumulative_hours
+            from params p
+            cross join generate_series(
+                    date_trunc('month', p.month),
+                    date_trunc('month', p.month) + '1 month'::interval - '1 day'::interval,
+                    '1 day'::interval
+                    ) as d(day)
+            left join events_rounded er on (er.employee = p.employee and date_trunc('day', er.start_date) = d.day)
+            group by p.employee, d.day
+        ),
+
+        events_daily_plus_records as (
+            select *, null::interval  as cumulative_hours
+                from events_rounded
+            union all 
+            select * 
+                from events_daily
+            order by employee, start_date
+        )
+
+        select employee, start_event, start_date, start_event_type, start_note, start_error, start_user_edited, end_event,
+               end_date, end_event_type, end_note, end_error, end_user_edited, end_generated, rounded_hours, cumulative_hours
+            into temporary table attendance_checklist
+            from events_daily_plus_records;
+        )'");
+    q.bindValue(":employee", employee);
+    q.bindValue(":month", month);
+    q.exec();
+
+    q.exec(R"'(
+        select extract('dow' from ac.start_date) as dow, h.date is not null as holiday, h.description as holiday_description,
+                ac.start_event, ac.start_date, ac.start_event_type, st.description as start_event_type_description, ac.start_note, ac.start_error, ac.start_user_edited, su.name as start_user_edited_name,
+                  ac.end_event,   ac.end_date,   ac.end_event_type, et.description as   end_event_type_description,   ac.end_note,   ac.end_error,   ac.end_user_edited, eu.name as   end_user_edited_name,  ac.end_generated,
+                  ac.rounded_hours, ac.cumulative_hours
+            from attendance_checklist ac
+            left join users su on (su."user" = ac.start_user_edited)
+            left join users eu on (eu."user" = ac.end_user_edited)
+            left join attendance.event_types st on (st.event_type = ac.start_event_type)
+            left join attendance.event_types et on (et.event_type = ac.end_event_type)
+            left join attendance.holidays h on (h.date = ac.start_date)
+            ;
+        )'");
+
+    Dbt::AttendanceChecklist checklist;
+    while (q.next()) {
+        int i=0;
+        Dbt::AttendanceDays x;
+        x.dow                       = q.value(i++).toInt();
+        x.holiday                   = q.value(i++).toBool();
+        x.holiday_description       = q.value(i++).toString();
+        // Začátek
+        x.start_event               = q.value(i++).toInt();
+        x.start_date                = q.value(i++).toDateTime();
+        x.start_event_type          = q.value(i++).toString();
+        x.start_event_description   = q.value(i++).toString();
+        x.start_event_note          = q.value(i++).toString();
+        x.start_event_error         = q.value(i++).toString();
+        x.start_user_edited         = q.value(i++).toInt();
+        x.start_user_edited_name    = q.value(i++).toString();
+        // Konec
+        x.end_event                 = q.value(i++).toInt();
+        x.end_date                  = q.value(i++).toDateTime();
+        x.end_event_type            = q.value(i++).toString();
+        x.end_event_description     = q.value(i++).toString();
+        x.end_event_note            = q.value(i++).toString();
+        x.end_event_error           = q.value(i++).toString();
+        x.end_user_edited           = q.value(i++).toInt();
+        x.end_user_edited_name      = q.value(i++).toString();
+        x.end_generated             = q.value(i++).toBool();
+        x.rounded_hours             = q.value(i++).toInt();      // interval (secs)
+        x.cumulative_hours          = q.value(i++).toInt();      // interval (secs) 
+        checklist.days << x;
+        }
+
+    QList<Dbt::Employees> ex = employees(employee);
+    if (!ex.isEmpty()) {
+        checklist.employee = ex[0];
+        }
+
+    list << checklist;
+    return list;
+
 }
 
 
