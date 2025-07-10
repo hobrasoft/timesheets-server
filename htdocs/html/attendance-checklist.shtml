@@ -5,6 +5,11 @@
 
 <div class="container">
     <h2 id="page-title"></h2>
+    <div class="mb-2" id="month-nav" style="display:none;">
+        <button id="prev-month" class="btn btn-sm btn-secondary">&lt;</button>
+        <span id="selected-month" class="mx-2"></span>
+        <button id="next-month" class="btn btn-sm btn-secondary">&gt;</button>
+    </div>
     <table class="table table-bordered table-hover">
         <thead>
             <tr class="table-info">
@@ -31,13 +36,50 @@
 $(document).ready(function(){
     var employee = $.urlParam('employee');
     var month = $.urlParam('month');
-    if (employee === null || month === null) return;
+    if (employee === null) return;
+    if (month === null) {
+        month = localStorage.getItem('attendanceMonth_' + employee);
+        if (month === null) {
+            var d = new Date();
+            d.setDate(1);
+            month = d.toISOString().substring(0,10);
+        }
+    }
+    localStorage.setItem('attendanceMonth_' + employee, month);
+    function isoMonth(d){ return d.getFullYear() + '-' + (d.getMonth()+1).pad(2); }
+    function setNavDates(){
+        var d = new Date(month);
+        $('#selected-month').text(isoMonth(d));
+        var pm = new Date(d); pm.setMonth(d.getMonth()-1); pm.setDate(1);
+        var nm = new Date(d); nm.setMonth(d.getMonth()+1); nm.setDate(1);
+        $('#prev-month').data('month', pm.toISOString().substring(0,10));
+        $('#next-month').data('month', nm.toISOString().substring(0,10));
+        $('#month-nav').show();
+    }
+
+    $('#prev-month').click(function(e){
+        e.preventDefault();
+        month = $(this).data('month');
+        localStorage.setItem('attendanceMonth_' + employee, month);
+        window.location.search = '?employee=' + employee + '&month=' + month;
+    });
+    $('#next-month').click(function(e){
+        e.preventDefault();
+        month = $(this).data('month');
+        localStorage.setItem('attendanceMonth_' + employee, month);
+        window.location.search = '?employee=' + employee + '&month=' + month;
+    });
+
     var api = new Api();
     api.onFinished = function(result){
         var result0 = result[0];
-        $('#page-title').html(result0.employee.firstname + ' ' + result0.employee.surname + ' ' + result0.month);
+        var d = new Date(result0.month);
+        $('#page-title').html(result0.employee.firstname + ' ' + result0.employee.surname);
+        month = d.toISOString().substring(0,10);
+        setNavDates();
         for (var i=0; i<result0.days.length; i++) {
             var day = result0.days[i];
+            if (day.start_event !== 0) { continue; }
             var x = $('#template-day').clone();
             x.find('.day-date').html(new Date(day.start_date).formatYYYYMMDDHHMM().substr(0,10));
             x.find('.day-start-time').html(new Date(day.start_date).formatHHMM());
@@ -46,6 +88,8 @@ $(document).ready(function(){
             x.find('.day-end-desc').html(day.end_event_description);
             x.find('.day-rounded').html((Number(day.rounded_hours)*3600).formatHHMM());
             x.find('.day-cumulative').html((Number(day.cumulative_hours)*3600).formatHHMM());
+            if (day.holiday) { x.addClass('table-warning'); }
+            if (day.dow==0 || day.dow==6) { x.addClass('table-secondary'); }
             $('#tbody').append(x);
             $(x).show();
         }

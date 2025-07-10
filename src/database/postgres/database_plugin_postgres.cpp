@@ -3557,6 +3557,7 @@ QList<Dbt::AttendanceChecklist>  DatabasePluginPostgres::attendanceChecklist(int
         )'");
 
     Dbt::AttendanceChecklist checklist;
+    checklist.month = month;
     while (q.next()) {
         int i=0;
         Dbt::AttendanceDays x;
