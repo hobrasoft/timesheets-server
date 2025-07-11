@@ -67,7 +67,7 @@ $(document).ready(function(){
             $(id_emp_edit).attr("href", href);
             var month = new Date();
             month.setDate(1);
-            var hrefAtt="attendance-checklist.shtml?employee="+result[t].employee+"&month="+month.toISOString().substring(0,10);
+            var hrefAtt="attendance-checklist.shtml?employee="+result[t].employee;
             $(id_emp_attendance).attr("href", hrefAtt);
 
             $('tbody').append(x);

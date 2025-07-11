@@ -15,6 +15,7 @@
             <tr class="table-info">
                 <th>Date</th>
                 <th>Start</th>
+                <th></th>
                 <th>End</th>
                 <th style="text-align: right;">Hours</th>
                 <th style="text-align: right;">Cumulative</th>
@@ -24,6 +25,7 @@
             <tr id="template-day" style="display: none;">
                 <td class="day-date"></td>
                 <td><span class="day-start-time"></span> <span class="day-start-desc"></span></td>
+                <td><canvas class="day-canvas" width="265" height="18"></canvas></td>
                 <td><span class="day-end-time"></span> <span class="day-end-desc"></span></td>
                 <td class="day-rounded" style="text-align: right;"></td>
                 <td class="day-cumulative" style="text-align: right;"></td>
@@ -34,6 +36,7 @@
 
 <script>
 $(document).ready(function(){
+    const etypes = {};
     var employee = $.urlParam('employee');
     var month = $.urlParam('month');
     if (employee === null) return;
@@ -46,7 +49,11 @@ $(document).ready(function(){
         }
     }
     localStorage.setItem('attendanceMonth_' + employee, month);
-    function isoMonth(d){ return d.getFullYear() + '-' + (d.getMonth()+1).pad(2); }
+
+    function isoMonth(d) { 
+        return d.getFullYear() + '-' + (d.getMonth()+1).pad(2); 
+        }
+
     function setNavDates(){
         var d = new Date(month);
         $('#selected-month').text(isoMonth(d));
@@ -55,47 +62,127 @@ $(document).ready(function(){
         $('#prev-month').data('month', pm.toISOString().substring(0,10));
         $('#next-month').data('month', nm.toISOString().substring(0,10));
         $('#month-nav').show();
-    }
+        }
+
+    function eventColor(event) {
+        const item = etypes[event];
+        if (item.arrival)            { console.log(item.event_type); return "#909090"; }
+        if (item.business_trip)      { console.log(item.event_type); return "#80ca80"; }
+        if (item.compensatory_leave) { console.log(item.event_type); return "#90aa90"; }
+        if (item.break_time)         { console.log(item.event_type); return "#a0a0a0"; }
+        if (item.paid_obstacle)      { console.log(item.event_type); return "#90ca90"; }
+        if (item.vacation)           { console.log(item.event_type); return "#60ea60"; }
+        if (item.sick_leave)         { console.log(item.event_type); return "#ffb0b0"; }
+        if (item.sick_care)          { console.log(item.event_type); return "#ffb0b0"; }
+        if (item.doctor)             { console.log(item.event_type); return "#ffb0b0"; }
+        if (item.unpaid_leave)       { console.log(item.event_type); return "#f0f060"; }
+        return "#208080";
+        }
+
+    function drawDayAxe(ctx) {
+        for (var h=0; h<=24; h++) {
+            ctx.beginPath();
+            ctx.moveTo(h*11+0.5,0);
+            ctx.lineTo(h*11+0.5, (h==6||h==14||h==22)?7:3);
+            ctx.strokeStyle = '#080808';
+            ctx.stroke();
+            }
+        } 
+
+    function drawDay(canvas) {
+        var ctx = canvas.getContext('2d');  
+        ctx.fillStyle = "#f0f0f0";
+        // ctx.clearRect(0,0,canvas.width, canvas.height);
+        ctx.fillRect(0,0,canvas.width, canvas.height);
+        drawDayAxe(ctx);
+        }
+
+    function drawIntervals(canvas, intervals) {
+        var ctx = canvas.getContext('2d');  
+        drawDay(canvas);
+
+        for (it of intervals) {
+            var s = new Date(it.start_date);
+            var e = new Date(it.end_date);
+            var start = (s.getHours() + s.getMinutes()/60) * 10;
+            var end   = (e.getHours() + e.getMinutes()/60) * 10;
+            ctx.fillStyle = eventColor(it.start_event_type);
+            ctx.fillRect(start, 0, end-start, 18);
+            }
+        drawDayAxe(ctx);
+        }
 
     $('#prev-month').click(function(e){
         e.preventDefault();
         month = $(this).data('month');
         localStorage.setItem('attendanceMonth_' + employee, month);
         window.location.search = '?employee=' + employee + '&month=' + month;
-    });
+        });
     $('#next-month').click(function(e){
         e.preventDefault();
         month = $(this).data('month');
         localStorage.setItem('attendanceMonth_' + employee, month);
         window.location.search = '?employee=' + employee + '&month=' + month;
-    });
+        });
 
-    var api = new Api();
-    api.onFinished = function(result){
-        var result0 = result[0];
-        var d = new Date(result0.month);
-        $('#page-title').html(result0.employee.firstname + ' ' + result0.employee.surname);
-        month = d.toISOString().substring(0,10);
-        setNavDates();
-        for (var i=0; i<result0.days.length; i++) {
-            var day = result0.days[i];
-            if (day.start_event !== 0) { continue; }
-            var x = $('#template-day').clone();
-            x.find('.day-date').html(new Date(day.start_date).formatYYYYMMDDHHMM().substr(0,10));
-            x.find('.day-start-time').html(new Date(day.start_date).formatHHMM());
-            x.find('.day-start-desc').html(day.start_event_description);
-            x.find('.day-end-time').html(new Date(day.end_date).formatHHMM());
-            x.find('.day-end-desc').html(day.end_event_description);
-            x.find('.day-rounded').html((Number(day.rounded_hours)*3600).formatHHMM());
-            x.find('.day-cumulative').html((Number(day.cumulative_hours)*3600).formatHHMM());
-            if (day.holiday) { x.addClass('table-warning'); }
-            if (day.dow==0 || day.dow==6) { x.addClass('table-secondary'); }
-            $('#tbody').append(x);
-            $(x).show();
-        }
-        $('#spinner').hide();
-    };
-    api.attendanceChecklist(employee, month);
+    var apiE = new Api();
+    apiE.onFinished = function(result) {
+        for (const item of result) {
+            etypes[item.event_type] = item;
+            }
+        var api = new Api();
+        api.onFinished = function(result){
+            var result0 = result[0];
+            var d = new Date(result0.month);
+            $('#page-title').html(result0.employee.firstname + ' ' + result0.employee.surname);
+            month = d.toISOString().substring(0,10);
+            setNavDates();
+
+            // převede na vnořenou JSON strukturu
+            let current = null;
+            const days = [];
+            for (const item of result[0].days) {
+                if (item.start_event === 0 && current == null) {
+                    current = { ...item, detail: [] };
+                    continue;
+                    }
+                if (item.start_event === 0 && current != null) {
+                    days.push(current)
+                    current = { ...item, detail: [] };
+                    continue;
+                    }
+                if (item.start_event !== 0) {
+                    current.detail.push(item);
+                    }
+                }
+
+
+            for (var i=0; i<days.length; i++) {
+                var day = days[i];
+
+                var x = $('#template-day').clone();
+                var canvas = x.find('.day-canvas')[0]; 
+                drawDay(canvas);
+                drawIntervals(canvas, day.detail);
+
+                x.find('.day-date').html(new Date(day.start_date).formatYYYYMMDDHHMM().substr(0,10));
+                x.find('.day-start-time').html(new Date(day.start_date).formatHHMM());
+                x.find('.day-start-desc').html(day.start_event_description);
+                x.find('.day-end-time').html(new Date(day.end_date).formatHHMM());
+                x.find('.day-end-desc').html(day.end_event_description);
+                x.find('.day-rounded').html((Number(day.rounded_hours)*3600).formatHHMM());
+                x.find('.day-cumulative').html((Number(day.cumulative_hours)*3600).formatHHMM());
+                if (day.holiday) { x.addClass('table-warning'); }
+                if (day.dow==0 || day.dow==6) { x.addClass('table-secondary'); }
+                $('#tbody').append(x);
+                $(x).show();
+                }
+            $('#spinner').hide();
+            };
+        api.attendanceChecklist(employee, month);
+        };
+    apiE.eventtypes();
+
 });
 </script>
 
