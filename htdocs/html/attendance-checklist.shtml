@@ -41,14 +41,14 @@ $(document).ready(function(){
     var month = $.urlParam('month');
     if (employee === null) return;
     if (month === null) {
-        month = localStorage.getItem('attendanceMonth_' + employee);
+        month = localStorage.getItem('attendanceMonth');
         if (month === null) {
             var d = new Date();
             d.setDate(1);
             month = d.toISOString().substring(0,10);
         }
     }
-    localStorage.setItem('attendanceMonth_' + employee, month);
+    localStorage.setItem('attendanceMonth', month);
 
     function isoMonth(d) { 
         return d.getFullYear() + '-' + (d.getMonth()+1).pad(2); 
@@ -127,13 +127,13 @@ $(document).ready(function(){
     $('#prev-month').click(function(e){
         e.preventDefault();
         month = $(this).data('month');
-        localStorage.setItem('attendanceMonth_' + employee, month);
+        localStorage.setItem('attendanceMonth', month);
         window.location.search = '?employee=' + employee + '&month=' + month;
         });
     $('#next-month').click(function(e){
         e.preventDefault();
         month = $(this).data('month');
-        localStorage.setItem('attendanceMonth_' + employee, month);
+        localStorage.setItem('attendanceMonth', month);
         window.location.search = '?employee=' + employee + '&month=' + month;
         });
 
