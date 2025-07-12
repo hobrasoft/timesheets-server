@@ -26,7 +26,7 @@
                 <td class="day-date"></td>
                 <td><span class="day-start-time"></span> <span class="day-start-desc"></span></td>
                 <td><canvas class="day-canvas" width="265" height="18"></canvas></td>
-                <td><span class="day-end-time"></span> <span class="day-end-desc"></span></td>
+                <td><span class="day-end-time"></span></td>
                 <td class="day-rounded" style="text-align: right;"></td>
                 <td class="day-cumulative" style="text-align: right;"></td>
             </tr>
@@ -65,18 +65,20 @@ $(document).ready(function(){
         }
 
     function eventColor(event) {
+        const defaultColor = "#208080";
+        if (event == '') { return defaultColor; }
         const item = etypes[event];
-        if (item.arrival)            { console.log(item.event_type); return "#909090"; }
-        if (item.business_trip)      { console.log(item.event_type); return "#80ca80"; }
-        if (item.compensatory_leave) { console.log(item.event_type); return "#90aa90"; }
-        if (item.break_time)         { console.log(item.event_type); return "#a0a0a0"; }
-        if (item.paid_obstacle)      { console.log(item.event_type); return "#90ca90"; }
-        if (item.vacation)           { console.log(item.event_type); return "#60ea60"; }
-        if (item.sick_leave)         { console.log(item.event_type); return "#ffb0b0"; }
-        if (item.sick_care)          { console.log(item.event_type); return "#ffb0b0"; }
-        if (item.doctor)             { console.log(item.event_type); return "#ffb0b0"; }
-        if (item.unpaid_leave)       { console.log(item.event_type); return "#f0f060"; }
-        return "#208080";
+        if (item.arrival)            { return "#909090"; }
+        if (item.business_trip)      { return "#80ca80"; }
+        if (item.compensatory_leave) { return "#90aa90"; }
+        if (item.break_time)         { return "#a0a0a0"; }
+        if (item.paid_obstacle)      { return "#90ca90"; }
+        if (item.vacation)           { return "#60ea60"; }
+        if (item.sick_leave)         { return "#ffb0b0"; }
+        if (item.sick_care)          { return "#ffb0b0"; }
+        if (item.doctor)             { return "#ffb0b0"; }
+        if (item.unpaid_leave)       { return "#f0f060"; }
+        return defaultColor;
         }
 
     function drawDayAxe(ctx) {
@@ -97,17 +99,27 @@ $(document).ready(function(){
         drawDayAxe(ctx);
         }
 
+    function drawInterval(canvas, it) {
+        var ctx = canvas.getContext('2d');  
+        
+        var s = new Date(it.start_date);
+        var e = new Date(it.end_date);
+        var start = (s.getHours() + s.getMinutes()/60) * 11;
+        var end   = (e.getHours() + e.getMinutes()/60) * 11;
+        ctx.fillStyle = eventColor(it.start_event_type);
+        ctx.fillRect(start, 0, end-start, 18);
+        }
+
     function drawIntervals(canvas, intervals) {
         var ctx = canvas.getContext('2d');  
         drawDay(canvas);
 
-        for (it of intervals) {
-            var s = new Date(it.start_date);
-            var e = new Date(it.end_date);
-            var start = (s.getHours() + s.getMinutes()/60) * 10;
-            var end   = (e.getHours() + e.getMinutes()/60) * 10;
-            ctx.fillStyle = eventColor(it.start_event_type);
-            ctx.fillRect(start, 0, end-start, 18);
+        if (intervals && typeof intervals[Symbol.iterator] === 'function') {
+            for (it of intervals) {
+                drawInterval(canvas, it);
+                }
+          } else {
+            drawInterval(canvas, intervals);
             }
         drawDayAxe(ctx);
         }
@@ -138,38 +150,73 @@ $(document).ready(function(){
             month = d.toISOString().substring(0,10);
             setNavDates();
 
-            // převede na vnořenou JSON strukturu
-            let current = null;
-            const days = [];
+            // Naplníme strukturu dayDetails
+            const dayDetails = {};
+            let currentDet = null; 
+            let currentKey = null;
             for (const item of result[0].days) {
-                if (item.start_event === 0 && current == null) {
-                    current = { ...item, detail: [] };
+                // První záznam v pořadí, nejsou naplněné předchozí hodnoty
+                // Jako první by měl být přehledový záznam, nekontroluje se
+                if (currentDet == null || currentKey == null) {
+                    var date = new Date(item.start_date);
+                    currentKey = date.toISOString().substring(0,10);
+                    currentDet = [];
                     continue;
                     }
-                if (item.start_event === 0 && current != null) {
-                    days.push(current)
-                    current = { ...item, detail: [] };
+                // Další záznam po přehledovém je vždy detailní,
+                // currentDet by měl existovat, ale pro jistotu zkontrolujeme 
+                if (item.start_event !== 0 && currentDet != null) {
+                    currentDet.push(item);
                     continue;
                     }
-                if (item.start_event !== 0) {
-                    current.detail.push(item);
+                // Další záznam po přehledovém je vždy detailní,
+                // currentDet by měl existovat, ale co když ne?
+                if (item.start_event !== 0 && currentDet == null) {
+                    console.log("Chyba ve formátu dat, přehledový záznam není následován detailem");
+                    continue;
+                    }
+                // Další přehledový záznam patří do dalšího dne
+                // currentDet by měl existovat, ale pro jistotu zkontrolujeme 
+                if (item.start_event === 0 && currentDet != null) {
+                    dayDetails[currentKey] = currentDet;
+                    var date = new Date(item.start_date);
+                    currentKey = date.toISOString().substring(0,10);
+                    currentDet = [];
+                    continue;
+                    }
+                // Další přehledový záznam patří do dalšího dne
+                // currentDet by měl existovat, ale co když ne?
+                if (item.start_event === 0 && currentDet == null) {
+                    console.log("Chyba ve formátu dat, předchozí přehledový záznam nebyl?!");
+                    continue;
                     }
                 }
+            // Poslední záznam se v cyklu neuložil, takže dodatečně...
+            dayDetails[currentKey] = currentDet;
 
 
-            for (var i=0; i<days.length; i++) {
-                var day = days[i];
+            for (var i=0; i<result[0].days.length; i++) {
+                var day = result[0].days[i];
+                var date = new Date(day.start_date);
+                var key = date.toISOString().substring(0,10);
+                var dayDetail = (dayDetails && dayDetails[key]) ? dayDetails[key] : [];
 
                 var x = $('#template-day').clone();
                 var canvas = x.find('.day-canvas')[0]; 
+                var is_summary_line = (day.start_event == 0);
                 drawDay(canvas);
-                drawIntervals(canvas, day.detail);
+                drawIntervals(canvas, (is_summary_line) ? dayDetail : day);
 
-                x.find('.day-date').html(new Date(day.start_date).formatYYYYMMDDHHMM().substr(0,10));
-                x.find('.day-start-time').html(new Date(day.start_date).formatHHMM());
+                var start_date = day.start_date;
+                var end_date   = day.end_date;
+                if (is_summary_line && dayDetail.length != 0) {
+                    start_date = dayDetail[0].start_date;
+                    end_date   = dayDetail[dayDetail.length-1].end_date;
+                    }
+                x.find('.day-date').html(new Date(start_date).formatYYYYMMDDHHMM().substr(0,10));
+                x.find('.day-start-time').html(new Date(start_date).formatHHMM());
                 x.find('.day-start-desc').html(day.start_event_description);
-                x.find('.day-end-time').html(new Date(day.end_date).formatHHMM());
-                x.find('.day-end-desc').html(day.end_event_description);
+                x.find('.day-end-time').html(new Date(end_date).formatHHMM());
                 x.find('.day-rounded').html((Number(day.rounded_hours)*3600).formatHHMM());
                 x.find('.day-cumulative').html((Number(day.cumulative_hours)*3600).formatHHMM());
                 if (day.holiday) { x.addClass('table-warning'); }
