@@ -3496,35 +3496,45 @@ QList<Dbt::AttendanceChecklist>  DatabasePluginPostgres::attendanceChecklist(int
             Denní součty
         */
         events_daily as (
-            select 
-                p.employee, 
-                null::integer as start_event,
-                d.day as start_date,
-                null::text as start_event_type,
-                null::text as start_note,
-                null::text as start_error,
-                null::integer as start_user_edited,
-                null::integer as end_event,
-                null::timestamp with time zone as end_date,
-                null::text as end_event_type,
-                null::text as end_note,
-                null::text as end_error,
-                null::integer as end_user_edited,
-                false as end_generated,
-                sum(er.rounded_hours) as rounded_hours,
-                sum(sum(er.rounded_hours)) over (partition by p.employee order by d.day) as cumulative_hours
-            from params p
-            cross join generate_series(
-                    date_trunc('month', p.month),
-                    date_trunc('month', p.month) + '1 month'::interval - '1 day'::interval,
-                    '1 day'::interval
-                    ) as d(day)
-            left join events_rounded er on (er.employee = p.employee and date_trunc('day', er.start_date) = d.day)
-            group by p.employee, d.day
+            select x2.*,
+                    sum(x2.should_be) over (partition by employee order by x2.start_date) as should_be_cumulative
+            from (select x1.*,
+                            emp.work_hours_mode
+                                * case when not emp.saturdays_paid and extract(dow from x1.start_date) = 6 then 0 else 1 end
+                                * case when not emp.sundays_paid and extract(dow from x1.start_date) = 0 then 0 else 1 end
+                                 as should_be
+                        from ( select
+                                    p.employee,
+                                    null::integer as start_event,
+                                    d.day as start_date,
+                                    null::text as start_event_type,
+                                    null::text as start_note,
+                                    null::text as start_error,
+                                    null::integer as start_user_edited,
+                                    null::integer as end_event,
+                                    null::timestamp with time zone as end_date,
+                                    null::text as end_event_type,
+                                    null::text as end_note,
+                                    null::text as end_error,
+                                    null::integer as end_user_edited,
+                                    false as end_generated,
+                                    sum(er.rounded_hours) as rounded_hours,
+                                    sum(sum(er.rounded_hours)) over (partition by p.employee order by d.day) as cumulative_hours
+                                from params p
+                                cross join generate_series(
+                                        date_trunc('month', p.month),
+                                        date_trunc('month', p.month) + '1 month'::interval - '1 day'::interval,
+                                        '1 day'::interval
+                                        ) as d(day)
+                                left join events_rounded er on (er.employee = p.employee and date_trunc('day', er.start_date) = d.day)
+                                group by p.employee, d.day
+                            ) x1
+                        join attendance.employees emp using (employee)
+                    ) x2
         ),
 
         events_daily_plus_records as (
-            select *, null::interval  as cumulative_hours
+            select *, null::interval  as cumulative_hours, null::interval as should_be, null::interval should_be_cumulative
                 from events_rounded
             union all 
             select * 
@@ -3533,7 +3543,8 @@ QList<Dbt::AttendanceChecklist>  DatabasePluginPostgres::attendanceChecklist(int
         )
 
         select employee, start_event, start_date, start_event_type, start_note, start_error, start_user_edited, end_event,
-               end_date, end_event_type, end_note, end_error, end_user_edited, end_generated, rounded_hours, cumulative_hours
+               end_date, end_event_type, end_note, end_error, end_user_edited, end_generated, 
+               rounded_hours, cumulative_hours, should_be, should_be_cumulative
             into temporary table attendance_checklist
             from events_daily_plus_records;
         )'");
@@ -3546,7 +3557,9 @@ QList<Dbt::AttendanceChecklist>  DatabasePluginPostgres::attendanceChecklist(int
                 ac.start_event, ac.start_date, ac.start_event_type, st.description as start_event_type_description, ac.start_note, ac.start_error, ac.start_user_edited, su.name as start_user_edited_name,
                   ac.end_event,   ac.end_date,   ac.end_event_type, et.description as   end_event_type_description,   ac.end_note,   ac.end_error,   ac.end_user_edited, eu.name as   end_user_edited_name,  ac.end_generated,
                   extract(epoch from ac.rounded_hours)/3600.0 as rounded_hours,
-                  extract(epoch from ac.cumulative_hours)/3600.0 as cumulative_hours
+                  extract(epoch from ac.cumulative_hours)/3600.0 as cumulative_hours,
+                  extract(epoch from ac.should_be)/3600.0 as should_be,
+                  extract(epoch from ac.should_be_cumulative)/3600.0 as should_be_cumulative
             from attendance_checklist ac
             left join users su on (su."user" = ac.start_user_edited)
             left join users eu on (eu."user" = ac.end_user_edited)
@@ -3585,6 +3598,8 @@ QList<Dbt::AttendanceChecklist>  DatabasePluginPostgres::attendanceChecklist(int
         x.end_generated             = q.value(i++).toBool();
         x.rounded_hours             = q.value(i++).toDouble();   // interval (hours)
         x.cumulative_hours          = q.value(i++).toDouble();   // interval (hours)
+        x.should_be                 = q.value(i++).toDouble();   // interval (hours)
+        x.should_be_cumulative      = q.value(i++).toDouble();   // interval (hours)
         checklist.days << x;
         }
 
@@ -3592,6 +3607,38 @@ QList<Dbt::AttendanceChecklist>  DatabasePluginPostgres::attendanceChecklist(int
     if (!ex.isEmpty()) {
         checklist.employee = ex[0];
         }
+
+
+    q.exec(R"'(    
+        select
+                sum(case when et.arrival then rounded_hours else '0seconds'::interval end) as arrival,
+                sum(case when et.vacation then rounded_hours else '0seconds'::interval end) as vacation,
+                sum(case when et.sick_leave then rounded_hours else '0seconds'::interval end) as sick_leave,
+                sum(case when et.compensatory_leave then rounded_hours else '0seconds'::interval end) as compensatory_leave,
+                sum(case when et.business_trip then rounded_hours else '0seconds'::interval end) as business_trip,
+                sum(case when et.break_time then rounded_hours else '0seconds'::interval end) as break_time,
+                sum(case when et.unpaid_leave then rounded_hours else '0seconds'::interval end) as unpaid_leave,
+                sum(case when et.sick_care then rounded_hours else '0seconds'::interval end) as sick_care,
+                sum(case when et.paid_obstacle then rounded_hours else '0seconds'::interval end) as paid_obstacle,
+                sum(case when et.doctor then rounded_hours else '0seconds'::interval end) as doctor
+            from attendance_checklist er
+            left join attendance.event_types et on (et.event_type = er.start_event_type);
+        )'");
+    while (q.next()) {
+        int i=0; 
+        Dbt::AttendanceSummary& x = checklist.summary;
+        x.arrival               = q.value(i++).toDouble();
+        x.vacation              = q.value(i++).toDouble();
+        x.sick_leave            = q.value(i++).toDouble();
+        x.compensatory_leave    = q.value(i++).toDouble();
+        x.business_trip         = q.value(i++).toDouble();
+        x.break_time            = q.value(i++).toDouble();
+        x.unpaid_leave          = q.value(i++).toDouble();
+        x.sick_care             = q.value(i++).toDouble();
+        x.paid_obstacle         = q.value(i++).toDouble();
+        x.doctor                = q.value(i++).toDouble();
+        }
+
 
     list << checklist;
     return list;

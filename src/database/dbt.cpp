@@ -819,6 +819,8 @@ QVariantMap AttendanceDays::toMap() const {
     data["end_generated"] = end_generated;
     data["rounded_hours"] = rounded_hours;
     data["cumulative_hours"] = cumulative_hours;
+    data["should_be"] = should_be;
+    data["should_be_cumulative"] = should_be_cumulative;
     return data;
 }
 
@@ -846,6 +848,8 @@ AttendanceDays AttendanceDays::fromMap(const QVariantMap& data) {
     x.end_generated = data["end_generated"].toBool();
     x.rounded_hours = data["rounded_hours"].toDouble();
     x.cumulative_hours = data["cumulative_hours"].toDouble();
+    x.should_be = data["should_be"].toDouble();
+    x.should_be_cumulative = data["should_be_cumulative"].toDouble();
     return x;
 }
 

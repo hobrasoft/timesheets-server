@@ -45,7 +45,7 @@ $(document).ready(function(){
             var x = $('#template-event').clone();
             var row = $(x);
             x.find('.event-id').html(result[i].event);
-            x.find('.event-date').html(result[i].date);
+            x.find('.event-date').html(result[i].date.formatYYYYMMDDHHMM());
             x.find('.event-type').html(result[i].event_description);
             x.find('.event-employee').html(result[i].firstname + ' ' + result[i].surname);
             x.find('.event-user').html(result[i].user_edited_name);
@@ -65,7 +65,7 @@ $(document).ready(function(){
             if (userAdmin()) {
                 var href = 'event.shtml?event=' + result[i].event;
                 x.find('.event-edit').attr('href', href).show();
-            }
+                }
             $('tbody').append(x);
             x.show();
         }

@@ -722,13 +722,17 @@ struct AttendanceDays {
     QVariant    end_user_edited;
     QString     end_user_edited_name;
     bool        end_generated;
-    double      rounded_hours;        // interval (hours)
-    double      cumulative_hours;     // interval (hours)
+    double      rounded_hours;          // interval (hours)
+    double      cumulative_hours;       // interval (hours)
+    double      should_be;              // interval (hours)
+    double      should_be_cumulative;   // interval (hours)
     // 
     AttendanceDays() {
         end_generated = false;
         rounded_hours = 0;
         cumulative_hours = 0;
+        should_be = 0;
+        should_be_cumulative = 0;
         }
     static AttendanceDays fromMap(const QVariantMap&);
     static QList<AttendanceDays> fromList(const QVariantList&);

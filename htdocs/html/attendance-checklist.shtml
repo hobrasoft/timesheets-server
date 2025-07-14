@@ -9,6 +9,7 @@
         <button id="prev-month" class="btn btn-sm btn-secondary">&lt;</button>
         <span id="selected-month" class="mx-2"></span>
         <button id="next-month" class="btn btn-sm btn-secondary">&gt;</button>
+        <button id="toggle-display" class="btn btn-sm btn-secondary ms-2"></button>
     </div>
     <table class="table table-bordered table-hover">
         <thead>
@@ -18,25 +19,104 @@
                 <th></th>
                 <th>End</th>
                 <th style="text-align: right;">Hours</th>
-                <th style="text-align: right;">Cumulative</th>
+                <th style="text-align: right;">Σ</th>
+                <th style="text-align: right;">±Δ</th>
+                <th style="text-align: right;">Σ±Δ</th>
+                <th style="text-align: right;">Note</th>
             </tr>
         </thead>
         <tbody id="tbody">
             <tr id="template-day" style="display: none;">
                 <td class="day-date"></td>
-                <td><span class="day-start-time"></span> <span class="day-start-desc"></span></td>
+                <td><a class="start-edit" href=""><span class="day-start-time"></span> <span class="day-start-desc"></span></a></td>
                 <td><canvas class="day-canvas" width="265" height="18"></canvas></td>
-                <td><span class="day-end-time"></span></td>
+                <td><a class="end-edit" href=""><span class="day-end-time"></span></a></td>
                 <td class="day-rounded" style="text-align: right;"></td>
                 <td class="day-cumulative" style="text-align: right;"></td>
+                <td class="day-difference" style="text-align: right;"></td>
+                <td class="day-difference-cumulative" style="text-align: right;"></td>
+                <td class="day-note"></td>
             </tr>
         </tbody>
+        <tfooter>
+            <tr class="table-info">
+                <th></th>
+                <th></th>
+                <th>Součet</th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+            <tr class="table-info">
+                <th></th>
+                <th></th>
+                <th>Má být</th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </tfooter>
+    </table>
+
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr class="table-info">
+                <th colspan="6">Overview of month</th>
+                </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>Should be days</th>
+                <td></td>
+                <td>Days in work</td>
+                <td></td>
+                <td></td>
+                <td>days</td>
+            </tr>
+            <tr>
+                <th>hours</th>
+                <td></td>
+                <td>Total hours</td>
+                <td></td>
+                <td></td>
+                <td>hours</td>
+            </tr>
+            <tr> <th></th> <td></td> <td>Night</td> <td></td> <td></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Afternoon</td> <td></td> <td></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Saturdays</td> <td></td> <td></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Sundays</td> <td></td> <td></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Hlidays</td> <td></td> <td></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Doctor</td> <td></td> <td></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Vacation</td> <td></td> <td></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Sick care</td> <td></td> <td></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Sick leave</td> <td></td> <td></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Unpaid</td> <td></td> <td></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Σ±Δ</td> <td></td> <td></td> <td>hours</td> </tr>
+
+        </tbody>
+        <tfooter>
+            <tr class="table-info">
+                <th colspan="6">Lock the month</th>
+                </tr>
+        </tfooter>
     </table>
 </div>
 
 <script>
 $(document).ready(function(){
     const etypes = {};
+    const DISPLAY_SUMMARY = 'summary';
+    const DISPLAY_BOTH = 'both';
+    const DISPLAY_DETAIL = 'detail';
+    var displayMode = localStorage.getItem('attendanceDisplay');
+    if (displayMode === null) { displayMode = DISPLAY_BOTH; }
+    updateDisplayButton();
     var employee = $.urlParam('employee');
     var month = $.urlParam('month');
     if (employee === null) return;
@@ -62,6 +142,23 @@ $(document).ready(function(){
         $('#prev-month').data('month', pm.toISOString().substring(0,10));
         $('#next-month').data('month', nm.toISOString().substring(0,10));
         $('#month-nav').show();
+        }
+
+    function updateDisplayButton(){
+        var txt = (displayMode === DISPLAY_SUMMARY)
+                ? 'Sum'
+                : (displayMode === DISPLAY_DETAIL) ? 'Det' : 'Both';
+        $('#toggle-display').text(txt);
+        }
+
+    function updateDisplay(){
+        updateDisplayButton();
+        $('.detail-row').hide();
+        $('.summary-row').hide();
+        if (displayMode === DISPLAY_SUMMARY) { $('.summary-row').show(); return; }
+        if (displayMode === DISPLAY_DETAIL) { $('.detail-row').show(); return; }
+        $('.summary-row').show();
+        $('.detail-row').show();
         }
 
     function eventColor(event) {
@@ -136,6 +233,18 @@ $(document).ready(function(){
         localStorage.setItem('attendanceMonth', month);
         window.location.search = '?employee=' + employee + '&month=' + month;
         });
+    $('#toggle-display').click(function(e){
+        e.preventDefault();
+        if (displayMode === DISPLAY_SUMMARY) {
+            displayMode = DISPLAY_BOTH;
+        } else if (displayMode === DISPLAY_BOTH) {
+            displayMode = DISPLAY_DETAIL;
+        } else {
+            displayMode = DISPLAY_SUMMARY;
+        }
+        localStorage.setItem('attendanceDisplay', displayMode);
+        updateDisplay();
+        });
 
     var apiE = new Api();
     apiE.onFinished = function(result) {
@@ -207,24 +316,49 @@ $(document).ready(function(){
                 drawDay(canvas);
                 drawIntervals(canvas, (is_summary_line) ? dayDetail : day);
 
-                var start_date = day.start_date;
-                var end_date   = day.end_date;
+                var start_date  = day.start_date;
+                var end_date    = day.end_date;
+                var start_event = day.start_event;
+                var end_event   = day.end_event;
                 if (is_summary_line && dayDetail.length != 0) {
-                    start_date = dayDetail[0].start_date;
-                    end_date   = dayDetail[dayDetail.length-1].end_date;
+                    detailFirst = dayDetail[0];
+                    detailLast  = dayDetail[dayDetail.length-1];
+                    start_date = detailFirst.start_date;
+                    end_date   = detailLast.end_date;
+                    start_event = detailFirst.start_event;
+                    end_event = detailLast.end_event;
                     }
-                x.find('.day-date').html(new Date(start_date).formatYYYYMMDDHHMM().substr(0,10));
-                x.find('.day-start-time').html(new Date(start_date).formatHHMM());
+                var start_time              = (start_date.formatHHMM() == "00:00") ? '' : start_date.formatHHMM();
+                var end_time                = (end_date.formatHHMM() == "00:00") ? '' : end_date.formatHHMM();
+                var is_empty_line           = (end_time == '');
+                var rounded_hours           = (is_empty_line ) ? '' : (Number(day.rounded_hours)*3600).formatHHMM();
+                var cumulative_hours        = (is_empty_line || day.cumulative_hours <= 0) ? '' : (Number(day.cumulative_hours)*3600).formatHHMM();
+                var difference              = (is_empty_line) ? '' : (29+(Number(day.rounded_hours) - Number(day.should_be))*3600).formatHHMM();
+                var difference_cumulative   = (is_empty_line) ? '' :(29+(Number(day.cumulative_hours) - Number(day.should_be_cumulative))*3600).formatHHMM();
+                var note                    = [day.holiday_description, day.start_event_note, day.end_event_note].filter(x => x != null && x !== '').join(', ');
+
+                x.find('.day-date').html(start_date.formatYYYYMMDD());
+                x.find('.day-start-time').html(start_time);
                 x.find('.day-start-desc').html(day.start_event_description);
-                x.find('.day-end-time').html(new Date(end_date).formatHHMM());
-                x.find('.day-rounded').html((Number(day.rounded_hours)*3600).formatHHMM());
-                x.find('.day-cumulative').html((Number(day.cumulative_hours)*3600).formatHHMM());
+                x.find('.day-end-time').html(end_time);
+                x.find('.day-rounded').html(rounded_hours);
+                x.find('.day-cumulative').html(cumulative_hours);
+                x.find('.day-difference').html(difference);
+                x.find('.day-difference-cumulative').html(difference_cumulative);
+                x.find('.day-note').html(note);
+                x.find('.start-edit').attr("href", 'event.shtml?event=' + start_event);
+                x.find('.end-edit').attr("href", 'event.shtml?event=' + end_event);
+
                 if (day.holiday) { x.addClass('table-warning'); }
                 if (day.dow==0 || day.dow==6) { x.addClass('table-secondary'); }
+                if (is_summary_line) { x.addClass('summary-row'); } 
+                if (is_summary_line && dayDetail.length == 0) { x.addClass('detail-row'); }
+                if (!is_summary_line) { x.addClass('detail-row'); }
                 $('#tbody').append(x);
                 $(x).show();
                 }
             $('#spinner').hide();
+            updateDisplay();
             };
         api.attendanceChecklist(employee, month);
         };

@@ -99,6 +99,14 @@ Date.prototype.formatYYYYMMDDHHMM = function() {
     return yy.pad(4)+"-"+mt.pad(2)+"-"+dd.pad(2)+" "+hh.pad(2)+":"+mm.pad(2);
     }
 
+Date.prototype.formatYYYYMMDD = function() {
+    if (isNaN(this.getTime())) { return ""; }
+    var yy = this.getFullYear();
+    var mt = this.getMonth() + 1;
+    var dd = this.getDate();
+    return yy.pad(4)+"-"+mt.pad(2)+"-"+dd.pad(2);
+    }
+
 Date.prototype.formatHHMM = function() {
     if (isNaN(this.getTime())) { return ""; }
     var hh = this.getHours();
@@ -135,6 +143,16 @@ String.prototype.secsTo = function (date2) {
 String.prototype.formatYYYYMMDDHHMM = function() {
     var date = new Date(this);
     return date.formatYYYYMMDDHHMM();
+    }
+
+String.prototype.formatYYYYMMDD = function() {
+    var date = new Date(this);
+    return date.formatYYYYMMDD();
+    }
+
+String.prototype.formatHHMM = function() {
+    var date = new Date(this);
+    return date.formatHHMM();
     }
 
 Boolean.prototype.toString = function() {
