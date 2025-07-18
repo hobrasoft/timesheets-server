@@ -767,6 +767,7 @@ WorkCalendar WorkCalendar::fromMap(const QVariantMap& data) {
 
 QVariantMap AttendanceSummary::toMap() const {
     QVariantMap data;
+    data["days"] = days;
     data["arrival"] = arrival;
     data["vacation"] = vacation;
     data["sick_leave"] = sick_leave;
@@ -777,11 +778,19 @@ QVariantMap AttendanceSummary::toMap() const {
     data["sick_care"] = sick_care;
     data["paid_obstacle"] = paid_obstacle;
     data["doctor"] = doctor;
+    data["afternoon"] = afternoon;
+    data["night"] = night;
+    data["sunday"] = sunday;
+    data["saturday"] = saturday;
+    data["holiday"] = holiday;
+    data["calendar_working_days"] = calendar_working_days;
+    data["calendar_holidays"] = calendar_holidays;
     return data;
 }
 
 AttendanceSummary AttendanceSummary::fromMap(const QVariantMap& data) {
     AttendanceSummary x;
+    x.days = data["days"].toDouble();
     x.arrival = data["arrival"].toDouble();
     x.vacation = data["vacation"].toDouble();
     x.sick_leave = data["sick_leave"].toDouble();
@@ -792,6 +801,14 @@ AttendanceSummary AttendanceSummary::fromMap(const QVariantMap& data) {
     x.sick_care = data["sick_care"].toDouble();
     x.paid_obstacle = data["paid_obstacle"].toDouble();
     x.doctor = data["doctor"].toDouble();
+    x.afternoon = data["afternoon"].toDouble();
+    x.night = data["night"].toDouble();
+    x.sunday = data["sunday"].toDouble();
+    x.saturday = data["saturday"].toDouble();
+    x.holiday = data["holiday"].toDouble();
+    x.calendar_working_days = data["calendar_working_days"].toInt();
+    x.calendar_holidays = data["calendar_holidays"].toInt();
+
     return x;
 }
 

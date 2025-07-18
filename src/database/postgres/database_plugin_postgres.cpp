@@ -3608,25 +3608,141 @@ QList<Dbt::AttendanceChecklist>  DatabasePluginPostgres::attendanceChecklist(int
         checklist.employee = ex[0];
         }
 
+    q.exec(R"'(
 
-    q.exec(R"'(    
+        with extracted as (
+            select ac.*, et.*, extract(epoch from rounded_hours)/3600.0 as hours
+            from attendance_checklist ac
+            left join attendance.event_types et on (et.event_type = ac.start_event_type)
+            ),
+        day_counts as (
+            select count(1) as days
+                from ( select date(e.start_date)
+                    from extracted e
+                    where e.arrival
+                    group by date(e.start_date)
+                    order by date(e.start_date)
+                    ) x
+            ),
+        calendar as (
+            select wc.working_days, wc.holidays, wc.hours8, wc.hours85
+                from attendance.work_calendar wc
+                where wc.period = date((select date_trunc('month', start_date) from extracted limit 1))
+                limit 1
+            ),
+        afternoons as (
+            select sum(
+                case when e.start_date < e.end_date and (e.end_date - start_date ) >= '5 hours'::interval
+                     then extract(epoch from make_interval(secs =>
+                            floor (
+                                extract(epoch from (e.end_date - e.start_date)) /
+                                nullif(extract(epoch from emp.rounding_interval), 0)
+                            ) * extract(epoch from emp.rounding_interval))) / 3600.0
+                     else 0.0
+                     end) as afternoon
+            from (select employee,
+                    greatest (start_date, date_trunc('day', start_date) + '14 hours'::interval) as start_date,
+                    least    (end_date,   date_trunc('day', start_date) + '22 hours'::interval) as end_date
+                  from extracted x
+                  where arrival
+                  ) e
+            join attendance.employees emp using (employee)
+            ),
+        nights as (
+            select sum(
+                case when e.start_date < e.end_date and (e.end_date - start_date ) >= '2 hours'::interval
+                     then extract(epoch from make_interval(secs =>
+                            floor (
+                                extract(epoch from (e.end_date - e.start_date)) /
+                                nullif(extract(epoch from emp.rounding_interval), 0)
+                            ) * extract(epoch from emp.rounding_interval))) / 3600.0
+                     else 0.0
+                     end) as night
+            from (select employee,
+                    greatest (start_date, date_trunc('day', start_date) + '22 hours'::interval) as start_date,
+                    least    (end_date,   date_trunc('day', start_date) + '30 hours'::interval) as end_date
+                  from extracted x
+                  where arrival
+                  ) e
+            join attendance.employees emp using (employee)
+            ),
+        weekdays as (
+            select
+                sum(case when extract('dow' from e.start_date) = 0 and e.start_date < e.end_date and (e.end_date - start_date ) >= '1 hours'::interval
+                         then extract(epoch from make_interval(secs =>
+                                floor (
+                                    extract(epoch from (e.end_date - e.start_date)) /
+                                    nullif(extract(epoch from emp.rounding_interval), 0)
+                                ) * extract(epoch from emp.rounding_interval))) / 3600.0
+                         else 0.0
+                         end) as sunday,
+                sum(case when extract('dow' from e.start_date) = 6 and e.start_date < e.end_date and (e.end_date - start_date ) >= '1 hours'::interval
+                        then extract(epoch from make_interval(secs =>
+                               floor (
+                                   extract(epoch from (e.end_date - e.start_date)) /
+                                   nullif(extract(epoch from emp.rounding_interval), 0)
+                               ) * extract(epoch from emp.rounding_interval))) / 3600.0
+                        else 0.0
+                        end) as saturday
+            from (select employee,
+                    greatest(start_date, date_trunc('day', start_date)) as start_date,
+                    least   (end_date,   date_trunc('day', start_date) + '1day'::interval) as end_date
+                  from extracted x
+                  where arrival
+                  ) e
+            join attendance.employees emp using (employee)
+            ),
+
+        summaries as (
+            select
+                sum(case when arrival            then er.hours else 0 end) as arrival,
+                sum(case when vacation           then er.hours else 0 end) as vacation,
+                sum(case when sick_leave         then er.hours else 0 end) as sick_leave,
+                sum(case when compensatory_leave then er.hours else 0 end) as compensatory_leave,
+                sum(case when business_trip      then er.hours else 0 end) as business_trip,
+                sum(case when break_time         then er.hours else 0 end) as break_time,
+                sum(case when unpaid_leave       then er.hours else 0 end) as unpaid_leave,
+                sum(case when sick_care          then er.hours else 0 end) as sick_care,
+                sum(case when paid_obstacle      then er.hours else 0 end) as paid_obstacle,
+                sum(case when doctor             then er.hours else 0 end) as doctor,
+                sum(case when arrival and h.date is not null then 1 else 0 end) as holidays
+            from extracted er
+            left join attendance.holidays h on (h.date = date(er.start_date))
+            )
         select
-                sum(case when et.arrival then rounded_hours else '0seconds'::interval end) as arrival,
-                sum(case when et.vacation then rounded_hours else '0seconds'::interval end) as vacation,
-                sum(case when et.sick_leave then rounded_hours else '0seconds'::interval end) as sick_leave,
-                sum(case when et.compensatory_leave then rounded_hours else '0seconds'::interval end) as compensatory_leave,
-                sum(case when et.business_trip then rounded_hours else '0seconds'::interval end) as business_trip,
-                sum(case when et.break_time then rounded_hours else '0seconds'::interval end) as break_time,
-                sum(case when et.unpaid_leave then rounded_hours else '0seconds'::interval end) as unpaid_leave,
-                sum(case when et.sick_care then rounded_hours else '0seconds'::interval end) as sick_care,
-                sum(case when et.paid_obstacle then rounded_hours else '0seconds'::interval end) as paid_obstacle,
-                sum(case when et.doctor then rounded_hours else '0seconds'::interval end) as doctor
-            from attendance_checklist er
-            left join attendance.event_types et on (et.event_type = er.start_event_type);
+                d.days,
+                c.working_days as calendar_working_days,
+                c.holidays as calendar_holidays,
+                -- c.hours8 as calendar_hours8,
+                -- c.hours85 as calendar_hours85,
+                a.afternoon,
+                n.night,
+                w.sunday,
+                w.saturday,
+                s.arrival,
+                s.vacation,
+                s.sick_leave,
+                s.compensatory_leave,
+                s.business_trip,
+                s.break_time,
+                s.unpaid_leave,
+                s.sick_care,
+                s.paid_obstacle,
+                s.doctor,
+                s.holidays
+            from summaries s, day_counts d, calendar c, afternoons a, nights n, weekdays w
+            ;
         )'");
     while (q.next()) {
         int i=0; 
         Dbt::AttendanceSummary& x = checklist.summary;
+        x.days                  = q.value(i++).toInt();
+        x.calendar_working_days = q.value(i++).toInt();
+        x.calendar_holidays     = q.value(i++).toInt();
+        x.afternoon             = q.value(i++).toDouble();
+        x.night                 = q.value(i++).toDouble();
+        x.sunday                = q.value(i++).toDouble();
+        x.saturday              = q.value(i++).toDouble();
         x.arrival               = q.value(i++).toDouble();
         x.vacation              = q.value(i++).toDouble();
         x.sick_leave            = q.value(i++).toDouble();

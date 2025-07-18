@@ -71,33 +71,22 @@
                 </tr>
         </thead>
         <tbody>
-            <tr>
-                <th>Should be days</th>
-                <td></td>
-                <td>Days in work</td>
-                <td></td>
-                <td></td>
-                <td>days</td>
-            </tr>
-            <tr>
-                <th>hours</th>
-                <td></td>
-                <td>Total hours</td>
-                <td></td>
-                <td></td>
-                <td>hours</td>
-            </tr>
-            <tr> <th></th> <td></td> <td>Night</td> <td></td> <td></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Afternoon</td> <td></td> <td></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Saturdays</td> <td></td> <td></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Sundays</td> <td></td> <td></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Hlidays</td> <td></td> <td></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Doctor</td> <td></td> <td></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Vacation</td> <td></td> <td></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Sick care</td> <td></td> <td></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Sick leave</td> <td></td> <td></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Unpaid</td> <td></td> <td></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Σ±Δ</td> <td></td> <td></td> <td>hours</td> </tr>
+            <tr> <th>Should be days</th> 
+                           <td></td> <td>Days in work</td>  <td id="l-sum-days"></td> <td></td> <td>days</td> </tr>
+            <tr> <th>hours</th> 
+                           <td></td> <td>Total hours</td>   <td></td> <td></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Night</td>         <td id="l-sum-night"></td> <td><input type="text" class="form-control" id="sum-night" name="sum-night"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Afternoon</td>     <td id="l-sum-afternoon"></td> <td><input type="text" class="form-control" id="sum-afternoon" name="sum-afternoon"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Saturdays</td>     <td id="l-sum-saturday"></td> <td><input type="text" class="form-control" id="sum-saturday" name="sum-saturday"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Sundays</td>       <td id="l-sum-sunday"></td> <td><input type="text" class="form-control" id="sum-sunday" name="sum-sunday"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Holidays</td>      <td id="l-sum-holiday"></td> <td><input type="text" class="form-control" id="sum-holiday" name="sum-holiday"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Doctor</td>        <td id="l-sum-doctor"></td> <td><input type="text" class="form-control" id="sum-doctor" name="sum-doctor"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Vacation</td>      <td id="l-sum-vacation"></td> <td><input type="text" class="form-control" id="sum-vacation" name="sum-vacation"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Sick care</td>     <td id="l-sum-sick-care"></td> <td><input type="text" class="form-control" id="sum-sick-care" name="sum-sick-care"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Sick leave</td>    <td id="l-sum-sick-leave"></td> <td><input type="text" class="form-control" id="sum-sick-leave" name="sum-sick-leave"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Unpaid</td>        <td id="l-sum-unpaid"></td> <td><input type="text" class="form-control" id="sum-unpaid" name="sum-unpaid"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Paid obstacle</td> <td id="l-sum-paid-obstacle"></td> <td><input type="text" class="form-control" id="sum-paid-obstacle" name="sum-paid-obstacle"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Σ±Δ</td>           <td id="l-sum-difference"></td> <td><input type="text" class="form-control" id="sum-difference" name="sum-difference"></input></td> <td>hours</td> </tr>
 
         </tbody>
         <tfooter>
@@ -178,7 +167,8 @@ $(document).ready(function(){
         return defaultColor;
         }
 
-    function drawDayAxe(ctx) {
+    function drawDayAxe(canvas) {
+        var ctx = canvas.getContext('2d');  
         for (var h=0; h<=24; h++) {
             ctx.beginPath();
             ctx.moveTo(h*11+0.5,0);
@@ -193,7 +183,7 @@ $(document).ready(function(){
         ctx.fillStyle = "#f0f0f0";
         // ctx.clearRect(0,0,canvas.width, canvas.height);
         ctx.fillRect(0,0,canvas.width, canvas.height);
-        drawDayAxe(ctx);
+        drawDayAxe(canvas);
         }
 
     function drawInterval(canvas, it) {
@@ -203,6 +193,7 @@ $(document).ready(function(){
         var e = new Date(it.end_date);
         var start = (s.getHours() + s.getMinutes()/60) * 11;
         var end   = (e.getHours() + e.getMinutes()/60) * 11;
+        end = (start < end) ? end : 24*11;      // pokud končí následujícího dne
         ctx.fillStyle = eventColor(it.start_event_type);
         ctx.fillRect(start, 0, end-start, 18);
         }
@@ -210,7 +201,6 @@ $(document).ready(function(){
     function drawIntervals(canvas, intervals) {
         var ctx = canvas.getContext('2d');  
         drawDay(canvas);
-
         if (intervals && typeof intervals[Symbol.iterator] === 'function') {
             for (it of intervals) {
                 drawInterval(canvas, it);
@@ -218,7 +208,6 @@ $(document).ready(function(){
           } else {
             drawInterval(canvas, intervals);
             }
-        drawDayAxe(ctx);
         }
 
     $('#prev-month').click(function(e){
@@ -261,47 +250,31 @@ $(document).ready(function(){
 
             // Naplníme strukturu dayDetails
             const dayDetails = {};
-            let currentDet = null; 
-            let currentKey = null;
             for (const item of result[0].days) {
-                // První záznam v pořadí, nejsou naplněné předchozí hodnoty
-                // Jako první by měl být přehledový záznam, nekontroluje se
-                if (currentDet == null || currentKey == null) {
-                    var date = new Date(item.start_date);
-                    currentKey = date.toISOString().substring(0,10);
-                    currentDet = [];
-                    continue;
+                // detailní záznam, ignoruje se
+                if (item.start_event !== 0) { continue; }
+                let day0start = new Date(item.start_date);
+                day0start.setHours(0,0,0,0);
+                let day0end = new Date(day0start);
+                day0end.setTime(day0end.getTime() + 24 * 60 * 60 * 1000 - 1000); // konec dne
+                let key0 = day0start.toISOString().substring(0,10);
+                var dayDetail = [];
+                for (const day of result[0].days) {
+                    // přehledový záznam, ignoruje se
+                    if (day.start_event === 0) { continue; }
+                    let ds = new Date(day.start_date);
+                    let de = new Date(day.end_date);
+                    if (de <= day0start) { continue; }
+                    if (ds >= day0end) { continue; }
+                    ds = (ds < day0start) ? day0start  : ds;
+                    de = (de > day0end) ? day0end : de;
+                    let daycopy = { ...day };
+                    daycopy.start_date = ds;
+                    daycopy.end_date = de;
+                    dayDetail.push(daycopy);
                     }
-                // Další záznam po přehledovém je vždy detailní,
-                // currentDet by měl existovat, ale pro jistotu zkontrolujeme 
-                if (item.start_event !== 0 && currentDet != null) {
-                    currentDet.push(item);
-                    continue;
-                    }
-                // Další záznam po přehledovém je vždy detailní,
-                // currentDet by měl existovat, ale co když ne?
-                if (item.start_event !== 0 && currentDet == null) {
-                    console.log("Chyba ve formátu dat, přehledový záznam není následován detailem");
-                    continue;
-                    }
-                // Další přehledový záznam patří do dalšího dne
-                // currentDet by měl existovat, ale pro jistotu zkontrolujeme 
-                if (item.start_event === 0 && currentDet != null) {
-                    dayDetails[currentKey] = currentDet;
-                    var date = new Date(item.start_date);
-                    currentKey = date.toISOString().substring(0,10);
-                    currentDet = [];
-                    continue;
-                    }
-                // Další přehledový záznam patří do dalšího dne
-                // currentDet by měl existovat, ale co když ne?
-                if (item.start_event === 0 && currentDet == null) {
-                    console.log("Chyba ve formátu dat, předchozí přehledový záznam nebyl?!");
-                    continue;
-                    }
+                dayDetails[key0] = dayDetail;
                 }
-            // Poslední záznam se v cyklu neuložil, takže dodatečně...
-            dayDetails[currentKey] = currentDet;
 
 
             for (var i=0; i<result[0].days.length; i++) {
@@ -315,6 +288,7 @@ $(document).ready(function(){
                 var is_summary_line = (day.start_event == 0);
                 drawDay(canvas);
                 drawIntervals(canvas, (is_summary_line) ? dayDetail : day);
+                drawDayAxe(canvas);
 
                 var start_date  = day.start_date;
                 var end_date    = day.end_date;
@@ -357,6 +331,25 @@ $(document).ready(function(){
                 $('#tbody').append(x);
                 $(x).show();
                 }
+
+            const summary = result[0].summary;
+            $("#l-sum-days").html(summary.days);
+            $("#l-sum-night").html(summary.night);
+            $("#l-sum-afternoon").html(summary.afternoon);
+            $("#l-sum-saturday").html(summary.saturday);
+            $("#l-sum-sunday").html(summary.sunday);
+            $("#l-sum-holiday").html(summary.holiday);
+            $("#l-sum-doctor").html(summary.doctor);
+            $("#l-sum-vacation").html(summary.vacation);
+            $("#l-sum-sick-care").html(summary.sick_care);
+            $("#l-sum-sick-leave").html(summary.sick_leave);
+            $("#l-sum-unpaid").html(summary.unpaid_leave);
+            $("#l-sum-paid-obstacle").html(summary.paid_obstacle);
+            $("#l-sum-difference").html(summary.difference);
+
+/*
+            $("#l-sum-difference"></td> <td><input type="text" class="form-control" id="sum-difference" name="sum-difference"></input></td> <td>hours</td> </tr>
+*/
             $('#spinner').hide();
             updateDisplay();
             };

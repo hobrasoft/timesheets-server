@@ -672,6 +672,7 @@ struct WorkCalendar {
 
 struct AttendanceSummary {
     // double = interval (hours)
+    int         days;
     double      arrival;
     double      vacation;
     double      sick_leave;
@@ -682,7 +683,15 @@ struct AttendanceSummary {
     double      sick_care;
     double      paid_obstacle;
     double      doctor;
+    double      afternoon;
+    double      night;
+    double      sunday;
+    double      saturday;
+    double      holiday;
+    int         calendar_working_days;
+    int         calendar_holidays;
     AttendanceSummary() {
+        days = 0;
         arrival = 0;
         vacation = 0;
         sick_leave = 0;
@@ -693,6 +702,13 @@ struct AttendanceSummary {
         sick_care = 0;
         paid_obstacle = 0;
         doctor = 0;
+        afternoon = 0;
+        night = 0;
+        sunday = 0;
+        saturday = 0;
+        holiday = 0;
+        calendar_working_days = 0;
+        calendar_holidays = 0;
         }
     static AttendanceSummary fromMap(const QVariantMap&);
     QVariantMap toMap() const;
