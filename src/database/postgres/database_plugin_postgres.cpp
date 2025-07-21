@@ -2951,6 +2951,14 @@ void DatabasePluginPostgres::remove(const Dbt::WorkCalendar& data) {
     q.exec();
 }
 
+void DatabasePluginPostgres::remove(const Dbt::AttendanceSummary& data) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(delete from attendance.summary where employee = :key1 and month = :key2;)'");
+    q.bindValue(":key1", data.employee);
+    q.bindValue(":key2", data.month);
+    q.exec();
+}
+
         
 QVariant DatabasePluginPostgres::save(const Dbt::Departments& data) {
     MSqlQuery q(m_db);

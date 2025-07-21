@@ -134,6 +134,7 @@ class DatabasePlugin : public QObject {
     virtual void remove(const Dbt::Rfids& data) { Q_UNUSED(data); }
     virtual void remove(const Dbt::Holidays& data) { Q_UNUSED(data); }
     virtual void remove(const Dbt::WorkCalendar& data) { Q_UNUSED(data); }
+    virtual void remove(const Dbt::AttendanceSummary& data) { Q_UNUSED(data); }
 
     virtual QVariant save(const Dbt::Users& data) { Q_UNUSED(data); return QVariant(); }
     virtual QVariant save(const Dbt::UsersCategories& data) { Q_UNUSED(data); return QVariant(); }

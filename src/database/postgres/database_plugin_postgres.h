@@ -141,6 +141,7 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     virtual void remove(const Dbt::Rfids& data) Q_DECL_OVERRIDE;
     virtual void remove(const Dbt::Holidays& data) Q_DECL_OVERRIDE;
     virtual void remove(const Dbt::WorkCalendar& data) Q_DECL_OVERRIDE;
+    virtual void remove(const Dbt::AttendanceSummary& data) Q_DECL_OVERRIDE;
 
     QVariant save(const Dbt::Departments& data) Q_DECL_OVERRIDE;
     QVariant save(const Dbt::Employees& data) Q_DECL_OVERRIDE;

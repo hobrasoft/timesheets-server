@@ -52,6 +52,7 @@
 #include "controllerholidays.h"
 #include "controllerworkcalendar.h"
 #include "controllerattendancechecklist.h"
+#include "controllerattendancesummary.h"
 
 using namespace HobrasoftHttpd;
 using namespace Httpd;
@@ -156,6 +157,7 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
     ROUTER("^/api/v1/workcalendar/generate/(\\d+)$",    ControllerWorkCalendar);
     ROUTER("^/api/v1/workcalendar",                     ControllerWorkCalendar);
     ROUTER("^/api/v1/attendancechecklist",              ControllerAttendanceChecklist);
+    ROUTER("^/api/v1/attendancesummary",               ControllerAttendanceSummary);
 
     if (m_path.contains(QRegularExpression(".*\\.shtml"))) {
         serviceShtmlFile(request, response);

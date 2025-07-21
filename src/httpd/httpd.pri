@@ -38,7 +38,8 @@ $$PWD/controllerevents.cpp \
 $$PWD/controllereventtypes.cpp \
 $$PWD/controllerholidays.cpp \
 $$PWD/controllerworkcalendar.cpp \
- $$PWD/controllerattendancechecklist.cpp \
+$$PWD/controllerattendancechecklist.cpp \
+ $$PWD/controllerattendancesummary.cpp \
 
 HEADERS += \
  $$PWD/controllerserver.h \
@@ -72,7 +73,8 @@ $$PWD/controllerevents.h \
 $$PWD/controllereventtypes.h \
 $$PWD/controllerholidays.h \
 $$PWD/controllerworkcalendar.h \
- $$PWD/controllerattendancechecklist.h \
+$$PWD/controllerattendancechecklist.h \
+ $$PWD/controllerattendancesummary.h \
 
 HEADERS += \
  $$PWD/httpd.h \
