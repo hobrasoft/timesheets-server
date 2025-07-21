@@ -334,20 +334,35 @@ $(document).ready(function(){
                 $(x).show();
                 }
 
-            const summary = result[0].summary;
-            $("#l-sum-days").html(summary.days);
-            $("#l-sum-night").html(summary.night);
-            $("#l-sum-afternoon").html(summary.afternoon);
-            $("#l-sum-saturday").html(summary.saturday);
-            $("#l-sum-sunday").html(summary.sunday);
-            $("#l-sum-holiday").html(summary.holiday);
-            $("#l-sum-doctor").html(summary.doctor);
-            $("#l-sum-vacation").html(summary.vacation);
-            $("#l-sum-sick-care").html(summary.sick_care);
-            $("#l-sum-sick-leave").html(summary.sick_leave);
-            $("#l-sum-unpaid").html(summary.unpaid_leave);
-            $("#l-sum-paid-obstacle").html(summary.paid_obstacle);
-            $("#l-sum-difference").html(summary.difference);
+            const summary_calculated = result[0].summary_calculated;
+            $("#l-sum-days").html(summary_calculated.days);
+            $("#l-sum-night").html(summary_calculated.night);
+            $("#l-sum-afternoon").html(summary_calculated.afternoon);
+            $("#l-sum-saturday").html(summary_calculated.saturday);
+            $("#l-sum-sunday").html(summary_calculated.sunday);
+            $("#l-sum-holiday").html(summary_calculated.holiday);
+            $("#l-sum-doctor").html(summary_calculated.doctor);
+            $("#l-sum-vacation").html(summary_calculated.vacation);
+            $("#l-sum-sick-care").html(summary_calculated.sick_care);
+            $("#l-sum-sick-leave").html(summary_calculated.sick_leave);
+            $("#l-sum-unpaid").html(summary_calculated.unpaid_leave);
+            $("#l-sum-paid-obstacle").html(summary_calculated.paid_obstacle);
+            $("#l-sum-difference").html(summary_calculated.difference);
+
+            const summary_saved = result[0].summary_saved;
+            $("#-sum-days").html(summary_saved.days);
+            $("#sum-night").html(summary_saved.night);
+            $("#sum-afternoon").html(summary_saved.afternoon);
+            $("#sum-saturday").html(summary_saved.saturday);
+            $("#sum-sunday").html(summary_saved.sunday);
+            $("#sum-holiday").html(summary_saved.holiday);
+            $("#sum-doctor").html(summary_saved.doctor);
+            $("#sum-vacation").html(summary_saved.vacation);
+            $("#sum-sick-care").html(summary_saved.sick_care);
+            $("#sum-sick-leave").html(summary_saved.sick_leave);
+            $("#sum-unpaid").html(summary_saved.unpaid_leave);
+            $("#sum-paid-obstacle").html(summary_saved.paid_obstacle);
+            $("#sum-difference").html(summary_saved.difference);
 
 /*
             $("#l-sum-difference"></td> <td><input type="text" class="form-control" id="sum-difference" name="sum-difference"></input></td> <td>hours</td> </tr>

@@ -771,7 +771,8 @@ struct AttendanceChecklist {
     QDate       month;
     Dbt::Employees              employee;
     QList<Dbt::AttendanceDays>  days;
-    Dbt::AttendanceSummary      summary;
+    Dbt::AttendanceSummary      summary_calculated;
+    Dbt::AttendanceSummary      summary_saved;
     static AttendanceChecklist fromMap(const QVariantMap&);
     QVariantMap toMap() const;
 };

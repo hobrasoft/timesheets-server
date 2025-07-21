@@ -899,7 +899,8 @@ QVariantMap AttendanceChecklist::toMap() const {
     data["month"] = month;
     data["employee"] = employee.toMap();
     data["days"] = toList(days);
-    data["summary"] = summary.toMap();
+    data["summary_calculated"] = summary_calculated.toMap();
+    data["summary_saved"] = summary_saved.toMap();
     return data;
 }
 
@@ -908,7 +909,8 @@ AttendanceChecklist AttendanceChecklist::fromMap(const QVariantMap& data) {
     x.month = data["month"].toDate();
     x.employee = Employees::fromMap(data["employee"].toMap());
     x.days = AttendanceDays::fromList(data["days"].toList());
-    x.summary = AttendanceSummary::fromMap(data["summary"].toMap());
+    x.summary_calculated = AttendanceSummary::fromMap(data["summary_calculated"].toMap());
+    x.summary_saved = AttendanceSummary::fromMap(data["summary_saved"].toMap());
     return x;
 }
 

@@ -3743,7 +3743,7 @@ QList<Dbt::AttendanceChecklist>  DatabasePluginPostgres::attendanceChecklist(int
         )'");
     while (q.next()) {
         int i=0; 
-        Dbt::AttendanceSummary& x = checklist.summary;
+        Dbt::AttendanceSummary& x = checklist.summary_calculated;
         x.days                  = q.value(i++).toInt();
         x.calendar_working_days = q.value(i++).toInt();
         x.calendar_holidays     = q.value(i++).toInt();
@@ -3763,6 +3763,10 @@ QList<Dbt::AttendanceChecklist>  DatabasePluginPostgres::attendanceChecklist(int
         x.doctor                = q.value(i++).toDouble();
         }
 
+    const QList<Dbt::AttendanceSummary> summaryList = attendanceSummary(employee, month);
+    if (!summaryList.isEmpty()) {
+        checklist.summary_saved = summaryList.first();
+        }
 
     list << checklist;
     return list;
