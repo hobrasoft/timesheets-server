@@ -785,6 +785,13 @@ QVariantMap AttendanceSummary::toMap() const {
     data["holiday"] = holiday;
     data["calendar_working_days"] = calendar_working_days;
     data["calendar_holidays"] = calendar_holidays;
+    data["firstname"] = firstname;
+    data["surname"] = surname;
+    data["days"] = days;
+    data["locked"] = locked;
+    data["locked_user"] = locked_user;
+    data["locked_user_name"] = locked_user_name;
+
     return data;
 }
 
@@ -808,6 +815,12 @@ AttendanceSummary AttendanceSummary::fromMap(const QVariantMap& data) {
     x.holiday = data["holiday"].toDouble();
     x.calendar_working_days = data["calendar_working_days"].toInt();
     x.calendar_holidays = data["calendar_holidays"].toInt();
+    x.firstname = data["firstname"].toString();
+    x.surname = data["surname"].toString();
+    x.days = data["days"].toInt();
+    x.locked = data["locked"].toBool();
+    x.locked_user = data["locked_user"].toInt();
+    x.locked_user_name = data["locked_user_name"].toString();
 
     return x;
 }
