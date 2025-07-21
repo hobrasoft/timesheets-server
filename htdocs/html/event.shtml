@@ -38,7 +38,13 @@
 
 <script>
 function goBack() {
-    window.location.replace('events.shtml');
+    var back = $.urlParam('back');
+    if (back) {
+        back = decodeURIComponent(back);
+        window.location.replace(back);
+    } else {
+        window.location.replace('events.shtml');
+    }
 }
 
 $(document).ready(function(){

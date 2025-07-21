@@ -119,6 +119,8 @@ $(document).ready(function(){
     }
     localStorage.setItem('attendanceMonth', month);
 
+    var backUrl = encodeURIComponent(window.location.pathname + window.location.search);
+
     function isoMonth(d) { 
         return d.getFullYear() + '-' + (d.getMonth()+1).pad(2); 
         }
@@ -320,8 +322,8 @@ $(document).ready(function(){
                 x.find('.day-difference').html(difference);
                 x.find('.day-difference-cumulative').html(difference_cumulative);
                 x.find('.day-note').html(note);
-                x.find('.start-edit').attr("href", 'event.shtml?event=' + start_event);
-                x.find('.end-edit').attr("href", 'event.shtml?event=' + end_event);
+                x.find('.start-edit').attr("href", 'event.shtml?event=' + start_event + '&back=' + backUrl);
+                x.find('.end-edit').attr("href", 'event.shtml?event=' + end_event + '&back=' + backUrl);
 
                 if (day.holiday) { x.addClass('table-warning'); }
                 if (day.dow==0 || day.dow==6) { x.addClass('table-secondary'); }
