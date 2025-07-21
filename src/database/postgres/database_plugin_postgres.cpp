@@ -3766,7 +3766,7 @@ QList<Dbt::AttendanceChecklist>  DatabasePluginPostgres::attendanceChecklist(int
 QList<Dbt::AttendanceSummary> DatabasePluginPostgres::attendanceSummary(int employee, const QDate& month) {
     QList<Dbt::AttendanceSummary> list;
     MSqlQuery q(m_db);
-    QString sql = QStringLiteral(R"(
+    QString sql = QStringLiteral(R"'(
         select
             s.month,
             s.employee,
@@ -3798,17 +3798,17 @@ QList<Dbt::AttendanceSummary> DatabasePluginPostgres::attendanceSummary(int empl
         left join attendance.employees e using (employee)
         left join attendance.work_calendar wc on wc.period = s.month
         where (s.employee = :key1 or :key2 <= 0)
-    ");
+        )'");
     if (month.isValid()) {
         sql += QStringLiteral(" and s.month = :month");
-    }
-    sql += QStringLiteral(" order by s.month;");
+        }
+    sql += QStringLiteral(" order by s.month, e.surname, e.firstname;");
     q.prepare(sql);
     q.bindValue(":key1", employee);
     q.bindValue(":key2", employee);
     if (month.isValid()) {
         q.bindValue(":month", month);
-    }
+        }
     q.exec();
     while (q.next()) {
         int i = 0;
@@ -3839,7 +3839,7 @@ QList<Dbt::AttendanceSummary> DatabasePluginPostgres::attendanceSummary(int empl
         x.calendar_working_days = q.value(i++).toInt();
         x.calendar_holidays     = q.value(i++).toInt();
         list << x;
-    }
+        }
     return list;
 }
 
@@ -3850,7 +3850,7 @@ QVariant DatabasePluginPostgres::save(const Dbt::AttendanceSummary& data) {
     q.bindValue(":month", data.month);
     q.exec();
     if (q.next()) {
-        q.prepare(R"(
+        q.prepare(R"'(
             update attendance.summary set
                 days = :days,
                 work = :arrival,
@@ -3871,9 +3871,9 @@ QVariant DatabasePluginPostgres::save(const Dbt::AttendanceSummary& data) {
                 locked = :locked,
                 locked_user = :locked_user
             where employee = :employee and month = :month
-        )");
-    } else {
-        q.prepare(R"(
+            )'");
+      } else {
+        q.prepare(R"'(
             insert into attendance.summary (
                 employee, month, days, work, vacation, sick_leave,
                 compensatory_leave, business_trip, break_time, unpaid_leave,
@@ -3885,8 +3885,8 @@ QVariant DatabasePluginPostgres::save(const Dbt::AttendanceSummary& data) {
                 :sick_care, :paid_obstacle, :doctor, :afternoon, :night,
                 :sunday, :saturday, :holiday, :locked, :locked_user
             )
-        )");
-    }
+            )'");
+        }
     q.bindValue(":days", data.days);
     q.bindValue(":arrival", data.arrival);
     q.bindValue(":vacation", data.vacation);
@@ -3910,3 +3910,5 @@ QVariant DatabasePluginPostgres::save(const Dbt::AttendanceSummary& data) {
     q.exec();
     return QVariant();
 }
+
+
