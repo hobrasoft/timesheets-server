@@ -156,4 +156,47 @@ Formát záznamu:
 }
 @endcode
 
+@subsection apiatt-attendancesummary /attendancesummary
+
+@subsubsection apiatt-attendancesummary-get GET /attendancesummary
+
+Měříčový přehled docházky za zvolený měsíc. Dotaz lze omezit
+parametry `employee` (osobní číslo zaměstnance) a `month` ve tvaru
+`YYYY-MM`.
+
+@code
+/api/v1/attendancesummary?employee=12&month=2023-07
+@endcode
+
+Formát záznamu:
+
+@code
+{
+    "month"                 : "2023-07-01",
+    "days"                  : 31,
+    "arrival"               : 160,
+    "vacation"              : 8,
+    "sick_leave"            : 0,
+    "compensatory_leave"    : 0,
+    "business_trip"         : 0,
+    "break_time"            : 16,
+    "unpaid_leave"          : 0,
+    "sick_care"             : 0,
+    "paid_obstacle"         : 0,
+    "doctor"                : 0,
+    "afternoon"             : 0,
+    "night"                 : 0,
+    "sunday"                : 0,
+    "saturday"              : 0,
+    "holiday"               : 8,
+    "calendar_working_days" : 22,
+    "calendar_holidays"     : 1,
+    "firstname"             : "Petr",
+    "surname"               : "Hobrasoft",
+    "locked"                : false,
+    "locked_user"           : 0,
+    "locked_user_name"      : ""
+}
+@endcode
+
 */
