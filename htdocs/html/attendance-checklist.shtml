@@ -72,9 +72,9 @@
         </thead>
         <tbody>
             <tr> <th>Should be days</th> 
-                           <td></td> <td>Days in work</td>  <td id="l-sum-days"></td> <td></td> <td>days</td> </tr>
+                           <td></td> <td>Days in work</td>  <td id="l-sum-days"></td> <td><input type="text" class="form-control" id="sum-days"></input></td> <td>days</td> </tr>
             <tr> <th>hours</th> 
-                           <td></td> <td>Total hours</td>   <td></td> <td></td> <td>hours</td> </tr>
+                           <td></td> <td>Total hours</td>   <td></td> <td><input type="text" class="form-control" id="sum-hours"></input></td> <td>hours</td> </tr>
             <tr> <th></th> <td></td> <td>Night</td>         <td id="l-sum-night"></td> <td><input type="text" class="form-control" id="sum-night" name="sum-night"></input></td> <td>hours</td> </tr>
             <tr> <th></th> <td></td> <td>Afternoon</td>     <td id="l-sum-afternoon"></td> <td><input type="text" class="form-control" id="sum-afternoon" name="sum-afternoon"></input></td> <td>hours</td> </tr>
             <tr> <th></th> <td></td> <td>Saturdays</td>     <td id="l-sum-saturday"></td> <td><input type="text" class="form-control" id="sum-saturday" name="sum-saturday"></input></td> <td>hours</td> </tr>
