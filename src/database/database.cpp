@@ -383,3 +383,11 @@ QList<Dbt::AttendanceChecklist> Database::attendanceChecklist(int employee, cons
     return m_dbplugin->attendanceChecklist(employee, month);
 }
 
+QList<Dbt::AttendanceSummary> Database::attendanceSummary(int employee, const QDate& month) {
+    return m_dbplugin->attendanceSummary(employee, month);
+}
+
+QVariant Database::save(const Dbt::AttendanceSummary& data) {
+    return m_dbplugin->save(data);
+}
+

@@ -109,6 +109,9 @@ class Database : public QObject {
     QList<Dbt::DepartmentHasManager>        departmentHasManager(const Dbt::DepartmentHasManager&);
 
     QList<Dbt::AttendanceChecklist>         attendanceChecklist(int employee, const QDate& month);
+    QList<Dbt::AttendanceSummary>           attendanceSummary(int employee, const QDate& month);
+
+    QVariant                                save(const Dbt::AttendanceSummary& data);
 
     template<typename T> QVariant save(const T& id) { return m_dbplugin->save(id); }
     template<typename T> void remove(const T& id) { m_dbplugin->remove(id); }

@@ -3763,3 +3763,150 @@ QList<Dbt::AttendanceChecklist>  DatabasePluginPostgres::attendanceChecklist(int
 
 
 
+QList<Dbt::AttendanceSummary> DatabasePluginPostgres::attendanceSummary(int employee, const QDate& month) {
+    QList<Dbt::AttendanceSummary> list;
+    MSqlQuery q(m_db);
+    QString sql = QStringLiteral(R"(
+        select
+            s.month,
+            s.employee,
+            e.firstname,
+            e.surname,
+            s.days,
+            s.locked,
+            s.locked_user,
+            u.name,
+            s.work,
+            s.vacation,
+            s.sick_leave,
+            s.compensatory_leave,
+            s.business_trip,
+            s.break_time,
+            s.unpaid_leave,
+            s.sick_care,
+            s.paid_obstacle,
+            s.doctor,
+            s.afternoon,
+            s.night,
+            s.sunday,
+            s.saturday,
+            s.holiday,
+            wc.working_days,
+            wc.holidays
+        from attendance.summary s
+        left join users u on u."user" = s.locked_user
+        left join attendance.employees e using (employee)
+        left join attendance.work_calendar wc on wc.period = s.month
+        where (s.employee = :key1 or :key2 <= 0)
+    ");
+    if (month.isValid()) {
+        sql += QStringLiteral(" and s.month = :month");
+    }
+    sql += QStringLiteral(" order by s.month;");
+    q.prepare(sql);
+    q.bindValue(":key1", employee);
+    q.bindValue(":key2", employee);
+    if (month.isValid()) {
+        q.bindValue(":month", month);
+    }
+    q.exec();
+    while (q.next()) {
+        int i = 0;
+        Dbt::AttendanceSummary x;
+        x.month                 = q.value(i++).toDate();
+        x.employee              = q.value(i++).toInt();
+        x.firstname             = q.value(i++).toString();
+        x.surname               = q.value(i++).toString();
+        x.days                  = q.value(i++).toInt();
+        x.locked                = q.value(i++).toBool();
+        x.locked_user           = q.value(i++).toInt();
+        x.locked_user_name      = q.value(i++).toString();
+        x.arrival               = q.value(i++).toDouble();
+        x.vacation              = q.value(i++).toDouble();
+        x.sick_leave            = q.value(i++).toDouble();
+        x.compensatory_leave    = q.value(i++).toDouble();
+        x.business_trip         = q.value(i++).toDouble();
+        x.break_time            = q.value(i++).toDouble();
+        x.unpaid_leave          = q.value(i++).toDouble();
+        x.sick_care             = q.value(i++).toDouble();
+        x.paid_obstacle         = q.value(i++).toDouble();
+        x.doctor                = q.value(i++).toDouble();
+        x.afternoon             = q.value(i++).toDouble();
+        x.night                 = q.value(i++).toDouble();
+        x.sunday                = q.value(i++).toDouble();
+        x.saturday              = q.value(i++).toDouble();
+        x.holiday               = q.value(i++).toDouble();
+        x.calendar_working_days = q.value(i++).toInt();
+        x.calendar_holidays     = q.value(i++).toInt();
+        list << x;
+    }
+    return list;
+}
+
+QVariant DatabasePluginPostgres::save(const Dbt::AttendanceSummary& data) {
+    MSqlQuery q(m_db);
+    q.prepare(R"(select 1 from attendance.summary where employee = :employee and month = :month)");
+    q.bindValue(":employee", data.employee);
+    q.bindValue(":month", data.month);
+    q.exec();
+    if (q.next()) {
+        q.prepare(R"(
+            update attendance.summary set
+                days = :days,
+                work = :arrival,
+                vacation = :vacation,
+                sick_leave = :sick_leave,
+                compensatory_leave = :compensatory_leave,
+                business_trip = :business_trip,
+                break_time = :break_time,
+                unpaid_leave = :unpaid_leave,
+                sick_care = :sick_care,
+                paid_obstacle = :paid_obstacle,
+                doctor = :doctor,
+                afternoon = :afternoon,
+                night = :night,
+                sunday = :sunday,
+                saturday = :saturday,
+                holiday = :holiday,
+                locked = :locked,
+                locked_user = :locked_user
+            where employee = :employee and month = :month
+        )");
+    } else {
+        q.prepare(R"(
+            insert into attendance.summary (
+                employee, month, days, work, vacation, sick_leave,
+                compensatory_leave, business_trip, break_time, unpaid_leave,
+                sick_care, paid_obstacle, doctor, afternoon, night,
+                sunday, saturday, holiday, locked, locked_user
+            ) values (
+                :employee, :month, :days, :arrival, :vacation, :sick_leave,
+                :compensatory_leave, :business_trip, :break_time, :unpaid_leave,
+                :sick_care, :paid_obstacle, :doctor, :afternoon, :night,
+                :sunday, :saturday, :holiday, :locked, :locked_user
+            )
+        )");
+    }
+    q.bindValue(":days", data.days);
+    q.bindValue(":arrival", data.arrival);
+    q.bindValue(":vacation", data.vacation);
+    q.bindValue(":sick_leave", data.sick_leave);
+    q.bindValue(":compensatory_leave", data.compensatory_leave);
+    q.bindValue(":business_trip", data.business_trip);
+    q.bindValue(":break_time", data.break_time);
+    q.bindValue(":unpaid_leave", data.unpaid_leave);
+    q.bindValue(":sick_care", data.sick_care);
+    q.bindValue(":paid_obstacle", data.paid_obstacle);
+    q.bindValue(":doctor", data.doctor);
+    q.bindValue(":afternoon", data.afternoon);
+    q.bindValue(":night", data.night);
+    q.bindValue(":sunday", data.sunday);
+    q.bindValue(":saturday", data.saturday);
+    q.bindValue(":holiday", data.holiday);
+    q.bindValue(":locked", data.locked);
+    q.bindValue(":locked_user", data.locked_user == 0 ? QVariant() : data.locked_user);
+    q.bindValue(":employee", data.employee);
+    q.bindValue(":month", data.month);
+    q.exec();
+    return QVariant();
+}

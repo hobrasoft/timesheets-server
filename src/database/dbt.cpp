@@ -767,6 +767,7 @@ WorkCalendar WorkCalendar::fromMap(const QVariantMap& data) {
 
 QVariantMap AttendanceSummary::toMap() const {
     QVariantMap data;
+    data["month"] = month;
     data["days"] = days;
     data["arrival"] = arrival;
     data["vacation"] = vacation;
@@ -797,6 +798,7 @@ QVariantMap AttendanceSummary::toMap() const {
 
 AttendanceSummary AttendanceSummary::fromMap(const QVariantMap& data) {
     AttendanceSummary x;
+    x.month = data["month"].toDate();
     x.days = data["days"].toDouble();
     x.arrival = data["arrival"].toDouble();
     x.vacation = data["vacation"].toDouble();

@@ -672,6 +672,7 @@ struct WorkCalendar {
 
 struct AttendanceSummary {
     // double = interval (hours)
+    QDate       month;
     int         employee;
     QString     firstname;          // view
     QString     surname;            // view
@@ -697,6 +698,7 @@ struct AttendanceSummary {
     int         calendar_working_days;
     int         calendar_holidays;
     AttendanceSummary() {
+        month = QDate();
         employee = 0;
         locked = false;
         locked_user = 0;

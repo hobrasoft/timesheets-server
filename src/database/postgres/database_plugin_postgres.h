@@ -127,6 +127,7 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     void                                    generateWorkCalendar(int year) Q_DECL_OVERRIDE;
     void                                    copyHolidays(int fromYear, int toYear) Q_DECL_OVERRIDE;
     QList<Dbt::AttendanceChecklist>         attendanceChecklist(int employee, const QDate& month) Q_DECL_OVERRIDE;
+    QList<Dbt::AttendanceSummary>           attendanceSummary(int employee, const QDate& month) Q_DECL_OVERRIDE;
 
     virtual void remove(const Dbt::Departments& data) Q_DECL_OVERRIDE;
     virtual void remove(const Dbt::Doors& data) Q_DECL_OVERRIDE;
@@ -153,6 +154,7 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     QVariant save(const Dbt::EmployeeCanOpenDoor& data) Q_DECL_OVERRIDE;
     QVariant save(const Dbt::DepartmentHasMember& data) Q_DECL_OVERRIDE;
     QVariant save(const Dbt::EmployeeHasRfid& data) Q_DECL_OVERRIDE;
+    QVariant save(const Dbt::AttendanceSummary& data) Q_DECL_OVERRIDE;
 
 
     void    upgrade();

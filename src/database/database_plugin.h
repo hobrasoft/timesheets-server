@@ -108,6 +108,7 @@ class DatabasePlugin : public QObject {
     virtual void                                    generateWorkCalendar(int year) { Q_UNUSED(year); }
     virtual void                                    copyHolidays(int fromYear, int toYear) { Q_UNUSED(fromYear); Q_UNUSED(toYear); }
     virtual QList<Dbt::AttendanceChecklist>         attendanceChecklist(int employee, const QDate& month) { Q_UNUSED(employee); Q_UNUSED(month); return QList<Dbt::AttendanceChecklist>(); }
+    virtual QList<Dbt::AttendanceSummary>           attendanceSummary(int employee, const QDate& month) { Q_UNUSED(employee); Q_UNUSED(month); return QList<Dbt::AttendanceSummary>(); }
 
     virtual void remove(const Dbt::Users& data) { Q_UNUSED(data); }
     virtual void remove(const Dbt::UsersCategories& data) { Q_UNUSED(data); }
@@ -160,6 +161,7 @@ class DatabasePlugin : public QObject {
     virtual QVariant save(const Dbt::Rfids& data) { Q_UNUSED(data); return QVariant(); }
     virtual QVariant save(const Dbt::Holidays& data) { Q_UNUSED(data); return QVariant(); }
     virtual QVariant save(const Dbt::WorkCalendar& data) { Q_UNUSED(data); return QVariant(); }
+    virtual QVariant save(const Dbt::AttendanceSummary& data) { Q_UNUSED(data); return QVariant(); }
 
   protected:
     int     userId() const;
