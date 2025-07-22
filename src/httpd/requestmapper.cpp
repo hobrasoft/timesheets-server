@@ -152,12 +152,12 @@ void RequestMapper::service(HttpRequest *request, HttpResponse *response) {
     ROUTER("^/api/v1/users",                            ControllerUsers);
     ROUTER("^/api/v1/doors",                            ControllerDoors);
     ROUTER("^/api/v1/rfids",                            ControllerRfids);
-    ROUTER("^/api/v1/holidays/copy/(\\d+)/(\\d+)$",        ControllerHolidays);
+    ROUTER("^/api/v1/holidays/copy/(\\d+)/(\\d+)$",     ControllerHolidays);
     ROUTER("^/api/v1/holidays",                         ControllerHolidays);
     ROUTER("^/api/v1/workcalendar/generate/(\\d+)$",    ControllerWorkCalendar);
     ROUTER("^/api/v1/workcalendar",                     ControllerWorkCalendar);
     ROUTER("^/api/v1/attendancechecklist",              ControllerAttendanceChecklist);
-    ROUTER("^/api/v1/attendancesummary",               ControllerAttendanceSummary);
+    ROUTER("^/api/v1/attendancesummary",                ControllerAttendanceSummary);
 
     if (m_path.contains(QRegularExpression(".*\\.shtml"))) {
         serviceShtmlFile(request, response);

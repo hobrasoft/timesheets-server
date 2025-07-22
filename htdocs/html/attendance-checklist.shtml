@@ -72,27 +72,31 @@
         </thead>
         <tbody>
             <tr> <th>Should be days</th> 
-                           <td></td> <td>Days in work</td>  <td id="l-sum-days"></td> <td><input type="text" class="form-control" id="sum-days"></input></td> <td>days</td> </tr>
+                           <td></td> <td>Days in work</td>  <td id="l-sum-days"></td> <td><input type="text" class="form-control summary-input" id="sum-days"></input></td> <td>days</td> </tr>
             <tr> <th>hours</th> 
-                           <td></td> <td>Total hours</td>   <td></td> <td><input type="text" class="form-control" id="sum-hours"></input></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Night</td>         <td id="l-sum-night"></td> <td><input type="text" class="form-control" id="sum-night" name="sum-night"></input></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Afternoon</td>     <td id="l-sum-afternoon"></td> <td><input type="text" class="form-control" id="sum-afternoon" name="sum-afternoon"></input></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Saturdays</td>     <td id="l-sum-saturday"></td> <td><input type="text" class="form-control" id="sum-saturday" name="sum-saturday"></input></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Sundays</td>       <td id="l-sum-sunday"></td> <td><input type="text" class="form-control" id="sum-sunday" name="sum-sunday"></input></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Holidays</td>      <td id="l-sum-holiday"></td> <td><input type="text" class="form-control" id="sum-holiday" name="sum-holiday"></input></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Doctor</td>        <td id="l-sum-doctor"></td> <td><input type="text" class="form-control" id="sum-doctor" name="sum-doctor"></input></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Vacation</td>      <td id="l-sum-vacation"></td> <td><input type="text" class="form-control" id="sum-vacation" name="sum-vacation"></input></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Sick care</td>     <td id="l-sum-sick-care"></td> <td><input type="text" class="form-control" id="sum-sick-care" name="sum-sick-care"></input></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Sick leave</td>    <td id="l-sum-sick-leave"></td> <td><input type="text" class="form-control" id="sum-sick-leave" name="sum-sick-leave"></input></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Unpaid</td>        <td id="l-sum-unpaid"></td> <td><input type="text" class="form-control" id="sum-unpaid" name="sum-unpaid"></input></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Paid obstacle</td> <td id="l-sum-paid-obstacle"></td> <td><input type="text" class="form-control" id="sum-paid-obstacle" name="sum-paid-obstacle"></input></td> <td>hours</td> </tr>
-            <tr> <th></th> <td></td> <td>Σ±Δ</td>           <td id="l-sum-difference"></td> <td><input type="text" class="form-control" id="sum-difference" name="sum-difference"></input></td> <td>hours</td> </tr>
+                           <td></td> <td>Total hours</td>   <td></td> <td><input type="text" class="form-control summary-input" id="sum-hours"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Night</td>         <td id="l-sum-night"></td> <td><input type="text" class="form-control summary-input" id="sum-night" name="sum-night"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Afternoon</td>     <td id="l-sum-afternoon"></td> <td><input type="text" class="form-control summary-input" id="sum-afternoon" name="sum-afternoon"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Saturdays</td>     <td id="l-sum-saturday"></td> <td><input type="text" class="form-control summary-input" id="sum-saturday" name="sum-saturday"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Sundays</td>       <td id="l-sum-sunday"></td> <td><input type="text" class="form-control summary-input" id="sum-sunday" name="sum-sunday"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Holidays</td>      <td id="l-sum-holiday"></td> <td><input type="text" class="form-control summary-input" id="sum-holiday" name="sum-holiday"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Doctor</td>        <td id="l-sum-doctor"></td> <td><input type="text" class="form-control summary-input" id="sum-doctor" name="sum-doctor"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Vacation</td>      <td id="l-sum-vacation"></td> <td><input type="text" class="form-control summary-input" id="sum-vacation" name="sum-vacation"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Sick care</td>     <td id="l-sum-sick-care"></td> <td><input type="text" class="form-control summary-input" id="sum-sick-care" name="sum-sick-care"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Sick leave</td>    <td id="l-sum-sick-leave"></td> <td><input type="text" class="form-control summary-input" id="sum-sick-leave" name="sum-sick-leave"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Unpaid</td>        <td id="l-sum-unpaid"></td> <td><input type="text" class="form-control summary-input" id="sum-unpaid" name="sum-unpaid"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Paid obstacle</td> <td id="l-sum-paid-obstacle"></td> <td><input type="text" class="form-control summary-input" id="sum-paid-obstacle" name="sum-paid-obstacle"></input></td> <td>hours</td> </tr>
+            <tr> <th></th> <td></td> <td>Σ±Δ</td>           <td id="l-sum-difference"></td> <td><input type="text" class="form-control summary-input" id="sum-difference" name="sum-difference"></input></td> <td>hours</td> </tr>
 
         </tbody>
         <tfooter>
             <tr class="table-info">
-                <th colspan="6">Lock the month</th>
-                </tr>
+                <th>Saved by</th>
+                <td colspan="4" id="sum-locked-user-name"></td>
+                <td><button id="btn-save" class="btn btn-primary btn-sm" style="display:none">Save</button> 
+                    <button id="btn-lock" class="btn btn-secondary btn-sm" style="display:none">Lock</button> 
+                    <button id="btn-unlock" class="btn btn-secondary btn-sm" style="display:none">Unlock</button></td>
+            </tr>
         </tfooter>
     </table>
 </div>
@@ -104,6 +108,7 @@ $(document).ready(function(){
     const DISPLAY_BOTH = 'both';
     const DISPLAY_DETAIL = 'detail';
     var displayMode = localStorage.getItem('attendanceDisplay');
+    var lockState = false;
     if (displayMode === null) { displayMode = DISPLAY_BOTH; }
     updateDisplayButton();
     var employee = $.urlParam('employee');
@@ -349,29 +354,77 @@ $(document).ready(function(){
             $("#l-sum-paid-obstacle").html(summary_calculated.paid_obstacle);
             $("#l-sum-difference").html(summary_calculated.difference);
 
-            const summary_saved = result[0].summary_saved;
-            $("#-sum-days").html(summary_saved.days);
-            $("#sum-night").html(summary_saved.night);
-            $("#sum-afternoon").html(summary_saved.afternoon);
-            $("#sum-saturday").html(summary_saved.saturday);
-            $("#sum-sunday").html(summary_saved.sunday);
-            $("#sum-holiday").html(summary_saved.holiday);
-            $("#sum-doctor").html(summary_saved.doctor);
-            $("#sum-vacation").html(summary_saved.vacation);
-            $("#sum-sick-care").html(summary_saved.sick_care);
-            $("#sum-sick-leave").html(summary_saved.sick_leave);
-            $("#sum-unpaid").html(summary_saved.unpaid_leave);
-            $("#sum-paid-obstacle").html(summary_saved.paid_obstacle);
-            $("#sum-difference").html(summary_saved.difference);
+            let summary_saved = result[0].summary_saved;
+            var hasSaved = summary_saved.month !== null;
+            if (!hasSaved) { summary_saved = Object.assign({}, summary_calculated); }
+            $("#sum-locked-user-name").html(summary_saved.locked_user_name);
+            $("#sum-days").val(summary_saved.days);
+            $("#sum-night").val(summary_saved.night);
+            $("#sum-afternoon").val(summary_saved.afternoon);
+            $("#sum-saturday").val(summary_saved.saturday);
+            $("#sum-sunday").val(summary_saved.sunday);
+            $("#sum-holiday").val(summary_saved.holiday);
+            $("#sum-doctor").val(summary_saved.doctor);
+            $("#sum-vacation").val(summary_saved.vacation);
+            $("#sum-sick-care").val(summary_saved.sick_care);
+            $("#sum-sick-leave").val(summary_saved.sick_leave);
+            $("#sum-unpaid").val(summary_saved.unpaid_leave);
+            $("#sum-paid-obstacle").val(summary_saved.paid_obstacle);
+            $("#sum-difference").val(summary_saved.difference);
 
-/*
-            $("#l-sum-difference"></td> <td><input type="text" class="form-control" id="sum-difference" name="sum-difference"></input></td> <td>hours</td> </tr>
-*/
+            lockState = summary_saved.locked;
+            $("#lock-info").text(summary_saved.locked ? summary_saved.locked_user_name : "");
+            $("#btn-lock").prop("disabled", !hasSaved || summary_saved.locked);
+            $("#btn-unlock").prop("disabled", !summary_saved.locked);
+            $("#btn-lock").toggle(!summary_saved.locked);
+            $("#btn-unlock").toggle(summary_saved.locked);
+            $("#btn-save").toggle(!summary_saved.locked);
+            $(".summary-input").prop("disabled", summary_saved.locked);
+            $("#btn-unlock").prop("disabled", !summary_saved.locked);
+
+            $("#sum-days").prop('disabled', summary_saved.locked);
+            $("#sum-night").prop('disabled', summary_saved.locked);
+            $("#sum-afternoon").prop('disabled', summary_saved.locked);
+            $("#sum-saturday").prop('disabled', summary_saved.locked);
+            $("#sum-sunday").prop('disabled', summary_saved.locked);
+            $("#sum-holiday").prop('disabled', summary_saved.locked);
+            $("#sum-doctor").prop('disabled', summary_saved.locked);
+            $("#sum-vacation").prop('disabled', summary_saved.locked);
+            $("#sum-sick-care").prop('disabled', summary_saved.locked);
+            $("#sum-sick-leave").prop('disabled', summary_saved.locked);
+            $("#sum-unpaid").prop('disabled', summary_saved.locked);
+            $("#sum-paid-obstacle").prop('disabled', summary_saved.locked);
+            $("#sum-difference").prop('disabled', summary_saved.locked);
+
             $('#spinner').hide();
             updateDisplay();
             };
         api.attendanceChecklist(employee, month);
         };
+    function collectSummary() {
+        return {
+            employee: parseInt(employee),
+            month: month,
+            days: parseInt($("#sum-days").val()) || 0,
+            arrival: parseFloat($("#sum-hours").val()) || 0,
+            night: parseFloat($("#sum-night").val()) || 0,
+            afternoon: parseFloat($("#sum-afternoon").val()) || 0,
+            saturday: parseFloat($("#sum-saturday").val()) || 0,
+            sunday: parseFloat($("#sum-sunday").val()) || 0,
+            holiday: parseFloat($("#sum-holiday").val()) || 0,
+            doctor: parseFloat($("#sum-doctor").val()) || 0,
+            vacation: parseFloat($("#sum-vacation").val()) || 0,
+            sick_care: parseFloat($("#sum-sick-care").val()) || 0,
+            sick_leave: parseFloat($("#sum-sick-leave").val()) || 0,
+            unpaid_leave: parseFloat($("#sum-unpaid").val()) || 0,
+            paid_obstacle: parseFloat($("#sum-paid-obstacle").val()) || 0,
+            locked: lockState,
+            locked_user: userId()
+        };
+    }
+    $("#btn-save").click(function(){ if (!userAdmin()) return; var apiS=new Api(); apiS.onFinished=function(){ location.reload(); }; apiS.saveAttendanceSummary(collectSummary()); });
+    $("#btn-lock").click(function(){ if (!userAdmin()) return; lockState=true; $("#btn-save").click(); });
+    $("#btn-unlock").click(function(){ if (!userAdmin()) return; lockState=false; $("#btn-save").click(); });
     apiE.eventtypes();
 
 });

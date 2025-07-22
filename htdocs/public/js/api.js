@@ -171,6 +171,8 @@ class Api {
             this.get("attendancechecklist", "employee=" + employee + "&month=" + month);
         }
         this.events = function(params) { if (typeof params === 'undefined') { this.get("events"); } else { this.get("events", params); } }
+        this.attendanceSummary = function(employee, month) { this.get("attendancesummary/" + month, "employee=" + employee); }
+        this.saveAttendanceSummary = function(a) { this.put("attendancesummary/", JSON.stringify(a)); }
         this.event = function(e) { this.get("events/" + e); }
         this.saveEvent = function(e) { this.put("events/", JSON.stringify(e)); }
         this.removeEvent = function(e) { this.delete("events/" + e); }

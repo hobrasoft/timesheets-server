@@ -3856,6 +3856,7 @@ QList<Dbt::AttendanceSummary> DatabasePluginPostgres::attendanceSummary(int empl
 }
 
 QVariant DatabasePluginPostgres::save(const Dbt::AttendanceSummary& data) {
+    PDEBUG << data.employee << data.month;
     MSqlQuery q(m_db);
     q.prepare(R"(select 1 from attendance.summary where employee = :employee and month = :month)");
     q.bindValue(":employee", data.employee);
