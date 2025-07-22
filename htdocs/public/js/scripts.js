@@ -231,3 +231,17 @@ $.urlParam = function(name) {
 };
 
 
+
+function attendanceMonth() {
+    var month = localStorage.getItem('attendanceMonth');
+    if (month === null) {
+        var d = new Date();
+        d.setDate(1);
+        month = d.toISOString().substring(0,10);
+    }
+    return month;
+}
+
+function setAttendanceMonth(month) {
+    localStorage.setItem('attendanceMonth', month);
+}
