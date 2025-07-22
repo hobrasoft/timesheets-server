@@ -23,7 +23,7 @@ create table attendance.summary (
     saturday                numeric,
     holiday                 numeric,
     locked                  boolean,
-    locked_user             integer not null references users("user") on update cascade on delete set null,
+    locked_user             integer references users("user") on update cascade on delete set null,
     primary key (employee, month)
 );
 

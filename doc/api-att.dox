@@ -160,9 +160,9 @@ Formát záznamu:
 
 @subsubsection apiatt-attendancesummary-get GET /attendancesummary
 
-Měříčový přehled docházky za zvolený měsíc. Dotaz lze omezit
-parametry `employee` (osobní číslo zaměstnance) a `month` ve tvaru
-`YYYY-MM`.
+Měsíční přehled docházky za zvolený měsíc. Dotaz se zadává pomocí
+query parametrů `employee` (osobní číslo zaměstnance) a `month`
+ve tvaru `YYYY-MM`.
 
 @code
 /api/v1/attendancesummary?employee=12&month=2023-07

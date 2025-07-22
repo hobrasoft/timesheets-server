@@ -14,13 +14,13 @@ ControllerAttendanceSummary::ControllerAttendanceSummary(HobrasoftHttpd::HttpCon
 void ControllerAttendanceSummary::serviceList(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
     int employee = request->parameter("employee").toInt();
     QString smonth = request->parameter("month");
-    QDate month = QDate::fromString(smonth, "yyyy-MM-dd");
+    QDate month = QDate::fromString(smonth + "-01", "yyyy-MM-dd");
     serviceOK(request, response, toList(db()->attendanceSummary(employee, month)));
 }
 
 
 void ControllerAttendanceSummary::serviceIdGet(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QString &id) {
-    QDate month = QDate::fromString(id, "yyyy-MM-dd");
+    QDate month = QDate::fromString(id + "-01", "yyyy-MM-dd");
     int employee = request->parameter("employee").toInt();
     auto list = db()->attendanceSummary(employee, month);
     if (list.isEmpty()) {
@@ -44,7 +44,7 @@ void ControllerAttendanceSummary::serviceIdPost(HobrasoftHttpd::HttpRequest *req
 
 
 void ControllerAttendanceSummary::serviceIdDelete(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response, const QString &id) {
-    QDate month = QDate::fromString(id, "yyyy-MM-dd");
+    QDate month = QDate::fromString(id + "-01", "yyyy-MM-dd");
     int employee = request->parameter("employee").toInt();
     Dbt::AttendanceSummary x;
     x.month = month;
