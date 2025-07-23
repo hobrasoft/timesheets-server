@@ -3924,4 +3924,41 @@ QVariant DatabasePluginPostgres::save(const Dbt::AttendanceSummary& data) {
     return QVariant();
 }
 
+QList<Dbt::AttendancePresent> DatabasePluginPostgres::attendancePresent() {
+    QList<Dbt::AttendancePresent> list;
+    MSqlQuery q(m_db);
+    q.prepare(R"'(
+        select p.employee, p.firstname, p.surname, p.active, p."user",
+               coalesce(u.login, '') as login,
+               p.work_hours_mode, p.rounding_interval,
+               p.saturdays_paid, p.sundays_paid, p.auto_breaks, p.overtime_paid,
+               p.date, p.event_type, p.present
+          from attendance.present p
+          left join users u on u."user" = p."user"
+          order by p.surname, p.firstname
+        )'");
+    q.exec();
+    while (q.next()) {
+        int i = 0;
+        Dbt::AttendancePresent x;
+        x.employee.employee  = q.value(i++).toInt();
+        x.employee.firstname = q.value(i++).toString();
+        x.employee.surname   = q.value(i++).toString();
+        x.employee.active    = q.value(i++).toBool();
+        x.employee.user      = q.value(i++).toInt();
+        x.employee.login     = q.value(i++).toString();
+        x.employee.work_hours_mode   = q.value(i++).toString();
+        x.employee.rounding_interval = q.value(i++).toString();
+        x.employee.saturdays_paid    = q.value(i++).toBool();
+        x.employee.sundays_paid      = q.value(i++).toBool();
+        x.employee.auto_breaks       = q.value(i++).toBool();
+        x.employee.overtime_paid     = q.value(i++).toBool();
+        x.date       = q.value(i++).toDateTime();
+        x.event_type = q.value(i++).toString();
+        x.present    = q.value(i++).toBool();
+        list << x;
+    }
+    return list;
+}
+
 

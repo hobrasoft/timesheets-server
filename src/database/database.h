@@ -110,6 +110,7 @@ class Database : public QObject {
 
     QList<Dbt::AttendanceChecklist>         attendanceChecklist(int employee, const QDate& month);
     QList<Dbt::AttendanceSummary>           attendanceSummary(int employee, const QDate& month);
+    QList<Dbt::AttendancePresent>           attendancePresent();
 
     QVariant                                save(const Dbt::AttendanceSummary& data);
 

@@ -778,6 +778,16 @@ struct AttendanceChecklist {
 };
 
 
+struct AttendancePresent {
+    Dbt::Employees  employee;
+    QDateTime       date;
+    QString         event_type;
+    bool            present;
+    static AttendancePresent fromMap(const QVariantMap&);
+    QVariantMap toMap() const;
+};
+
+
 }
 
 #endif

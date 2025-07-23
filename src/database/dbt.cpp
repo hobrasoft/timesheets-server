@@ -916,4 +916,22 @@ AttendanceChecklist AttendanceChecklist::fromMap(const QVariantMap& data) {
     return x;
 }
 
+QVariantMap AttendancePresent::toMap() const {
+    QVariantMap data;
+    data["employee"] = employee.toMap();
+    data["date"] = date;
+    data["event_type"] = event_type;
+    data["present"] = present;
+    return data;
+}
+
+AttendancePresent AttendancePresent::fromMap(const QVariantMap& data) {
+    AttendancePresent x;
+    x.employee = Employees::fromMap(data["employee"].toMap());
+    x.date = data["date"].toDateTime();
+    x.event_type = data["event_type"].toString();
+    x.present = data["present"].toBool();
+    return x;
+}
+
 

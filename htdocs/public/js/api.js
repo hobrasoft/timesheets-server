@@ -170,6 +170,7 @@ class Api {
         this.attendanceChecklist = function(employee, month) {
             this.get("attendancechecklist", "employee=" + employee + "&month=" + month);
         }
+        this.attendancePresent = function() { this.get("attendancepresent"); }
         this.events = function(params) { if (typeof params === 'undefined') { this.get("events"); } else { this.get("events", params); } }
         this.attendanceSummary = function(employee, month) {
             this.get("attendancesummary", "employee=" + employee + "&month=" + month);

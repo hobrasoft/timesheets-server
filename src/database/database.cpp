@@ -387,6 +387,10 @@ QList<Dbt::AttendanceSummary> Database::attendanceSummary(int employee, const QD
     return m_dbplugin->attendanceSummary(employee, month);
 }
 
+QList<Dbt::AttendancePresent> Database::attendancePresent() {
+    return m_dbplugin->attendancePresent();
+}
+
 QVariant Database::save(const Dbt::AttendanceSummary& data) {
     return m_dbplugin->save(data);
 }
