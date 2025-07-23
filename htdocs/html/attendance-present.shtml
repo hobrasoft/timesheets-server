@@ -24,10 +24,15 @@ $(document).ready(function(){
         $('#list-present').empty();
         $('#list-absent').empty();
         for(var i=0; i<result.length; i++){
-            var li = $('<li class="list-group-item"></li>');
-            li.text(result[i].employee.firstname + ' ' + result[i].employee.surname);
+            var li = $('<li class="list-group-item d-flex justify-content-between"></li>');
+            var name = $('<span></span>');
+            name.text(result[i].employee.firstname + ' ' + result[i].employee.surname);
+            var date = $('<span class="attendance-date"></span>');
+            date.text(result[i].date.formatYYYYMMDDHHMM());
+            li.append(name);
+            li.append(date);
             if (result[i].present) { $('#list-present').append(li); }
-            else { $('#list-absent').append(li); }
+            else { li.addClass('text-muted'); $('#list-absent').append(li); }
         }
         $('#spinner').hide();
     };

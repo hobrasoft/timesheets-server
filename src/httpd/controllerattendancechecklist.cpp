@@ -8,11 +8,15 @@ using namespace Httpd;
 ControllerAttendanceChecklist::ControllerAttendanceChecklist(HobrasoftHttpd::HttpConnection *parent)
     : AbstractController(parent) {}
 
-void ControllerAttendanceChecklist::serviceList(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response)
-{
+
+void ControllerAttendanceChecklist::serviceList(HobrasoftHttpd::HttpRequest *request, HobrasoftHttpd::HttpResponse *response) {
     int employee = request->parameter("employee").toInt();
     QString smonth = request->parameter("month");
     QDate month = QDate::fromString(smonth, "yyyy-MM-dd");
+    if (employee == 0) {
+        serviceOK(request, response, toList(db()->attendanceChecklist(month)));
+        return;
+        }
     serviceOK(request, response, toList(db()->attendanceChecklist(employee, month)));
 }
 

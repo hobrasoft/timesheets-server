@@ -3313,6 +3313,7 @@ QVariant DatabasePluginPostgres::save(const Dbt::Holidays& data) {
     return data.date;
 }
 
+
 QVariant DatabasePluginPostgres::save(const Dbt::WorkCalendar& data) {
     MSqlQuery q(m_db);
     q.prepare(R"'(select 1 from attendance.work_calendar where period = :key)'");
@@ -3331,6 +3332,72 @@ QVariant DatabasePluginPostgres::save(const Dbt::WorkCalendar& data) {
     q.exec();
     return data.period;
 }
+
+
+QList<Dbt::Employees>  DatabasePluginPostgres::attendanceChecklist(const QDate& month) { 
+    QList<Dbt::Employees> list;
+    MSqlQuery q(m_db);
+    q.prepare(R"'(
+        with params as (
+            select
+                :user::integer as "user",
+                :month::date as month
+        ),
+
+        employees_list as (
+            select employee
+                from attendance.events e
+                join params p on true
+                join attendance.event_types et using (event_type)
+                where e.valid 
+                  and e.date >= p.month
+                  and e.date < p.month + '1month'::interval
+                  and not et.passage        -- průchody nebrad
+                  and not et.end_state      -- ukončení nebrat
+                group by employee
+        ),
+
+        employees_accessible as (
+            select distinct employee
+                from attendance.department_has_manager man, 
+                     attendance.department_has_member mem  
+                where man."user" = 1  
+                  and man.department = mem.department
+
+        )
+
+        select e.employee, e.firstname, e.surname, e.active, e."user", coalesce(u.login, '') as login,
+               e.work_hours_mode, e.rounding_interval,
+               e.saturdays_paid, e.sundays_paid, e.auto_breaks, e.overtime_paid
+            from employees_list el
+            join employees_accessible ea using (employee)
+            left join attendance.employees e using (employee)
+            where e.active
+            order by e.surname, e.firstname
+        ;)'");
+    q.bindValue(":userid", userId());
+    q.bindValue(":month", month);
+    q.exec();
+    while (q.next()) {
+        Dbt::Employees x;
+        int i=0;
+        x.employee  = q.value(i++).toInt();
+        x.firstname = q.value(i++).toString();
+        x.surname   = q.value(i++).toString();
+        x.active    = q.value(i++).toBool();
+        x.user              = q.value(i++).toInt();
+        x.login             = q.value(i++).toString();
+        x.work_hours_mode   = q.value(i++).toString();
+        x.rounding_interval = q.value(i++).toString();
+        x.saturdays_paid    = q.value(i++).toBool();
+        x.sundays_paid      = q.value(i++).toBool();
+        x.auto_breaks       = q.value(i++).toBool();
+        x.overtime_paid     = q.value(i++).toBool();
+        list << x;
+        }
+    return list;
+}
+
 
 QList<Dbt::AttendanceChecklist>  DatabasePluginPostgres::attendanceChecklist(int employee, const QDate& month) { 
     QList<Dbt::AttendanceChecklist> list;

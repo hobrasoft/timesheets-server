@@ -109,6 +109,7 @@ class Database : public QObject {
     QList<Dbt::DepartmentHasManager>        departmentHasManager(const Dbt::DepartmentHasManager&);
 
     QList<Dbt::AttendanceChecklist>         attendanceChecklist(int employee, const QDate& month);
+    QList<Dbt::Employees>                   attendanceChecklist(const QDate& month);
     QList<Dbt::AttendanceSummary>           attendanceSummary(int employee, const QDate& month);
     QList<Dbt::AttendancePresent>           attendancePresent();
 
