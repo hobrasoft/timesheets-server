@@ -1,0 +1,38 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<div id="spinner" class="spinner-border screen-spinner" style="width: 3em; height: 3em;" role="status"></div>
+
+<div class="container">
+    <h2>Attendance - present employees</h2>
+    <div class="row">
+        <div class="col">
+            <h4>Present</h4>
+            <ul class="list-group" id="list-present"></ul>
+        </div>
+        <div class="col">
+            <h4>Absent</h4>
+            <ul class="list-group" id="list-absent"></ul>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function(){
+    var api = new Api();
+    api.onFinished = function(result){
+        $('#list-present').empty();
+        $('#list-absent').empty();
+        for(var i=0; i<result.length; i++){
+            var li = $('<li class="list-group-item"></li>');
+            li.text(result[i].employee.firstname + ' ' + result[i].employee.surname);
+            if (result[i].present) { $('#list-present').append(li); }
+            else { $('#list-absent').append(li); }
+        }
+        $('#spinner').hide();
+    };
+    api.attendancePresent();
+});
+</script>
+
+<!-- #include '/inc/footer.html' -->
