@@ -1,0 +1,138 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<div id="spinner" class="spinner-border screen-spinner" style="width: 3em; height: 3em;" role="status"></div>
+
+<div class="container">
+    <h2>Attendance summary</h2>
+
+    <div class="mb-2" id="month-nav" style="display:none;">
+        <button id="prev-month" class="btn btn-sm btn-secondary">&lt;</button>
+        <span id="selected-month" class="mx-2"></span>
+        <button id="next-month" class="btn btn-sm btn-secondary">&gt;</button>
+    </div>
+
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr class="table-info">
+                <th>Month</th>
+                <th>Employee</th>
+                <th style="text-align:right;">Days</th>
+                <th style="text-align:right;">Work</th>
+                <th style="text-align:right;">Vacation</th>
+                <th style="text-align:right;">Sick leave</th>
+                <th style="text-align:right;">Comp. leave</th>
+                <th style="text-align:right;">Business trip</th>
+                <th style="text-align:right;">Break</th>
+                <th style="text-align:right;">Unpaid</th>
+                <th style="text-align:right;">Sick care</th>
+                <th style="text-align:right;">Paid obstacle</th>
+                <th style="text-align:right;">Doctor</th>
+                <th style="text-align:right;">Afternoon</th>
+                <th style="text-align:right;">Night</th>
+                <th style="text-align:right;">Saturday</th>
+                <th style="text-align:right;">Sunday</th>
+                <th style="text-align:right;">Holiday</th>
+                <th style="text-align:right;">Working days</th>
+                <th style="text-align:right;">Holidays</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            <tr id="template-summary" style="display:none;">
+                <td><span class="summary-month"></span></td>
+                <td><a class="summary-employee"></a></td>
+                <td class="summary-days" style="text-align:right;"></td>
+                <td class="summary-work" style="text-align:right;"></td>
+                <td class="summary-vacation" style="text-align:right;"></td>
+                <td class="summary-sick_leave" style="text-align:right;"></td>
+                <td class="summary-compensatory_leave" style="text-align:right;"></td>
+                <td class="summary-business_trip" style="text-align:right;"></td>
+                <td class="summary-break_time" style="text-align:right;"></td>
+                <td class="summary-unpaid_leave" style="text-align:right;"></td>
+                <td class="summary-sick_care" style="text-align:right;"></td>
+                <td class="summary-paid_obstacle" style="text-align:right;"></td>
+                <td class="summary-doctor" style="text-align:right;"></td>
+                <td class="summary-afternoon" style="text-align:right;"></td>
+                <td class="summary-night" style="text-align:right;"></td>
+                <td class="summary-saturday" style="text-align:right;"></td>
+                <td class="summary-sunday" style="text-align:right;"></td>
+                <td class="summary-holiday" style="text-align:right;"></td>
+                <td class="summary-calendar_working_days" style="text-align:right;"></td>
+                <td class="summary-calendar_holidays" style="text-align:right;"></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+$(document).ready(function(){
+
+    function setNavDates(){
+        var d = new Date(month);
+        $('#selected-month').text(d.formatYYYYMM());
+        var pm = new Date(d); pm.setMonth(d.getMonth()-1); pm.setDate(1);
+        var nm = new Date(d); nm.setMonth(d.getMonth()+1); nm.setDate(1);
+        $('#prev-month').data('month', pm.toISOString().substring(0,10));
+        $('#next-month').data('month', nm.toISOString().substring(0,10));
+        $('#month-nav').show();
+        }
+
+    var employee = $.urlParam('employee');
+    var month = $.urlParam('month');
+    if (month === null) {
+        month = attendanceMonth();
+      } else {
+        setAttendanceMonth(month);
+        }
+    if (employee === null) { employee = 0; }
+    setNavDates();
+    $('#prev-month').click(function(e){
+        e.preventDefault();
+        month = $(this).data('month');
+        localStorage.setItem('attendanceMonth', month);
+        window.location.search = '?employee=' + employee + '&month=' + month;
+        });
+    $('#next-month').click(function(e){
+        e.preventDefault();
+        month = $(this).data('month');
+        localStorage.setItem('attendanceMonth', month);
+        window.location.search = '?employee=' + employee + '&month=' + month;
+        });
+
+
+    var api = new Api();
+    api.onFinished = function(result){
+        for(var i=0; i<result.length; i++){
+            var x = $('#template-summary').clone();
+            x.find('.summary-month').html(result[i].month.formatYYYYMM());
+            x.find('.summary-employee').html(result[i].firstname + ' ' + result[i].surname);
+            x.find('.summary-days').html(result[i].days);
+            x.find('.summary-work').html(result[i].arrival);
+            x.find('.summary-vacation').html(result[i].vacation);
+            x.find('.summary-sick_leave').html(result[i].sick_leave);
+            x.find('.summary-compensatory_leave').html(result[i].compensatory_leave);
+            x.find('.summary-business_trip').html(result[i].business_trip);
+            x.find('.summary-break_time').html(result[i].break_time);
+            x.find('.summary-unpaid_leave').html(result[i].unpaid_leave);
+            x.find('.summary-sick_care').html(result[i].sick_care);
+            x.find('.summary-paid_obstacle').html(result[i].paid_obstacle);
+            x.find('.summary-doctor').html(result[i].doctor);
+            x.find('.summary-afternoon').html(result[i].afternoon);
+            x.find('.summary-night').html(result[i].night);
+            x.find('.summary-saturday').html(result[i].saturday);
+            x.find('.summary-sunday').html(result[i].sunday);
+            x.find('.summary-holiday').html(result[i].holiday);
+            x.find('.summary-calendar_working_days').html(result[i].calendar_working_days);
+            x.find('.summary-calendar_holidays').html(result[i].calendar_holidays);
+            var href="attendance-checklist.shtml?employee="+result[i].employee;
+            x.find('.summary-employee').attr("href", href);
+            $('#tbody').append(x);
+            x.show();
+        }
+        $('#spinner').hide();
+    };
+    api.attendanceSummary(employee, month);
+});
+</script>
+
+<!-- #include '/inc/footer.html' -->

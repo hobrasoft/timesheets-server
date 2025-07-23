@@ -107,6 +107,13 @@ Date.prototype.formatYYYYMMDD = function() {
     return yy.pad(4)+"-"+mt.pad(2)+"-"+dd.pad(2);
     }
 
+Date.prototype.formatYYYYMM = function() {
+    if (isNaN(this.getTime())) { return ""; }
+    var yy = this.getFullYear();
+    var mt = this.getMonth() + 1;
+    return yy.pad(4)+"-"+mt.pad(2);
+    }
+
 Date.prototype.formatHHMM = function() {
     if (isNaN(this.getTime())) { return ""; }
     var hh = this.getHours();
@@ -148,6 +155,11 @@ String.prototype.formatYYYYMMDDHHMM = function() {
 String.prototype.formatYYYYMMDD = function() {
     var date = new Date(this);
     return date.formatYYYYMMDD();
+    }
+
+String.prototype.formatYYYYMM = function() {
+    var date = new Date(this);
+    return date.formatYYYYMM();
     }
 
 String.prototype.formatHHMM = function() {
