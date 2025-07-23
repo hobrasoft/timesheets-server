@@ -89,13 +89,13 @@ $(document).ready(function(){
     $('#prev-month').click(function(e){
         e.preventDefault();
         month = $(this).data('month');
-        localStorage.setItem('attendanceMonth', month);
+        setAttendanceMonth(month);
         window.location.search = '?employee=' + employee + '&month=' + month;
         });
     $('#next-month').click(function(e){
         e.preventDefault();
         month = $(this).data('month');
-        localStorage.setItem('attendanceMonth', month);
+        setAttendanceMonth(month);
         window.location.search = '?employee=' + employee + '&month=' + month;
         });
 

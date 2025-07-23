@@ -1,0 +1,66 @@
+<!-- #include '/inc/header.html' -->
+<!-- #include '/inc/navbar.html' -->
+
+<div id="spinner" class="spinner-border screen-spinner" style="width: 3em; height: 3em;" role="status"></div>
+
+<div class="container">
+    <h2>Attendance checklists</h2>
+    <div class="mb-2" id="month-nav" style="display:none;">
+        <button id="prev-month" class="btn btn-sm btn-secondary">&lt;</button>
+        <span id="selected-month" class="mx-2"></span>
+        <button id="next-month" class="btn btn-sm btn-secondary">&gt;</button>
+    </div>
+    <ul class="list-group" id="list-checklists"></ul>
+</div>
+
+<script>
+$(document).ready(function(){
+    var month = $.urlParam('month');
+    if (month === null) {
+        month = attendanceMonth();
+      } else {
+        setAttendanceMonth(month);
+        }
+
+    function setNavDates(){
+        var d = new Date(month);
+        $('#selected-month').text(d.formatYYYYMM());
+        var pm = new Date(d); pm.setMonth(d.getMonth()-1); pm.setDate(1);
+        var nm = new Date(d); nm.setMonth(d.getMonth()+1); nm.setDate(1);
+        $('#prev-month').data('month', pm.toISOString().substring(0,10));
+        $('#next-month').data('month', nm.toISOString().substring(0,10));
+        $('#month-nav').show();
+        }
+    setNavDates();
+
+    $('#prev-month').click(function(e){
+        e.preventDefault();
+        month = $(this).data('month');
+        setAttendanceMonth(month);
+        window.location.search = '?month=' + month;
+        });
+    $('#next-month').click(function(e){
+        e.preventDefault();
+        month = $(this).data('month');
+        setAttendanceMonth(month);
+        window.location.search = '?month=' + month;
+        });
+
+    var api = new Api();
+    api.onFinished = function(result){
+        $('#list-checklists').empty();
+        for (var i=0; i<result.length; i++){
+            var li = $('<li class="list-group-item"></li>');
+            var a = $('<a></a>');
+            a.text(result[i].firstname + ' ' + result[i].surname);
+            a.attr('href', 'attendance-checklist.shtml?employee=' + result[i].employee + '&month=' + month);
+            li.append(a);
+            $('#list-checklists').append(li);
+        }
+        $('#spinner').hide();
+    };
+    api.attendanceChecklists(month);
+});
+</script>
+
+<!-- #include '/inc/footer.html' -->

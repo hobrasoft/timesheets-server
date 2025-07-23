@@ -3360,8 +3360,9 @@ QList<Dbt::Employees>  DatabasePluginPostgres::attendanceChecklist(const QDate& 
         employees_accessible as (
             select distinct employee
                 from attendance.department_has_manager man, 
-                     attendance.department_has_member mem  
-                where man."user" = 1  
+                     attendance.department_has_member mem,
+                     params p
+                where man."user" = p."user"
                   and man.department = mem.department
 
         )
@@ -3372,10 +3373,11 @@ QList<Dbt::Employees>  DatabasePluginPostgres::attendanceChecklist(const QDate& 
             from employees_list el
             join employees_accessible ea using (employee)
             left join attendance.employees e using (employee)
+            left join users u using ("user")
             where e.active
             order by e.surname, e.firstname
         ;)'");
-    q.bindValue(":userid", userId());
+    q.bindValue(":user", userId());
     q.bindValue(":month", month);
     q.exec();
     while (q.next()) {

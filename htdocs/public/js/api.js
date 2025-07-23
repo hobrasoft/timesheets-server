@@ -167,14 +167,11 @@ class Api {
         this.saveWorkCalendar = function(w) { this.put("workcalendar/", JSON.stringify(w)); }
         this.removeWorkCalendar = function(p) { this.delete("workcalendar/" + p); }
         this.generateWorkCalendar = function(y) { this.get("workcalendar/generate/" + y); }
-        this.attendanceChecklist = function(employee, month) {
-            this.get("attendancechecklist", "employee=" + employee + "&month=" + month);
-        }
+        this.attendanceChecklist = function(employee, month) { this.get("attendancechecklist", "employee=" + employee + "&month=" + month); }
+        this.attendanceChecklists = function(month) { this.get("attendancechecklist", "month=" + month); }
         this.attendancePresent = function() { this.get("attendancepresent"); }
         this.events = function(params) { if (typeof params === 'undefined') { this.get("events"); } else { this.get("events", params); } }
-        this.attendanceSummary = function(employee, month) {
-            this.get("attendancesummary", "employee=" + employee + "&month=" + month);
-        }
+        this.attendanceSummary = function(employee, month) { this.get("attendancesummary", "employee=" + employee + "&month=" + month); }
         this.saveAttendanceSummary = function(a) { this.put("attendancesummary/", JSON.stringify(a)); }
         this.event = function(e) { this.get("events/" + e); }
         this.saveEvent = function(e) { this.put("events/", JSON.stringify(e)); }
