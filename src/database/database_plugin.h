@@ -111,6 +111,7 @@ class DatabasePlugin : public QObject {
     virtual QList<Dbt::Employees>                   attendanceChecklist(const QDate& month) { Q_UNUSED(month); return QList<Dbt::Employees>(); }
     virtual QList<Dbt::AttendanceSummary>           attendanceSummary(int employee, const QDate& month) { Q_UNUSED(employee); Q_UNUSED(month); return QList<Dbt::AttendanceSummary>(); }
     virtual QList<Dbt::AttendancePresent>           attendancePresent() { return QList<Dbt::AttendancePresent>(); }
+    virtual bool                                    canAccessAttendance(int employee) { Q_UNUSED(employee); return false; }
 
     virtual void remove(const Dbt::Users& data) { Q_UNUSED(data); }
     virtual void remove(const Dbt::UsersCategories& data) { Q_UNUSED(data); }

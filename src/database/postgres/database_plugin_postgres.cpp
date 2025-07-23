@@ -3334,6 +3334,46 @@ QVariant DatabasePluginPostgres::save(const Dbt::WorkCalendar& data) {
 }
 
 
+bool DatabasePluginPostgres::canAccessAttendance(int employee) {
+    MSqlQuery q(m_db);
+    q.prepare(R"'(
+        with params as (
+            select :user::integer as "user",
+                   :employee::integer as "employee"
+        ),
+
+        employee_in_my_departments as (
+            select distinct mem.employee
+                from attendance.department_has_manager man,
+                     attendance.department_has_member mem,
+                     attendance.employees e,
+                     params p
+                where mem.employee = e.employee
+                  and mem.employee = p.employee
+                  and man."user" = p."user"
+                  and man.department = mem.department
+        ),
+
+        employee_in_my_user as (
+            select distinct e.employee
+              from attendance.employees e,
+                   params p
+              where e."user" = p."user"
+                and e.employee = p.employee
+        )
+
+        select employee from employee_in_my_departments
+        union all
+        select employee from employee_in_my_user
+
+        ;)'");
+    q.bindValue(":user", userId());
+    q.bindValue(":employee", employee);
+    q.exec();
+    return q.next();
+}
+
+
 QList<Dbt::Employees>  DatabasePluginPostgres::attendanceChecklist(const QDate& month) { 
     QList<Dbt::Employees> list;
     MSqlQuery q(m_db);

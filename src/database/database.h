@@ -113,6 +113,8 @@ class Database : public QObject {
     QList<Dbt::AttendanceSummary>           attendanceSummary(int employee, const QDate& month);
     QList<Dbt::AttendancePresent>           attendancePresent();
 
+    bool                                    canAccessAttendance(int employee);
+
     QVariant                                save(const Dbt::AttendanceSummary& data);
 
     template<typename T> QVariant save(const T& id) { return m_dbplugin->save(id); }
