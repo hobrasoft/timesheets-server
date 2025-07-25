@@ -3334,7 +3334,7 @@ QVariant DatabasePluginPostgres::save(const Dbt::WorkCalendar& data) {
 }
 
 
-bool DatabasePluginPostgres::canAccessAttendance(int employee) {
+Dbt::UserEmployeeAccess DatabasePluginPostgres::canAccessAttendance(int employee) {
     MSqlQuery q(m_db);
     q.prepare(R"'(
         with params as (
@@ -3343,7 +3343,7 @@ bool DatabasePluginPostgres::canAccessAttendance(int employee) {
         ),
 
         employee_in_my_departments as (
-            select distinct mem.employee
+            select distinct mem.employee, true as allowed
                 from attendance.department_has_manager man,
                      attendance.department_has_member mem,
                      attendance.employees e,
@@ -3355,22 +3355,31 @@ bool DatabasePluginPostgres::canAccessAttendance(int employee) {
         ),
 
         employee_in_my_user as (
-            select distinct e.employee
+            select distinct e.employee, true as allowed
               from attendance.employees e,
                    params p
               where e."user" = p."user"
                 and e.employee = p.employee
         )
 
-        select employee from employee_in_my_departments
-        union all
-        select employee from employee_in_my_user
+        select p.employee,
+               p."user",
+            coalesce((select allowed from employee_in_my_departments), false) as can_write,
+            coalesce((select allowed from employee_in_my_user), false) as can_read
+        from params p
 
         ;)'");
     q.bindValue(":user", userId());
     q.bindValue(":employee", employee);
     q.exec();
-    return q.next();
+    Dbt::UserEmployeeAccess x;
+    x.user = userId();
+    x.employee = employee;
+    if (q.next()) {
+        x.can_write = q.value(2).toBool();
+        x.can_read  = q.value(3).toBool();
+        }
+    return x;
 }
 
 
@@ -3443,6 +3452,8 @@ QList<Dbt::Employees>  DatabasePluginPostgres::attendanceChecklist(const QDate& 
 
 QList<Dbt::AttendanceChecklist>  DatabasePluginPostgres::attendanceChecklist(int employee, const QDate& month) { 
     QList<Dbt::AttendanceChecklist> list;
+    Dbt::UserEmployeeAccess access = canAccessAttendance(employee);
+    if (!access.can_read) { return list; }
     MSqlQuery q(m_db);
     q.prepare(R"'(
         with 
@@ -3688,6 +3699,7 @@ QList<Dbt::AttendanceChecklist>  DatabasePluginPostgres::attendanceChecklist(int
 
     Dbt::AttendanceChecklist checklist;
     checklist.month = month;
+    checklist.can_write = access.can_write;
     while (q.next()) {
         int i=0;
         Dbt::AttendanceDays x;

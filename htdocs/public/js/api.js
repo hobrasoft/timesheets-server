@@ -2,7 +2,7 @@ class Api {
     constructor() {
         this.apiPath = "/api/v1/";
         this.onFinished = function(data) { }
-        this.onError = function(errorText) { console.log("error1: " + errorText); }
+        this.onError = function(request) { console.log("error1: " + request.responseText); }
         this.completeUrl = function(url, params) {
             // Android && KDE part
             if (typeof settings !== 'undefined') {
@@ -42,20 +42,18 @@ class Api {
             var rq = new XMLHttpRequest();
             var todleto = this;
             rq.onerror = function() {
-                console.log("error2: " + rq.responseText);
-                todleto.onError(rq.responseText);
+                todleto.onError(rq);
                 };
             rq.onreadystatechange = function() {
                 todleto.storeSessionExpires(rq.getResponseHeader("X-Session-Expires"));
                 if (rq.readyState === XMLHttpRequest.DONE && (rq.status == 200 || rq.status == 204)) {
                     todleto.onFinished(JSON.parse(rq.responseText));
                     }
-                if (rq.readyState === XMLHttpRequest.DONE && rq.status == 401) {
-                    todleto.onError('Unauthorized');
-                    }
-                if (rq.readyState === XMLHttpRequest.DONE && rq.status == 404) {
-                    todleto.onError('4040 Not found');
-                    }
+                if (rq.readyState === XMLHttpRequest.DONE && rq.status == 400) { todleto.onError(rq); }
+                if (rq.readyState === XMLHttpRequest.DONE && rq.status == 401) { todleto.onError(rq); }
+                if (rq.readyState === XMLHttpRequest.DONE && rq.status == 402) { todleto.onError(rq); }
+                if (rq.readyState === XMLHttpRequest.DONE && rq.status == 403) { todleto.onError(rq); }
+                if (rq.readyState === XMLHttpRequest.DONE && rq.status == 404) { todleto.onError(rq); }
                 };
             params = typeof params === 'undefined' ? '' : '?'+params;
             rq.open("GET", todleto.completeUrl(url,params), true);
@@ -66,15 +64,14 @@ class Api {
             var rq = new XMLHttpRequest();
             var todleto = this;
             rq.onerror = function() {
-                console.log("error3: " + rq.responseText);
-                todleto.onError(rq.responseText);
+                todleto.onError(rq);
                 };
             rq.onreadystatechange = function() {
                 if (rq.readyState === XMLHttpRequest.DONE && (rq.status == 200 || rq.status == 204)) {
                     todleto.onFinished(JSON.parse(rq.responseText));
                     }
                 if (rq.readyState === XMLHttpRequest.DONE && rq.status == 401) {
-                    todleto.onError('Unauthorized');
+                    todleto.onError(rq);
                     }
                 };
             rq.open("PUT", todleto.completeUrl(url), true);
@@ -86,15 +83,14 @@ class Api {
             var rq = new XMLHttpRequest();
             var todleto = this;
             rq.onerror = function() {
-                console.log("error4: " + rq.responseText);
-                todleto.onError(rq.responseText);
+                todleto.onError(rq);
                 };
             rq.onreadystatechange = function() {
                 if (rq.readyState === XMLHttpRequest.DONE && (rq.status == 200 || rq.status == 201)) {
                     todleto.onFinished(JSON.parse(rq.responseText));
                     }
                 if (rq.readyState === XMLHttpRequest.DONE && rq.status == 401) {
-                    todleto.onError('Unauthorized');
+                    todleto.onError(rq);
                     }
                 };
             // var completeUrl = (settings.useSSL ? "https://" : "http://") + settings.serverName + settings.apiPath + url + "?user=" + settings.username + "&password=" + settings.password;

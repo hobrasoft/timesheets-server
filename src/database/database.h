@@ -113,7 +113,7 @@ class Database : public QObject {
     QList<Dbt::AttendanceSummary>           attendanceSummary(int employee, const QDate& month);
     QList<Dbt::AttendancePresent>           attendancePresent();
 
-    bool                                    canAccessAttendance(int employee);
+    Dbt::UserEmployeeAccess                 canAccessAttendance(int employee);
 
     QVariant                                save(const Dbt::AttendanceSummary& data);
 

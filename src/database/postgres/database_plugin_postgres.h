@@ -130,7 +130,7 @@ class DatabasePluginPostgres : public Db::Plugins::DatabasePlugin {
     QList<Dbt::AttendanceChecklist>         attendanceChecklist(int employee, const QDate& month) Q_DECL_OVERRIDE;
     QList<Dbt::AttendanceSummary>           attendanceSummary(int employee, const QDate& month) Q_DECL_OVERRIDE;
     QList<Dbt::AttendancePresent>           attendancePresent() Q_DECL_OVERRIDE;
-    bool                                    canAccessAttendance(int employee) Q_DECL_OVERRIDE;
+    Dbt::UserEmployeeAccess                 canAccessAttendance(int employee) Q_DECL_OVERRIDE;
 
     virtual void remove(const Dbt::Departments& data) Q_DECL_OVERRIDE;
     virtual void remove(const Dbt::Doors& data) Q_DECL_OVERRIDE;

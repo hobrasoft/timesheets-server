@@ -399,6 +399,6 @@ QVariant Database::save(const Dbt::AttendanceSummary& data) {
     return m_dbplugin->save(data);
 }
 
-bool Database::canAccessAttendance(int employee) {
+Dbt::UserEmployeeAccess Database::canAccessAttendance(int employee) {
     return m_dbplugin->canAccessAttendance(employee);
 }

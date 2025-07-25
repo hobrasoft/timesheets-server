@@ -19,10 +19,11 @@ void ControllerAttendanceChecklist::serviceList(HobrasoftHttpd::HttpRequest *req
         return;
         }
 
-    if (!db()->canAccessAttendance(employee)) {
+    if (!db()->canAccessAttendance(employee).can_read) {
         serviceError(request, response, 403, tr("Permission denied"), tr("Cannot access this employee"));
         return;
         }
+
     serviceOK(request, response, toList(db()->attendanceChecklist(employee, month)));
 }
 

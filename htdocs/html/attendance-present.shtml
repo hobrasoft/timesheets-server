@@ -8,11 +8,31 @@
     <div class="row">
         <div class="col">
             <h4>Present</h4>
-            <ul class="list-group" id="list-present"></ul>
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr class="table-info">
+                        <th syle="text-align:right;">Name</th>
+                        <th syle="text-align:right;">Arrived</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-p">
+                    <tr id="template-p" style="display:none;"><td><a class="name"></a></td><td class="time"></td></tr>
+                </tbody>
+            </table>
         </div>
         <div class="col">
             <h4>Absent</h4>
-            <ul class="list-group" id="list-absent"></ul>
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr class="table-info">
+                        <th syle="text-align:right;">Name</th>
+                        <th syle="text-align:right;">Leaved</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-a">
+                    <tr id="template-a" style="display:none;"><td><a class="name"></a></td><td class="time"></td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -23,17 +43,17 @@ $(document).ready(function(){
     api.onFinished = function(result){
         $('#list-present').empty();
         $('#list-absent').empty();
-        for(var i=0; i<result.length; i++){
-            var li = $('<li class="list-group-item d-flex justify-content-between"></li>');
-            var name = $('<span></span>');
-            name.text(result[i].employee.firstname + ' ' + result[i].employee.surname);
-            var date = $('<span class="attendance-date"></span>');
-            date.text(result[i].date.formatYYYYMMDDHHMM());
-            li.append(name);
-            li.append(date);
-            if (result[i].present) { $('#list-present').append(li); }
-            else { li.addClass('text-muted'); $('#list-absent').append(li); }
-        }
+        for (var i=0; i<result.length; i++) {
+            const template = result[i].present ? "#template-p" : "#template-a";
+            const tbody = result[i].present ? "#tbody-p" : "#tbody-a";
+            var x = $(template).clone();
+            var href="attendance-checklist.shtml?employee="+result[i].employee.employee;
+            x.find('.name').attr("href", href);
+            x.find(".name").html(result[i].employee.firstname + ' ' + result[i].employee.surname);
+            x.find(".time").html(result[i].date.formatYYYYMMDDHHMM());
+            $(tbody).append(x);
+            x.show();
+            }
         $('#spinner').hide();
     };
     api.attendancePresent();

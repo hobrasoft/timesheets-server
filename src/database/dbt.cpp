@@ -898,6 +898,7 @@ QList<AttendanceDays> AttendanceDays::fromList(const QVariantList& list) {
 
 QVariantMap AttendanceChecklist::toMap() const {
     QVariantMap data;
+    data["can_write"] = can_write;
     data["month"] = month;
     data["employee"] = employee.toMap();
     data["days"] = toList(days);
@@ -908,6 +909,7 @@ QVariantMap AttendanceChecklist::toMap() const {
 
 AttendanceChecklist AttendanceChecklist::fromMap(const QVariantMap& data) {
     AttendanceChecklist x;
+    x.can_write = data["can_write"].toBool();
     x.month = data["month"].toDate();
     x.employee = Employees::fromMap(data["employee"].toMap());
     x.days = AttendanceDays::fromList(data["days"].toList());
@@ -933,5 +935,14 @@ AttendancePresent AttendancePresent::fromMap(const QVariantMap& data) {
     x.present = data["present"].toBool();
     return x;
 }
+
+QVariantMap UserEmployeeAccess::toMap() const {
+    QVariantMap data;
+    data["user"] = user;
+    data["employee"] = employee;
+    data["can_write"] = can_write;
+    data["can_read"] = can_read;
+    return data;
+};
 
 

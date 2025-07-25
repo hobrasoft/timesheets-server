@@ -769,12 +769,14 @@ struct AttendanceDays {
 
 struct AttendanceChecklist {
     QDate       month;
+    bool        can_write;
     Dbt::Employees              employee;
     QList<Dbt::AttendanceDays>  days;
     Dbt::AttendanceSummary      summary_calculated;
     Dbt::AttendanceSummary      summary_saved;
     static AttendanceChecklist fromMap(const QVariantMap&);
     QVariantMap toMap() const;
+    AttendanceChecklist() { can_write = false; }
 };
 
 
@@ -787,6 +789,15 @@ struct AttendancePresent {
     QVariantMap toMap() const;
 };
 
+
+struct UserEmployeeAccess {
+    int     user;
+    int     employee;
+    bool    can_write;
+    bool    can_read;
+    UserEmployeeAccess() { user = 0; employee = 0; can_write = false; can_read = false; }
+    QVariantMap toMap() const;
+};
 
 }
 

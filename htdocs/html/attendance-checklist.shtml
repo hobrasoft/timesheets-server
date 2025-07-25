@@ -3,7 +3,12 @@
 
 <div id="spinner" class="spinner-border screen-spinner" style="width: 3em; height: 3em;" role="status"></div>
 
-<div class="container">
+<div class="container" id="not-allowed-message" style="display:none">
+    <h2>You are not allowed to see this person</h2>
+    <button id="btn-back" class="btn btn-sm btn-secondary">Back</button>
+</div>
+
+<div class="container" id="checklist-container" style="display:none">
     <h2 id="page-title"></h2>
     <div class="mb-2" id="month-nav" style="display:none;">
         <button id="prev-month" class="btn btn-sm btn-secondary">&lt;</button>
@@ -244,7 +249,7 @@ $(document).ready(function(){
             etypes[item.event_type] = item;
             }
         var api = new Api();
-        api.onFinished = function(result){
+        api.onFinished = function(result) {
             var result0 = result[0];
             var d = new Date(result0.month);
             $('#page-title').html(result0.employee.firstname + ' ' + result0.employee.surname);
@@ -393,10 +398,17 @@ $(document).ready(function(){
             $("#sum-difference").prop('disabled', summary_saved.locked);
 
             $('#spinner').hide();
+            $("#checklist-container").show(); 
             updateDisplay();
+            };
+        api.onError = function(request) { 
+            $("#not-allowed-message").show();
+            $('#spinner').hide();
+            setTimeout(function() { window.history.back(); }, 2000);
             };
         api.attendanceChecklist(employee, month);
         };
+
     function collectSummary() {
         return {
             employee: parseInt(employee),
@@ -416,11 +428,13 @@ $(document).ready(function(){
             paid_obstacle: parseFloat($("#sum-paid-obstacle").val()) || 0,
             locked: lockState,
             locked_user: userId()
-        };
-    }
+            };
+        }
+
     $("#btn-save").click(function(){ if (!userAdmin()) return; var apiS=new Api(); apiS.onFinished=function(){ location.reload(); }; apiS.saveAttendanceSummary(collectSummary()); });
     $("#btn-lock").click(function(){ if (!userAdmin()) return; lockState=true; $("#btn-save").click(); });
     $("#btn-unlock").click(function(){ if (!userAdmin()) return; lockState=false; $("#btn-save").click(); });
+    $("#btn-back").click(function(){ window.history.back(); });
     apiE.eventtypes();
 
 });
